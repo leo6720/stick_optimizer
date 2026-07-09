@@ -1,0 +1,72 @@
+{
+    "global_settings": {
+        "sticks_per_beat": 12,
+        "max_pitch_shift_mm": 20.0,
+        "divider_width_mm": 7.5,
+        "pocket_wall_width_mm": 5.5,
+        "clearance_between_adjacent_sticks_mm": 1.0,
+        "clearance_stick_to_wall_or_divider_mm": 2.0,
+        "carton_B_extra_mm": 20.0,
+        "max_cartoner_pitch_mm": 300.0,
+        "pitch_step_mm": 5.0,
+        "number_of_results_to_show": 15,
+        "max_allowed_layers": 16,
+        "carton_AB_target": 1.5
+    },
+    "weights": {
+        "pocket_type_weight": 300.0,
+        "robot_head_type_weight": 200.0,
+        "layer_penalty_weight": 300.0,
+        "carryover_penalty_weight": 30.0,
+        "grouping_penalty_weight": 10.0,
+        "stability_penalty_weight": 30.0,
+        "cartoner_pitch_weight": 0.5,
+        "carton_ab_ratio_penalty_weight": 600.0
+    },
+    "stick_types": [
+        {
+            "stick_type_name": "STICK_B",
+            "stick_length_mm": 100.0,
+            "stick_width_mm": 26.0,
+            "stick_thickness_mm": 8.0,
+            "fin_length_mm": 5.0
+        }
+    ],
+    "formats": [
+        {
+            "format_name": "B_4",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 4
+        },
+        {
+            "format_name": "B_7",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 7
+        },
+        {
+            "format_name": "B_10",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 10
+        },
+        {
+            "format_name": "B_16",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 16
+        },
+        {
+            "format_name": "B_25",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 25
+        },
+        {
+            "format_name": "B_30",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 30
+        },
+        {
+            "format_name": "B_50",
+            "stick_type_name": "STICK_B",
+            "sticks_per_pocket": 50
+        }
+    ]
+}
