@@ -13,6 +13,17 @@ GROUPING_PENALTIES = {
     4: 2.0,
 }
 
+# Compartment layout: (grouping, dividers) -> [stick counts per compartment]
+COMPARTMENT_LAYOUT = {
+    (1, 0): [1],
+    (2, 0): [2],
+    (2, 1): [1, 1],
+    (3, 0): [3],
+    (3, 2): [1, 1, 1],
+    (4, 0): [4],
+    (4, 1): [2, 2],
+}
+
 DEFAULT_GLOBAL_SETTINGS = GlobalSettings(
     sticks_per_beat=12,
     max_pitch_shift_mm=10.0,

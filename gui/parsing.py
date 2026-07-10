@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Any, Dict, Optional, Type, TypeVar
 
 from models import Format, GlobalSettings, StickType, Weights
 
@@ -9,17 +10,45 @@ INTEGER_FIELDS = {
     "max_allowed_layers",
 }
 
-
 OPTIONAL_FIELDS = {
     "max_allowed_layers",
 }
 
+T = TypeVar('T')
 
-def parse_global_settings(entries: dict, overrides: dict | None = None) -> GlobalSettings:
+
+def parse_value(raw: str, field_name: str) -> Any:
+    """Parse a single field value from string input."""
+    if raw == "":
+        if field_name in OPTIONAL_FIELDS:
+            return None
+        raise ValueError(f"{field_name} is required.")
+
+    if field_name in INTEGER_FIELDS:
+        return int(float(raw))
+
+    return float(raw)
+
+
+def parse_dataclass_from_entries(
+    dataclass_type: Type[T],
+    entries: Dict[str, Any],
+    overrides: Optional[Dict[str, Any]] = None,
+) -> T:
+    """Generic parser for any dataclass from GUI entry widgets.
+    
+    Args:
+        dataclass_type: The dataclass to instantiate
+        entries: Dict mapping field names to entry widgets (with .get() method)
+        overrides: Optional dict of values to override entry values
+    
+    Returns:
+        Instance of dataclass_type
+    """
     values = {}
     overrides = overrides or {}
 
-    for field in dataclasses.fields(GlobalSettings):
+    for field in dataclasses.fields(dataclass_type):
         if field.name in overrides:
             values[field.name] = overrides[field.name]
             continue
@@ -30,10 +59,19 @@ def parse_global_settings(entries: dict, overrides: dict | None = None) -> Globa
         raw = entries[field.name].get().strip()
         values[field.name] = parse_value(raw, field.name)
 
-    return GlobalSettings(**values)
+    return dataclass_type(**values)
 
 
-def parse_weights(entries: dict) -> Weights:
+def parse_global_settings(
+    entries: Dict[str, Any],
+    overrides: Optional[Dict[str, Any]] = None,
+) -> GlobalSettings:
+    """Parse GlobalSettings from GUI entries."""
+    return parse_dataclass_from_entries(GlobalSettings, entries, overrides)
+
+
+def parse_weights(entries: Dict[str, Any]) -> Weights:
+    """Parse Weights from GUI entries."""
     values = {}
 
     for field in dataclasses.fields(Weights):
@@ -48,6 +86,7 @@ def parse_weights(entries: dict) -> Weights:
 
 
 def parse_stick_types(rows: list[tuple]) -> list[StickType]:
+    """Parse stick types from table rows."""
     stick_types = []
 
     for row_index, row in enumerate(rows, start=1):
@@ -71,6 +110,7 @@ def parse_stick_types(rows: list[tuple]) -> list[StickType]:
 
 
 def parse_formats(rows: list[tuple]) -> list[Format]:
+    """Parse formats from table rows."""
     formats = []
 
     for row_index, row in enumerate(rows, start=1):
@@ -89,16 +129,3 @@ def parse_formats(rows: list[tuple]) -> list[Format]:
             raise ValueError(f"Invalid format row {row_index}: {exc}") from exc
 
     return formats
-
-
-def parse_value(raw: str, field_name: str):
-    if raw == "":
-        if field_name in OPTIONAL_FIELDS:
-            return None
-
-        raise ValueError(f"{field_name} is required.")
-
-    if field_name in INTEGER_FIELDS:
-        return int(float(raw))
-
-    return float(raw)

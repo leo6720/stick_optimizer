@@ -1,11 +1,14 @@
 from collections import defaultdict
+from functools import lru_cache
 from itertools import product
 from math import ceil
+from typing import Callable, Optional
 
 from defaults import (
     ALLOWED_GROUPINGS,
     ALLOWED_POCKETS_PER_PITCH,
     CARRYOVER_FIXED_PENALTY,
+    COMPARTMENT_LAYOUT,
 )
 
 from models import Candidate, Format, GlobalSettings, Solution, StickType, Weights
@@ -19,6 +22,28 @@ from scoring import (
     calculate_stability_penalty,
 )
 from validation import validate_all
+
+
+class CompartmentCache:
+    """Caches compartment calculations to avoid redundant computation."""
+    
+    _cache = {}
+    
+    @classmethod
+    def get_compartments(cls, grouping: int, dividers: int) -> list[int]:
+        """Get cached compartments or compute and cache them."""
+        key = (grouping, dividers)
+        if key not in cls._cache:
+            compartments = COMPARTMENT_LAYOUT.get(key)
+            if compartments is None:
+                raise ValueError(f"Invalid compartment layout: grouping={grouping}, dividers={dividers}")
+            cls._cache[key] = compartments
+        return cls._cache[key]
+    
+    @classmethod
+    def clear(cls) -> None:
+        """Clear cache (mainly for testing)."""
+        cls._cache.clear()
 
 
 def generate_valid_pitches(
@@ -44,53 +69,6 @@ def generate_valid_pitches(
     return pitches
 
 
-def allowed_dividers_for_grouping(grouping: int) -> list[int]:
-    if grouping == 1:
-        return [0]
-
-    if grouping == 2:
-        return [0, 1]
-
-    if grouping == 3:
-        return [0, 2]
-
-    if grouping == 4:
-        return [0, 1]
-
-    raise ValueError(f"Unsupported grouping: {grouping}")
-
-def compartment_sizes_for_grouping(grouping: int, dividers: int) -> list[int]:
-    """Return stick count per compartment for a grouping/divider configuration.
-
-    Examples:
-    - grouping 2, 1 divider -> [1, 1]
-    - grouping 4, 1 divider -> [2, 2]
-    """
-    if grouping == 1 and dividers == 0:
-        return [1]
-
-    if grouping == 2 and dividers == 0:
-        return [2]
-
-    if grouping == 2 and dividers == 1:
-        return [1, 1]
-
-    if grouping == 3 and dividers == 0:
-        return [3]
-
-    if grouping == 3 and dividers == 2:
-        return [1, 1, 1]
-
-    if grouping == 4 and dividers == 0:
-        return [4]
-
-    if grouping == 4 and dividers == 1:
-        return [2, 2]
-
-    raise ValueError(
-        f"Invalid compartment layout: grouping={grouping}, dividers={dividers}"
-    )
-
 def calculate_pocket_width_with_clearances(
     grouping: int,
     dividers: int,
@@ -100,16 +78,16 @@ def calculate_pocket_width_with_clearances(
     clearance_stick_to_wall_or_divider_mm: float,
 ) -> int:
     """Calculate pocket width including stick clearances.
-
+    
     Components:
-    - stick physical widths;
-    - divider physical widths;
-    - clearance between adjacent sticks in the same compartment;
-    - clearance between sticks and pocket walls/dividers.
-
+    - stick physical widths
+    - divider physical widths
+    - clearance between adjacent sticks in the same compartment
+    - clearance between sticks and pocket walls/dividers
+    
     The number of wall/divider clearances is two per compartment.
     """
-    compartments = compartment_sizes_for_grouping(grouping, dividers)
+    compartments = CompartmentCache.get_compartments(grouping, dividers)
 
     adjacent_stick_gaps = sum(max(0, count - 1) for count in compartments)
     wall_or_divider_clearances = 2 * len(compartments)
@@ -123,6 +101,7 @@ def calculate_pocket_width_with_clearances(
 
     return int(round(pocket_width))
 
+
 def calculate_effective_unsupported_width_with_clearances(
     grouping: int,
     dividers: int,
@@ -131,7 +110,7 @@ def calculate_effective_unsupported_width_with_clearances(
     clearance_stick_to_wall_or_divider_mm: float,
 ) -> float:
     """Calculate maximum unsupported compartment width including clearances."""
-    compartments = compartment_sizes_for_grouping(grouping, dividers)
+    compartments = CompartmentCache.get_compartments(grouping, dividers)
 
     compartment_widths = []
 
@@ -154,16 +133,11 @@ def compute_candidate(
     grouping: int,
     dividers: int,
     pockets_per_pitch: int,
-) -> Candidate | None:
+) -> Optional[Candidate]:
     """Compute one candidate and return None if any hard feasibility rule fails."""
     if settings.sticks_per_beat % grouping != 0:
         return None
 
-    # Pocket width includes:
-    # - stick physical widths;
-    # - divider physical widths;
-    # - clearance between adjacent sticks in the same compartment;
-    # - clearance between sticks and walls/dividers.
     pocket_width = calculate_pocket_width_with_clearances(
         grouping=grouping,
         dividers=dividers,
@@ -177,20 +151,17 @@ def compute_candidate(
 
     pocket_length = stick.stick_length_mm
 
-    # Cartoner transport pitch logic.
     pocket_pitch = grouping * adjusted_input_pitch
     cartoner_pitch = pockets_per_pitch * pocket_pitch
 
     if cartoner_pitch > settings.max_cartoner_pitch_mm + 1e-9:
         return None
 
-    # Ensure cartoner pitch is aligned to the machine pitch step.
     step_ratio = cartoner_pitch / settings.pitch_step_mm
 
     if abs(step_ratio - round(step_ratio)) > 1e-6:
         return None
 
-    # Physical fit: count two walls per pocket, also with two pockets in one pitch.
     occupied_width = pockets_per_pitch * (
         pocket_width + 2 * settings.pocket_wall_width_mm
     )
@@ -200,13 +171,9 @@ def compute_candidate(
 
     unused_space = cartoner_pitch - occupied_width
 
-    # Layer logic: partial top layer counts as full.
     layers = int(ceil(fmt.sticks_per_pocket / grouping))
     stack_height = layers * stick.stick_thickness_mm
     
-    # Carton dimensions for this format/configuration.
-    # A is the carton width, assumed equal to pocket width.
-    # B is stack height plus extra carton height allowance.
     carton_A_mm = float(pocket_width)
     carton_B_mm = stack_height + settings.carton_B_extra_mm
 
@@ -219,8 +186,6 @@ def compute_candidate(
         carton_ab_target=settings.carton_AB_target,
     )
     
-    # Hard stack-count limit.
-    # If max_allowed_layers is set, candidates exceeding it are rejected.
     if settings.max_allowed_layers is not None:
         if layers > settings.max_allowed_layers:
             return None
@@ -309,7 +274,15 @@ def generate_candidates_for_format(
             if settings.sticks_per_beat % grouping != 0:
                 continue
 
-            for dividers in allowed_dividers_for_grouping(grouping):
+            # Get allowed dividers for this grouping from defaults
+            allowed_dividers = {
+                1: [0],
+                2: [0, 1],
+                3: [0, 2],
+                4: [0, 1],
+            }[grouping]
+
+            for dividers in allowed_dividers:
                 for pockets_per_pitch in ALLOWED_POCKETS_PER_PITCH:
                     candidate = compute_candidate(
                         fmt=fmt,
@@ -372,8 +345,20 @@ def optimize(
     stick_types: list[StickType],
     formats: list[Format],
     weights: Weights,
+    progress_callback: Optional[Callable[[str], None]] = None,
 ) -> tuple[list[Solution], dict[str, list[Candidate]]]:
-    """Run complete optimization and return ranked Pareto solutions plus candidates."""
+    """Run complete optimization and return ranked Pareto solutions plus candidates.
+    
+    Args:
+        settings: Global optimization settings
+        stick_types: List of stick type definitions
+        formats: List of commercial formats
+        weights: Scoring weights
+        progress_callback: Optional callback for progress updates
+    
+    Returns:
+        Tuple of (ranked solutions, candidates by format)
+    """
     errors = validate_all(settings, stick_types, formats, weights)
 
     if errors:
@@ -384,6 +369,9 @@ def optimize(
     candidates_by_format: dict[str, list[Candidate]] = {}
 
     for fmt in formats:
+        if progress_callback:
+            progress_callback(f"Generating candidates for {fmt.format_name}...")
+        
         stick = stick_by_name[fmt.stick_type_name]
         candidates_by_format[fmt.format_name] = generate_candidates_for_format(
             fmt,
@@ -392,14 +380,23 @@ def optimize(
         )
 
     if any(len(candidates) == 0 for candidates in candidates_by_format.values()):
-        # Return candidates for diagnostics; no complete solution can exist.
+        if progress_callback:
+            progress_callback("No candidates found for one or more formats.")
         return [], candidates_by_format
 
+    if progress_callback:
+        progress_callback("Building multi-format solutions...")
+    
     all_solutions = build_multi_format_solutions(candidates_by_format, weights)
 
     if not all_solutions:
+        if progress_callback:
+            progress_callback("No feasible complete solutions found.")
         return [], candidates_by_format
 
+    if progress_callback:
+        progress_callback(f"Pareto filtering {len(all_solutions)} solutions...")
+    
     efficient = pareto_filter(all_solutions)
 
     efficient.sort(
@@ -416,4 +413,8 @@ def optimize(
         )
     )
 
-    return efficient[: int(settings.number_of_results_to_show)], candidates_by_format
+    result_count = int(settings.number_of_results_to_show)
+    if progress_callback:
+        progress_callback(f"Optimization complete. Top {result_count} solutions ready.")
+    
+    return efficient[:result_count], candidates_by_format
