@@ -344,6 +344,19 @@ class OptimizerApp(tk.Tk):
 
         set_entries_from_dataclass(self.global_entries, settings)
 
+        # Populate cartoner entries from the loaded settings
+        for field_name in CARTONER_FIELDS:
+            value = getattr(settings, field_name)
+            if field_name not in self.cartoner_entries:
+                entry = ttk.Entry(self)
+                self.cartoner_entries[field_name] = entry
+            else:
+                self.cartoner_entries[field_name].delete(0, "end")
+            self.cartoner_entries[field_name].insert(
+                0,
+                "" if value is None else str(value),
+            )
+
         self.stick_table.set_rows(
             [
                 (
