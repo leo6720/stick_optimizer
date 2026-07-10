@@ -7,7 +7,9 @@ from typing import Callable, Optional
 from defaults import (
     ALLOWED_GROUPINGS,
     ALLOWED_POCKETS_PER_PITCH,
-    CARRYOVER_FIXED_PENALTY,n)
+    CARRYOVER_FIXED_PENALTY,
+    COMPARTMENT_LAYOUT,
+)
 
 from models import Candidate, Format, GlobalSettings, Solution, StickType, Weights
 from pareto import pareto_filter
@@ -29,38 +31,19 @@ class CompartmentCache:
     
     @classmethod
     def get_compartments(cls, grouping: int, dividers: int) -> list[int]:
+        """Get cached compartments or compute and cache them."""
         key = (grouping, dividers)
         if key not in cls._cache:
-            cls._cache[key] = _compute_compartments(grouping, dividers)
+            compartments = COMPARTMENT_LAYOUT.get(key)
+            if compartments is None:
+                raise ValueError(f"Invalid compartment layout: grouping={grouping}, dividers={dividers}")
+            cls._cache[key] = compartments
         return cls._cache[key]
     
     @classmethod
     def clear(cls) -> None:
+        """Clear cache (mainly for testing)."""
         cls._cache.clear()
-
-
-def _compute_compartments(grouping: int, dividers: int) -> list[int]:
-    """Compute stick count per compartment for a grouping/divider configuration.
-    
-    Examples:
-    - grouping 2, 1 divider -> [1, 1]
-    - grouping 4, 1 divider -> [2, 2]
-    """
-    if grouping == 1 and dividers == 0:
-        return [1]
-    if grouping == 2 and dividers == 0:
-        return [2]
-    if grouping == 2 and dividers == 1:
-        return [1, 1]
-    if grouping == 3 and dividers == 0:
-        return [3]
-    if grouping == 3 and dividers == 2:
-        return [1, 1, 1]
-    if grouping == 4 and dividers == 0:
-        return [4]
-    if grouping == 4 and dividers == 1:
-        return [2, 2]
-    raise ValueError(f"Invalid compartment layout: grouping={grouping}, dividers={dividers}")
 
 
 def generate_valid_pitches(
@@ -84,14 +67,6 @@ def generate_valid_pitches(
             pitches.append(pitch)
 
     return pitches
-
-
-def allowed_dividers_for_grouping(grouping: int) -> list[int]:
-    """Return allowed divider counts for a given grouping."""
-    dividers_by_grouping = {1: [0], 2: [0, 1], 3: [0, 2], 4: [0, 1]}
-    if grouping not in dividers_by_grouping:
-        raise ValueError(f"Unsupported grouping: {grouping}")
-    return dividers_by_grouping[grouping]
 
 
 def calculate_pocket_width_with_clearances(
@@ -299,7 +274,15 @@ def generate_candidates_for_format(
             if settings.sticks_per_beat % grouping != 0:
                 continue
 
-            for dividers in allowed_dividers_for_grouping(grouping):
+            # Get allowed dividers for this grouping from defaults
+            allowed_dividers = {
+                1: [0],
+                2: [0, 1],
+                3: [0, 2],
+                4: [0, 1],
+            }[grouping]
+
+            for dividers in allowed_dividers:
                 for pockets_per_pitch in ALLOWED_POCKETS_PER_PITCH:
                     candidate = compute_candidate(
                         fmt=fmt,

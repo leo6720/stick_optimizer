@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ class GlobalSettings:
     max_cartoner_pitch_mm: float = 300.0
     pitch_step_mm: float = 5.0
     number_of_results_to_show: int = 20
-    max_allowed_layers: int | None = None
+    max_allowed_layers: Optional[int] = None
     carton_AB_target: float = 1.5
 
 
