@@ -19,12 +19,18 @@ class EditableTable(ttk.LabelFrame):
         title: str,
         columns: list[tuple[str, str, int]],
         height: int = 7,
+        header_image=None,
     ):
         super().__init__(parent, text=title, padding=8)
 
         self.columns = columns
         self.column_keys = [col[0] for col in columns]
         self.active_editor = None
+
+        if header_image is not None:
+            image_label = ttk.Label(self, image=header_image)
+            image_label.image = header_image
+            image_label.pack(anchor="w", pady=(0, 8))
 
         self.tree = ttk.Treeview(
             self,
@@ -120,85 +126,3 @@ class EditableTable(ttk.LabelFrame):
 
         if region != "cell":
             return
-
-        item_id = self.tree.identify_row(event.y)
-        column_id = self.tree.identify_column(event.x)
-
-        if not item_id or not column_id:
-            return
-
-        self._edit_cell(item_id, column_id)
-
-    def _edit_cell(self, item_id: str, column_id: str):
-        self._destroy_active_editor(save=True)
-
-        bbox = self.tree.bbox(item_id, column_id)
-
-        if not bbox:
-            return
-
-        x, y, width, height = bbox
-        column_index = int(column_id.replace("#", "")) - 1
-
-        current_values = list(self.tree.item(item_id, "values"))
-
-        while len(current_values) < len(self.column_keys):
-            current_values.append("")
-
-        current_value = current_values[column_index]
-
-        editor = tk.Entry(self.tree)
-        editor.insert(0, current_value)
-        editor.select_range(0, tk.END)
-        editor.focus_set()
-
-        editor.place(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
-        )
-
-        self.active_editor = {
-            "widget": editor,
-            "item_id": item_id,
-            "column_index": column_index,
-            "original_value": current_value,
-        }
-
-        editor.bind("<Return>", lambda _event: self._destroy_active_editor(save=True))
-        editor.bind("<KP_Enter>", lambda _event: self._destroy_active_editor(save=True))
-        editor.bind("<Escape>", lambda _event: self._destroy_active_editor(save=False))
-        editor.bind("<FocusOut>", lambda _event: self._destroy_active_editor(save=True))
-
-    def _destroy_active_editor(self, save: bool):
-        if self.active_editor is None:
-            return
-
-        editor = self.active_editor["widget"]
-        item_id = self.active_editor["item_id"]
-        column_index = self.active_editor["column_index"]
-        original_value = self.active_editor["original_value"]
-
-        if save and self.tree.exists(item_id):
-            new_value = editor.get()
-
-            values = list(self.tree.item(item_id, "values"))
-
-            while len(values) < len(self.column_keys):
-                values.append("")
-
-            values[column_index] = new_value
-            self.tree.item(item_id, values=values)
-
-        elif not save and self.tree.exists(item_id):
-            values = list(self.tree.item(item_id, "values"))
-
-            while len(values) < len(self.column_keys):
-                values.append("")
-
-            values[column_index] = original_value
-            self.tree.item(item_id, values=values)
-
-        editor.destroy()
-        self.active_editor = None

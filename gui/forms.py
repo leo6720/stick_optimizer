@@ -29,7 +29,7 @@ CARTONER_FIELDS = [
 ]
 
 
-def build_grouped_global_settings_form(parent, entry_width: int = 10):
+def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=None):
     """
     Main page only shows MT fields.
     Cartoner settings are edited from menu popup.
@@ -45,17 +45,24 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10):
     )
     mt_frame.pack(fill="x")
 
+    if mt_image is not None:
+        image_label = ttk.Label(mt_frame, image=mt_image)
+        image_label.image = mt_image
+        image_label.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 8))
+
     mt_fields = [
         "sticks_per_beat",
         "max_pitch_shift_mm",
     ]
 
+    start_row = 1 if mt_image is not None else 0
     _add_fields_to_frame(
         mt_frame,
         mt_fields,
         entries,
         entry_width=entry_width,
         label_width=20,
+        start_row=start_row,
     )
 
     return outer_frame, entries
@@ -83,11 +90,12 @@ def _add_fields_to_frame(
     entries,
     entry_width,
     label_width,
+    start_row: int = 0,
 ):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
 
-    for row, field_name in enumerate(field_names):
+    for row, field_name in enumerate(field_names, start=start_row):
         label = ttk.Label(
             frame,
             text=DISPLAY_LABELS.get(field_name, field_name),

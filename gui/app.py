@@ -77,9 +77,27 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
+        self.mt_image = self._load_ui_image("dati_mt")
+        self.stick_types_image = self._load_ui_image("stick_dim")
+
         self._build_menu_bar()
         self._build_layout()
         self._load_defaults()
+
+    def _load_ui_image(self, base_name: str) -> Optional[tk.PhotoImage]:
+        """Load a UI helper image from the img folder.
+
+        Tries common image extensions and returns None if not found or invalid.
+        """
+        img_dir = self.project_root / "img"
+        for extension in ("png", "gif", "ppm", "pgm"):
+            image_path = img_dir / f"{base_name}.{extension}"
+            if image_path.exists():
+                try:
+                    return tk.PhotoImage(file=str(image_path))
+                except tk.TclError:
+                    return None
+        return None
 
     # ------------------------------------------------------------------
     # Menu bar
@@ -182,6 +200,7 @@ class OptimizerApp(tk.Tk):
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
             entry_width=14,
+            mt_image=self.mt_image,
         )
         global_frame.pack(fill="x", pady=(0, 8))
 
@@ -210,6 +229,7 @@ class OptimizerApp(tk.Tk):
                 ("fin", "fin_length_mm", 100),
             ],
             height=7,
+            header_image=self.stick_types_image,
         )
         self.stick_table.pack(fill="both", expand=True, pady=(0, 8))
 
