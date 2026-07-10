@@ -3,6 +3,7 @@ import json
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
+from typing import Optional
 
 from defaults import (
     DEFAULT_FORMATS,
@@ -62,7 +63,7 @@ class OptimizerApp(tk.Tk):
 
         self.solutions = []
         self.candidates_by_format = {}
-        self.selected_solution_index = None
+        self.selected_solution_index: Optional[int] = None
 
         self.active_result_filters = {}
         self.filtered_solution_indices = []
@@ -83,9 +84,11 @@ class OptimizerApp(tk.Tk):
     # ------------------------------------------------------------------
     # Menu bar
     # ------------------------------------------------------------------
-    def _build_menu_bar(self):
+    def _build_menu_bar(self) -> None:
+        """Build application menu bar."""
         menu_bar = tk.Menu(self)
 
+        # File menu
         file_menu = tk.Menu(menu_bar, tearoff=False)
         export_menu = tk.Menu(file_menu, tearoff=False)
 
@@ -101,6 +104,7 @@ class OptimizerApp(tk.Tk):
         file_menu.add_cascade(label="Export", menu=export_menu)
         menu_bar.add_cascade(label="File", menu=file_menu)
 
+        # Options menu
         options_menu = tk.Menu(menu_bar, tearoff=False)
 
         defaults_menu = tk.Menu(options_menu, tearoff=False)
@@ -114,17 +118,15 @@ class OptimizerApp(tk.Tk):
         )
 
         options_menu.add_cascade(label="Defaults", menu=defaults_menu)
-
         options_menu.add_separator()
-
         options_menu.add_command(
             label="Clear result filters",
             command=lambda: self._clear_all_result_filters(None),
         )
 
         menu_bar.add_cascade(label="Options", menu=options_menu)
-        self.config(menu=menu_bar)
-        
+
+        # Edit menu
         edit_menu = tk.Menu(menu_bar, tearoff=False)
 
         edit_menu.add_command(
@@ -147,15 +149,14 @@ class OptimizerApp(tk.Tk):
             command=self.open_cartoner_settings_editor,
         )
 
-        menu_bar.add_cascade(
-            label="Edit",
-            menu=edit_menu,
-        )
+        menu_bar.add_cascade(label="Edit", menu=edit_menu)
+        self.config(menu=menu_bar)
 
     # ------------------------------------------------------------------
     # Layout
     # ------------------------------------------------------------------
-    def _build_layout(self):
+    def _build_layout(self) -> None:
+        """Build main window layout."""
         root = ttk.Frame(self, padding=8)
         root.pack(fill="both", expand=True)
 
@@ -196,7 +197,8 @@ class OptimizerApp(tk.Tk):
             textvariable=self.status_var,
         ).pack(side="right")
 
-    def _build_input_tables(self, parent):
+    def _build_input_tables(self, parent: ttk.Frame) -> None:
+        """Build stick types and formats input tables."""
         self.stick_table = EditableTable(
             parent,
             title="Stick types",
@@ -223,7 +225,8 @@ class OptimizerApp(tk.Tk):
         )
         self.format_table.pack(fill="both", expand=True)
 
-    def _build_output_tables(self, parent):
+    def _build_output_tables(self, parent: ttk.Frame) -> None:
+        """Build results and detail output sections."""
         results_frame, self.results_tree = build_results_section(
             parent,
             self._on_solution_selected,
@@ -238,9 +241,10 @@ class OptimizerApp(tk.Tk):
         detail_frame.pack(fill="both", expand=True)
 
     # ------------------------------------------------------------------
-    # Defaults
+    # Defaults management
     # ------------------------------------------------------------------
-    def _load_defaults(self):
+    def _load_defaults(self) -> None:
+        """Load user defaults or fall back to built-in defaults."""
         if self.user_defaults_path.exists():
             try:
                 self._load_defaults_from_file(self.user_defaults_path)
@@ -255,17 +259,16 @@ class OptimizerApp(tk.Tk):
 
         self._load_builtin_defaults()
 
-    def _load_builtin_defaults(self):
+    def _load_builtin_defaults(self) -> None:
+        """Load built-in default values into the GUI."""
         set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
 
         for field_name in CARTONER_FIELDS:
             entry = ttk.Entry(self)
-
             entry.insert(
                 0,
                 str(getattr(DEFAULT_GLOBAL_SETTINGS, field_name)),
             )
-
             self.cartoner_entries[field_name] = entry
 
         self.current_weights = DEFAULT_WEIGHTS
@@ -301,10 +304,12 @@ class OptimizerApp(tk.Tk):
         self._clear_runtime_results()
         self.status_var.set("Built-in defaults loaded")
 
-    def _load_defaults_from_file(self, path):
-        with Path(path).open("r", encoding="utf-8") as file:
+    def _load_defaults_from_file(self, path: Path) -> None:
+        """Load defaults from a JSON file."""
+        with path.open("r", encoding="utf-8") as file:
             data = json.load(file)
 
+        # Load global settings
         global_data = dataclasses.asdict(DEFAULT_GLOBAL_SETTINGS)
         global_data.update(data.get("global_settings", {}))
 
@@ -322,6 +327,7 @@ class OptimizerApp(tk.Tk):
         self.current_number_of_results_to_show = settings.number_of_results_to_show
         self.current_carton_AB_target = settings.carton_AB_target
 
+        # Load weights
         weight_data = dataclasses.asdict(DEFAULT_WEIGHTS)
         weight_data.update(data.get("weights", {}))
 
@@ -364,7 +370,8 @@ class OptimizerApp(tk.Tk):
 
         self._clear_runtime_results()
 
-    def save_defaults(self):
+    def save_defaults(self) -> None:
+        """Save current configuration to user defaults file."""
         try:
             settings = parse_global_settings(
                 self.global_entries,
@@ -404,10 +411,12 @@ class OptimizerApp(tk.Tk):
             messagebox.showerror("Save defaults error", str(exc))
             self.status_var.set("Error saving defaults")
 
-    def reload_defaults(self):
+    def reload_defaults(self) -> None:
+        """Reload defaults from file."""
         self._load_defaults()
 
-    def _clear_runtime_results(self):
+    def _clear_runtime_results(self) -> None:
+        """Clear optimization results and filters."""
         self.solutions = []
         self.candidates_by_format = {}
         self.selected_solution_index = None
@@ -424,7 +433,8 @@ class OptimizerApp(tk.Tk):
     # ------------------------------------------------------------------
     # Scoring weights editor
     # ------------------------------------------------------------------
-    def open_weights_editor(self):
+    def open_weights_editor(self) -> None:
+        """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Edit scoring weights")
         dialog.geometry("460x360")
@@ -480,7 +490,8 @@ class OptimizerApp(tk.Tk):
             command=dialog.destroy,
         ).pack(side="right", padx=(0, 8))
 
-    def _save_weights_from_dialog(self, entries, dialog):
+    def _save_weights_from_dialog(self, entries: dict, dialog: tk.Toplevel) -> None:
+        """Save weights from editor dialog."""
         try:
             values = {}
 
@@ -501,11 +512,19 @@ class OptimizerApp(tk.Tk):
             messagebox.showerror("Invalid scoring weights", str(exc))
 
     # ------------------------------------------------------------------
-    # Hidden/global option editors
+    # Global option editors
     # ------------------------------------------------------------------
-    def open_number_of_results_editor(self):
+    def _open_simple_numeric_editor(
+        self,
+        title: str,
+        field_name: str,
+        current_value: float,
+        min_value: Optional[float] = None,
+        value_type: type = float,
+    ) -> None:
+        """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
-        dialog.title("Edit number of results")
+        dialog.title(title)
         dialog.geometry("360x150")
         dialog.resizable(False, False)
         dialog.transient(self)
@@ -514,7 +533,7 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text="number_of_results_to_show").grid(
+        ttk.Label(frame, text=field_name).grid(
             row=0,
             column=0,
             sticky="w",
@@ -524,7 +543,7 @@ class OptimizerApp(tk.Tk):
 
         entry = ttk.Entry(frame, width=16)
         entry.grid(row=0, column=1, sticky="w", pady=8)
-        entry.insert(0, str(self.current_number_of_results_to_show))
+        entry.insert(0, str(current_value))
         entry.focus_set()
         entry.select_range(0, tk.END)
 
@@ -537,13 +556,28 @@ class OptimizerApp(tk.Tk):
             pady=(16, 0),
         )
 
+        def save_value() -> None:
+            try:
+                value = value_type(entry.get().strip())
+
+                if min_value is not None and value <= min_value:
+                    raise ValueError(f"{field_name} must be > {min_value}.")
+
+                if field_name == "number_of_results_to_show":
+                    self.current_number_of_results_to_show = value
+                elif field_name == "carton_AB_target":
+                    self.current_carton_AB_target = value
+
+                dialog.destroy()
+                self.status_var.set(f"{field_name} set to {value}")
+
+            except Exception as exc:
+                messagebox.showerror(f"Invalid {field_name}", str(exc))
+
         ttk.Button(
             button_frame,
             text="Save",
-            command=lambda: self._save_number_of_results_from_dialog(
-                entry,
-                dialog,
-            ),
+            command=save_value,
         ).pack(side="right")
 
         ttk.Button(
@@ -552,87 +586,28 @@ class OptimizerApp(tk.Tk):
             command=dialog.destroy,
         ).pack(side="right", padx=(0, 8))
 
-    def _save_number_of_results_from_dialog(self, entry, dialog):
-        try:
-            value = int(float(entry.get().strip()))
-
-            if value <= 0:
-                raise ValueError("number_of_results_to_show must be > 0.")
-
-            self.current_number_of_results_to_show = value
-
-            dialog.destroy()
-            self.status_var.set(f"Number of results set to {value}")
-
-        except Exception as exc:
-            messagebox.showerror("Invalid number of results", str(exc))
-
-    def open_carton_ab_target_editor(self):
-        dialog = tk.Toplevel(self)
-        dialog.title("Edit carton A/B target")
-        dialog.geometry("360x150")
-        dialog.resizable(False, False)
-        dialog.transient(self)
-        dialog.grab_set()
-
-        frame = ttk.Frame(dialog, padding=12)
-        frame.pack(fill="both", expand=True)
-
-        ttk.Label(frame, text="carton_AB_target").grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=8,
+    def open_number_of_results_editor(self) -> None:
+        """Open editor for number of results to show."""
+        self._open_simple_numeric_editor(
+            "Edit number of results",
+            "number_of_results_to_show",
+            self.current_number_of_results_to_show,
+            min_value=0,
+            value_type=int,
         )
 
-        entry = ttk.Entry(frame, width=16)
-        entry.grid(row=0, column=1, sticky="w", pady=8)
-        entry.insert(0, str(self.current_carton_AB_target))
-        entry.focus_set()
-        entry.select_range(0, tk.END)
-
-        button_frame = ttk.Frame(frame)
-        button_frame.grid(
-            row=1,
-            column=0,
-            columnspan=2,
-            sticky="e",
-            pady=(16, 0),
+    def open_carton_ab_target_editor(self) -> None:
+        """Open editor for carton A/B target ratio."""
+        self._open_simple_numeric_editor(
+            "Edit carton A/B target",
+            "carton_AB_target",
+            self.current_carton_AB_target,
+            min_value=0,
+            value_type=float,
         )
 
-        ttk.Button(
-            button_frame,
-            text="Save",
-            command=lambda: self._save_carton_ab_target_from_dialog(
-                entry,
-                dialog,
-            ),
-        ).pack(side="right")
-
-        ttk.Button(
-            button_frame,
-            text="Cancel",
-            command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
-
-    def _save_carton_ab_target_from_dialog(self, entry, dialog):
-        try:
-            value = float(entry.get().strip())
-
-            if value <= 0:
-                raise ValueError("carton_AB_target must be > 0.")
-
-            self.current_carton_AB_target = value
-
-            dialog.destroy()
-            self.status_var.set(f"Carton A/B target set to {value}")
-
-        except Exception as exc:
-            messagebox.showerror("Invalid carton A/B target", str(exc))
-            
-            
-    def _cartoner_values_dict(self):
+    def _cartoner_values_dict(self) -> dict:
+        """Extract cartoner entry values into a dict."""
         data = {}
 
         for field_name, entry in self.cartoner_entries.items():
@@ -649,32 +624,22 @@ class OptimizerApp(tk.Tk):
 
         return data
 
-    def open_cartoner_settings_editor(self):
+    def open_cartoner_settings_editor(self) -> None:
+        """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
-
         dialog.title("Dati astucciatrice")
         dialog.geometry("520x320")
         dialog.transient(self)
         dialog.grab_set()
 
-        content = ttk.Frame(
-            dialog,
-            padding=12,
-        )
-        content.pack(
-            fill="both",
-            expand=True,
-        )
+        content = ttk.Frame(dialog, padding=12)
+        content.pack(fill="both", expand=True)
 
         form_frame, popup_entries = build_cartoner_settings_form(
             content,
             entry_width=14,
         )
-
-        form_frame.pack(
-            fill="both",
-            expand=True,
-        )
+        form_frame.pack(fill="both", expand=True)
 
         for field_name in CARTONER_FIELDS:
             popup_entries[field_name].insert(
@@ -683,18 +648,12 @@ class OptimizerApp(tk.Tk):
             )
 
         buttons = ttk.Frame(content)
-        buttons.pack(
-            fill="x",
-            pady=(12, 0),
-        )
+        buttons.pack(fill="x", pady=(12, 0))
 
         ttk.Button(
             buttons,
             text="Save",
-            command=lambda: self._save_cartoner_popup(
-                popup_entries,
-                dialog,
-            ),
+            command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right")
 
         ttk.Button(
@@ -702,62 +661,44 @@ class OptimizerApp(tk.Tk):
             text="Cancel",
             command=dialog.destroy,
         ).pack(side="right", padx=(0, 8))
-        
-    def _save_cartoner_popup(
-        self,
-        popup_entries,
-        dialog,
-    ):
+
+    def _save_cartoner_settings(self, popup_entries: dict, dialog: tk.Toplevel) -> None:
+        """Save cartoner settings from popup."""
         try:
             for field_name in CARTONER_FIELDS:
                 self.cartoner_entries[field_name].delete(0, "end")
-
                 self.cartoner_entries[field_name].insert(
                     0,
                     popup_entries[field_name].get(),
                 )
 
             dialog.destroy()
-
-            self.status_var.set(
-                "Cartoner settings updated"
-            )
+            self.status_var.set("Cartoner settings updated")
 
         except Exception as exc:
-            messagebox.showerror(
-                "Cartoner settings",
-                str(exc),
-            )
+            messagebox.showerror("Cartoner settings error", str(exc))
+
     # ------------------------------------------------------------------
     # Optimization
     # ------------------------------------------------------------------
-    def run_optimization(self):
+    def run_optimization(self) -> None:
+        """Run the optimization and display results."""
         try:
             overrides = {
-                "number_of_results_to_show":
-                    self.current_number_of_results_to_show,
-
-                "carton_AB_target":
-                    self.current_carton_AB_target,
+                "number_of_results_to_show": self.current_number_of_results_to_show,
+                "carton_AB_target": self.current_carton_AB_target,
             }
+            overrides.update(self._cartoner_values_dict())
 
-            overrides.update(
-                self._cartoner_values_dict()
-            )
-            
-            settings = parse_global_settings(
-                self.global_entries,
-                overrides={
-                    "number_of_results_to_show": (
-                        self.current_number_of_results_to_show
-                    ),
-                    "carton_AB_target": self.current_carton_AB_target,
-                },
-            )
+            settings = parse_global_settings(self.global_entries, overrides=overrides)
 
             weights = self.current_weights
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
+
+            self.status_var.set("Optimization running...")
+            self.run_button.config(state="disabled")
+            self.update()
 
             solutions, candidates_by_format = optimize(
                 settings,
@@ -766,7 +707,10 @@ class OptimizerApp(tk.Tk):
                 weights,
             )
 
+            self.run_button.config(state="normal")
+
         except Exception as exc:
+            self.run_button.config(state="normal")
             messagebox.showerror("Optimization error", str(exc))
             self.status_var.set("Error")
             return
@@ -799,8 +743,7 @@ class OptimizerApp(tk.Tk):
 
             messagebox.showwarning(
                 "No feasible solution",
-                "No feasible complete multi-format solution exists.\n\n"
-                + counts,
+                "No feasible complete multi-format solution exists.\n\n" + counts,
             )
 
             self.status_var.set("No feasible solution")
@@ -810,7 +753,8 @@ class OptimizerApp(tk.Tk):
             f"Optimization complete: {len(solutions)} solution(s) shown"
         )
 
-    def _on_solution_selected(self, _event=None):
+    def _on_solution_selected(self, _event: Optional[tk.Event] = None) -> None:
+        """Handle solution selection in results tree."""
         try:
             selected = self.results_tree.selection()
 
@@ -831,7 +775,8 @@ class OptimizerApp(tk.Tk):
             messagebox.showerror("Detail view error", str(exc))
             self.status_var.set("Error displaying selected solution")
 
-    def _open_selected_format_popup(self, _event=None):
+    def _open_selected_format_popup(self, _event: Optional[tk.Event] = None) -> None:
+        """Open popup with full format details."""
         if self.selected_solution_index is None:
             return
 
@@ -850,7 +795,8 @@ class OptimizerApp(tk.Tk):
     # ------------------------------------------------------------------
     # Result filtering
     # ------------------------------------------------------------------
-    def _open_result_column_filter(self, column_name):
+    def _open_result_column_filter(self, column_name: str) -> None:
+        """Open filter dialog for a result column."""
         if column_name == "rank":
             messagebox.showinfo(
                 "Filter not available",
@@ -1018,11 +964,13 @@ class OptimizerApp(tk.Tk):
             command=lambda: self._clear_all_result_filters(dialog),
         ).pack(side="right", padx=(0, 8))
 
-    def _set_filter_value_checks(self, value_vars, state):
+    def _set_filter_value_checks(self, value_vars: dict, state: bool) -> None:
+        """Set all filter checkboxes to a state."""
         for var in value_vars.values():
             var.set(state)
 
-    def _unique_display_values_for_result_column(self, column_name):
+    def _unique_display_values_for_result_column(self, column_name: str) -> list[str]:
+        """Get unique display values for a result column."""
         values = set()
 
         for solution in self.solutions:
@@ -1030,21 +978,24 @@ class OptimizerApp(tk.Tk):
 
         return sorted(values, key=self._sort_filter_value)
 
-    def _sort_filter_value(self, value):
+    @staticmethod
+    def _sort_filter_value(value: str) -> tuple:
+        """Sort key for filter values (numeric first, then strings)."""
         try:
             return (0, float(value))
-        except Exception:
+        except ValueError:
             return (1, str(value))
 
     def _apply_column_filter_from_popup(
         self,
-        column_name,
-        all_values,
-        value_vars,
-        operator_combo,
-        value_entry,
-        dialog,
-    ):
+        column_name: str,
+        all_values: list[str],
+        value_vars: dict,
+        operator_combo: ttk.Combobox,
+        value_entry: ttk.Entry,
+        dialog: tk.Toplevel,
+    ) -> None:
+        """Apply filter from dialog."""
         try:
             selected_values = {
                 value
@@ -1086,7 +1037,8 @@ class OptimizerApp(tk.Tk):
         except Exception as exc:
             messagebox.showerror("Filter error", str(exc))
 
-    def _clear_single_column_filter(self, column_name, dialog=None):
+    def _clear_single_column_filter(self, column_name: str, dialog: Optional[tk.Toplevel] = None) -> None:
+        """Clear filter for a single column."""
         if column_name in self.active_result_filters:
             del self.active_result_filters[column_name]
 
@@ -1095,7 +1047,8 @@ class OptimizerApp(tk.Tk):
 
         self._apply_result_filters()
 
-    def _clear_all_result_filters(self, dialog=None):
+    def _clear_all_result_filters(self, dialog: Optional[tk.Toplevel] = None) -> None:
+        """Clear all active result filters."""
         self.active_result_filters = {}
 
         if dialog is not None:
@@ -1103,7 +1056,8 @@ class OptimizerApp(tk.Tk):
 
         self._apply_result_filters()
 
-    def _apply_result_filters(self):
+    def _apply_result_filters(self) -> None:
+        """Apply all active result filters and update display."""
         if not self.solutions:
             update_result_headings_for_filters(
                 self.results_tree,
@@ -1137,14 +1091,16 @@ class OptimizerApp(tk.Tk):
             f"Filters applied: {len(filtered_indices)} / {len(self.solutions)} solutions shown"
         )
 
-    def _solution_passes_all_filters(self, solution):
+    def _solution_passes_all_filters(self, solution) -> bool:
+        """Check if a solution passes all active filters."""
         for column_name, result_filter in self.active_result_filters.items():
             if not self._solution_passes_filter(solution, column_name, result_filter):
                 return False
 
         return True
 
-    def _solution_passes_filter(self, solution, column_name, result_filter):
+    def _solution_passes_filter(self, solution, column_name: str, result_filter: dict) -> bool:
+        """Check if a solution passes a single filter."""
         selected_values = result_filter.get("selected_values", None)
 
         display_value = result_display_value(solution, column_name)
@@ -1167,7 +1123,7 @@ class OptimizerApp(tk.Tk):
         try:
             numeric_solution_value = float(solution_value)
             numeric_filter_value = float(raw_filter_value)
-        except Exception as exc:
+        except ValueError as exc:
             raise ValueError(
                 f"Filter on '{column_name}' requires numeric values for operator '{operator}'."
             ) from exc
@@ -1192,14 +1148,17 @@ class OptimizerApp(tk.Tk):
 
         raise ValueError(f"Unsupported filter operator: {operator}")
 
-    def _solution_value_for_filter_column(self, solution, column_name):
+    @staticmethod
+    def _solution_value_for_filter_column(solution, column_name: str) -> float:
+        """Get the raw solution value for a filter column."""
         attr_name = FILTERABLE_RESULT_COLUMNS[column_name]
         return getattr(solution, attr_name, 0.0)
 
     # ------------------------------------------------------------------
     # Export
     # ------------------------------------------------------------------
-    def export_summary(self):
+    def export_summary(self) -> None:
+        """Export solution summary to CSV."""
         if not self.solutions:
             messagebox.showinfo("No data", "Run an optimization before exporting.")
             return
@@ -1223,7 +1182,8 @@ class OptimizerApp(tk.Tk):
         except Exception as exc:
             messagebox.showerror("Export error", str(exc))
 
-    def export_details(self):
+    def export_details(self) -> None:
+        """Export selected solution details to CSV."""
         if self.selected_solution_index is None:
             messagebox.showinfo(
                 "No selection",
