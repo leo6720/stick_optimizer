@@ -628,39 +628,44 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x320")
+        dialog.geometry("520x400")
+        dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
 
-        content = ttk.Frame(dialog, padding=12)
-        content.pack(fill="both", expand=True)
+        # Main container with proper layout
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
+        # Form content
         form_frame, popup_entries = build_cartoner_settings_form(
-            content,
+            main_frame,
             entry_width=14,
         )
-        form_frame.pack(fill="both", expand=True)
+        form_frame.pack(fill="both", expand=True, pady=(0, 12))
 
+        # Populate entries with current values
         for field_name in CARTONER_FIELDS:
             popup_entries[field_name].insert(
                 0,
                 self.cartoner_entries[field_name].get(),
             )
 
-        buttons = ttk.Frame(content)
-        buttons.pack(fill="x", pady=(12, 0))
+        # Button frame at bottom
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill="x", side="bottom")
 
         ttk.Button(
-            buttons,
+            button_frame,
             text="Save",
             command=lambda: self._save_cartoner_settings(popup_entries, dialog),
-        ).pack(side="right")
+        ).pack(side="right", padx=(4, 0))
 
         ttk.Button(
-            buttons,
+            button_frame,
             text="Cancel",
             command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
+        ).pack(side="right", padx=(0, 4))
 
     def _save_cartoner_settings(self, popup_entries: dict, dialog: tk.Toplevel) -> None:
         """Save cartoner settings from popup."""
