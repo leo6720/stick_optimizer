@@ -26,6 +26,8 @@ class EditableTable(ttk.LabelFrame):
         self.columns = columns
         self.column_keys = [col[0] for col in columns]
         self.active_editor = None
+        self._editing_item = None
+        self._editing_column = None
 
         if header_image is not None:
             image_label = ttk.Label(self, image=header_image)
@@ -126,3 +128,36 @@ class EditableTable(ttk.LabelFrame):
 
         if region != "cell":
             return
+
+    def _destroy_active_editor(self, save: bool = True) -> None:
+        """Close current inline editor safely.
+
+        save=True: commit value to cell before closing.
+        save=False: discard current edit.
+        """
+        editor = getattr(self, "active_editor", None)
+        if editor is None:
+            return
+
+        item_id = getattr(self, "_editing_item", None)
+        column = getattr(self, "_editing_column", None)
+
+        if save and item_id and column:
+            try:
+                new_value = editor.get()
+                values = list(self.tree.item(item_id, "values"))
+                col_index = int(column.replace("#", "")) - 1
+                if 0 <= col_index < len(values):
+                    values[col_index] = new_value
+                    self.tree.item(item_id, values=values)
+            except Exception:
+                pass
+
+        try:
+            editor.destroy()
+        except Exception:
+            pass
+
+        self.active_editor = None
+        self._editing_item = None
+        self._editing_column = None
