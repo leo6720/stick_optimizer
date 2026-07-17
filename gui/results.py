@@ -244,12 +244,19 @@ def build_detail_section(parent, on_format_open_callback):
     ]
 
     summary_vars = {}
+    summary_name_labels = {}
+    summary_fields_order = list(summary_fields)
 
     for index, field_name in enumerate(summary_fields):
         row = index // 3
         base_col = (index % 3) * 2
 
-        ttk.Label(summary_frame, text=field_name).grid(
+        name_label = ttk.Label(
+            summary_frame,
+            text=field_name.replace("_", " "),
+        )
+
+        name_label.grid(
             row=row,
             column=base_col,
             sticky="w",
@@ -267,6 +274,7 @@ def build_detail_section(parent, on_format_open_callback):
         )
 
         summary_vars[field_name] = value_label
+        summary_name_labels[field_name] = name_label
 
     overview_frame = ttk.LabelFrame(
         frame,
@@ -357,7 +365,10 @@ def build_detail_section(parent, on_format_open_callback):
     head_tree = _build_robot_head_type_table(head_frame)
 
     widgets = {
+        "summary_frame": summary_frame,
         "summary_vars": summary_vars,
+        "summary_name_labels": summary_name_labels,
+        "summary_fields_order": summary_fields_order,
         "format_overview_tree": overview_tree,
         "pocket_type_tree": pocket_tree,
         "robot_head_type_tree": head_tree,
