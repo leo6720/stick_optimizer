@@ -4,6 +4,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Optional
+from PIL import Image, ImageTk
 
 from defaults import (
     DEFAULT_FORMATS,
@@ -43,6 +44,25 @@ from gui.results import (
 from gui.tables import EditableTable
 
 
+SCORE_PENALTY_DETAIL_COLUMNS = {
+    "score",
+    "layer_penalty",
+    "carryover_penalty",
+    "grouping_penalty",
+    "stability_penalty",
+    "carton_ab_penalty",
+}
+
+SCORE_PENALTY_SUMMARY_FIELDS = {
+    "score",
+    "total_layer_penalty",
+    "total_carryover_penalty",
+    "total_grouping_penalty",
+    "total_stability_width_penalty",
+    "total_carton_ab_ratio_penalty",
+}
+
+
 class OptimizerApp(tk.Tk):
     """Tkinter GUI orchestrator.
 
@@ -54,7 +74,7 @@ class OptimizerApp(tk.Tk):
         super().__init__()
 
         self.title("Stickpack Transfer Optimizer")
-        self.iconbitmap("stick_optimpizer_logo.ico")
+        self.iconbitmap("stick_optimizer_logo.ico")
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
@@ -79,26 +99,45 @@ class OptimizerApp(tk.Tk):
 
         self.mt_image = self._load_ui_image("dati_mt")
         self.stick_types_image = self._load_ui_image("stick_dim")
+        
+        self.show_score_penalty_details = tk.BooleanVar(value=False)
 
         self._build_menu_bar()
         self._build_layout()
         self._load_defaults()
 
-    def _load_ui_image(self, base_name: str) -> Optional[tk.PhotoImage]:
-        """Load a UI helper image from the img folder.
-
-        Tries common image extensions and returns None if not found or invalid.
-        """
+    def _load_ui_image(self, base_name):
         img_dir = self.project_root / "img"
-        for extension in ("png", "gif", "ppm", "pgm"):
+
+        for extension in ("png", "jpg", "jpeg", "gif"):
             image_path = img_dir / f"{base_name}.{extension}"
+
             if image_path.exists():
                 try:
-                    return tk.PhotoImage(file=str(image_path))
-                except tk.TclError:
-                    return None
-        return None
+                    img = Image.open(image_path)
 
+                    if base_name == "dati_mt":
+                        new_width = 330
+                    elif base_name == "stick_dim":
+                        new_width = 150
+                    else:
+                        new_width = 300
+
+                    ratio = new_width / img.width
+                    new_height = int(img.height * ratio)
+
+                    img = img.resize(
+                        (new_width, new_height),
+                        Image.Resampling.LANCZOS
+                    )
+
+                    return ImageTk.PhotoImage(img)
+
+                except Exception as e:
+                    print("ERROR:", e)
+
+        return None
+        
     # ------------------------------------------------------------------
     # Menu bar
     # ------------------------------------------------------------------
@@ -140,6 +179,14 @@ class OptimizerApp(tk.Tk):
         options_menu.add_command(
             label="Clear result filters",
             command=lambda: self._clear_all_result_filters(None),
+        )
+
+        options_menu.add_separator()
+
+        options_menu.add_checkbutton(
+            label="Show score and penalty details",
+            variable=self.show_score_penalty_details,
+            command=self._update_score_penalty_columns_visibility,
         )
 
         menu_bar.add_cascade(label="Options", menu=options_menu)
@@ -195,7 +242,7 @@ class OptimizerApp(tk.Tk):
         right_pane = ttk.Frame(main_pane)
 
         main_pane.add(left_pane, weight=1)
-        main_pane.add(right_pane, weight=1)
+        main_pane.add(right_pane, weight=150)
 
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
@@ -204,7 +251,21 @@ class OptimizerApp(tk.Tk):
         )
         global_frame.pack(fill="x", pady=(0, 8))
 
-        self._build_input_tables(left_pane)
+        tables_pane = ttk.PanedWindow(
+            left_pane,
+            orient="vertical",
+        )
+        tables_pane.pack(fill="both", expand=True)
+
+        stick_container = ttk.Frame(tables_pane)
+        format_container = ttk.Frame(tables_pane)
+
+        tables_pane.add(stick_container, weight=1)
+        tables_pane.add(format_container, weight=1)
+
+        self._build_stick_table(stick_container)
+        self._build_format_table(format_container)
+        
         self._build_output_tables(right_pane)
 
         bottom = ttk.Frame(root)
@@ -216,33 +277,36 @@ class OptimizerApp(tk.Tk):
             textvariable=self.status_var,
         ).pack(side="right")
 
-    def _build_input_tables(self, parent: ttk.Frame) -> None:
-        """Build stick types and formats input tables."""
+    def _build_stick_table(self, parent):
         self.stick_table = EditableTable(
             parent,
             title="Stick types",
             columns=[
-                ("name", "stick_type_name", 130),
-                ("length", "stick_length_mm", 110),
-                ("width", "stick_width_mm", 100),
-                ("thickness", "stick_thickness_mm", 120),
-                ("fin", "fin_length_mm", 100),
+                ("name", "Type", 80),
+                ("length", "Hs [mm]", 60),
+                ("width", "As [mm]", 60),
+                ("thickness", "Ss [mm]", 60),
+                ("fin", "Bs [mm]", 60),
             ],
             height=7,
             header_image=self.stick_types_image,
         )
-        self.stick_table.pack(fill="both", expand=True, pady=(0, 8))
 
+        self.stick_table.pack(fill="both", expand=True)
+
+
+    def _build_format_table(self, parent):
         self.format_table = EditableTable(
             parent,
             title="Formats",
             columns=[
-                ("format", "format_name", 150),
-                ("stick_type", "stick_type_name", 150),
-                ("sticks_per_pocket", "sticks_per_pocket", 130),
+                ("format", "Format name", 100),
+                ("stick_type", "Stick type", 100),
+                ("sticks_per_pocket", "Sticks per pocket", 110),
             ],
             height=7,
         )
+
         self.format_table.pack(fill="both", expand=True)
 
     def _build_output_tables(self, parent: ttk.Frame) -> None:
@@ -259,7 +323,79 @@ class OptimizerApp(tk.Tk):
             self._open_selected_format_popup,
         )
         detail_frame.pack(fill="both", expand=True)
+        
+        self._update_score_penalty_columns_visibility()
+        
+    def _update_score_penalty_columns_visibility(self) -> None:
+        """Show or hide score and penalty details in results and summary."""
+        if not hasattr(self, "results_tree"):
+            return
 
+        show_details = self.show_score_penalty_details.get()
+
+        # -------------------------------------------------------------
+        # Top-solutions Treeview
+        # -------------------------------------------------------------
+        all_columns = list(self.results_tree["columns"])
+
+        if show_details:
+            visible_columns = all_columns
+        else:
+            visible_columns = [
+                column
+                for column in all_columns
+                if column not in SCORE_PENALTY_DETAIL_COLUMNS
+            ]
+
+        self.results_tree.configure(
+            displaycolumns=visible_columns
+        )
+
+        # -------------------------------------------------------------
+        # Selected-solution summary
+        # -------------------------------------------------------------
+        if not hasattr(self, "detail_widgets"):
+            return
+
+        summary_vars = self.detail_widgets["summary_vars"]
+        summary_name_labels = self.detail_widgets["summary_name_labels"]
+        summary_fields_order = self.detail_widgets["summary_fields_order"]
+
+        if show_details:
+            visible_summary_fields = list(summary_fields_order)
+        else:
+            visible_summary_fields = [
+                field_name
+                for field_name in summary_fields_order
+                if field_name not in SCORE_PENALTY_SUMMARY_FIELDS
+            ]
+
+        # Nasconde prima tutti i campi.
+        for field_name in summary_fields_order:
+            summary_name_labels[field_name].grid_remove()
+            summary_vars[field_name].grid_remove()
+
+        # Ricolloca i campi visibili senza lasciare spazi vuoti.
+        for index, field_name in enumerate(visible_summary_fields):
+            row = index // 3
+            base_col = (index % 3) * 2
+
+            summary_name_labels[field_name].grid(
+                row=row,
+                column=base_col,
+                sticky="w",
+                padx=(0, 4),
+                pady=2,
+            )
+
+            summary_vars[field_name].grid(
+                row=row,
+                column=base_col + 1,
+                sticky="w",
+                padx=(0, 16),
+                pady=2,
+            )
+    
     # ------------------------------------------------------------------
     # Defaults management
     # ------------------------------------------------------------------
