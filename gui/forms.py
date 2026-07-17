@@ -3,8 +3,9 @@ from tkinter import ttk
 
 
 DISPLAY_LABELS = {
-    "sticks_per_beat": "sticks/beat",
-    "max_pitch_shift_mm": "max pitch shift",
+    "sticks_per_beat": "Np - MT channels",
+    "max_pitch_shift_mm": "D - Max stick offset [mm]",
+
 
     "divider_width_mm": "divider width",
     "pocket_wall_width_mm": "wall width",
