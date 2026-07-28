@@ -81,6 +81,10 @@ class OptimizerApp(tk.Tk):
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
+        # Ensure container structure exists before loading UI
+        self.main_container = None
+        self.home_frame = None
+
         self.project_root = Path(__file__).resolve().parent.parent
         self.user_defaults_path = self.project_root / "user_defaults.json"
         self.current_project_path: Optional[Path] = None
@@ -231,9 +235,13 @@ class OptimizerApp(tk.Tk):
     # Layout
     # ------------------------------------------------------------------
     def _show_home_screen(self):
+        """Show the initial home screen."""
         if self.main_container:
             self.main_container.pack_forget()
         
+        if self.home_frame:
+            self.home_frame.destroy()
+
         self.home_frame = ttk.Frame(self)
         self.home_frame.pack(expand=True, fill="both")
         
@@ -249,7 +257,7 @@ class OptimizerApp(tk.Tk):
         ttk.Button(btn_frame, text="Open Project", width=25, command=self.open_project).pack(pady=10)
 
     def _build_layout(self) -> None:
-        """Build main window layout."""
+        """Build main window layout (hidden initially)."""
         self.main_container = ttk.Frame(self, padding=8)
         root = self.main_container
 
@@ -631,7 +639,7 @@ class OptimizerApp(tk.Tk):
         """Reset application to a new project state."""
         dialog = tk.Toplevel(self)
         dialog.title("New Project")
-        dialog.geometry("300x180")
+        dialog.geometry("350x200")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -639,12 +647,12 @@ class OptimizerApp(tk.Tk):
         result = {"name": None, "use_defaults": False}
 
         ttk.Label(dialog, text="Project Name:").pack(pady=(15, 5))
-        name_entry = ttk.Entry(dialog, width=30)
+        name_entry = ttk.Entry(dialog, width=35)
         name_entry.pack(pady=5)
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="Load current defaults", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(dialog, text="Use current defaults for tables/cartoner", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
@@ -667,11 +675,12 @@ class OptimizerApp(tk.Tk):
         
         self._load_defaults()
         if not result["use_defaults"]:
-            # Clear tables and cartoner settings
+            # Clear stick types, formats and cartoner settings
             self.stick_table.clear()
             self.format_table.clear()
-            for entry in self.cartoner_entries.values():
-                entry.delete(0, tk.END)
+            for field_name in CARTONER_FIELDS:
+                if field_name in self.cartoner_entries:
+                    self.cartoner_entries[field_name].delete(0, tk.END)
 
         if self.home_frame:
             self.home_frame.pack_forget()
