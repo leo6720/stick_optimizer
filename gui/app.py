@@ -75,6 +75,8 @@ class OptimizerApp(tk.Tk):
         super().__init__()
 
         self.title("Stickpack Transfer Optimizer")
+        self.home_frame: Optional[ttk.Frame] = None
+        self.main_container: Optional[ttk.Frame] = None
         self.iconbitmap("stick_optimizer_logo.ico")
         self.geometry("1450x900")
         self.minsize(1200, 720)
@@ -107,7 +109,7 @@ class OptimizerApp(tk.Tk):
 
         self._build_menu_bar()
         self._build_layout()
-        self._load_defaults()
+        self._show_home_screen()
 
     def _load_ui_image(self, base_name):
         img_dir = self.project_root / "img"
@@ -228,10 +230,28 @@ class OptimizerApp(tk.Tk):
     # ------------------------------------------------------------------
     # Layout
     # ------------------------------------------------------------------
+    def _show_home_screen(self):
+        if self.main_container:
+            self.main_container.pack_forget()
+        
+        self.home_frame = ttk.Frame(self)
+        self.home_frame.pack(expand=True, fill="both")
+        
+        inner = ttk.Frame(self.home_frame)
+        inner.place(relx=0.5, rely=0.5, anchor="center")
+        
+        ttk.Label(inner, text="Stickpack Transfer Optimizer", font=("TkDefaultFont", 24, "bold")).pack(pady=(0, 40))
+        
+        btn_frame = ttk.Frame(inner)
+        btn_frame.pack()
+        
+        ttk.Button(btn_frame, text="New Project", width=25, command=self.new_project).pack(pady=10)
+        ttk.Button(btn_frame, text="Open Project", width=25, command=self.open_project).pack(pady=10)
+
     def _build_layout(self) -> None:
         """Build main window layout."""
-        root = ttk.Frame(self, padding=8)
-        root.pack(fill="both", expand=True)
+        self.main_container = ttk.Frame(self, padding=8)
+        root = self.main_container
 
         toolbar = ttk.Frame(root)
         toolbar.pack(fill="x", pady=(0, 8))
@@ -609,13 +629,54 @@ class OptimizerApp(tk.Tk):
 
     def new_project(self) -> None:
         """Reset application to a new project state."""
-        name = simpledialog.askstring("New Project", "Enter project name:")
-        if name is None:
+        dialog = tk.Toplevel(self)
+        dialog.title("New Project")
+        dialog.geometry("300x180")
+        dialog.resizable(False, False)
+        dialog.transient(self)
+        dialog.grab_set()
+
+        result = {"name": None, "use_defaults": False}
+
+        ttk.Label(dialog, text="Project Name:").pack(pady=(15, 5))
+        name_entry = ttk.Entry(dialog, width=30)
+        name_entry.pack(pady=5)
+        name_entry.focus_set()
+
+        use_defaults_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(dialog, text="Load current defaults", variable=use_defaults_var).pack(pady=10)
+
+        def on_ok():
+            name = name_entry.get().strip()
+            if not name:
+                messagebox.showwarning("Warning", "Please enter a project name.")
+                return
+            result["name"] = name
+            result["use_defaults"] = use_defaults_var.get()
+            dialog.destroy()
+
+        ttk.Button(dialog, text="Create", command=on_ok).pack(pady=10)
+
+        self.wait_window(dialog)
+
+        if result["name"] is None:
             return
 
         self.current_project_path = None
-        self.current_project_name = name.strip()
+        self.current_project_name = result["name"]
+        
         self._load_defaults()
+        if not result["use_defaults"]:
+            # Clear tables and cartoner settings
+            self.stick_table.clear()
+            self.format_table.clear()
+            for entry in self.cartoner_entries.values():
+                entry.delete(0, tk.END)
+
+        if self.home_frame:
+            self.home_frame.pack_forget()
+        self.main_container.pack(fill="both", expand=True)
+        
         self._update_window_title()
 
     def open_project(self) -> None:
@@ -651,6 +712,10 @@ class OptimizerApp(tk.Tk):
             self.solutions = data["results"]
             self.active_result_filters = data["active_filters"]
             
+            if self.home_frame:
+                self.home_frame.pack_forget()
+            self.main_container.pack(fill="both", expand=True)
+
             self._apply_result_filters()
             
             if data["selected_index"] is not None and data["selected_index"] < len(self.solutions):
