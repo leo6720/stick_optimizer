@@ -2,7 +2,7 @@ import dataclasses
 import json
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, ttk, simpledialog
 from typing import Optional
 from PIL import Image, ImageTk
 
@@ -82,6 +82,7 @@ class OptimizerApp(tk.Tk):
         self.project_root = Path(__file__).resolve().parent.parent
         self.user_defaults_path = self.project_root / "user_defaults.json"
         self.current_project_path: Optional[Path] = None
+        self.current_project_name: str = ""
 
         self.solutions: list[Solution] = []
         self.candidates_by_format = {}
@@ -153,7 +154,6 @@ class OptimizerApp(tk.Tk):
         file_menu.add_command(label="Open Project...", command=self.open_project)
         file_menu.add_separator()
         file_menu.add_command(label="Save Project", command=self.save_project)
-        file_menu.add_command(label="Save Project As...", command=self.save_project_as)
         file_menu.add_separator()
 
         export_menu = tk.Menu(file_menu, tearoff=False)
@@ -595,14 +595,26 @@ class OptimizerApp(tk.Tk):
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
         base_title = "Stickpack Transfer Optimizer"
+        
+        display_name = ""
         if self.current_project_path:
-            self.title(f"{base_title} - {self.current_project_path.name}")
+            display_name = self.current_project_path.name
+        elif self.current_project_name:
+            display_name = self.current_project_name
+
+        if display_name:
+            self.title(f"{base_title} - {display_name}")
         else:
             self.title(base_title)
 
     def new_project(self) -> None:
         """Reset application to a new project state."""
+        name = simpledialog.askstring("New Project", "Enter project name:")
+        if name is None:
+            return
+
         self.current_project_path = None
+        self.current_project_name = name.strip()
         self._load_defaults()
         self._update_window_title()
 
@@ -620,6 +632,7 @@ class OptimizerApp(tk.Tk):
                 data = deserialize_project(f.read())
 
             self.current_project_path = Path(path)
+            self.current_project_name = ""
             
             # Restore state
             self.current_weights = data["weights"]
@@ -657,8 +670,16 @@ class OptimizerApp(tk.Tk):
     def save_project(self) -> None:
         """Save current project to current path or ask for path."""
         if not self.current_project_path:
-            self.save_project_as()
-            return
+            initial_file = f"{self.current_project_name}.sop" if self.current_project_name else "project.sop"
+            path = filedialog.asksaveasfilename(
+                title="Save Project",
+                defaultextension=".sop",
+                initialfile=initial_file,
+                filetypes=[("Stick Optimizer Project", "*.sop")],
+            )
+            if not path:
+                return
+            self.current_project_path = Path(path)
 
         try:
             overrides = {
@@ -688,19 +709,6 @@ class OptimizerApp(tk.Tk):
         except Exception as exc:
             messagebox.showerror("Save Project Error", str(exc))
 
-    def save_project_as(self) -> None:
-        """Save current project to a new .sop file."""
-        path = filedialog.asksaveasfilename(
-            title="Save Project As",
-            defaultextension=".sop",
-            filetypes=[("Stick Optimizer Project", "*.sop")],
-        )
-        if not path:
-            return
-
-        self.current_project_path = Path(path)
-        self.save_project()
-        self._update_window_title()
 
     def _clear_runtime_results(self) -> None:
         """Clear optimization results and filters."""
