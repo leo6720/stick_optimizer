@@ -1,0 +1,15 @@
+
+# 2026-07-28 14:19:22.956921
++n
+
+# 2026-07-28 14:22:32.966607
++firstly np and d in dati mt should be empty if the option in the pop up for new project is unchecked. then change the text in that pop up to "use example data for stick formats". then i want to change how to treat defaults. remove the defaults save and reload from options dropdown. instead put in each of the 4 pop ups in edit menu a reload and a overwrite buttons to edit them separately for each of the menus. add between () the default value next to the text box in those menus and make the text box bkg light yellow if different from default. the default stick formats and dati mt should not be editable from users but you can keep where they are now, just make sure no button can change them (by doing the other things i requested this should happen without further changes).
+
+# 2026-07-28 14:22:38.364928
++y
+
+# 2026-07-28 14:24:49.071072
++create a new fork in github called "defaults-fork" and then push the edited version to it
+
+# 2026-07-28 14:25:15.526131
++git checkout -b defaults-fork
