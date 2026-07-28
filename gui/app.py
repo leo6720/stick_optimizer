@@ -13,8 +13,9 @@ from defaults import (
     DEFAULT_WEIGHTS,
 )
 from export import export_solution_details_csv, export_solution_summary_csv
-from models import GlobalSettings, Weights
+from models import GlobalSettings, Weights, Solution
 from optimizer import optimize
+from project_io import serialize_project, deserialize_project
 
 from gui.forms import (
     CARTONER_FIELDS,
@@ -80,8 +81,9 @@ class OptimizerApp(tk.Tk):
 
         self.project_root = Path(__file__).resolve().parent.parent
         self.user_defaults_path = self.project_root / "user_defaults.json"
+        self.current_project_path: Optional[Path] = None
 
-        self.solutions = []
+        self.solutions: list[Solution] = []
         self.candidates_by_format = {}
         self.selected_solution_index: Optional[int] = None
 
@@ -147,8 +149,14 @@ class OptimizerApp(tk.Tk):
 
         # File menu
         file_menu = tk.Menu(menu_bar, tearoff=False)
-        export_menu = tk.Menu(file_menu, tearoff=False)
+        file_menu.add_command(label="New Project", command=self.new_project)
+        file_menu.add_command(label="Open Project...", command=self.open_project)
+        file_menu.add_separator()
+        file_menu.add_command(label="Save Project", command=self.save_project)
+        file_menu.add_command(label="Save Project As...", command=self.save_project_as)
+        file_menu.add_separator()
 
+        export_menu = tk.Menu(file_menu, tearoff=False)
         export_menu.add_command(
             label="Summary CSV",
             command=self.export_summary,
@@ -583,6 +591,116 @@ class OptimizerApp(tk.Tk):
     def reload_defaults(self) -> None:
         """Reload defaults from file."""
         self._load_defaults()
+
+    def _update_window_title(self) -> None:
+        """Update window title with current project name."""
+        base_title = "Stickpack Transfer Optimizer"
+        if self.current_project_path:
+            self.title(f"{base_title} - {self.current_project_path.name}")
+        else:
+            self.title(base_title)
+
+    def new_project(self) -> None:
+        """Reset application to a new project state."""
+        self.current_project_path = None
+        self._load_defaults()
+        self._update_window_title()
+
+    def open_project(self) -> None:
+        """Open a project from a .sop file."""
+        path = filedialog.askopenfilename(
+            title="Open Project",
+            filetypes=[("Stick Optimizer Project", "*.sop")],
+        )
+        if not path:
+            return
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = deserialize_project(f.read())
+
+            self.current_project_path = Path(path)
+            
+            # Restore state
+            self.current_weights = data["weights"]
+            self.current_number_of_results_to_show = data["settings"].number_of_results_to_show
+            self.current_carton_AB_target = data["settings"].carton_AB_target
+            
+            set_entries_from_dataclass(self.global_entries, data["settings"])
+            for field_name in CARTONER_FIELDS:
+                val = getattr(data["settings"], field_name)
+                self.cartoner_entries[field_name].delete(0, "end")
+                self.cartoner_entries[field_name].insert(0, "" if val is None else str(val))
+
+            self.stick_table.set_rows([(s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm) for s in data["stick_types"]])
+            self.format_table.set_rows([(f.format_name, f.stick_type_name, f.sticks_per_pocket) for f in data["formats"]])
+
+            self.solutions = data["results"]
+            self.active_result_filters = data["active_filters"]
+            
+            self._apply_result_filters()
+            
+            if data["selected_index"] is not None and data["selected_index"] < len(self.solutions):
+                # Find the item in treeview by index
+                for item in self.results_tree.get_children():
+                    if int(item) == data["selected_index"]:
+                        self.results_tree.selection_set(item)
+                        self.results_tree.see(item)
+                        break
+
+            self._update_window_title()
+            self.status_var.set(f"Project loaded: {self.current_project_path.name}")
+
+        except Exception as exc:
+            messagebox.showerror("Open Project Error", str(exc))
+
+    def save_project(self) -> None:
+        """Save current project to current path or ask for path."""
+        if not self.current_project_path:
+            self.save_project_as()
+            return
+
+        try:
+            overrides = {
+                "number_of_results_to_show": self.current_number_of_results_to_show,
+                "carton_AB_target": self.current_carton_AB_target,
+            }
+            overrides.update(self._cartoner_values_dict())
+            settings = parse_global_settings(self.global_entries, overrides=overrides)
+            
+            stick_types = parse_stick_types(self.stick_table.get_rows())
+            formats = parse_formats(self.format_table.get_rows())
+
+            json_str = serialize_project(
+                settings,
+                self.current_weights,
+                stick_types,
+                formats,
+                self.solutions,
+                self.active_result_filters,
+                self.selected_solution_index
+            )
+
+            with open(self.current_project_path, "w", encoding="utf-8") as f:
+                f.write(json_str)
+
+            self.status_var.set(f"Project saved: {self.current_project_path.name}")
+        except Exception as exc:
+            messagebox.showerror("Save Project Error", str(exc))
+
+    def save_project_as(self) -> None:
+        """Save current project to a new .sop file."""
+        path = filedialog.asksaveasfilename(
+            title="Save Project As",
+            defaultextension=".sop",
+            filetypes=[("Stick Optimizer Project", "*.sop")],
+        )
+        if not path:
+            return
+
+        self.current_project_path = Path(path)
+        self.save_project()
+        self._update_window_title()
 
     def _clear_runtime_results(self) -> None:
         """Clear optimization results and filters."""
