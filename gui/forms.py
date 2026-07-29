@@ -55,14 +55,11 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
         "max_pitch_shift_mm",
     ]
 
-    from defaults import DEFAULT_GLOBAL_SETTINGS
-    
     start_row = 1 if mt_image is not None else 0
-    _add_fields_to_frame_with_defaults(
+    _add_fields_to_frame(
         mt_frame,
         mt_fields,
         entries,
-        defaults={f: getattr(DEFAULT_GLOBAL_SETTINGS, f) for f in mt_fields},
         entry_width=entry_width,
         label_width=20,
         start_row=start_row,

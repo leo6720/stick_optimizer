@@ -565,40 +565,20 @@ class OptimizerApp(tk.Tk):
         self._clear_runtime_results()
 
     def save_defaults(self) -> None:
-        """Save current configuration to user defaults file."""
+        """Save current configuration to user defaults file (Weights, Cartoner, etc)."""
         try:
-            # We use a permissive parse or fallback because some global entries 
-            # might be empty (e.g. after New Project with cleared MT data)
-            overrides = {
-                "number_of_results_to_show": self.current_number_of_results_to_show,
-                "carton_AB_target": self.current_carton_AB_target,
-            }
-            overrides.update(self._cartoner_values_dict())
-
-            # Fill in missing MT fields from defaults if they are empty in entries
-            # to prevent validation errors during default saving.
-            entries_to_parse = self.global_entries.copy()
-            for field in ["sticks_per_beat", "max_pitch_shift_mm"]:
-                if field in entries_to_parse and not entries_to_parse[field].get().strip():
-                    overrides[field] = getattr(DEFAULT_GLOBAL_SETTINGS, field)
-
-            settings = parse_global_settings(
-                entries_to_parse,
-                overrides=overrides,
-            )
-
-            stick_types = parse_stick_types(self.stick_table.get_rows())
-            formats = parse_formats(self.format_table.get_rows())
-
+            # We only save the "hidden" logic defaults: Weights, Cartoner data, and UI prefs.
+            # Main window data (Sticks, Formats, MT) are project-specific.
+            
+            cartoner_data = self._cartoner_values_dict()
+            
             data = {
-                "global_settings": dataclasses.asdict(settings),
+                "global_settings": {
+                    "number_of_results_to_show": self.current_number_of_results_to_show,
+                    "carton_AB_target": self.current_carton_AB_target,
+                    **cartoner_data
+                },
                 "weights": dataclasses.asdict(self.current_weights),
-                "stick_types": [
-                    dataclasses.asdict(stick) for stick in stick_types
-                ],
-                "formats": [
-                    dataclasses.asdict(fmt) for fmt in formats
-                ],
             }
 
             with self.user_defaults_path.open("w", encoding="utf-8") as file:
@@ -673,19 +653,26 @@ class OptimizerApp(tk.Tk):
         self.current_project_name = result["name"]
         
         self._load_defaults()
-        if not result["use_defaults"]:
-            # Clear stick types, formats and cartoner settings
-            self.stick_table.clear()
-            self.format_table.clear()
-            for field_name in CARTONER_FIELDS:
-                if field_name in self.cartoner_entries:
-                    self.cartoner_entries[field_name].delete(0, tk.END)
+        
+        # Always clear main window data for a new project unless example data is requested
+        self.stick_table.clear()
+        self.format_table.clear()
+        if "sticks_per_beat" in self.global_entries:
+            self.global_entries["sticks_per_beat"].delete(0, tk.END)
+        if "max_pitch_shift_mm" in self.global_entries:
+            self.global_entries["max_pitch_shift_mm"].delete(0, tk.END)
 
-            # Clear np and d
-            if "sticks_per_beat" in self.global_entries:
-                self.global_entries["sticks_per_beat"].delete(0, tk.END)
-            if "max_pitch_shift_mm" in self.global_entries:
-                self.global_entries["max_pitch_shift_mm"].delete(0, tk.END)
+        if result["use_defaults"]:
+            # Load example data (formerly built-in defaults) into main window
+            set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
+            self.stick_table.set_rows([
+                (s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm)
+                for s in DEFAULT_STICK_TYPES
+            ])
+            self.format_table.set_rows([
+                (f.format_name, f.stick_type_name, f.sticks_per_pocket)
+                for f in DEFAULT_FORMATS
+            ])
 
         if self.home_frame:
             self.home_frame.pack_forget()
