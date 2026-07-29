@@ -767,7 +767,16 @@ class OptimizerApp(tk.Tk):
                 "carton_AB_target": self.current_carton_AB_target,
             }
             overrides.update(self._cartoner_values_dict())
-            settings = parse_global_settings(self.global_entries, overrides=overrides)
+            
+            # If global entries haven't been created/populated yet (e.g., saving from home screen),
+            # fall back to DEFAULT_GLOBAL_SETTINGS or current values for any missing required fields.
+            if not self.global_entries:
+                base_settings = DEFAULT_GLOBAL_SETTINGS
+                settings_dict = dataclasses.asdict(base_settings)
+                settings_dict.update(overrides)
+                settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
+            else:
+                settings = parse_global_settings(self.global_entries, overrides=overrides)
             
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
