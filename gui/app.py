@@ -768,15 +768,19 @@ class OptimizerApp(tk.Tk):
             }
             overrides.update(self._cartoner_values_dict())
             
-            # If global entries haven't been created/populated yet (e.g., saving from home screen),
-            # fall back to DEFAULT_GLOBAL_SETTINGS or current values for any missing required fields.
-            if not self.global_entries:
-                base_settings = DEFAULT_GLOBAL_SETTINGS
-                settings_dict = dataclasses.asdict(base_settings)
-                settings_dict.update(overrides)
-                settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
-            else:
-                settings = parse_global_settings(self.global_entries, overrides=overrides)
+            # If global entries are empty (e.g., on home screen or cleared), build settings using DEFAULT_GLOBAL_SETTINGS and overrides
+            base_settings = DEFAULT_GLOBAL_SETTINGS
+            settings_dict = dataclasses.asdict(base_settings)
+            
+            if self.global_entries:
+                try:
+                    parsed_global = parse_global_settings(self.global_entries, overrides={})
+                    settings_dict.update({k: getattr(parsed_global, k) for k in dataclasses.fields(GlobalSettings) if getattr(parsed_global, k) is not None})
+                except Exception:
+                    pass
+
+            settings_dict.update(overrides)
+            settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
             
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
