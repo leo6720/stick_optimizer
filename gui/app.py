@@ -849,9 +849,9 @@ class OptimizerApp(tk.Tk):
         button_frame = ttk.Frame(frame)
         button_frame.grid(row=len(dataclasses.fields(Weights)), column=0, columnspan=2, sticky="ew", pady=(16, 0))
 
-        ttk.Button(button_frame, text="Close", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
         ttk.Button(button_frame, text="Apply", 
-                   command=lambda: self._save_weights_from_dialog(entries, None)).pack(side="right", padx=(4, 0))
+                   command=lambda: self._save_weights_from_dialog(entries, dialog)).pack(side="right", padx=(4, 0))
         
         def reset_weights():
             for field in dataclasses.fields(Weights):
@@ -964,6 +964,7 @@ class OptimizerApp(tk.Tk):
                 elif field_name == "carton_AB_target":
                     self.current_carton_AB_target = value
 
+                dialog.destroy()
                 self.status_var.set(f"{field_name} set to {value}")
             except Exception as exc:
                 messagebox.showerror(f"Invalid {field_name}", str(exc))
@@ -988,7 +989,7 @@ class OptimizerApp(tk.Tk):
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
 
-        ttk.Button(button_frame, text="Close", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
         ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
         ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
         ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
@@ -1082,12 +1083,12 @@ class OptimizerApp(tk.Tk):
         ttk.Button(
             button_frame,
             text="Apply",
-            command=lambda: self._save_cartoner_settings(popup_entries, None),
+            command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right", padx=(4, 0))
 
         ttk.Button(
             button_frame,
-            text="Close",
+            text="Cancel",
             command=dialog.destroy,
         ).pack(side="right", padx=(4, 0))
 
