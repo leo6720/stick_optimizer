@@ -179,18 +179,6 @@ class OptimizerApp(tk.Tk):
         # Options menu
         options_menu = tk.Menu(menu_bar, tearoff=False)
 
-        defaults_menu = tk.Menu(options_menu, tearoff=False)
-        defaults_menu.add_command(
-            label="Save",
-            command=self.save_defaults,
-        )
-        defaults_menu.add_command(
-            label="Reload",
-            command=self.reload_defaults,
-        )
-
-        options_menu.add_cascade(label="Defaults", menu=defaults_menu)
-        options_menu.add_separator()
         options_menu.add_command(
             label="Clear result filters",
             command=lambda: self._clear_all_result_filters(None),
@@ -683,6 +671,12 @@ class OptimizerApp(tk.Tk):
                 if field_name in self.cartoner_entries:
                     self.cartoner_entries[field_name].delete(0, tk.END)
 
+            # Clear np and d
+            if "sticks_per_beat" in self.global_entries:
+                self.global_entries["sticks_per_beat"].delete(0, tk.END)
+            if "max_pitch_shift_mm" in self.global_entries:
+                self.global_entries["max_pitch_shift_mm"].delete(0, tk.END)
+
         if self.home_frame:
             self.home_frame.pack_forget()
         self.main_container.pack(fill="both", expand=True)
@@ -807,7 +801,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Edit scoring weights")
-        dialog.geometry("460x360")
+        dialog.geometry("540x420")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -817,50 +811,55 @@ class OptimizerApp(tk.Tk):
 
         entries = {}
 
+        def _update_style(e, default_val):
+            try:
+                if e.get().strip() != str(default_val):
+                    e.configure(style="Yellow.TEntry")
+                else:
+                    e.configure(style="TEntry")
+            except:
+                pass
+
         for row, field in enumerate(dataclasses.fields(Weights)):
-            ttk.Label(frame, text=field.name).grid(
-                row=row,
-                column=0,
-                sticky="w",
-                padx=(0, 8),
-                pady=4,
+            default_val = getattr(DEFAULT_WEIGHTS, field.name)
+            label_text = f"{field.name} ({default_val})"
+            ttk.Label(frame, text=label_text).grid(
+                row=row, column=0, sticky="w", padx=(0, 8), pady=4
             )
 
             entry = ttk.Entry(frame, width=18)
-            entry.grid(
-                row=row,
-                column=1,
-                sticky="w",
-                pady=4,
-            )
-
+            entry.grid(row=row, column=1, sticky="w", pady=4)
+            
             current_value = getattr(self.current_weights, field.name)
             entry.insert(0, str(current_value))
+            _update_style(entry, default_val)
+            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=default_val: _update_style(ev, dv))
 
             entries[field.name] = entry
 
         button_frame = ttk.Frame(frame)
-        button_frame.grid(
-            row=len(dataclasses.fields(Weights)),
-            column=0,
-            columnspan=2,
-            sticky="e",
-            pady=(16, 0),
-        )
+        button_frame.grid(row=len(dataclasses.fields(Weights)), column=0, columnspan=2, sticky="ew", pady=(16, 0))
 
-        ttk.Button(
-            button_frame,
-            text="Save",
-            command=lambda: self._save_weights_from_dialog(entries, dialog),
-        ).pack(side="right")
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Apply", 
+                   command=lambda: self._save_weights_from_dialog(entries, dialog)).pack(side="right", padx=(4, 0))
+        
+        def reset_weights():
+            for field in dataclasses.fields(Weights):
+                dv = getattr(DEFAULT_WEIGHTS, field.name)
+                entries[field.name].delete(0, tk.END)
+                entries[field.name].insert(0, str(dv))
+                _update_style(entries[field.name], dv)
 
-        ttk.Button(
-            button_frame,
-            text="Cancel",
-            command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
+        def overwrite_defaults():
+            self._save_weights_from_dialog(entries, None)
+            self.save_defaults()
+            dialog.destroy()
 
-    def _save_weights_from_dialog(self, entries: dict, dialog: tk.Toplevel) -> None:
+        ttk.Button(button_frame, text="Reset to Default", command=reset_weights).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite_defaults).pack(side="left")
+
+    def _save_weights_from_dialog(self, entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save weights from editor dialog."""
         try:
             values = {}
@@ -875,7 +874,8 @@ class OptimizerApp(tk.Tk):
 
             self.current_weights = Weights(**values)
 
-            dialog.destroy()
+            if dialog:
+                dialog.destroy()
             self.status_var.set("Scoring weights updated")
 
         except Exception as exc:
@@ -895,41 +895,42 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("360x150")
+        dialog.geometry("480x180")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
 
+        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text=field_name).grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=8,
+        ttk.Label(frame, text=f"{field_name} ({default_val})").grid(
+            row=0, column=0, sticky="w", padx=(0, 8), pady=8
         )
 
         entry = ttk.Entry(frame, width=16)
         entry.grid(row=0, column=1, sticky="w", pady=8)
         entry.insert(0, str(current_value))
-        entry.focus_set()
-        entry.select_range(0, tk.END)
+
+        def _update_style(*args):
+            try:
+                if entry.get().strip() != str(default_val):
+                    entry.configure(style="Yellow.TEntry")
+                else:
+                    entry.configure(style="TEntry")
+            except:
+                pass
+
+        _update_style()
+        entry.bind("<KeyRelease>", _update_style)
 
         button_frame = ttk.Frame(frame)
-        button_frame.grid(
-            row=1,
-            column=0,
-            columnspan=2,
-            sticky="e",
-            pady=(16, 0),
-        )
+        button_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(16, 0))
 
         def save_value() -> None:
             try:
                 value = value_type(entry.get().strip())
-
                 if min_value is not None and value <= min_value:
                     raise ValueError(f"{field_name} must be > {min_value}.")
 
@@ -940,21 +941,30 @@ class OptimizerApp(tk.Tk):
 
                 dialog.destroy()
                 self.status_var.set(f"{field_name} set to {value}")
-
             except Exception as exc:
                 messagebox.showerror(f"Invalid {field_name}", str(exc))
 
-        ttk.Button(
-            button_frame,
-            text="Save",
-            command=save_value,
-        ).pack(side="right")
+        def reset():
+            entry.delete(0, tk.END)
+            entry.insert(0, str(default_val))
+            _update_style()
 
-        ttk.Button(
-            button_frame,
-            text="Cancel",
-            command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
+        def overwrite():
+            try:
+                value = value_type(entry.get().strip())
+                if field_name == "number_of_results_to_show":
+                    self.current_number_of_results_to_show = value
+                elif field_name == "carton_AB_target":
+                    self.current_carton_AB_target = value
+                self.save_defaults()
+                dialog.destroy()
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
 
     def open_number_of_results_editor(self) -> None:
         """Open editor for number of results to show."""
@@ -998,7 +1008,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x400")
+        dialog.geometry("580x450")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -1011,15 +1021,19 @@ class OptimizerApp(tk.Tk):
         form_frame, popup_entries = build_cartoner_settings_form(
             main_frame,
             entry_width=14,
+            defaults={f: getattr(DEFAULT_GLOBAL_SETTINGS, f) for f in CARTONER_FIELDS}
         )
         form_frame.pack(fill="both", expand=True, pady=(0, 12))
 
         # Populate entries with current values
         for field_name in CARTONER_FIELDS:
+            popup_entries[field_name].delete(0, "end")
             popup_entries[field_name].insert(
                 0,
                 self.cartoner_entries[field_name].get(),
             )
+            # Trigger style update
+            popup_entries[field_name].event_generate("<KeyRelease>")
 
         # Button frame at bottom
         button_frame = ttk.Frame(main_frame)
@@ -1027,7 +1041,7 @@ class OptimizerApp(tk.Tk):
 
         ttk.Button(
             button_frame,
-            text="Save",
+            text="Apply",
             command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right", padx=(4, 0))
 
@@ -1035,9 +1049,24 @@ class OptimizerApp(tk.Tk):
             button_frame,
             text="Cancel",
             command=dialog.destroy,
-        ).pack(side="right", padx=(0, 4))
+        ).pack(side="right", padx=(4, 0))
 
-    def _save_cartoner_settings(self, popup_entries: dict, dialog: tk.Toplevel) -> None:
+        def reset():
+            for field_name in CARTONER_FIELDS:
+                dv = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+                popup_entries[field_name].delete(0, "end")
+                popup_entries[field_name].insert(0, str(dv))
+                popup_entries[field_name].event_generate("<KeyRelease>")
+
+        def overwrite():
+            self._save_cartoner_settings(popup_entries, None)
+            self.save_defaults()
+            dialog.destroy()
+
+        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
+
+    def _save_cartoner_settings(self, popup_entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save cartoner settings from popup."""
         try:
             for field_name in CARTONER_FIELDS:
@@ -1047,7 +1076,8 @@ class OptimizerApp(tk.Tk):
                     popup_entries[field_name].get(),
                 )
 
-            dialog.destroy()
+            if dialog:
+                dialog.destroy()
             self.status_var.set("Cartoner settings updated")
 
         except Exception as exc:

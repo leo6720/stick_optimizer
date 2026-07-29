@@ -55,11 +55,14 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
         "max_pitch_shift_mm",
     ]
 
+    from defaults import DEFAULT_GLOBAL_SETTINGS
+    
     start_row = 1 if mt_image is not None else 0
-    _add_fields_to_frame(
+    _add_fields_to_frame_with_defaults(
         mt_frame,
         mt_fields,
         entries,
+        defaults={f: getattr(DEFAULT_GLOBAL_SETTINGS, f) for f in mt_fields},
         entry_width=entry_width,
         label_width=20,
         start_row=start_row,
@@ -140,6 +143,9 @@ def _add_fields_to_frame_with_defaults(
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
 
+    style = ttk.Style()
+    style.configure("Yellow.TEntry", fieldbackground="lightyellow")
+
     for row, field_name in enumerate(field_names, start=start_row):
         default_val = defaults.get(field_name, "")
         display_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({default_val})"
@@ -182,9 +188,6 @@ def _add_fields_to_frame_with_defaults(
                 except Exception:
                     pass
             return check
-
-        style = ttk.Style()
-        style.configure("Yellow.TEntry", fieldbackground="lightyellow")
 
         validation_cmd = make_validation(entry, default_val)
         entry.bind("<KeyRelease>", validation_cmd)
