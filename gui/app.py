@@ -111,6 +111,8 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
+        self._load_defaults()
+
         self.mt_image = self._load_ui_image("dati_mt")
         self.stick_types_image = self._load_ui_image("stick_dim")
         
