@@ -189,8 +189,16 @@ def _add_fields_to_frame_with_defaults(
                     expected = str(d).strip()
                     if current_val != expected:
                         e.configure(style="Yellow.TEntry")
+                        try:
+                            e.config(background="lightyellow")
+                        except Exception:
+                            pass
                     else:
                         e.configure(style="TEntry")
+                        try:
+                            e.config(background="white")
+                        except Exception:
+                            pass
                 except Exception:
                     pass
             return check

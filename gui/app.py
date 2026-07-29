@@ -1032,10 +1032,23 @@ class OptimizerApp(tk.Tk):
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Form content
+        current_defaults = {}
+        for f in CARTONER_FIELDS:
+            val = getattr(DEFAULT_GLOBAL_SETTINGS, f)
+            if self.user_defaults_path.exists():
+                try:
+                    with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                        udata = json.load(file).get("global_settings", {})
+                        if f in udata:
+                            val = udata[f]
+                except Exception:
+                    pass
+            current_defaults[f] = val
+
         form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
             main_frame,
             entry_width=14,
-            defaults={f: getattr(DEFAULT_GLOBAL_SETTINGS, f) for f in CARTONER_FIELDS}
+            defaults=current_defaults
         )
         form_frame.pack(fill="both", expand=True, pady=(0, 12))
 
