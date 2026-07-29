@@ -492,7 +492,6 @@ class OptimizerApp(tk.Tk):
                 ]
             )
 
-        self._clear_runtime_results()
         self.status_var.set("Built-in defaults loaded")
 
     def _load_defaults_from_file(self, path: Path) -> None:
@@ -573,8 +572,6 @@ class OptimizerApp(tk.Tk):
                     for row in data.get("formats", [])
                 ]
             )
-
-        self._clear_runtime_results()
 
     def save_defaults(self) -> None:
         """Save current configuration to user defaults file (Weights, Cartoner, etc)."""
