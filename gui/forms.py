@@ -148,6 +148,7 @@ def _add_fields_to_frame_with_defaults(
 
     style = ttk.Style()
     style.configure("Yellow.TEntry", fieldbackground="lightyellow")
+    style.map("Yellow.TEntry", fieldbackground=[("active", "lightyellow"), ("!disabled", "lightyellow")])
 
     for row, field_name in enumerate(field_names, start=start_row):
         default_val = defaults.get(field_name, "")

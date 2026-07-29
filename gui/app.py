@@ -819,7 +819,7 @@ class OptimizerApp(tk.Tk):
 
         weight_labels = {}
         for row, field in enumerate(dataclasses.fields(Weights)):
-            default_val = getattr(DEFAULT_WEIGHTS, field.name)
+            default_val = getattr(self.current_weights, field.name)
             label_text = f"{field.name} ({default_val})"
             lbl = ttk.Label(frame, text=label_text)
             lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
@@ -902,7 +902,12 @@ class OptimizerApp(tk.Tk):
         dialog.transient(self)
         dialog.grab_set()
 
-        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+        if field_name == "number_of_results_to_show":
+            default_val = self.current_number_of_results_to_show
+        elif field_name == "carton_AB_target":
+            default_val = self.current_carton_AB_target
+        else:
+            default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
 
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
