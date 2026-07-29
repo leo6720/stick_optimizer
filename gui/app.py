@@ -101,7 +101,9 @@ class OptimizerApp(tk.Tk):
         self.global_entries = {}
         self.cartoner_entries = {}
         for field_name in CARTONER_FIELDS:
-            self.cartoner_entries[field_name] = ttk.Entry(self)
+            entry = ttk.Entry(self)
+            entry.insert(0, str(getattr(DEFAULT_GLOBAL_SETTINGS, field_name)))
+            self.cartoner_entries[field_name] = entry
         self.current_weights = DEFAULT_WEIGHTS
 
         self.current_number_of_results_to_show = (
