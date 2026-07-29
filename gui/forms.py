@@ -95,6 +95,7 @@ def _add_fields_to_frame(
     entry_width,
     label_width,
     start_row: int = 0,
+    labels=None,
 ):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
@@ -115,6 +116,8 @@ def _add_fields_to_frame(
             pady=2,
         )
         labels[field_name] = label
+        if labels is not None:
+            labels[field_name] = label
 
         entry = ttk.Entry(
             frame,
