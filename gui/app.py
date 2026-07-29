@@ -1059,26 +1059,9 @@ class OptimizerApp(tk.Tk):
                     pass
             current_defaults[f] = val
 
-        form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
-            main_frame,
-            entry_width=14,
-            defaults=current_defaults
-        )
-        form_frame.pack(fill="both", expand=True, pady=(0, 12))
-
-        # Populate entries with current values
-        for field_name in CARTONER_FIELDS:
-            popup_entries[field_name].delete(0, "end")
-            popup_entries[field_name].insert(
-                0,
-                self.cartoner_entries[field_name].get(),
-            )
-            # Trigger style update
-            popup_entries[field_name].event_generate("<KeyRelease>")
-
-        # Button frame at bottom
+        # Button frame at bottom (pack first so it claims bottom space)
         button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill="x", side="bottom")
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
         ttk.Button(
             button_frame,
@@ -1113,6 +1096,23 @@ class OptimizerApp(tk.Tk):
 
         ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
         ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
+
+        form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
+            main_frame,
+            entry_width=14,
+            defaults=current_defaults
+        )
+        form_frame.pack(fill="both", expand=True)
+
+        # Populate entries with current values
+        for field_name in CARTONER_FIELDS:
+            popup_entries[field_name].delete(0, "end")
+            popup_entries[field_name].insert(
+                0,
+                self.cartoner_entries[field_name].get(),
+            )
+            # Trigger style update
+            popup_entries[field_name].event_generate("<KeyRelease>")
 
     def _save_cartoner_settings(self, popup_entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save cartoner settings from popup."""
