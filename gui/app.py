@@ -823,7 +823,7 @@ class OptimizerApp(tk.Tk):
             label_text = f"{field.name} ({default_val})"
             lbl = ttk.Label(frame, text=label_text)
             lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
-            weight_labels[field.name] = lbl
+            weight_labels[field.name] = (lbl, default_val)
 
             entry = ttk.Entry(frame, width=18)
             entry.grid(row=row, column=1, sticky="w", pady=4)
@@ -852,11 +852,16 @@ class OptimizerApp(tk.Tk):
         def overwrite_defaults():
             self._save_weights_from_dialog(entries, None)
             self.save_defaults()
-            # Update labels in the current dialog
+            # Update labels and re-bind key release with new default in the current dialog
             for field in dataclasses.fields(Weights):
                 dv = getattr(self.current_weights, field.name)
-                weight_labels[field.name].config(text=f"{field.name} ({dv})")
-                _update_style(entries[field.name], dv)
+                lbl, _ = weight_labels[field.name]
+                weight_labels[field.name] = (lbl, dv)
+                lbl.config(text=f"{field.name} ({dv})")
+                ev = entries[field.name]
+                ev.unbind("<KeyRelease>")
+                ev.bind("<KeyRelease>", lambda e, ev=ev, dv=dv: _update_style(ev, dv))
+                _update_style(ev, dv)
 
         ttk.Button(button_frame, text="Reset to Default", command=reset_weights).pack(side="left", padx=(0, 4))
         ttk.Button(button_frame, text="Overwrite Default", command=overwrite_defaults).pack(side="left")
@@ -963,22 +968,12 @@ class OptimizerApp(tk.Tk):
                 elif field_name == "carton_AB_target":
                     self.current_carton_AB_target = value
                 self.save_defaults()
-                # Update current view
-                new_dv = value
-                lbl.config(text=f"{field_name} ({new_dv})")
-                # Re-bind style check to new default
-                entry.bind("<KeyRelease>", lambda e: _update_style_with_val(new_dv))
-                _update_style_with_val(new_dv)
+                nonlocal default_val
+                default_val = value
+                lbl.config(text=f"{field_name} ({default_val})")
+                _update_style()
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
-
-        def _update_style_with_val(dv):
-            try:
-                if entry.get().strip() != str(dv):
-                    entry.configure(style="Yellow.TEntry")
-                else:
-                    entry.configure(style="TEntry")
-            except: pass
 
         ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
         ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
@@ -1094,12 +1089,12 @@ class OptimizerApp(tk.Tk):
             from gui.forms import DISPLAY_LABELS
             self._save_cartoner_settings(popup_entries, None)
             self.save_defaults()
-            # Update labels in the current dialog
+            # Update labels in the current dialog using newly saved defaults
             for field_name in CARTONER_FIELDS:
                 val = popup_entries[field_name].get()
+                current_defaults[field_name] = val
                 lbl_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({val})"
                 popup_labels[field_name].config(text=lbl_text)
-                # Re-trigger validation for the new default
                 popup_entries[field_name].event_generate("<KeyRelease>")
 
         ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
