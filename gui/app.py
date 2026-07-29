@@ -567,14 +567,24 @@ class OptimizerApp(tk.Tk):
     def save_defaults(self) -> None:
         """Save current configuration to user defaults file."""
         try:
+            # We use a permissive parse or fallback because some global entries 
+            # might be empty (e.g. after New Project with cleared MT data)
+            overrides = {
+                "number_of_results_to_show": self.current_number_of_results_to_show,
+                "carton_AB_target": self.current_carton_AB_target,
+            }
+            overrides.update(self._cartoner_values_dict())
+
+            # Fill in missing MT fields from defaults if they are empty in entries
+            # to prevent validation errors during default saving.
+            entries_to_parse = self.global_entries.copy()
+            for field in ["sticks_per_beat", "max_pitch_shift_mm"]:
+                if field in entries_to_parse and not entries_to_parse[field].get().strip():
+                    overrides[field] = getattr(DEFAULT_GLOBAL_SETTINGS, field)
+
             settings = parse_global_settings(
-                self.global_entries,
-                overrides={
-                    "number_of_results_to_show": (
-                        self.current_number_of_results_to_show
-                    ),
-                    "carton_AB_target": self.current_carton_AB_target,
-                },
+                entries_to_parse,
+                overrides=overrides,
             )
 
             stick_types = parse_stick_types(self.stick_table.get_rows())
