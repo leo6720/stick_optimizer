@@ -1104,13 +1104,17 @@ class OptimizerApp(tk.Tk):
         )
         form_frame.pack(fill="both", expand=True)
 
-        # Populate entries with current values
+        # Populate entries with current values safely
         for field_name in CARTONER_FIELDS:
             popup_entries[field_name].delete(0, "end")
-            popup_entries[field_name].insert(
-                0,
-                self.cartoner_entries[field_name].get(),
-            )
+            val = ""
+            if field_name in self.cartoner_entries:
+                val = self.cartoner_entries[field_name].get()
+            elif field_name in self.global_entries:
+                val = self.global_entries[field_name].get()
+            else:
+                val = str(current_defaults.get(field_name, ""))
+            popup_entries[field_name].insert(0, val)
             # Trigger style update
             popup_entries[field_name].event_generate("<KeyRelease>")
 
