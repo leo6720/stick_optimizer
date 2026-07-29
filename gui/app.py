@@ -170,6 +170,7 @@ class OptimizerApp(tk.Tk):
         file_menu.add_command(label="Open Project...", command=self.open_project)
         file_menu.add_separator()
         file_menu.add_command(label="Save Project", command=self.save_project)
+        file_menu.add_command(label="Save Project As...", command=self.save_project_as)
         file_menu.add_separator()
 
         export_menu = tk.Menu(file_menu, tearoff=False)
@@ -753,19 +754,30 @@ class OptimizerApp(tk.Tk):
             messagebox.showerror("Open Project Error", str(exc))
 
     def save_project(self) -> None:
-        """Save current project to current path or ask for path."""
+        """Save current project to current path or prompt if new."""
         if not self.current_project_path:
-            initial_file = f"{self.current_project_name}.sop" if self.current_project_name else "project.sop"
-            path = filedialog.asksaveasfilename(
-                title="Save Project",
-                defaultextension=".sop",
-                initialfile=initial_file,
-                filetypes=[("Stick Optimizer Project", "*.sop")],
-            )
-            if not path:
-                return
-            self.current_project_path = Path(path)
+            self.save_project_as()
+            return
+        
+        self._do_save_project(self.current_project_path)
 
+    def save_project_as(self) -> None:
+        """Prompt for a path and save current project."""
+        initial_file = f"{self.current_project_name}.sop" if self.current_project_name else "project.sop"
+        path = filedialog.asksaveasfilename(
+            title="Save Project As",
+            defaultextension=".sop",
+            initialfile=initial_file,
+            filetypes=[("Stick Optimizer Project", "*.sop")],
+        )
+        if not path:
+            return
+        
+        self.current_project_path = Path(path)
+        self._update_window_title()
+        self._do_save_project(self.current_project_path)
+
+    def _do_save_project(self, path: Path) -> None:
         try:
             overrides = {
                 "number_of_results_to_show": self.current_number_of_results_to_show,
@@ -773,19 +785,27 @@ class OptimizerApp(tk.Tk):
             }
             overrides.update(self._cartoner_values_dict())
             
-            # If global entries are empty (e.g., on home screen or cleared), build settings using DEFAULT_GLOBAL_SETTINGS and overrides
-            base_settings = DEFAULT_GLOBAL_SETTINGS
-            settings_dict = dataclasses.asdict(base_settings)
-            
+            # Build settings directly from current global entries and overrides without falling back to defaults for empty fields
+            settings_dict = {}
             if self.global_entries:
-                try:
-                    parsed_global = parse_global_settings(self.global_entries, overrides={})
-                    settings_dict.update({k: getattr(parsed_global, k) for k in dataclasses.fields(GlobalSettings) if getattr(parsed_global, k) is not None})
-                except Exception:
-                    pass
+                for field in dataclasses.fields(GlobalSettings):
+                    field_name = field.name
+                    if field_name in overrides and overrides[field_name] is not None:
+                        settings_dict[field_name] = overrides[field_name]
+                    elif field_name in self.global_entries:
+                        raw = self.global_entries[field_name].get().strip()
+                        if raw == "":
+                            settings_dict[field_name] = None
+                        else:
+                            try:
+                                settings_dict[field_name] = field.type(raw)
+                            except Exception:
+                                settings_dict[field_name] = None
+                    else:
+                        settings_dict[field_name] = None
 
             settings_dict.update(overrides)
-            settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
+            settings = GlobalSettings(**settings_dict)
             
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
@@ -800,10 +820,10 @@ class OptimizerApp(tk.Tk):
                 self.selected_solution_index
             )
 
-            with open(self.current_project_path, "w", encoding="utf-8") as f:
+            with open(path, "w", encoding="utf-8") as f:
                 f.write(json_str)
 
-            self.status_var.set(f"Project saved: {self.current_project_path.name}")
+            self.status_var.set(f"Project saved: {path.name}")
         except Exception as exc:
             messagebox.showerror("Save Project Error", str(exc))
 
