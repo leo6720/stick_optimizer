@@ -113,8 +113,6 @@ class OptimizerApp(tk.Tk):
 
         self.status_var = tk.StringVar(value="Ready")
 
-        self._load_defaults()
-
         self.mt_image = self._load_ui_image("dati_mt")
         self.stick_types_image = self._load_ui_image("stick_dim")
         
@@ -122,6 +120,9 @@ class OptimizerApp(tk.Tk):
 
         self._build_menu_bar()
         self._build_layout()
+        
+        self._load_defaults()
+
         self._show_home_screen()
 
     def _load_ui_image(self, base_name):
