@@ -796,12 +796,15 @@ class OptimizerApp(tk.Tk):
         self.active_result_filters = {}
         self.filtered_solution_indices = []
 
-        clear_tree(self.results_tree)
-        clear_solution_details(self.detail_widgets)
-        update_result_headings_for_filters(
-            self.results_tree,
-            self.active_result_filters,
-        )
+        if hasattr(self, "results_tree"):
+            clear_tree(self.results_tree)
+        if hasattr(self, "detail_widgets"):
+            clear_solution_details(self.detail_widgets)
+        if hasattr(self, "results_tree"):
+            update_result_headings_for_filters(
+                self.results_tree,
+                self.active_result_filters,
+            )
 
     # ------------------------------------------------------------------
     # Scoring weights editor
