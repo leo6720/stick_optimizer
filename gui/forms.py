@@ -186,7 +186,8 @@ def _add_fields_to_frame_with_defaults(
             def check(*_args):
                 try:
                     current_val = e.get().strip()
-                    if current_val != str(d):
+                    expected = str(d).strip()
+                    if current_val != expected:
                         e.configure(style="Yellow.TEntry")
                     else:
                         e.configure(style="TEntry")
@@ -196,6 +197,8 @@ def _add_fields_to_frame_with_defaults(
 
         validation_cmd = make_validation(entry, default_val)
         entry.bind("<KeyRelease>", validation_cmd)
+        # Check initial state on creation
+        validation_cmd()
 
         entries[field_name] = entry
 
