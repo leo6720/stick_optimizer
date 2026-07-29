@@ -111,6 +111,8 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
+        self.status_var = tk.StringVar(value="Ready")
+
         self._load_defaults()
 
         self.mt_image = self._load_ui_image("dati_mt")
@@ -435,7 +437,8 @@ class OptimizerApp(tk.Tk):
         if self.user_defaults_path.exists():
             try:
                 self._load_defaults_from_file(self.user_defaults_path)
-                self.status_var.set("User defaults loaded")
+                if hasattr(self, "status_var"):
+                    self.status_var.set("User defaults loaded")
                 return
             except Exception as exc:
                 messagebox.showwarning(
@@ -492,7 +495,8 @@ class OptimizerApp(tk.Tk):
                 ]
             )
 
-        self.status_var.set("Built-in defaults loaded")
+        if hasattr(self, "status_var"):
+            self.status_var.set("Built-in defaults loaded")
 
     def _load_defaults_from_file(self, path: Path) -> None:
         """Load defaults from a JSON file."""
