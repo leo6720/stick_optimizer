@@ -817,12 +817,13 @@ class OptimizerApp(tk.Tk):
             except:
                 pass
 
+        weight_labels = {}
         for row, field in enumerate(dataclasses.fields(Weights)):
             default_val = getattr(DEFAULT_WEIGHTS, field.name)
             label_text = f"{field.name} ({default_val})"
-            ttk.Label(frame, text=label_text).grid(
-                row=row, column=0, sticky="w", padx=(0, 8), pady=4
-            )
+            lbl = ttk.Label(frame, text=label_text)
+            lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
+            weight_labels[field.name] = lbl
 
             entry = ttk.Entry(frame, width=18)
             entry.grid(row=row, column=1, sticky="w", pady=4)
@@ -851,7 +852,11 @@ class OptimizerApp(tk.Tk):
         def overwrite_defaults():
             self._save_weights_from_dialog(entries, None)
             self.save_defaults()
-            dialog.destroy()
+            # Update labels in the current dialog
+            for field in dataclasses.fields(Weights):
+                dv = getattr(self.current_weights, field.name)
+                weight_labels[field.name].config(text=f"{field.name} ({dv})")
+                _update_style(entries[field.name], dv)
 
         ttk.Button(button_frame, text="Reset to Default", command=reset_weights).pack(side="left", padx=(0, 4))
         ttk.Button(button_frame, text="Overwrite Default", command=overwrite_defaults).pack(side="left")
@@ -902,9 +907,8 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text=f"{field_name} ({default_val})").grid(
-            row=0, column=0, sticky="w", padx=(0, 8), pady=8
-        )
+        lbl = ttk.Label(frame, text=f"{field_name} ({default_val})")
+        lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
 
         entry = ttk.Entry(frame, width=16)
         entry.grid(row=0, column=1, sticky="w", pady=8)
@@ -954,9 +958,22 @@ class OptimizerApp(tk.Tk):
                 elif field_name == "carton_AB_target":
                     self.current_carton_AB_target = value
                 self.save_defaults()
-                dialog.destroy()
+                # Update current view
+                new_dv = value
+                lbl.config(text=f"{field_name} ({new_dv})")
+                # Re-bind style check to new default
+                entry.bind("<KeyRelease>", lambda e: _update_style_with_val(new_dv))
+                _update_style_with_val(new_dv)
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
+
+        def _update_style_with_val(dv):
+            try:
+                if entry.get().strip() != str(dv):
+                    entry.configure(style="Yellow.TEntry")
+                else:
+                    entry.configure(style="TEntry")
+            except: pass
 
         ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
         ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
@@ -1015,7 +1032,7 @@ class OptimizerApp(tk.Tk):
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Form content
-        form_frame, popup_entries = build_cartoner_settings_form(
+        form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
             main_frame,
             entry_width=14,
             defaults={f: getattr(DEFAULT_GLOBAL_SETTINGS, f) for f in CARTONER_FIELDS}
@@ -1056,9 +1073,16 @@ class OptimizerApp(tk.Tk):
                 popup_entries[field_name].event_generate("<KeyRelease>")
 
         def overwrite():
+            from gui.forms import DISPLAY_LABELS
             self._save_cartoner_settings(popup_entries, None)
             self.save_defaults()
-            dialog.destroy()
+            # Update labels in the current dialog
+            for field_name in CARTONER_FIELDS:
+                val = popup_entries[field_name].get()
+                lbl_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({val})"
+                popup_labels[field_name].config(text=lbl_text)
+                # Re-trigger validation for the new default
+                popup_entries[field_name].event_generate("<KeyRelease>")
 
         ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
         ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")

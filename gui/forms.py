@@ -72,18 +72,20 @@ def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict =
     frame = ttk.Frame(parent)
 
     entries = {}
+    labels = {}
     defaults = defaults or {}
 
     _add_fields_to_frame_with_defaults(
         frame,
         CARTONER_FIELDS,
         entries,
+        labels,
         defaults,
         entry_width=entry_width,
         label_width=28,
     )
 
-    return frame, entries
+    return frame, entries, labels
 
 
 def _add_fields_to_frame(
@@ -112,6 +114,7 @@ def _add_fields_to_frame(
             padx=(0, 6),
             pady=2,
         )
+        labels[field_name] = label
 
         entry = ttk.Entry(
             frame,
@@ -132,6 +135,7 @@ def _add_fields_to_frame_with_defaults(
     frame,
     field_names,
     entries,
+    labels,
     defaults,
     entry_width,
     label_width,
