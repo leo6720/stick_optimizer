@@ -773,19 +773,27 @@ class OptimizerApp(tk.Tk):
             }
             overrides.update(self._cartoner_values_dict())
             
-            # If global entries are empty (e.g., on home screen or cleared), build settings using DEFAULT_GLOBAL_SETTINGS and overrides
-            base_settings = DEFAULT_GLOBAL_SETTINGS
-            settings_dict = dataclasses.asdict(base_settings)
-            
+            # Build settings directly from current global entries and overrides without falling back to defaults for empty fields
+            settings_dict = {}
             if self.global_entries:
-                try:
-                    parsed_global = parse_global_settings(self.global_entries, overrides={})
-                    settings_dict.update({k: getattr(parsed_global, k) for k in dataclasses.fields(GlobalSettings) if getattr(parsed_global, k) is not None})
-                except Exception:
-                    pass
+                for field in dataclasses.fields(GlobalSettings):
+                    field_name = field.name
+                    if field_name in overrides and overrides[field_name] is not None:
+                        settings_dict[field_name] = overrides[field_name]
+                    elif field_name in self.global_entries:
+                        raw = self.global_entries[field_name].get().strip()
+                        if raw == "":
+                            settings_dict[field_name] = None
+                        else:
+                            try:
+                                settings_dict[field_name] = field.type(raw)
+                            except Exception:
+                                settings_dict[field_name] = None
+                    else:
+                        settings_dict[field_name] = None
 
             settings_dict.update(overrides)
-            settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
+            settings = GlobalSettings(**settings_dict)
             
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
