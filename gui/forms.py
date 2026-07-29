@@ -6,7 +6,6 @@ DISPLAY_LABELS = {
     "sticks_per_beat": "Np - MT channels",
     "max_pitch_shift_mm": "D - Max stick offset [mm]",
 
-
     "divider_width_mm": "divider width",
     "pocket_wall_width_mm": "wall width",
     "clearance_between_adjacent_sticks_mm": "stick-stick clearance",
@@ -69,20 +68,24 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
     return outer_frame, entries
 
 
-def build_cartoner_settings_form(parent, entry_width: int = 12):
+def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict = None):
     frame = ttk.Frame(parent)
 
     entries = {}
+    labels = {}
+    defaults = defaults or {}
 
-    _add_fields_to_frame(
+    _add_fields_to_frame_with_defaults(
         frame,
         CARTONER_FIELDS,
         entries,
+        labels,
+        defaults,
         entry_width=entry_width,
         label_width=28,
     )
 
-    return frame, entries
+    return frame, entries, labels
 
 
 def _add_fields_to_frame(
@@ -92,6 +95,7 @@ def _add_fields_to_frame(
     entry_width,
     label_width,
     start_row: int = 0,
+    labels=None,
 ):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
@@ -111,6 +115,8 @@ def _add_fields_to_frame(
             padx=(0, 6),
             pady=2,
         )
+        if isinstance(labels, dict):
+            labels[field_name] = label
 
         entry = ttk.Entry(
             frame,
@@ -127,6 +133,85 @@ def _add_fields_to_frame(
         entries[field_name] = entry
 
 
+def _add_fields_to_frame_with_defaults(
+    frame,
+    field_names,
+    entries,
+    labels,
+    defaults,
+    entry_width,
+    label_width,
+    start_row: int = 0,
+):
+    frame.grid_columnconfigure(0, weight=1)
+    frame.grid_columnconfigure(1, weight=0)
+
+    style = ttk.Style()
+    style.configure("Yellow.TEntry", fieldbackground="lightyellow")
+    style.map("Yellow.TEntry", fieldbackground=[("active", "lightyellow"), ("!disabled", "lightyellow")])
+
+    for row, field_name in enumerate(field_names, start=start_row):
+        default_val = defaults.get(field_name, "")
+        display_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({default_val})"
+
+        label = ttk.Label(
+            frame,
+            text=display_text,
+            width=label_width + 12,
+            anchor="w",
+        )
+
+        label.grid(
+            row=row,
+            column=0,
+            sticky="ew",
+            padx=(0, 6),
+            pady=2,
+        )
+        if isinstance(labels, dict):
+            labels[field_name] = label
+
+        entry = ttk.Entry(
+            frame,
+            width=entry_width,
+        )
+
+        entry.grid(
+            row=row,
+            column=1,
+            sticky="e",
+            pady=2,
+        )
+
+        def make_validation(e, d):
+            def check(*_args):
+                try:
+                    current_val = e.get().strip()
+                    expected = str(d).strip()
+                    if current_val != expected:
+                        e.configure(style="Yellow.TEntry")
+                        try:
+                            e.config(background="lightyellow")
+                        except Exception:
+                            pass
+                    else:
+                        e.configure(style="TEntry")
+                        try:
+                            e.config(background="white")
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+            return check
+
+        validation_cmd = make_validation(entry, default_val)
+        entry.bind("<KeyRelease>", validation_cmd)
+        # Check initial state on creation
+        validation_cmd()
+
+        entries[field_name] = entry
+
+
 def set_entries_from_dataclass(entries: dict, instance):
     data = dataclasses.asdict(instance)
 
@@ -137,3 +222,7 @@ def set_entries_from_dataclass(entries: dict, instance):
             0,
             "" if value is None else str(value),
         )
+        try:
+            entry.event_generate("<KeyRelease>")
+        except Exception:
+            pass

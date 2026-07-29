@@ -1,3 +1,4 @@
+# hello you all
 import dataclasses
 import json
 import tkinter as tk
@@ -99,12 +100,18 @@ class OptimizerApp(tk.Tk):
 
         self.global_entries = {}
         self.cartoner_entries = {}
+        for field_name in CARTONER_FIELDS:
+            entry = ttk.Entry(self)
+            entry.insert(0, str(getattr(DEFAULT_GLOBAL_SETTINGS, field_name)))
+            self.cartoner_entries[field_name] = entry
         self.current_weights = DEFAULT_WEIGHTS
 
         self.current_number_of_results_to_show = (
             DEFAULT_GLOBAL_SETTINGS.number_of_results_to_show
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
+
+        self.status_var = tk.StringVar(value="Ready")
 
         self.mt_image = self._load_ui_image("dati_mt")
         self.stick_types_image = self._load_ui_image("stick_dim")
@@ -113,6 +120,9 @@ class OptimizerApp(tk.Tk):
 
         self._build_menu_bar()
         self._build_layout()
+        
+        self._load_defaults()
+
         self._show_home_screen()
 
     def _load_ui_image(self, base_name):
@@ -178,18 +188,6 @@ class OptimizerApp(tk.Tk):
         # Options menu
         options_menu = tk.Menu(menu_bar, tearoff=False)
 
-        defaults_menu = tk.Menu(options_menu, tearoff=False)
-        defaults_menu.add_command(
-            label="Save",
-            command=self.save_defaults,
-        )
-        defaults_menu.add_command(
-            label="Reload",
-            command=self.reload_defaults,
-        )
-
-        options_menu.add_cascade(label="Defaults", menu=defaults_menu)
-        options_menu.add_separator()
         options_menu.add_command(
             label="Clear result filters",
             command=lambda: self._clear_all_result_filters(None),
@@ -440,7 +438,8 @@ class OptimizerApp(tk.Tk):
         if self.user_defaults_path.exists():
             try:
                 self._load_defaults_from_file(self.user_defaults_path)
-                self.status_var.set("User defaults loaded")
+                if hasattr(self, "status_var"):
+                    self.status_var.set("User defaults loaded")
                 return
             except Exception as exc:
                 messagebox.showwarning(
@@ -456,12 +455,14 @@ class OptimizerApp(tk.Tk):
         set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
 
         for field_name in CARTONER_FIELDS:
-            entry = ttk.Entry(self)
-            entry.insert(
+            if field_name not in self.cartoner_entries:
+                entry = ttk.Entry(self)
+                self.cartoner_entries[field_name] = entry
+            self.cartoner_entries[field_name].delete(0, "end")
+            self.cartoner_entries[field_name].insert(
                 0,
                 str(getattr(DEFAULT_GLOBAL_SETTINGS, field_name)),
             )
-            self.cartoner_entries[field_name] = entry
 
         self.current_weights = DEFAULT_WEIGHTS
         self.current_number_of_results_to_show = (
@@ -469,32 +470,34 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
-        self.stick_table.set_rows(
-            [
-                (
-                    stick.stick_type_name,
-                    stick.stick_length_mm,
-                    stick.stick_width_mm,
-                    stick.stick_thickness_mm,
-                    stick.fin_length_mm,
-                )
-                for stick in DEFAULT_STICK_TYPES
-            ]
-        )
+        if hasattr(self, "stick_table"):
+            self.stick_table.set_rows(
+                [
+                    (
+                        stick.stick_type_name,
+                        stick.stick_length_mm,
+                        stick.stick_width_mm,
+                        stick.stick_thickness_mm,
+                        stick.fin_length_mm,
+                    )
+                    for stick in DEFAULT_STICK_TYPES
+                ]
+            )
 
-        self.format_table.set_rows(
-            [
-                (
-                    fmt.format_name,
-                    fmt.stick_type_name,
-                    fmt.sticks_per_pocket,
-                )
-                for fmt in DEFAULT_FORMATS
-            ]
-        )
+        if hasattr(self, "format_table"):
+            self.format_table.set_rows(
+                [
+                    (
+                        fmt.format_name,
+                        fmt.stick_type_name,
+                        fmt.sticks_per_pocket,
+                    )
+                    for fmt in DEFAULT_FORMATS
+                ]
+            )
 
-        self._clear_runtime_results()
-        self.status_var.set("Built-in defaults loaded")
+        if hasattr(self, "status_var"):
+            self.status_var.set("Built-in defaults loaded")
 
     def _load_defaults_from_file(self, path: Path) -> None:
         """Load defaults from a JSON file."""
@@ -549,57 +552,47 @@ class OptimizerApp(tk.Tk):
                 "" if value is None else str(value),
             )
 
-        self.stick_table.set_rows(
-            [
-                (
-                    row["stick_type_name"],
-                    row["stick_length_mm"],
-                    row["stick_width_mm"],
-                    row["stick_thickness_mm"],
-                    row["fin_length_mm"],
-                )
-                for row in data.get("stick_types", [])
-            ]
-        )
-
-        self.format_table.set_rows(
-            [
-                (
-                    row["format_name"],
-                    row["stick_type_name"],
-                    row["sticks_per_pocket"],
-                )
-                for row in data.get("formats", [])
-            ]
-        )
-
-        self._clear_runtime_results()
-
-    def save_defaults(self) -> None:
-        """Save current configuration to user defaults file."""
-        try:
-            settings = parse_global_settings(
-                self.global_entries,
-                overrides={
-                    "number_of_results_to_show": (
-                        self.current_number_of_results_to_show
-                    ),
-                    "carton_AB_target": self.current_carton_AB_target,
-                },
+        if hasattr(self, "stick_table"):
+            self.stick_table.set_rows(
+                [
+                    (
+                        row["stick_type_name"],
+                        row["stick_length_mm"],
+                        row["stick_width_mm"],
+                        row["stick_thickness_mm"],
+                        row["fin_length_mm"],
+                    )
+                    for row in data.get("stick_types", [])
+                ]
             )
 
-            stick_types = parse_stick_types(self.stick_table.get_rows())
-            formats = parse_formats(self.format_table.get_rows())
+        if hasattr(self, "format_table"):
+            self.format_table.set_rows(
+                [
+                    (
+                        row["format_name"],
+                        row["stick_type_name"],
+                        row["sticks_per_pocket"],
+                    )
+                    for row in data.get("formats", [])
+                ]
+            )
 
+    def save_defaults(self) -> None:
+        """Save current configuration to user defaults file (Weights, Cartoner, etc)."""
+        try:
+            # We only save the "hidden" logic defaults: Weights, Cartoner data, and UI prefs.
+            # Main window data (Sticks, Formats, MT) are project-specific.
+            
+            cartoner_data = self._cartoner_values_dict()
+            
             data = {
-                "global_settings": dataclasses.asdict(settings),
+                "global_settings": {
+                    "number_of_results_to_show": self.current_number_of_results_to_show,
+                    "carton_AB_target": self.current_carton_AB_target,
+                    **cartoner_data
+                },
                 "weights": dataclasses.asdict(self.current_weights),
-                "stick_types": [
-                    dataclasses.asdict(stick) for stick in stick_types
-                ],
-                "formats": [
-                    dataclasses.asdict(fmt) for fmt in formats
-                ],
             }
 
             with self.user_defaults_path.open("w", encoding="utf-8") as file:
@@ -652,7 +645,7 @@ class OptimizerApp(tk.Tk):
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="Use current defaults for tables/cartoner", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(dialog, text="use example data for stick formats", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
@@ -674,13 +667,26 @@ class OptimizerApp(tk.Tk):
         self.current_project_name = result["name"]
         
         self._load_defaults()
-        if not result["use_defaults"]:
-            # Clear stick types, formats and cartoner settings
-            self.stick_table.clear()
-            self.format_table.clear()
-            for field_name in CARTONER_FIELDS:
-                if field_name in self.cartoner_entries:
-                    self.cartoner_entries[field_name].delete(0, tk.END)
+        
+        # Always clear main window data for a new project unless example data is requested
+        self.stick_table.clear()
+        self.format_table.clear()
+        if "sticks_per_beat" in self.global_entries:
+            self.global_entries["sticks_per_beat"].delete(0, tk.END)
+        if "max_pitch_shift_mm" in self.global_entries:
+            self.global_entries["max_pitch_shift_mm"].delete(0, tk.END)
+
+        if result["use_defaults"]:
+            # Load example data (formerly built-in defaults) into main window
+            set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
+            self.stick_table.set_rows([
+                (s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm)
+                for s in DEFAULT_STICK_TYPES
+            ])
+            self.format_table.set_rows([
+                (f.format_name, f.stick_type_name, f.sticks_per_pocket)
+                for f in DEFAULT_FORMATS
+            ])
 
         if self.home_frame:
             self.home_frame.pack_forget()
@@ -712,8 +718,13 @@ class OptimizerApp(tk.Tk):
             set_entries_from_dataclass(self.global_entries, data["settings"])
             for field_name in CARTONER_FIELDS:
                 val = getattr(data["settings"], field_name)
-                self.cartoner_entries[field_name].delete(0, "end")
-                self.cartoner_entries[field_name].insert(0, "" if val is None else str(val))
+                if field_name in self.cartoner_entries:
+                    self.cartoner_entries[field_name].delete(0, "end")
+                    self.cartoner_entries[field_name].insert(0, "" if val is None else str(val))
+            for field_name, entry in self.global_entries.items():
+                val = getattr(data["settings"], field_name, None)
+                if val is None:
+                    entry.delete(0, "end")
 
             self.stick_table.set_rows([(s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm) for s in data["stick_types"]])
             self.format_table.set_rows([(f.format_name, f.stick_type_name, f.sticks_per_pocket) for f in data["formats"]])
@@ -761,7 +772,20 @@ class OptimizerApp(tk.Tk):
                 "carton_AB_target": self.current_carton_AB_target,
             }
             overrides.update(self._cartoner_values_dict())
-            settings = parse_global_settings(self.global_entries, overrides=overrides)
+            
+            # If global entries are empty (e.g., on home screen or cleared), build settings using DEFAULT_GLOBAL_SETTINGS and overrides
+            base_settings = DEFAULT_GLOBAL_SETTINGS
+            settings_dict = dataclasses.asdict(base_settings)
+            
+            if self.global_entries:
+                try:
+                    parsed_global = parse_global_settings(self.global_entries, overrides={})
+                    settings_dict.update({k: getattr(parsed_global, k) for k in dataclasses.fields(GlobalSettings) if getattr(parsed_global, k) is not None})
+                except Exception:
+                    pass
+
+            settings_dict.update(overrides)
+            settings = GlobalSettings(**{k: v for k, v in settings_dict.items() if v is not None})
             
             stick_types = parse_stick_types(self.stick_table.get_rows())
             formats = parse_formats(self.format_table.get_rows())
@@ -792,12 +816,15 @@ class OptimizerApp(tk.Tk):
         self.active_result_filters = {}
         self.filtered_solution_indices = []
 
-        clear_tree(self.results_tree)
-        clear_solution_details(self.detail_widgets)
-        update_result_headings_for_filters(
-            self.results_tree,
-            self.active_result_filters,
-        )
+        if hasattr(self, "results_tree"):
+            clear_tree(self.results_tree)
+        if hasattr(self, "detail_widgets"):
+            clear_solution_details(self.detail_widgets)
+        if hasattr(self, "results_tree"):
+            update_result_headings_for_filters(
+                self.results_tree,
+                self.active_result_filters,
+            )
 
     # ------------------------------------------------------------------
     # Scoring weights editor
@@ -806,7 +833,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Edit scoring weights")
-        dialog.geometry("460x360")
+        dialog.geometry("540x420")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -816,50 +843,76 @@ class OptimizerApp(tk.Tk):
 
         entries = {}
 
+        def _update_style(e, default_val):
+            try:
+                if e.get().strip() != str(default_val):
+                    e.configure(style="Yellow.TEntry")
+                else:
+                    e.configure(style="TEntry")
+            except:
+                pass
+
+        weight_labels = {}
+        # Load persisted user defaults weights if available, otherwise DEFAULT_WEIGHTS
+        base_weights = DEFAULT_WEIGHTS
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("weights", {})
+                    if udata:
+                        base_weights = Weights(**{f.name: udata.get(f.name, getattr(DEFAULT_WEIGHTS, f.name)) for f in dataclasses.fields(Weights)})
+            except Exception:
+                pass
+
         for row, field in enumerate(dataclasses.fields(Weights)):
-            ttk.Label(frame, text=field.name).grid(
-                row=row,
-                column=0,
-                sticky="w",
-                padx=(0, 8),
-                pady=4,
-            )
+            dv = getattr(base_weights, field.name)
+            label_text = f"{field.name} ({dv})"
+            lbl = ttk.Label(frame, text=label_text)
+            lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
+            weight_labels[field.name] = (lbl, dv)
 
             entry = ttk.Entry(frame, width=18)
-            entry.grid(
-                row=row,
-                column=1,
-                sticky="w",
-                pady=4,
-            )
-
+            entry.grid(row=row, column=1, sticky="w", pady=4)
+            
             current_value = getattr(self.current_weights, field.name)
             entry.insert(0, str(current_value))
+            _update_style(entry, dv)
+            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=dv: _update_style(ev, dv))
 
             entries[field.name] = entry
 
         button_frame = ttk.Frame(frame)
-        button_frame.grid(
-            row=len(dataclasses.fields(Weights)),
-            column=0,
-            columnspan=2,
-            sticky="e",
-            pady=(16, 0),
-        )
+        button_frame.grid(row=len(dataclasses.fields(Weights)), column=0, columnspan=2, sticky="ew", pady=(16, 0))
 
-        ttk.Button(
-            button_frame,
-            text="Save",
-            command=lambda: self._save_weights_from_dialog(entries, dialog),
-        ).pack(side="right")
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Apply", 
+                   command=lambda: self._save_weights_from_dialog(entries, dialog)).pack(side="right", padx=(4, 0))
+        
+        def reset_weights():
+            for field in dataclasses.fields(Weights):
+                dv = getattr(DEFAULT_WEIGHTS, field.name)
+                entries[field.name].delete(0, tk.END)
+                entries[field.name].insert(0, str(dv))
+                _update_style(entries[field.name], dv)
 
-        ttk.Button(
-            button_frame,
-            text="Cancel",
-            command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
+        def overwrite_defaults():
+            self._save_weights_from_dialog(entries, None)
+            self.save_defaults()
+            # Update labels and re-bind key release with new default in the current dialog
+            for field in dataclasses.fields(Weights):
+                dv = getattr(self.current_weights, field.name)
+                lbl, _ = weight_labels[field.name]
+                weight_labels[field.name] = (lbl, dv)
+                lbl.config(text=f"{field.name} ({dv})")
+                ev = entries[field.name]
+                ev.unbind("<KeyRelease>")
+                ev.bind("<KeyRelease>", lambda e, ev=ev, dv=dv: _update_style(ev, dv))
+                _update_style(ev, dv)
 
-    def _save_weights_from_dialog(self, entries: dict, dialog: tk.Toplevel) -> None:
+        ttk.Button(button_frame, text="Reset to Default", command=reset_weights).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite_defaults).pack(side="left")
+
+    def _save_weights_from_dialog(self, entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save weights from editor dialog."""
         try:
             values = {}
@@ -874,7 +927,8 @@ class OptimizerApp(tk.Tk):
 
             self.current_weights = Weights(**values)
 
-            dialog.destroy()
+            if dialog:
+                dialog.destroy()
             self.status_var.set("Scoring weights updated")
 
         except Exception as exc:
@@ -894,41 +948,49 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("360x150")
+        dialog.geometry("480x180")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
 
+        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("global_settings", {})
+                    if field_name in udata and udata[field_name] is not None:
+                        default_val = udata[field_name]
+            except Exception:
+                pass
+
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text=field_name).grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=(0, 8),
-            pady=8,
-        )
+        lbl = ttk.Label(frame, text=f"{field_name} ({default_val})")
+        lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
 
         entry = ttk.Entry(frame, width=16)
         entry.grid(row=0, column=1, sticky="w", pady=8)
         entry.insert(0, str(current_value))
-        entry.focus_set()
-        entry.select_range(0, tk.END)
+
+        def _update_style(*args):
+            try:
+                if entry.get().strip() != str(default_val):
+                    entry.configure(style="Yellow.TEntry")
+                else:
+                    entry.configure(style="TEntry")
+            except:
+                pass
+
+        _update_style()
+        entry.bind("<KeyRelease>", _update_style)
 
         button_frame = ttk.Frame(frame)
-        button_frame.grid(
-            row=1,
-            column=0,
-            columnspan=2,
-            sticky="e",
-            pady=(16, 0),
-        )
+        button_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(16, 0))
 
         def save_value() -> None:
             try:
                 value = value_type(entry.get().strip())
-
                 if min_value is not None and value <= min_value:
                     raise ValueError(f"{field_name} must be > {min_value}.")
 
@@ -939,21 +1001,33 @@ class OptimizerApp(tk.Tk):
 
                 dialog.destroy()
                 self.status_var.set(f"{field_name} set to {value}")
-
             except Exception as exc:
                 messagebox.showerror(f"Invalid {field_name}", str(exc))
 
-        ttk.Button(
-            button_frame,
-            text="Save",
-            command=save_value,
-        ).pack(side="right")
+        def reset():
+            entry.delete(0, tk.END)
+            entry.insert(0, str(default_val))
+            _update_style()
 
-        ttk.Button(
-            button_frame,
-            text="Cancel",
-            command=dialog.destroy,
-        ).pack(side="right", padx=(0, 8))
+        def overwrite():
+            try:
+                value = value_type(entry.get().strip())
+                if field_name == "number_of_results_to_show":
+                    self.current_number_of_results_to_show = value
+                elif field_name == "carton_AB_target":
+                    self.current_carton_AB_target = value
+                self.save_defaults()
+                nonlocal default_val
+                default_val = value
+                lbl.config(text=f"{field_name} ({default_val})")
+                _update_style()
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
 
     def open_number_of_results_editor(self) -> None:
         """Open editor for number of results to show."""
@@ -997,7 +1071,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x400")
+        dialog.geometry("580x450")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -1007,26 +1081,26 @@ class OptimizerApp(tk.Tk):
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Form content
-        form_frame, popup_entries = build_cartoner_settings_form(
-            main_frame,
-            entry_width=14,
-        )
-        form_frame.pack(fill="both", expand=True, pady=(0, 12))
+        current_defaults = {}
+        for f in CARTONER_FIELDS:
+            val = getattr(DEFAULT_GLOBAL_SETTINGS, f)
+            if self.user_defaults_path.exists():
+                try:
+                    with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                        udata = json.load(file).get("global_settings", {})
+                        if f in udata and udata[f] is not None:
+                            val = udata[f]
+                except Exception:
+                    pass
+            current_defaults[f] = val
 
-        # Populate entries with current values
-        for field_name in CARTONER_FIELDS:
-            popup_entries[field_name].insert(
-                0,
-                self.cartoner_entries[field_name].get(),
-            )
-
-        # Button frame at bottom
+        # Button frame at bottom (pack first so it claims bottom space)
         button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill="x", side="bottom")
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
         ttk.Button(
             button_frame,
-            text="Save",
+            text="Apply",
             command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right", padx=(4, 0))
 
@@ -1034,9 +1108,50 @@ class OptimizerApp(tk.Tk):
             button_frame,
             text="Cancel",
             command=dialog.destroy,
-        ).pack(side="right", padx=(0, 4))
+        ).pack(side="right", padx=(4, 0))
 
-    def _save_cartoner_settings(self, popup_entries: dict, dialog: tk.Toplevel) -> None:
+        def reset():
+            for field_name in CARTONER_FIELDS:
+                dv = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+                popup_entries[field_name].delete(0, "end")
+                popup_entries[field_name].insert(0, str(dv))
+                popup_entries[field_name].event_generate("<KeyRelease>")
+
+        def overwrite():
+            from gui.forms import DISPLAY_LABELS
+            self._save_cartoner_settings(popup_entries, None)
+            self.save_defaults()
+            # Update labels in the current dialog using newly saved defaults
+            for field_name in CARTONER_FIELDS:
+                val = popup_entries[field_name].get()
+                current_defaults[field_name] = val
+                lbl_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({val})"
+                popup_labels[field_name].config(text=lbl_text)
+                popup_entries[field_name].event_generate("<KeyRelease>")
+
+        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
+
+        form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
+            main_frame,
+            entry_width=14,
+            defaults=current_defaults
+        )
+        form_frame.pack(fill="both", expand=True)
+
+        # Populate entries with current values from self.cartoner_entries or defaults
+        for field_name in CARTONER_FIELDS:
+            popup_entries[field_name].delete(0, "end")
+            val = ""
+            if field_name in self.cartoner_entries:
+                val = self.cartoner_entries[field_name].get()
+            if not val:
+                val = str(current_defaults.get(field_name, ""))
+            popup_entries[field_name].insert(0, val)
+            # Trigger style update
+            popup_entries[field_name].event_generate("<KeyRelease>")
+
+    def _save_cartoner_settings(self, popup_entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save cartoner settings from popup."""
         try:
             for field_name in CARTONER_FIELDS:
@@ -1046,7 +1161,8 @@ class OptimizerApp(tk.Tk):
                     popup_entries[field_name].get(),
                 )
 
-            dialog.destroy()
+            if dialog:
+                dialog.destroy()
             self.status_var.set("Cartoner settings updated")
 
         except Exception as exc:
