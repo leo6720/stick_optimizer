@@ -445,12 +445,14 @@ class OptimizerApp(tk.Tk):
         set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
 
         for field_name in CARTONER_FIELDS:
-            entry = ttk.Entry(self)
-            entry.insert(
+            if field_name not in self.cartoner_entries:
+                entry = ttk.Entry(self)
+                self.cartoner_entries[field_name] = entry
+            self.cartoner_entries[field_name].delete(0, "end")
+            self.cartoner_entries[field_name].insert(
                 0,
                 str(getattr(DEFAULT_GLOBAL_SETTINGS, field_name)),
             )
-            self.cartoner_entries[field_name] = entry
 
         self.current_weights = DEFAULT_WEIGHTS
         self.current_number_of_results_to_show = (
@@ -1104,17 +1106,13 @@ class OptimizerApp(tk.Tk):
         )
         form_frame.pack(fill="both", expand=True)
 
-        # Populate entries with current values safely
+        # Populate entries with current values
         for field_name in CARTONER_FIELDS:
             popup_entries[field_name].delete(0, "end")
-            val = ""
-            if field_name in self.cartoner_entries:
-                val = self.cartoner_entries[field_name].get()
-            elif field_name in self.global_entries:
-                val = self.global_entries[field_name].get()
-            else:
-                val = str(current_defaults.get(field_name, ""))
-            popup_entries[field_name].insert(0, val)
+            popup_entries[field_name].insert(
+                0,
+                self.cartoner_entries[field_name].get(),
+            )
             # Trigger style update
             popup_entries[field_name].event_generate("<KeyRelease>")
 
