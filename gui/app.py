@@ -818,20 +818,31 @@ class OptimizerApp(tk.Tk):
                 pass
 
         weight_labels = {}
+        # Load persisted user defaults weights if available, otherwise DEFAULT_WEIGHTS
+        base_weights = DEFAULT_WEIGHTS
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("weights", {})
+                    if udata:
+                        base_weights = Weights(**{f.name: udata.get(f.name, getattr(DEFAULT_WEIGHTS, f.name)) for f in dataclasses.fields(Weights)})
+            except Exception:
+                pass
+
         for row, field in enumerate(dataclasses.fields(Weights)):
-            default_val = getattr(self.current_weights, field.name)
-            label_text = f"{field.name} ({default_val})"
+            dv = getattr(base_weights, field.name)
+            label_text = f"{field.name} ({dv})"
             lbl = ttk.Label(frame, text=label_text)
             lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
-            weight_labels[field.name] = (lbl, default_val)
+            weight_labels[field.name] = (lbl, dv)
 
             entry = ttk.Entry(frame, width=18)
             entry.grid(row=row, column=1, sticky="w", pady=4)
             
             current_value = getattr(self.current_weights, field.name)
             entry.insert(0, str(current_value))
-            _update_style(entry, default_val)
-            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=default_val: _update_style(ev, dv))
+            _update_style(entry, dv)
+            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=dv: _update_style(ev, dv))
 
             entries[field.name] = entry
 
@@ -907,12 +918,15 @@ class OptimizerApp(tk.Tk):
         dialog.transient(self)
         dialog.grab_set()
 
-        if field_name == "number_of_results_to_show":
-            default_val = self.current_number_of_results_to_show
-        elif field_name == "carton_AB_target":
-            default_val = self.current_carton_AB_target
-        else:
-            default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, field_name)
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("global_settings", {})
+                    if field_name in udata and udata[field_name] is not None:
+                        default_val = udata[field_name]
+            except Exception:
+                pass
 
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
@@ -1039,7 +1053,7 @@ class OptimizerApp(tk.Tk):
                 try:
                     with open(self.user_defaults_path, "r", encoding="utf-8") as file:
                         udata = json.load(file).get("global_settings", {})
-                        if f in udata:
+                        if f in udata and udata[f] is not None:
                             val = udata[f]
                 except Exception:
                     pass
