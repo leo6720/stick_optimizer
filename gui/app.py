@@ -652,7 +652,7 @@ class OptimizerApp(tk.Tk):
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="Use current defaults for tables/cartoner", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(dialog, text="use example data for stick formats", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
