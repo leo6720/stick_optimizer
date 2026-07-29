@@ -167,6 +167,8 @@ def _add_fields_to_frame_with_defaults(
             padx=(0, 6),
             pady=2,
         )
+        if isinstance(labels, dict):
+            labels[field_name] = label
 
         entry = ttk.Entry(
             frame,
