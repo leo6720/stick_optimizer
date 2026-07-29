@@ -466,29 +466,31 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
-        self.stick_table.set_rows(
-            [
-                (
-                    stick.stick_type_name,
-                    stick.stick_length_mm,
-                    stick.stick_width_mm,
-                    stick.stick_thickness_mm,
-                    stick.fin_length_mm,
-                )
-                for stick in DEFAULT_STICK_TYPES
-            ]
-        )
+        if hasattr(self, "stick_table"):
+            self.stick_table.set_rows(
+                [
+                    (
+                        stick.stick_type_name,
+                        stick.stick_length_mm,
+                        stick.stick_width_mm,
+                        stick.stick_thickness_mm,
+                        stick.fin_length_mm,
+                    )
+                    for stick in DEFAULT_STICK_TYPES
+                ]
+            )
 
-        self.format_table.set_rows(
-            [
-                (
-                    fmt.format_name,
-                    fmt.stick_type_name,
-                    fmt.sticks_per_pocket,
-                )
-                for fmt in DEFAULT_FORMATS
-            ]
-        )
+        if hasattr(self, "format_table"):
+            self.format_table.set_rows(
+                [
+                    (
+                        fmt.format_name,
+                        fmt.stick_type_name,
+                        fmt.sticks_per_pocket,
+                    )
+                    for fmt in DEFAULT_FORMATS
+                ]
+            )
 
         self._clear_runtime_results()
         self.status_var.set("Built-in defaults loaded")
@@ -546,29 +548,31 @@ class OptimizerApp(tk.Tk):
                 "" if value is None else str(value),
             )
 
-        self.stick_table.set_rows(
-            [
-                (
-                    row["stick_type_name"],
-                    row["stick_length_mm"],
-                    row["stick_width_mm"],
-                    row["stick_thickness_mm"],
-                    row["fin_length_mm"],
-                )
-                for row in data.get("stick_types", [])
-            ]
-        )
+        if hasattr(self, "stick_table"):
+            self.stick_table.set_rows(
+                [
+                    (
+                        row["stick_type_name"],
+                        row["stick_length_mm"],
+                        row["stick_width_mm"],
+                        row["stick_thickness_mm"],
+                        row["fin_length_mm"],
+                    )
+                    for row in data.get("stick_types", [])
+                ]
+            )
 
-        self.format_table.set_rows(
-            [
-                (
-                    row["format_name"],
-                    row["stick_type_name"],
-                    row["sticks_per_pocket"],
-                )
-                for row in data.get("formats", [])
-            ]
-        )
+        if hasattr(self, "format_table"):
+            self.format_table.set_rows(
+                [
+                    (
+                        row["format_name"],
+                        row["stick_type_name"],
+                        row["sticks_per_pocket"],
+                    )
+                    for row in data.get("formats", [])
+                ]
+            )
 
         self._clear_runtime_results()
 
