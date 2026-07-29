@@ -115,7 +115,6 @@ def _add_fields_to_frame(
             padx=(0, 6),
             pady=2,
         )
-        labels[field_name] = label
         if labels is not None:
             labels[field_name] = label
 
