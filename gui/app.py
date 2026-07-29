@@ -718,8 +718,13 @@ class OptimizerApp(tk.Tk):
             set_entries_from_dataclass(self.global_entries, data["settings"])
             for field_name in CARTONER_FIELDS:
                 val = getattr(data["settings"], field_name)
-                self.cartoner_entries[field_name].delete(0, "end")
-                self.cartoner_entries[field_name].insert(0, "" if val is None else str(val))
+                if field_name in self.cartoner_entries:
+                    self.cartoner_entries[field_name].delete(0, "end")
+                    self.cartoner_entries[field_name].insert(0, "" if val is None else str(val))
+            for field_name, entry in self.global_entries.items():
+                val = getattr(data["settings"], field_name, None)
+                if val is None:
+                    entry.delete(0, "end")
 
             self.stick_table.set_rows([(s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm) for s in data["stick_types"]])
             self.format_table.set_rows([(f.format_name, f.stick_type_name, f.sticks_per_pocket) for f in data["formats"]])
