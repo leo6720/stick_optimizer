@@ -681,10 +681,20 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         for p_idx in range(pockets_count):
             p_origin_x = origin_x + p_idx * pocket_spacing
 
+            # Fill pocket interior
             canvas.create_rectangle(
                 p_origin_x, origin_y,
                 p_origin_x + rect_w, origin_y + rect_h,
-                outline="#111111", width=wall_width, fill="#ffffff"
+                outline="", fill="#ffffff"
+            )
+
+            # Draw squared U pocket walls (left wall -> bottom -> right wall, open top)
+            canvas.create_line(
+                p_origin_x, origin_y,
+                p_origin_x, origin_y + rect_h,
+                p_origin_x + rect_w, origin_y + rect_h,
+                p_origin_x + rect_w, origin_y,
+                fill="#111111", width=wall_width, capstyle=tk.PROJECTING, joinstyle=tk.MITER
             )
 
             compartments = dividers + 1
