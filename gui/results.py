@@ -636,74 +636,78 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
-        # Margin for dimensions and labels
-        margin_x = 80
+        # Pocket height should be at least stack height + headroom, or based on pocket length/depth
+        pocket_h = max(pl, stack_height * 1.5, 40.0)
+
+        margin_x = 90
         margin_y = 80
 
         draw_w = width - 2 * margin_x
         draw_h = height - 2 * margin_y
 
-        # Scale based on pocket dimensions (width x length)
-        scale = min(draw_w / max(pw, 1.0), draw_h / max(pl, 1.0))
+        scale = min(draw_w / max(pw, 1.0), draw_h / max(pocket_h, 1.0))
         rect_w = pw * scale
-        rect_h = pl * scale
+        rect_h = pocket_h * scale
 
         origin_x = (width - rect_w) / 2
         origin_y = (height - rect_h) / 2
 
-        # Draw pocket outer boundary
+        # Draw prominent pocket outer walls and bottom floor
+        wall_width = 5
         canvas.create_rectangle(
             origin_x, origin_y,
             origin_x + rect_w, origin_y + rect_h,
-            outline="#2c3e50", width=3, fill="#f8f9fa"
+            outline="#111111", width=wall_width, fill="#ffffff"
         )
 
-        # Draw dividers if any
+        # Draw prominent dividers if any
+        compartments = dividers + 1
+        comp_w = rect_w / compartments
         if dividers > 0:
-            compartments = dividers + 1
-            comp_w = rect_w / compartments
             for i in range(1, compartments):
                 dx = origin_x + i * comp_w
                 canvas.create_line(
                     dx, origin_y, dx, origin_y + rect_h,
-                    fill="#e74c3c", width=2, dash=(4, 2)
+                    fill="#111111", width=wall_width
                 )
 
-        # Draw sticks inside layers/grouping
-        # Grouping sticks distributed across compartments or pocket width
-        compartments = dividers + 1
+        # Draw oval sticks piled at the bottom according to stack height and layers
+        scaled_stack_h = stack_height * scale if stack_height > 0 else rect_h * 0.6
+        layer_h = scaled_stack_h / max(layers, 1)
+        base_y = origin_y + rect_h
+
         sticks_per_comp = max(1, grouping // compartments)
-        
-        layer_h = rect_h / max(layers, 1)
+
         for layer in range(layers):
-            ly = origin_y + layer * layer_h
+            # Layers build up from the bottom floor
+            ly_bottom = base_y - layer * layer_h
+            ly_top = ly_bottom - layer_h
             for comp in range(compartments):
-                comp_start_x = origin_x + comp * (rect_w / compartments)
-                comp_w = rect_w / compartments
-                stick_w = comp_w / max(sticks_per_comp, 1)
+                comp_start_x = origin_x + comp * comp_w
+                stick_slot_w = comp_w / max(sticks_per_comp, 1)
                 for s in range(sticks_per_comp):
-                    sx = comp_start_x + s * stick_w + 2
-                    sy = ly + 2
-                    sw = stick_w - 4
+                    sx = comp_start_x + s * stick_slot_w + 3
+                    sy = ly_top + 2
+                    sw = stick_slot_w - 6
                     sh = layer_h - 4
-                    if sw > 2 and sh > 2:
-                        canvas.create_rectangle(
+                    if sw > 4 and sh > 4:
+                        canvas.create_oval(
                             sx, sy, sx + sw, sy + sh,
-                            fill="#3498db", outline="#2980b9", width=1
+                            fill="#73a6ff", outline="#1d4ed8", width=2
                         )
 
         # Dimension annotations
-        # Pocket width (top)
-        canvas.create_line(origin_x, origin_y - 25, origin_x + rect_w, origin_y - 25, arrow=tk.BOTH, fill="#7f8c8d")
-        canvas.create_text(origin_x + rect_w / 2, origin_y - 38, text=f"Pocket Width: {fmt(pw)} mm", fill="#2c3e50", font=("TkDefaultFont", 9, "bold"))
+        # Pocket Width (top)
+        canvas.create_line(origin_x, origin_y - 25, origin_x + rect_w, origin_y - 25, arrow=tk.BOTH, fill="#4b5563", width=1.5)
+        canvas.create_text(origin_x + rect_w / 2, origin_y - 38, text=f"Pocket Width: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
-        # Pocket length (left)
-        canvas.create_line(origin_x - 25, origin_y, origin_x - 25, origin_y + rect_h, arrow=tk.BOTH, fill="#7f8c8d")
-        canvas.create_text(origin_x - 45, origin_y + rect_h / 2, text=f"Length: {fmt(pl)} mm", fill="#2c3e50", font=("TkDefaultFont", 9, "bold"), angle=90)
+        # Pocket Height / Depth (left)
+        canvas.create_line(origin_x - 25, origin_y, origin_x - 25, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.5)
+        canvas.create_text(origin_x - 55, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
 
-        # Info text summary at bottom
+        # Info summary at bottom
         info_str = f"Grouping: {grouping} | Dividers: {dividers} | Layers: {layers} | Stack Height: {fmt(stack_height)} mm"
-        canvas.create_text(width / 2, height - 30, text=info_str, fill="#34495e", font=("TkDefaultFont", 10, "bold"))
+        canvas.create_text(width / 2, height - 25, text=info_str, fill="#1f2937", font=("TkDefaultFont", 10, "bold"))
 
     canvas.bind("<Configure>", draw_pocket_canvas)
 
