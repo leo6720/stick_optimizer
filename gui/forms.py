@@ -6,14 +6,14 @@ DISPLAY_LABELS = {
     "sticks_per_beat": "Np - Canali MT",
     "max_pitch_shift_mm": "D - Offset max stick [mm]",
 
-    "divider_width_mm": "larghezza divisore",
-    "pocket_wall_width_mm": "larghezza parete",
-    "clearance_between_adjacent_sticks_mm": "gioco stick-stick",
-    "clearance_stick_to_wall_or_divider_mm": "gioco stick-parete/div",
+    "divider_width_mm": "Larghezza divisore",
+    "pocket_wall_width_mm": "Larghezza parete",
+    "clearance_between_adjacent_sticks_mm": "Gioco stick-stick",
+    "clearance_stick_to_wall_or_divider_mm": "Gioco stick-parete/div",
     "carton_B_extra_mm": "B extra",
-    "max_cartoner_pitch_mm": "passo max astucciatrice",
-    "pitch_step_mm": "passo incremento",
-    "max_allowed_layers": "max strati",
+    "max_cartoner_pitch_mm": "Passo max astucciatrice",
+    "pitch_step_mm": "Passo incremento",
+    "max_allowed_layers": "Max strati",
 }
 
 
