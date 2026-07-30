@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from typing import Optional
 
 
 RESULT_COLUMNS = (
@@ -18,17 +19,17 @@ RESULT_COLUMNS = (
 
 
 RESULT_HEADINGS = {
-    "rank": "rank",
-    "score": "score",
-    "cartoner_pitch": "cartoner pitch",
-    "pocket_types": "pocket types",
-    "head_types": "head types",
-    "max_layers": "max layers",
-    "layer_penalty": "layer pen",
-    "carryover_penalty": "carry pen",
-    "grouping_penalty": "group pen",
-    "stability_penalty": "stability pen",
-    "carton_ab_penalty": "A/B pen",
+    "rank": "Posizione",
+    "score": "Punteggio",
+    "cartoner_pitch": "Passo astucciatrice",
+    "pocket_types": "Tipi cassetto",
+    "head_types": "Tipi testa",
+    "max_layers": "Max strati",
+    "layer_penalty": "Pen. strati",
+    "carryover_penalty": "Pen. riporto",
+    "grouping_penalty": "Pen. raggrup.",
+    "stability_penalty": "Pen. stabilità",
+    "carton_ab_penalty": "Pen. A/B",
 }
 
 
@@ -81,6 +82,7 @@ FORMAT_OVERVIEW_COLUMNS = (
     "dividers",
     "pockets_per_pitch",
     "pocket",
+    "pocket_length",
     "layers",
     "stack_height",
     "carton_A",
@@ -95,6 +97,7 @@ FORMAT_OVERVIEW_COLUMNS = (
 
 POCKET_TYPE_COLUMNS = (
     "pocket_width",
+    "pocket_height",
     "pocket_length",
     "dividers",
     "pockets_per_pitch",
@@ -145,7 +148,7 @@ def result_display_value(solution, column_name):
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
     frame = ttk.LabelFrame(
         parent,
-        text="Top solutions - click a column header to filter",
+        text="Migliori soluzioni - clicca sull'intestazione per filtrare",
         padding=8,
     )
 
@@ -225,9 +228,9 @@ def build_detail_section(parent, on_format_open_callback):
 
     Full format details are opened in a popup on double click.
     """
-    frame = ttk.LabelFrame(parent, text="Selected solution details", padding=8)
+    frame = ttk.LabelFrame(parent, text="Dettagli soluzione selezionata", padding=8)
 
-    summary_frame = ttk.LabelFrame(frame, text="Solution summary", padding=8)
+    summary_frame = ttk.LabelFrame(frame, text="Riepilogo soluzione", padding=8)
     summary_frame.pack(fill="x", pady=(0, 8))
 
     summary_fields = [
@@ -243,6 +246,19 @@ def build_detail_section(parent, on_format_open_callback):
         "total_carton_ab_ratio_penalty",
     ]
 
+    summary_translations = {
+        "score": "Punteggio",
+        "cartoner_pitch": "Passo astucciatrice",
+        "number_of_pocket_types": "Numero tipi cassetto",
+        "number_of_robot_head_types": "Numero tipi testa robot",
+        "max_layers": "Max strati",
+        "total_layer_penalty": "Penalità totale strati",
+        "total_carryover_penalty": "Penalità totale riporto",
+        "total_grouping_penalty": "Penalità totale raggruppamento",
+        "total_stability_width_penalty": "Penalità totale stabilità",
+        "total_carton_ab_ratio_penalty": "Penalità totale rapporto A/B",
+    }
+
     summary_vars = {}
     summary_name_labels = {}
     summary_fields_order = list(summary_fields)
@@ -253,7 +269,7 @@ def build_detail_section(parent, on_format_open_callback):
 
         name_label = ttk.Label(
             summary_frame,
-            text=field_name.replace("_", " "),
+            text=summary_translations.get(field_name, field_name.replace("_", " ")),
         )
 
         name_label.grid(
@@ -278,7 +294,7 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_frame = ttk.LabelFrame(
         frame,
-        text="Format overview - double click a row for full format detail",
+        text="Panoramica formati - doppio clic su una riga per i dettagli completi",
         padding=8,
     )
     overview_frame.pack(fill="both", expand=True, pady=(0, 8))
@@ -291,22 +307,23 @@ def build_detail_section(parent, on_format_open_callback):
     )
 
     overview_headings = {
-        "format": "format",
-        "stick_type": "stick type",
-        "input_pitch": "input pitch",
-        "grouping": "group",
-        "dividers": "div",
-        "pockets_per_pitch": "p/pitch",
-        "pocket": "pocket W x L",
-        "layers": "layers",
-        "stack_height": "stack H",
+        "format": "Formato",
+        "stick_type": "Tipo stick",
+        "input_pitch": "Passo ingr.",
+        "grouping": "Raggrup.",
+        "dividers": "Div.",
+        "pockets_per_pitch": "Cass/Passo",
+        "pocket": "Cassetto L x A",
+        "pocket_length": "Lungh. cassetto",
+        "layers": "Strati",
+        "stack_height": "Alt. impil.",
         "carton_A": "A",
         "carton_B": "B",
         "carton_ab_ratio": "A/B",
-        "carton_ab_penalty": "A/B pen",
-        "carryover": "carryover",
-        "head_type": "head type",
-        "pocket_type": "pocket type",
+        "carton_ab_penalty": "Pen. A/B",
+        "carryover": "Riporto",
+        "head_type": "Tipo testa",
+        "pocket_type": "Tipo cassetto",
     }
 
     overview_widths = {
@@ -317,6 +334,7 @@ def build_detail_section(parent, on_format_open_callback):
         "dividers": 50,
         "pockets_per_pitch": 70,
         "pocket": 90,
+        "pocket_length": 90,
         "layers": 60,
         "stack_height": 70,
         "carton_A": 60,
@@ -349,14 +367,14 @@ def build_detail_section(parent, on_format_open_callback):
 
     pocket_frame = ttk.LabelFrame(
         commonality_frame,
-        text="Pocket types used",
+        text="Tipi di cassetti utilizzati",
         padding=8,
     )
     pocket_frame.pack(side="left", fill="both", expand=True, padx=(0, 4))
 
     head_frame = ttk.LabelFrame(
         commonality_frame,
-        text="Robot head types used",
+        text="Tipi di teste robot utilizzate",
         padding=8,
     )
     head_frame.pack(side="left", fill="both", expand=True, padx=(4, 0))
@@ -386,19 +404,21 @@ def _build_pocket_type_table(parent):
     )
 
     headings = {
-        "pocket_width": "pocket width",
-        "pocket_length": "pocket length",
-        "dividers": "dividers",
-        "pockets_per_pitch": "p/pitch",
-        "used_by": "used by formats",
+        "pocket_width": "Larghezza cassetto",
+        "pocket_height": "Altezza cassetto",
+        "pocket_length": "Lunghezza cassetto",
+        "dividers": "Divisori",
+        "pockets_per_pitch": "Cass/passo",
+        "used_by": "Usato da formati",
     }
 
     widths = {
         "pocket_width": 90,
+        "pocket_height": 90,
         "pocket_length": 90,
         "dividers": 70,
         "pockets_per_pitch": 70,
-        "used_by": 220,
+        "used_by": 160,
     }
 
     for col in POCKET_TYPE_COLUMNS:
@@ -420,9 +440,9 @@ def _build_robot_head_type_table(parent):
     )
 
     headings = {
-        "grouping": "grouping",
-        "adjusted_input_pitch": "input pitch",
-        "used_by": "used by formats",
+        "grouping": "Raggruppamento",
+        "adjusted_input_pitch": "Passo ingresso",
+        "used_by": "Usato da formati",
     }
 
     widths = {
@@ -482,9 +502,16 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(pocket_tree)
     clear_tree(head_tree)
 
+    max_b_by_pocket = {}
+    for candidate in solution.candidates:
+        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
+
     for index, candidate in enumerate(solution.candidates):
-        pocket_size = f"{fmt(candidate.pocket_width)} x {fmt(candidate.pocket_length)}"
-        carryover = "yes" if candidate.carryover_required else "no"
+        carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
+        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
+        carryover = "sì" if candidate.carryover_required else "no"
 
         overview_tree.insert(
             "",
@@ -497,11 +524,12 @@ def populate_solution_details(widgets, solution) -> None:
                 candidate.grouping,
                 candidate.dividers,
                 candidate.pockets_per_pitch,
-                pocket_size,
+                pocket_wh,
+                fmt(candidate.pocket_length),
                 candidate.layers,
                 fmt(candidate.stack_height),
                 fmt(getattr(candidate, "carton_A_mm", "")),
-                fmt(getattr(candidate, "carton_B_mm", "")),
+                fmt(carton_b),
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
                 carryover,
@@ -523,21 +551,26 @@ def populate_solution_details(widgets, solution) -> None:
 
 def _populate_pocket_type_commonality(tree, candidates):
     grouped = {}
+    max_b_by_pocket = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.pocket_type, []).append(candidate.format_name)
+        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
     for pocket_type, format_names in sorted(
         grouped.items(),
         key=lambda item: str(item[0]),
     ):
         pocket_width, pocket_length, dividers, pockets_per_pitch = pocket_type
+        pocket_height = max_b_by_pocket.get(pocket_type, 0.0)
 
         tree.insert(
             "",
             "end",
             values=(
                 fmt(pocket_width),
+                fmt(pocket_height),
                 fmt(pocket_length),
                 dividers,
                 pockets_per_pitch,
@@ -569,125 +602,261 @@ def _populate_robot_head_type_commonality(tree, candidates):
         )
 
 
-def open_format_detail_popup(parent, candidate) -> None:
+def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
-    window.title(f"Format detail - {candidate.format_name}")
-    window.geometry("720x650")
-    window.minsize(620, 480)
+    window.title(f"Dettaglio formato - {candidate.format_name}")
+    window.geometry("760x680")
+    window.minsize(640, 500)
     window.transient(parent)
 
-    frame = ttk.Frame(window, padding=10)
-    frame.pack(fill="both", expand=True)
+    main_frame = ttk.Frame(window, padding=10)
+    main_frame.pack(fill="both", expand=True)
 
     header = ttk.Label(
-        frame,
+        main_frame,
         text=f"{candidate.format_name} / {candidate.stick_type_name}",
         font=("TkDefaultFont", 11, "bold"),
     )
     header.pack(anchor="w", pady=(0, 8))
 
+    content_pane = ttk.PanedWindow(main_frame, orient="vertical")
+    content_pane.pack(fill="both", expand=True, pady=(0, 8))
+
+    param_frame = ttk.Frame(content_pane)
+    vis_frame = ttk.Frame(content_pane)
+
+    content_pane.add(vis_frame, weight=1)
+    content_pane.add(param_frame, weight=1)
+
     tree = ttk.Treeview(
-        frame,
+        param_frame,
         columns=("parameter", "value"),
         show="headings",
     )
 
-    tree.heading("parameter", text="parameter")
-    tree.heading("value", text="value")
+    tree.heading("parameter", text="parametro")
+    tree.heading("value", text="valore")
 
-    tree.column("parameter", width=260, anchor="w")
-    tree.column("value", width=390, anchor="w")
+    tree.column("parameter", width=200, anchor="w")
+    tree.column("value", width=180, anchor="w")
 
-    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(param_frame, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
 
     tree.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    populate_format_detail(tree, candidate)
+    populate_format_detail(tree, candidate, show_details=show_details)
+
+    canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
+    canvas.pack(fill="both", expand=True)
+
+    def draw_pocket_canvas(event=None):
+        canvas.delete("all")
+        width = canvas.winfo_width()
+        height = canvas.winfo_height()
+        if width < 50 or height < 50:
+            width = 380
+            height = 500
+
+        pw = getattr(candidate, "pocket_width", 100.0) or 100.0
+        carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        dividers = getattr(candidate, "dividers", 0) or 0
+        grouping = getattr(candidate, "grouping", 1) or 1
+        layers = getattr(candidate, "layers", 1) or 1
+        stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
+        pitch = getattr(candidate, "cartoner_pitch", 0.0) or (pw * 1.5)
+        pockets_count = getattr(candidate, "pockets_per_pitch", 1) or 1
+
+        pocket_h = pocket_height if pocket_height and pocket_height > 0 else (carton_b if carton_b > 0 else max(stack_height * 1.2, 40.0))
+
+        margin_x = 75
+        margin_y = 65
+
+        draw_w = width - 2 * margin_x
+        draw_h = height - 2 * margin_y
+
+        scale_px_per_mm = min(draw_w / max(pitch, pw, 1.0), draw_h / max(pocket_h, 1.0))
+        pitch_px = pitch * scale_px_per_mm
+        rect_w = pw * scale_px_per_mm
+        rect_h = pocket_h * scale_px_per_mm
+
+        origin_x = (width - pitch_px) / 2
+        origin_y = (height - rect_h) / 2
+
+        wall_width = max(3, int(2.0 * scale_px_per_mm * 0.1))
+
+        # Pitch space calculation for pockets distribution
+        pocket_spacing = pitch_px / pockets_count
+
+        # Render each pocket inside this pitch
+        for p_idx in range(pockets_count):
+            p_origin_x = origin_x + p_idx * pocket_spacing
+
+            # Fill pocket interior
+            canvas.create_rectangle(
+                p_origin_x, origin_y,
+                p_origin_x + rect_w, origin_y + rect_h,
+                outline="", fill="#ffffff"
+            )
+
+            # Draw squared U pocket walls (left wall -> bottom -> right wall, open top)
+            canvas.create_line(
+                p_origin_x, origin_y,
+                p_origin_x, origin_y + rect_h,
+                p_origin_x + rect_w, origin_y + rect_h,
+                p_origin_x + rect_w, origin_y,
+                fill="#111111", width=wall_width, capstyle=tk.PROJECTING, joinstyle=tk.MITER
+            )
+
+            compartments = dividers + 1
+            comp_w = rect_w / compartments
+            if dividers > 0:
+                for i in range(1, compartments):
+                    dx = p_origin_x + i * comp_w
+                    canvas.create_line(
+                        dx, origin_y, dx, origin_y + rect_h,
+                        fill="#111111", width=wall_width
+                    )
+
+            stick_h_mm = (stack_height / max(layers, 1)) if stack_height > 0 else (pocket_h * 0.6 / max(layers, 1))
+            scaled_layer_h = stick_h_mm * scale_px_per_mm
+            base_y = origin_y + rect_h
+            sticks_per_comp = max(1, grouping // compartments)
+
+            for layer in range(layers):
+                ly_bottom = base_y - layer * scaled_layer_h
+                ly_top = ly_bottom - scaled_layer_h
+                for comp in range(compartments):
+                    comp_start_x = p_origin_x + comp * comp_w
+                    stick_slot_w = comp_w / max(sticks_per_comp, 1)
+                    for s in range(sticks_per_comp):
+                        sx = comp_start_x + s * stick_slot_w + 2
+                        sy = ly_top + 2
+                        sw = stick_slot_w - 4
+                        sh = scaled_layer_h - 4
+                        if sw > 2 and sh > 2:
+                            canvas.create_oval(
+                                sx, sy, sx + sw, sy + sh,
+                                fill="#73a6ff", outline="#1d4ed8", width=1.5
+                            )
+
+            # Pocket width annotation on first pocket
+            if p_idx == 0:
+                canvas.create_line(p_origin_x, origin_y - 20, p_origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
+                canvas.create_text(p_origin_x + rect_w / 2, origin_y - 32, text=f"L: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 8, "bold"))
+
+        # Wall marking start of the next pitch (same height & thickness as pocket wall)
+        next_pitch_x = origin_x + pitch_px
+        canvas.create_line(
+            next_pitch_x, origin_y,
+            next_pitch_x, origin_y + rect_h,
+            fill="#111111", width=wall_width
+        )
+
+        # Full pitch dimension annotation line & label
+        canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
+        canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Passo: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
+
+        # Summary info text at the top
+        info_str = f"Cassetti/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
+        canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
+
+        # Height dimension annotation on the left
+        canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
+        canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Altezza: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
+
+    canvas.bind("<Configure>", draw_pocket_canvas)
 
     button_frame = ttk.Frame(window, padding=(10, 0, 10, 10))
     button_frame.pack(fill="x")
 
     ttk.Button(
         button_frame,
-        text="Close",
+        text="Chiudi",
         command=window.destroy,
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate) -> None:
+def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
     clear_tree(tree)
 
     sections = [
         (
-            "Transfer",
+            "Trasferimento",
             [
-                ("format name", candidate.format_name),
-                ("stick type", candidate.stick_type_name),
-                ("adjusted input pitch", candidate.adjusted_input_pitch),
-                ("grouping", candidate.grouping),
-                ("deposits per set", candidate.deposits_per_set),
-                ("pockets per pitch", candidate.pockets_per_pitch),
-                ("pocket pitch", candidate.pocket_pitch),
-                ("cartoner pitch", candidate.cartoner_pitch),
+                ("nome formato", candidate.format_name),
+                ("tipo stick", candidate.stick_type_name),
+                ("passo ingresso regolato", candidate.adjusted_input_pitch),
+                ("raggruppamento", candidate.grouping),
+                ("depositi per set", candidate.deposits_per_set),
+                ("cassetti per passo", candidate.pockets_per_pitch),
+                ("passo cassetto", candidate.pocket_pitch),
+                ("passo astucciatrice", candidate.cartoner_pitch),
             ],
         ),
         (
-            "Pocket",
+            "Cassetto",
             [
-                ("pocket width", candidate.pocket_width),
-                ("pocket length", candidate.pocket_length),
-                ("dividers", candidate.dividers),
-                ("occupied width", candidate.occupied_width),
-                ("unused space", candidate.unused_space),
-                ("pocket type", candidate.pocket_type),
+                ("larghezza cassetto", candidate.pocket_width),
+                ("lunghezza cassetto", candidate.pocket_length),
+                ("divisori", candidate.dividers),
+                ("larghezza occupata", candidate.occupied_width),
+                ("spazio non utilizzato", candidate.unused_space),
+                ("tipo cassetto", candidate.pocket_type),
             ],
         ),
         (
-            "Stack and carryover",
+            "Pila e riporto",
             [
-                ("layers", candidate.layers),
-                ("stack height", candidate.stack_height),
+                ("strati", candidate.layers),
+                ("altezza pila", candidate.stack_height),
                 (
-                    "carryover required",
-                    "yes" if candidate.carryover_required else "no",
+                    "riporto richiesto",
+                    "sì" if candidate.carryover_required else "no",
                 ),
-                ("carryover cycle length", candidate.carryover_cycle_length),
-            ],
-        ),
-        (
-            "Carton A/B",
-            [
-                ("carton A width", getattr(candidate, "carton_A_mm", "")),
-                ("carton B height", getattr(candidate, "carton_B_mm", "")),
-                ("carton A/B ratio", getattr(candidate, "carton_AB_ratio", "")),
-                (
-                    "carton A/B penalty",
-                    getattr(candidate, "carton_AB_ratio_penalty", ""),
-                ),
-            ],
-        ),
-        (
-            "Stability and penalties",
-            [
-                ("effective unsupported width", candidate.effective_unsupported_width),
-                ("width ratio", candidate.width_ratio),
-                ("layer penalty", candidate.layer_penalty),
-                ("carryover penalty", candidate.carryover_penalty),
-                ("grouping penalty", candidate.grouping_penalty),
-                ("stability width penalty", candidate.stability_width_penalty),
-            ],
-        ),
-        (
-            "Types",
-            [
-                ("robot head type", candidate.robot_head_type),
-                ("pocket type", candidate.pocket_type),
+                ("lunghezza ciclo riporto", candidate.carryover_cycle_length),
             ],
         ),
     ]
+
+    if show_details:
+        sections.extend([
+            (
+                "Astuccio A/B",
+                [
+                    ("larghezza A astuccio", getattr(candidate, "carton_A_mm", "")),
+                    ("altezza B astuccio", getattr(candidate, "carton_B_mm", "")),
+                    ("rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
+                    (
+                        "penalità rapporto A/B",
+                        getattr(candidate, "carton_AB_ratio_penalty", ""),
+                    ),
+                ],
+            ),
+            (
+                "Stabilità e penalità",
+                [
+                    ("larghezza non supportata effettiva", candidate.effective_unsupported_width),
+                    ("rapporto larghezza", candidate.width_ratio),
+                    ("penalità strati", candidate.layer_penalty),
+                    ("penalità riporto", candidate.carryover_penalty),
+                    ("penalità raggruppamento", candidate.grouping_penalty),
+                    ("penalità larghezza stabilità", candidate.stability_width_penalty),
+                ],
+            ),
+        ])
+
+    sections.append(
+        (
+            "Tipi",
+            [
+                ("tipo testa robot", candidate.robot_head_type),
+                ("tipo cassetto", candidate.pocket_type),
+            ],
+        )
+    )
 
     for section_name, rows in sections:
         parent = tree.insert(

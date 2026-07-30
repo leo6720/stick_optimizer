@@ -1,4 +1,4 @@
-# hello you all
+
 import dataclasses
 import json
 import tkinter as tk
@@ -75,7 +75,7 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Stickpack Transfer Optimizer")
+        self.title("Calcolatore abbinamenti stick")
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
         self.iconbitmap("stick_optimizer_logo.ico")
@@ -166,59 +166,59 @@ class OptimizerApp(tk.Tk):
 
         # File menu
         file_menu = tk.Menu(menu_bar, tearoff=False)
-        file_menu.add_command(label="New Project", command=self.new_project)
-        file_menu.add_command(label="Open Project...", command=self.open_project)
+        file_menu.add_command(label="Nuovo progetto", command=self.new_project)
+        file_menu.add_command(label="Apri progetto...", command=self.open_project)
         file_menu.add_separator()
-        file_menu.add_command(label="Save Project", command=self.save_project)
-        file_menu.add_command(label="Save Project As...", command=self.save_project_as)
+        file_menu.add_command(label="Salva progetto", command=self.save_project)
+        file_menu.add_command(label="Salva progetto con nome...", command=self.save_project_as)
         file_menu.add_separator()
 
         export_menu = tk.Menu(file_menu, tearoff=False)
         export_menu.add_command(
-            label="Summary CSV",
+            label="CSV riepilogo",
             command=self.export_summary,
         )
         export_menu.add_command(
-            label="Selected detail CSV",
+            label="CSV dettagli selezionati",
             command=self.export_details,
         )
 
-        file_menu.add_cascade(label="Export", menu=export_menu)
+        file_menu.add_cascade(label="Esporta", menu=export_menu)
         menu_bar.add_cascade(label="File", menu=file_menu)
 
         # Options menu
         options_menu = tk.Menu(menu_bar, tearoff=False)
 
         options_menu.add_command(
-            label="Clear result filters",
+            label="Rimuovi filtri risultati",
             command=lambda: self._clear_all_result_filters(None),
         )
 
         options_menu.add_separator()
 
         options_menu.add_checkbutton(
-            label="Show score and penalty details",
+            label="Mostra dettagli punteggio e penalità",
             variable=self.show_score_penalty_details,
             command=self._update_score_penalty_columns_visibility,
         )
 
-        menu_bar.add_cascade(label="Options", menu=options_menu)
+        menu_bar.add_cascade(label="Opzioni", menu=options_menu)
 
         # Edit menu
         edit_menu = tk.Menu(menu_bar, tearoff=False)
 
         edit_menu.add_command(
-            label="Scoring weights",
+            label="Pesi di calcolo",
             command=self.open_weights_editor,
         )
 
         edit_menu.add_command(
-            label="Number of results",
+            label="Numero di risultati",
             command=self.open_number_of_results_editor,
         )
 
         edit_menu.add_command(
-            label="Carton A/B target",
+            label="Obiettivo A/B astuccio",
             command=self.open_carton_ab_target_editor,
         )
 
@@ -227,7 +227,7 @@ class OptimizerApp(tk.Tk):
             command=self.open_cartoner_settings_editor,
         )
 
-        menu_bar.add_cascade(label="Edit", menu=edit_menu)
+        menu_bar.add_cascade(label="Modifica", menu=edit_menu)
         self.config(menu=menu_bar)
 
     # ------------------------------------------------------------------
@@ -247,13 +247,13 @@ class OptimizerApp(tk.Tk):
         inner = ttk.Frame(self.home_frame)
         inner.place(relx=0.5, rely=0.5, anchor="center")
         
-        ttk.Label(inner, text="Stickpack Transfer Optimizer", font=("TkDefaultFont", 24, "bold")).pack(pady=(0, 40))
+        ttk.Label(inner, text="Calcolatore abbinamenti stick", font=("TkDefaultFont", 24, "bold")).pack(pady=(0, 40))
         
         btn_frame = ttk.Frame(inner)
         btn_frame.pack()
         
-        ttk.Button(btn_frame, text="New Project", width=25, command=self.new_project).pack(pady=10)
-        ttk.Button(btn_frame, text="Open Project", width=25, command=self.open_project).pack(pady=10)
+        ttk.Button(btn_frame, text="Nuovo Progetto", width=25, command=self.new_project).pack(pady=10)
+        ttk.Button(btn_frame, text="Apri Progetto", width=25, command=self.open_project).pack(pady=10)
 
     def _build_layout(self) -> None:
         """Build main window layout (hidden initially)."""
@@ -265,7 +265,7 @@ class OptimizerApp(tk.Tk):
 
         self.run_button = ttk.Button(
             toolbar,
-            text="Run optimization",
+            text="Calcola",
             command=self.run_optimization,
         )
         self.run_button.pack(side="left")
@@ -315,9 +315,9 @@ class OptimizerApp(tk.Tk):
     def _build_stick_table(self, parent):
         self.stick_table = EditableTable(
             parent,
-            title="Stick types",
+            title="Tipi stick",
             columns=[
-                ("name", "Type", 80),
+                ("name", "Tipo", 80),
                 ("length", "Hs [mm]", 60),
                 ("width", "As [mm]", 60),
                 ("thickness", "Ss [mm]", 60),
@@ -331,15 +331,24 @@ class OptimizerApp(tk.Tk):
 
 
     def _build_format_table(self, parent):
+        def get_stick_type_choices():
+            rows = self.stick_table.get_rows()
+            choices = []
+            for r in rows:
+                if r and r[0].strip():
+                    choices.append(r[0].strip())
+            return choices
+
         self.format_table = EditableTable(
             parent,
-            title="Formats",
+            title="Formati",
             columns=[
-                ("format", "Format name", 100),
-                ("stick_type", "Stick type", 100),
-                ("sticks_per_pocket", "Sticks per pocket", 110),
+                ("format", "Nome formato", 100),
+                ("stick_type", "Tipo stick", 100),
+                ("sticks_per_pocket", "Stick per cassetto", 110),
             ],
             height=7,
+            combobox_columns={"stick_type": get_stick_type_choices},
         )
 
         self.format_table.pack(fill="both", expand=True)
@@ -385,6 +394,18 @@ class OptimizerApp(tk.Tk):
         self.results_tree.configure(
             displaycolumns=visible_columns
         )
+
+        # -------------------------------------------------------------
+        # Format overview Treeview
+        # -------------------------------------------------------------
+        if hasattr(self, "detail_widgets") and "format_overview_tree" in self.detail_widgets:
+            overview_tree = self.detail_widgets["format_overview_tree"]
+            overview_all_cols = list(overview_tree["columns"])
+            if show_details:
+                overview_visible = overview_all_cols
+            else:
+                overview_visible = [c for c in overview_all_cols if c != "carton_ab_penalty"]
+            overview_tree.configure(displaycolumns=overview_visible)
 
         # -------------------------------------------------------------
         # Selected-solution summary
@@ -616,7 +637,7 @@ class OptimizerApp(tk.Tk):
 
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
-        base_title = "Stickpack Transfer Optimizer"
+        base_title = "Calcolatore abbinamenti stick"
         
         display_name = ""
         if self.current_project_path:
@@ -632,7 +653,7 @@ class OptimizerApp(tk.Tk):
     def new_project(self) -> None:
         """Reset application to a new project state."""
         dialog = tk.Toplevel(self)
-        dialog.title("New Project")
+        dialog.title("Nuovo Progetto")
         dialog.geometry("350x200")
         dialog.resizable(False, False)
         dialog.transient(self)
@@ -640,24 +661,24 @@ class OptimizerApp(tk.Tk):
 
         result = {"name": None, "use_defaults": False}
 
-        ttk.Label(dialog, text="Project Name:").pack(pady=(15, 5))
+        ttk.Label(dialog, text="Nome Progetto:").pack(pady=(15, 5))
         name_entry = ttk.Entry(dialog, width=35)
         name_entry.pack(pady=5)
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="use example data for stick formats", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(dialog, text="usa dati di esempio per i formati stick", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
             if not name:
-                messagebox.showwarning("Warning", "Please enter a project name.")
+                messagebox.showwarning("Attenzione", "Inserire un nome per il progetto.")
                 return
             result["name"] = name
             result["use_defaults"] = use_defaults_var.get()
             dialog.destroy()
 
-        ttk.Button(dialog, text="Create", command=on_ok).pack(pady=10)
+        ttk.Button(dialog, text="Crea", command=on_ok).pack(pady=10)
 
         self.wait_window(dialog)
 
@@ -852,28 +873,15 @@ class OptimizerApp(tk.Tk):
     def open_weights_editor(self) -> None:
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
-        dialog.title("Edit scoring weights")
-        dialog.geometry("540x420")
+        dialog.title("Modifica pesi di calcolo")
+        dialog.geometry("500x340")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
 
-        frame = ttk.Frame(dialog, padding=12)
-        frame.pack(fill="both", expand=True)
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
-        entries = {}
-
-        def _update_style(e, default_val):
-            try:
-                if e.get().strip() != str(default_val):
-                    e.configure(style="Yellow.TEntry")
-                else:
-                    e.configure(style="TEntry")
-            except:
-                pass
-
-        weight_labels = {}
-        # Load persisted user defaults weights if available, otherwise DEFAULT_WEIGHTS
         base_weights = DEFAULT_WEIGHTS
         if self.user_defaults_path.exists():
             try:
@@ -884,53 +892,89 @@ class OptimizerApp(tk.Tk):
             except Exception:
                 pass
 
-        for row, field in enumerate(dataclasses.fields(Weights)):
-            dv = getattr(base_weights, field.name)
-            label_text = f"{field.name} ({dv})"
-            lbl = ttk.Label(frame, text=label_text)
-            lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
-            weight_labels[field.name] = (lbl, dv)
+        weight_translations = {
+            "layer_penalty_weight": "Peso penalità strati",
+            "carryover_penalty_weight": "Peso penalità riporto",
+            "grouping_penalty_weight": "Peso penalità raggruppamento",
+            "stability_width_penalty_weight": "Peso penalità stabilità",
+            "carton_ab_ratio_penalty_weight": "Peso penalità rapporto A/B",
+        }
 
-            entry = ttk.Entry(frame, width=18)
-            entry.grid(row=row, column=1, sticky="w", pady=4)
-            
-            current_value = getattr(self.current_weights, field.name)
-            entry.insert(0, str(current_value))
-            _update_style(entry, dv)
-            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=dv: _update_style(ev, dv))
+        current_defaults = {f.name: getattr(base_weights, f.name) for f in dataclasses.fields(Weights)}
 
-            entries[field.name] = entry
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
-        button_frame = ttk.Frame(frame)
-        button_frame.grid(row=len(dataclasses.fields(Weights)), column=0, columnspan=2, sticky="ew", pady=(16, 0))
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
 
-        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Apply", 
-                   command=lambda: self._save_weights_from_dialog(entries, dialog)).pack(side="right", padx=(4, 0))
-        
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
+        ttk.Button(
+            right_btn_frame,
+            text="Applica",
+            command=lambda: self._save_weights_from_dialog(entries, dialog),
+        ).pack(side="right", padx=(4, 0))
+
+        ttk.Button(
+            right_btn_frame,
+            text="Annulla",
+            command=dialog.destroy,
+        ).pack(side="right", padx=(4, 0))
+
         def reset_weights():
             for field in dataclasses.fields(Weights):
                 dv = getattr(DEFAULT_WEIGHTS, field.name)
-                entries[field.name].delete(0, tk.END)
+                entries[field.name].delete(0, "end")
                 entries[field.name].insert(0, str(dv))
-                _update_style(entries[field.name], dv)
+                entries[field.name].event_generate("<KeyRelease>")
 
         def overwrite_defaults():
             self._save_weights_from_dialog(entries, None)
             self.save_defaults()
-            # Update labels and re-bind key release with new default in the current dialog
             for field in dataclasses.fields(Weights):
-                dv = getattr(self.current_weights, field.name)
-                lbl, _ = weight_labels[field.name]
-                weight_labels[field.name] = (lbl, dv)
-                lbl.config(text=f"{field.name} ({dv})")
-                ev = entries[field.name]
-                ev.unbind("<KeyRelease>")
-                ev.bind("<KeyRelease>", lambda e, ev=ev, dv=dv: _update_style(ev, dv))
-                _update_style(ev, dv)
+                val = entries[field.name].get()
+                current_defaults[field.name] = val
+                friendly_name = weight_translations.get(field.name, field.name.replace("_", " "))
+                lbl_text = f"{friendly_name}  ({val})"
+                popup_labels[field.name].config(text=lbl_text)
+                entries[field.name].event_generate("<KeyRelease>")
 
-        ttk.Button(button_frame, text="Reset to Default", command=reset_weights).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Overwrite Default", command=overwrite_defaults).pack(side="left")
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset_weights).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite_defaults).pack(side="left")
+
+        from gui.forms import _add_fields_to_frame_with_defaults
+        form_frame = ttk.Frame(main_frame)
+        form_frame.pack(fill="both", expand=True)
+
+        field_names = [f.name for f in dataclasses.fields(Weights)]
+        entries = {}
+        popup_labels = {}
+        defaults_map = {f.name: getattr(base_weights, f.name) for f in dataclasses.fields(Weights)}
+
+        from gui.forms import DISPLAY_LABELS
+        old_labels = dict(DISPLAY_LABELS)
+        DISPLAY_LABELS.update(weight_translations)
+        try:
+            _add_fields_to_frame_with_defaults(
+                form_frame,
+                field_names,
+                entries,
+                popup_labels,
+                defaults_map,
+                entry_width=14,
+                label_width=28,
+            )
+        finally:
+            DISPLAY_LABELS.clear()
+            DISPLAY_LABELS.update(old_labels)
+
+        for field in dataclasses.fields(Weights):
+            entries[field.name].delete(0, "end")
+            current_value = getattr(self.current_weights, field.name)
+            entries[field.name].insert(0, str(current_value))
+            entries[field.name].event_generate("<KeyRelease>")
 
     def _save_weights_from_dialog(self, entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save weights from editor dialog."""
@@ -986,7 +1030,12 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        lbl = ttk.Label(frame, text=f"{field_name} ({default_val})")
+        field_labels = {
+            "number_of_results_to_show": "Numero di risultati da mostrare",
+            "carton_AB_target": "Obiettivo rapporto A/B astuccio"
+        }
+        display_field_name = field_labels.get(field_name, field_name)
+        lbl = ttk.Label(frame, text=f"{display_field_name} ({default_val})")
         lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
 
         entry = ttk.Entry(frame, width=16)
@@ -1044,15 +1093,15 @@ class OptimizerApp(tk.Tk):
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
 
-        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Apply", command=save_value).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
+        ttk.Button(button_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(button_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(button_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
     def open_number_of_results_editor(self) -> None:
         """Open editor for number of results to show."""
         self._open_simple_numeric_editor(
-            "Edit number of results",
+            "Modifica numero di risultati",
             "number_of_results_to_show",
             self.current_number_of_results_to_show,
             min_value=0,
@@ -1062,7 +1111,7 @@ class OptimizerApp(tk.Tk):
     def open_carton_ab_target_editor(self) -> None:
         """Open editor for carton A/B target ratio."""
         self._open_simple_numeric_editor(
-            "Edit carton A/B target",
+            "Modifica obiettivo A/B astuccio",
             "carton_AB_target",
             self.current_carton_AB_target,
             min_value=0,
@@ -1091,7 +1140,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("580x450")
+        dialog.geometry("520x400")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -1118,15 +1167,21 @@ class OptimizerApp(tk.Tk):
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
         ttk.Button(
-            button_frame,
-            text="Apply",
+            right_btn_frame,
+            text="Applica",
             command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right", padx=(4, 0))
 
         ttk.Button(
-            button_frame,
-            text="Cancel",
+            right_btn_frame,
+            text="Annulla",
             command=dialog.destroy,
         ).pack(side="right", padx=(4, 0))
 
@@ -1149,8 +1204,8 @@ class OptimizerApp(tk.Tk):
                 popup_labels[field_name].config(text=lbl_text)
                 popup_entries[field_name].event_generate("<KeyRelease>")
 
-        ttk.Button(button_frame, text="Reset to Default", command=reset).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Overwrite Default", command=overwrite).pack(side="left")
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
         form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
             main_frame,
@@ -1300,7 +1355,14 @@ class OptimizerApp(tk.Tk):
         solution = self.solutions[self.selected_solution_index]
         candidate = solution.candidates[candidate_index]
 
-        open_format_detail_popup(self, candidate)
+        max_b_by_pocket = {}
+        for c in solution.candidates:
+            b_val = getattr(c, "carton_B_mm", 0.0) or 0.0
+            max_b_by_pocket[c.pocket_type] = max(max_b_by_pocket.get(c.pocket_type, 0.0), b_val)
+
+        pocket_height = max_b_by_pocket.get(candidate.pocket_type, getattr(candidate, "carton_B_mm", 0.0) or 0.0)
+
+        open_format_detail_popup(self, candidate, pocket_height=pocket_height, show_details=self.show_score_penalty_details.get())
 
     # ------------------------------------------------------------------
     # Result filtering
@@ -1344,7 +1406,7 @@ class OptimizerApp(tk.Tk):
             font=("TkDefaultFont", 10, "bold"),
         ).pack(anchor="w", pady=(0, 8))
 
-        values_frame = ttk.LabelFrame(frame, text="Exact values", padding=8)
+        values_frame = ttk.LabelFrame(frame, text="Valori esatti", padding=8)
         values_frame.pack(fill="both", expand=True, pady=(0, 8))
 
         canvas = tk.Canvas(values_frame, highlightthickness=0)
@@ -1400,24 +1462,24 @@ class OptimizerApp(tk.Tk):
 
         ttk.Button(
             select_buttons,
-            text="Select all",
+            text="Seleziona tutto",
             command=lambda: self._set_filter_value_checks(value_vars, True),
         ).pack(side="left")
 
         ttk.Button(
             select_buttons,
-            text="Deselect all",
+            text="Deseleziona tutto",
             command=lambda: self._set_filter_value_checks(value_vars, False),
         ).pack(side="left", padx=(8, 0))
 
         condition_frame = ttk.LabelFrame(
             frame,
-            text="Optional condition",
+            text="Condizione opzionale",
             padding=8,
         )
         condition_frame.pack(fill="x", pady=(0, 8))
 
-        ttk.Label(condition_frame, text="Operator").grid(
+        ttk.Label(condition_frame, text="Operatore").grid(
             row=0,
             column=0,
             sticky="w",
@@ -1434,7 +1496,7 @@ class OptimizerApp(tk.Tk):
         operator_combo.grid(row=0, column=1, sticky="w", pady=4)
         operator_combo.set(existing_operator)
 
-        ttk.Label(condition_frame, text="Value").grid(
+        ttk.Label(condition_frame, text="Valore").grid(
             row=1,
             column=0,
             sticky="w",
@@ -1451,7 +1513,7 @@ class OptimizerApp(tk.Tk):
 
         ttk.Button(
             button_frame,
-            text="Apply",
+            text="Applica",
             command=lambda: self._apply_column_filter_from_popup(
                 column_name,
                 all_values,
@@ -1464,13 +1526,13 @@ class OptimizerApp(tk.Tk):
 
         ttk.Button(
             button_frame,
-            text="Clear column",
+            text="Azzera colonna",
             command=lambda: self._clear_single_column_filter(column_name, dialog),
         ).pack(side="right", padx=(0, 8))
 
         ttk.Button(
             button_frame,
-            text="Clear all",
+            text="Azzera tutto",
             command=lambda: self._clear_all_result_filters(dialog),
         ).pack(side="right", padx=(0, 8))
 

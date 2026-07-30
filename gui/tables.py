@@ -21,10 +21,12 @@ class EditableTable(ttk.LabelFrame):
         columns: list[tuple[str, str, int]],
         height: int = 7,
         header_image=None,
+        combobox_columns: dict = None,
     ):
         super().__init__(parent, text=title, padding=8)
         self.columns = columns
         self.column_keys = [col[0] for col in columns]
+        self.combobox_columns = combobox_columns or {}
 
         self.active_editor = None
         self._editing_item = None
@@ -54,10 +56,10 @@ class EditableTable(ttk.LabelFrame):
             image_label.pack(side="left", anchor="n")
 
             legend_text = (
-                "Hs = Stick length [mm]\n"
-                "As = Stick width [mm]\n"
-                "Ss = Stick thickness [mm]\n"
-                "Bs = Fin length [mm]"
+                "Hs = Lunghezza stick [mm]\n"
+                "As = Larghezza stick [mm]\n"
+                "Ss = Spessore stick [mm]\n"
+                "Bs = Lunghezza pinna [mm]"
             )
 
             ttk.Label(
@@ -254,9 +256,17 @@ class EditableTable(ttk.LabelFrame):
         if col_index < len(values):
             current_value = values[col_index]
 
-        editor = ttk.Entry(self.tree)
+        col_key = self.column_keys[col_index] if 0 <= col_index < len(self.column_keys) else None
+        choices = self.combobox_columns.get(col_key)
+        if callable(choices):
+            choices = choices()
 
-        editor.insert(0, current_value)
+        if choices is not None:
+            editor = ttk.Combobox(self.tree, values=choices, state="readonly")
+            editor.set(current_value)
+        else:
+            editor = ttk.Entry(self.tree)
+            editor.insert(0, current_value)
 
         editor.place(
             x=x,
@@ -266,7 +276,11 @@ class EditableTable(ttk.LabelFrame):
         )
 
         editor.focus_set()
-        editor.select_range(0, tk.END)
+        if hasattr(editor, "select_range"):
+            try:
+                editor.select_range(0, tk.END)
+            except Exception:
+                pass
 
         self.active_editor = editor
         self._editing_item = item_id
@@ -286,6 +300,11 @@ class EditableTable(ttk.LabelFrame):
             "<FocusOut>",
             lambda e: self._destroy_active_editor(save=True)
         )
+        if choices is not None:
+            editor.bind(
+                "<<ComboboxSelected>>",
+                lambda e: self._destroy_active_editor(save=True)
+            )
 
     def _destroy_active_editor(self, save: bool = True) -> None:
         """

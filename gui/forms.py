@@ -3,17 +3,17 @@ from tkinter import ttk
 
 
 DISPLAY_LABELS = {
-    "sticks_per_beat": "Np - MT channels",
-    "max_pitch_shift_mm": "D - Max stick offset [mm]",
+    "sticks_per_beat": "Np - Canali MT",
+    "max_pitch_shift_mm": "D - Offset max stick [mm]",
 
-    "divider_width_mm": "divider width",
-    "pocket_wall_width_mm": "wall width",
-    "clearance_between_adjacent_sticks_mm": "stick-stick clearance",
-    "clearance_stick_to_wall_or_divider_mm": "stick-wall/div clearance",
+    "divider_width_mm": "Larghezza divisore",
+    "pocket_wall_width_mm": "Larghezza parete",
+    "clearance_between_adjacent_sticks_mm": "Gioco stick-stick",
+    "clearance_stick_to_wall_or_divider_mm": "Gioco stick-parete/div",
     "carton_B_extra_mm": "B extra",
-    "max_cartoner_pitch_mm": "max cartoner pitch",
-    "pitch_step_mm": "pitch step",
-    "max_allowed_layers": "max layers",
+    "max_cartoner_pitch_mm": "Passo max astucciatrice",
+    "pitch_step_mm": "Passo incremento",
+    "max_allowed_layers": "Max strati",
 }
 
 
