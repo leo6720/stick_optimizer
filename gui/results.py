@@ -607,12 +607,14 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     )
     header.pack(anchor="w", pady=(0, 8))
 
-    notebook = ttk.Notebook(main_frame)
-    notebook.pack(fill="both", expand=True, pady=(0, 8))
+    content_pane = ttk.PanedWindow(main_frame, orient="horizontal")
+    content_pane.pack(fill="both", expand=True, pady=(0, 8))
 
-    # Tab 1: Parameters table
-    param_frame = ttk.Frame(notebook, padding=5)
-    notebook.add(param_frame, text="Parameters")
+    param_frame = ttk.Frame(content_pane)
+    vis_frame = ttk.Frame(content_pane)
+
+    content_pane.add(param_frame, weight=1)
+    content_pane.add(vis_frame, weight=1)
 
     tree = ttk.Treeview(
         param_frame,
@@ -623,8 +625,8 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     tree.heading("parameter", text="parameter")
     tree.heading("value", text="value")
 
-    tree.column("parameter", width=260, anchor="w")
-    tree.column("value", width=390, anchor="w")
+    tree.column("parameter", width=200, anchor="w")
+    tree.column("value", width=180, anchor="w")
 
     scrollbar = ttk.Scrollbar(param_frame, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
@@ -634,10 +636,6 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     populate_format_detail(tree, candidate, show_details=show_details)
 
-    # Tab 2: Pocket Visualization
-    vis_frame = ttk.Frame(notebook, padding=5)
-    notebook.add(vis_frame, text="Pocket Visualization")
-
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
     canvas.pack(fill="both", expand=True)
 
@@ -646,11 +644,10 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         width = canvas.winfo_width()
         height = canvas.winfo_height()
         if width < 50 or height < 50:
-            width = 680
+            width = 380
             height = 500
 
         pw = getattr(candidate, "pocket_width", 100.0) or 100.0
-        pl = getattr(candidate, "pocket_length", 50.0) or 50.0
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         dividers = getattr(candidate, "dividers", 0) or 0
         grouping = getattr(candidate, "grouping", 1) or 1
@@ -659,21 +656,22 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
         pocket_h = pocket_height if pocket_height and pocket_height > 0 else (carton_b if carton_b > 0 else max(stack_height * 1.2, 40.0))
 
-        margin_x = 90
-        margin_y = 80
+        margin_x = 75
+        margin_y = 65
 
         draw_w = width - 2 * margin_x
         draw_h = height - 2 * margin_y
 
-        scale = min(draw_w / max(pw, 1.0), draw_h / max(pocket_h, 1.0))
-        rect_w = pw * scale
-        rect_h = pocket_h * scale
+        # Consistent scaling (mm to px) based on real relative mm dimensions
+        scale_px_per_mm = min(draw_w / max(pw, 1.0), draw_h / max(pocket_h, 1.0))
+        rect_w = pw * scale_px_per_mm
+        rect_h = pocket_h * scale_px_per_mm
 
         origin_x = (width - rect_w) / 2
         origin_y = (height - rect_h) / 2
 
         # Draw prominent pocket outer walls and bottom floor
-        wall_width = 5
+        wall_width = max(3, int(2.0 * scale_px_per_mm * 0.1))
         canvas.create_rectangle(
             origin_x, origin_y,
             origin_x + rect_w, origin_y + rect_h,
@@ -691,43 +689,39 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
                     fill="#111111", width=wall_width
                 )
 
-        # Draw oval sticks piled at the bottom according to stack height and layers
-        scaled_stack_h = stack_height * scale if stack_height > 0 else rect_h * 0.6
-        layer_h = scaled_stack_h / max(layers, 1)
+        # Draw oval sticks proportional in size and positioned accurately
+        stick_h_mm = (stack_height / max(layers, 1)) if stack_height > 0 else (pocket_h * 0.6 / max(layers, 1))
+        scaled_layer_h = stick_h_mm * scale_px_per_mm
         base_y = origin_y + rect_h
 
         sticks_per_comp = max(1, grouping // compartments)
 
         for layer in range(layers):
-            # Layers build up from the bottom floor
-            ly_bottom = base_y - layer * layer_h
-            ly_top = ly_bottom - layer_h
+            ly_bottom = base_y - layer * scaled_layer_h
+            ly_top = ly_bottom - scaled_layer_h
             for comp in range(compartments):
                 comp_start_x = origin_x + comp * comp_w
                 stick_slot_w = comp_w / max(sticks_per_comp, 1)
                 for s in range(sticks_per_comp):
-                    sx = comp_start_x + s * stick_slot_w + 3
+                    sx = comp_start_x + s * stick_slot_w + 2
                     sy = ly_top + 2
-                    sw = stick_slot_w - 6
-                    sh = layer_h - 4
-                    if sw > 4 and sh > 4:
+                    sw = stick_slot_w - 4
+                    sh = scaled_layer_h - 4
+                    if sw > 2 and sh > 2:
                         canvas.create_oval(
                             sx, sy, sx + sw, sy + sh,
-                            fill="#73a6ff", outline="#1d4ed8", width=2
+                            fill="#73a6ff", outline="#1d4ed8", width=1.5
                         )
 
         # Dimension annotations
-        # Pocket Width (top)
-        canvas.create_line(origin_x, origin_y - 25, origin_x + rect_w, origin_y - 25, arrow=tk.BOTH, fill="#4b5563", width=1.5)
-        canvas.create_text(origin_x + rect_w / 2, origin_y - 38, text=f"Pocket Width: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
+        canvas.create_line(origin_x, origin_y - 20, origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
+        canvas.create_text(origin_x + rect_w / 2, origin_y - 32, text=f"Width: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
-        # Pocket Height / Depth (left)
-        canvas.create_line(origin_x - 25, origin_y, origin_x - 25, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.5)
-        canvas.create_text(origin_x - 55, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
+        canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
+        canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
 
-        # Info summary at bottom
-        info_str = f"Grouping: {grouping} | Dividers: {dividers} | Layers: {layers} | Stack Height: {fmt(stack_height)} mm"
-        canvas.create_text(width / 2, height - 25, text=info_str, fill="#1f2937", font=("TkDefaultFont", 10, "bold"))
+        info_str = f"Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
+        canvas.create_text(width / 2, height - 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
     canvas.bind("<Configure>", draw_pocket_canvas)
 
