@@ -331,6 +331,14 @@ class OptimizerApp(tk.Tk):
 
 
     def _build_format_table(self, parent):
+        def get_stick_type_choices():
+            rows = self.stick_table.get_rows()
+            choices = []
+            for r in rows:
+                if r and r[0].strip():
+                    choices.append(r[0].strip())
+            return choices
+
         self.format_table = EditableTable(
             parent,
             title="Formats",
@@ -340,6 +348,7 @@ class OptimizerApp(tk.Tk):
                 ("sticks_per_pocket", "Sticks per pocket", 110),
             ],
             height=7,
+            combobox_columns={"stick_type": get_stick_type_choices},
         )
 
         self.format_table.pack(fill="both", expand=True)

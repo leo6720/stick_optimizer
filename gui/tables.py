@@ -21,10 +21,12 @@ class EditableTable(ttk.LabelFrame):
         columns: list[tuple[str, str, int]],
         height: int = 7,
         header_image=None,
+        combobox_columns: dict = None,
     ):
         super().__init__(parent, text=title, padding=8)
         self.columns = columns
         self.column_keys = [col[0] for col in columns]
+        self.combobox_columns = combobox_columns or {}
 
         self.active_editor = None
         self._editing_item = None
