@@ -573,22 +573,29 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Format detail - {candidate.format_name}")
-    window.geometry("720x650")
-    window.minsize(620, 480)
+    window.geometry("760x680")
+    window.minsize(640, 500)
     window.transient(parent)
 
-    frame = ttk.Frame(window, padding=10)
-    frame.pack(fill="both", expand=True)
+    main_frame = ttk.Frame(window, padding=10)
+    main_frame.pack(fill="both", expand=True)
 
     header = ttk.Label(
-        frame,
+        main_frame,
         text=f"{candidate.format_name} / {candidate.stick_type_name}",
         font=("TkDefaultFont", 11, "bold"),
     )
     header.pack(anchor="w", pady=(0, 8))
 
+    notebook = ttk.Notebook(main_frame)
+    notebook.pack(fill="both", expand=True, pady=(0, 8))
+
+    # Tab 1: Parameters table
+    param_frame = ttk.Frame(notebook, padding=5)
+    notebook.add(param_frame, text="Parameters")
+
     tree = ttk.Treeview(
-        frame,
+        param_frame,
         columns=("parameter", "value"),
         show="headings",
     )
@@ -599,13 +606,106 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
     tree.column("parameter", width=260, anchor="w")
     tree.column("value", width=390, anchor="w")
 
-    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+    scrollbar = ttk.Scrollbar(param_frame, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
 
     tree.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
     populate_format_detail(tree, candidate, show_details=show_details)
+
+    # Tab 2: Pocket Visualization
+    vis_frame = ttk.Frame(notebook, padding=5)
+    notebook.add(vis_frame, text="Pocket Visualization")
+
+    canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
+    canvas.pack(fill="both", expand=True)
+
+    def draw_pocket_canvas(event=None):
+        canvas.delete("all")
+        width = canvas.winfo_width()
+        height = canvas.winfo_height()
+        if width < 50 or height < 50:
+            width = 680
+            height = 500
+
+        pw = getattr(candidate, "pocket_width", 100.0) or 100.0
+        pl = getattr(candidate, "pocket_length", 50.0) or 50.0
+        dividers = getattr(candidate, "dividers", 0) or 0
+        grouping = getattr(candidate, "grouping", 1) or 1
+        layers = getattr(candidate, "layers", 1) or 1
+        stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
+
+        # Margin for dimensions and labels
+        margin_x = 80
+        margin_y = 80
+
+        draw_w = width - 2 * margin_x
+        draw_h = height - 2 * margin_y
+
+        # Scale based on pocket dimensions (width x length)
+        scale = min(draw_w / max(pw, 1.0), draw_h / max(pl, 1.0))
+        rect_w = pw * scale
+        rect_h = pl * scale
+
+        origin_x = (width - rect_w) / 2
+        origin_y = (height - rect_h) / 2
+
+        # Draw pocket outer boundary
+        canvas.create_rectangle(
+            origin_x, origin_y,
+            origin_x + rect_w, origin_y + rect_h,
+            outline="#2c3e50", width=3, fill="#f8f9fa"
+        )
+
+        # Draw dividers if any
+        if dividers > 0:
+            compartments = dividers + 1
+            comp_w = rect_w / compartments
+            for i in range(1, compartments):
+                dx = origin_x + i * comp_w
+                canvas.create_line(
+                    dx, origin_y, dx, origin_y + rect_h,
+                    fill="#e74c3c", width=2, dash=(4, 2)
+                )
+
+        # Draw sticks inside layers/grouping
+        # Grouping sticks distributed across compartments or pocket width
+        compartments = dividers + 1
+        sticks_per_comp = max(1, grouping // compartments)
+        
+        layer_h = rect_h / max(layers, 1)
+        for layer in range(layers):
+            ly = origin_y + layer * layer_h
+            for comp in range(compartments):
+                comp_start_x = origin_x + comp * (rect_w / compartments)
+                comp_w = rect_w / compartments
+                stick_w = comp_w / max(sticks_per_comp, 1)
+                for s in range(sticks_per_comp):
+                    sx = comp_start_x + s * stick_w + 2
+                    sy = ly + 2
+                    sw = stick_w - 4
+                    sh = layer_h - 4
+                    if sw > 2 and sh > 2:
+                        canvas.create_rectangle(
+                            sx, sy, sx + sw, sy + sh,
+                            fill="#3498db", outline="#2980b9", width=1
+                        )
+
+        # Dimension annotations
+        # Pocket width (top)
+        canvas.create_line(origin_x, origin_y - 25, origin_x + rect_w, origin_y - 25, arrow=tk.BOTH, fill="#7f8c8d")
+        canvas.create_text(origin_x + rect_w / 2, origin_y - 38, text=f"Pocket Width: {fmt(pw)} mm", fill="#2c3e50", font=("TkDefaultFont", 9, "bold"))
+
+        # Pocket length (left)
+        canvas.create_line(origin_x - 25, origin_y, origin_x - 25, origin_y + rect_h, arrow=tk.BOTH, fill="#7f8c8d")
+        canvas.create_text(origin_x - 45, origin_y + rect_h / 2, text=f"Length: {fmt(pl)} mm", fill="#2c3e50", font=("TkDefaultFont", 9, "bold"), angle=90)
+
+        # Info text summary at bottom
+        info_str = f"Grouping: {grouping} | Dividers: {dividers} | Layers: {layers} | Stack Height: {fmt(stack_height)} mm"
+        canvas.create_text(width / 2, height - 30, text=info_str, fill="#34495e", font=("TkDefaultFont", 10, "bold"))
+
+    canvas.bind("<Configure>", draw_pocket_canvas)
 
     button_frame = ttk.Frame(window, padding=(10, 0, 10, 10))
     button_frame.pack(fill="x")
