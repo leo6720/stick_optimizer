@@ -59,7 +59,7 @@ class EditableTable(ttk.LabelFrame):
                 "Hs = Lunghezza stick [mm]\n"
                 "As = Larghezza stick [mm]\n"
                 "Ss = Spessore stick [mm]\n"
-                "Bs = Lunghezza aletta [mm]"
+                "Bs = Lunghezza pinna [mm]"
             )
 
             ttk.Label(
