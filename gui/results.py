@@ -588,7 +588,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
         )
 
 
-def open_format_detail_popup(parent, candidate, show_details: bool = True) -> None:
+def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Format detail - {candidate.format_name}")
@@ -656,10 +656,7 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
-        # Pocket height should match the height derived for the pocket type (max carton B or fallback)
-        pocket_h = carton_b if carton_b and carton_b > 0 else None
-        if not pocket_h:
-            pocket_h = max(stack_height * 1.2, 40.0)
+        pocket_h = pocket_height if pocket_height and pocket_height > 0 else (carton_b if carton_b > 0 else max(stack_height * 1.2, 40.0))
 
         margin_x = 90
         margin_y = 80

@@ -1321,7 +1321,14 @@ class OptimizerApp(tk.Tk):
         solution = self.solutions[self.selected_solution_index]
         candidate = solution.candidates[candidate_index]
 
-        open_format_detail_popup(self, candidate, show_details=self.show_score_penalty_details.get())
+        max_b_by_pocket = {}
+        for c in solution.candidates:
+            b_val = getattr(c, "carton_B_mm", 0.0) or 0.0
+            max_b_by_pocket[c.pocket_type] = max(max_b_by_pocket.get(c.pocket_type, 0.0), b_val)
+
+        pocket_height = max_b_by_pocket.get(candidate.pocket_type, getattr(candidate, "carton_B_mm", 0.0) or 0.0)
+
+        open_format_detail_popup(self, candidate, pocket_height=pocket_height, show_details=self.show_score_penalty_details.get())
 
     # ------------------------------------------------------------------
     # Result filtering
