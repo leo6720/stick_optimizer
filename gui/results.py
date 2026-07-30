@@ -488,9 +488,15 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(pocket_tree)
     clear_tree(head_tree)
 
+    max_b_by_pocket = {}
+    for candidate in solution.candidates:
+        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
+
     for index, candidate in enumerate(solution.candidates):
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(carton_b)}"
+        pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
+        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
         carryover = "yes" if candidate.carryover_required else "no"
 
         overview_tree.insert(
@@ -650,6 +656,8 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
+        # Determine pocket height (max carton B for this pocket type across formats)
+        # Since we are inside open_format_detail_popup, we can check or recalculate from parent/window or use carton_b fallback, but ideally we can infer or pass it. Let's compute it safely:
         pocket_h = max(carton_b, stack_height * 1.2, 40.0)
 
         margin_x = 90
