@@ -162,47 +162,55 @@ class OptimizerApp(tk.Tk):
     # ------------------------------------------------------------------
     def _build_menu_bar(self) -> None:
         """Build application menu bar."""
+        self._update_menu_bar(is_homepage=True)
+
+    def _update_menu_bar(self, is_homepage: bool = False) -> None:
+        """Update menu bar items based on whether homepage is active."""
         menu_bar = tk.Menu(self)
 
         # File menu
         file_menu = tk.Menu(menu_bar, tearoff=False)
         file_menu.add_command(label="Nuovo progetto", command=self.new_project)
         file_menu.add_command(label="Apri progetto...", command=self.open_project)
-        file_menu.add_separator()
-        file_menu.add_command(label="Salva progetto", command=self.save_project)
-        file_menu.add_command(label="Salva progetto con nome...", command=self.save_project_as)
-        file_menu.add_separator()
 
-        export_menu = tk.Menu(file_menu, tearoff=False)
-        export_menu.add_command(
-            label="CSV riepilogo",
-            command=self.export_summary,
-        )
-        export_menu.add_command(
-            label="CSV dettagli selezionati",
-            command=self.export_details,
-        )
+        if not is_homepage:
+            file_menu.add_separator()
+            file_menu.add_command(label="Salva progetto", command=self.save_project)
+            file_menu.add_command(label="Salva progetto con nome...", command=self.save_project_as)
+            file_menu.add_separator()
 
-        file_menu.add_cascade(label="Esporta", menu=export_menu)
+            export_menu = tk.Menu(file_menu, tearoff=False)
+            export_menu.add_command(
+                label="CSV riepilogo",
+                command=self.export_summary,
+            )
+            export_menu.add_command(
+                label="CSV dettagli selezionati",
+                command=self.export_details,
+            )
+
+            file_menu.add_cascade(label="Esporta", menu=export_menu)
+
         menu_bar.add_cascade(label="File", menu=file_menu)
 
-        # Options menu
-        options_menu = tk.Menu(menu_bar, tearoff=False)
+        # Options menu (only visible when not on homepage)
+        if not is_homepage:
+            options_menu = tk.Menu(menu_bar, tearoff=False)
 
-        options_menu.add_command(
-            label="Rimuovi filtri risultati",
-            command=lambda: self._clear_all_result_filters(None),
-        )
+            options_menu.add_command(
+                label="Rimuovi filtri risultati",
+                command=lambda: self._clear_all_result_filters(None),
+            )
 
-        options_menu.add_separator()
+            options_menu.add_separator()
 
-        options_menu.add_checkbutton(
-            label="Mostra dettagli punteggio e penalità",
-            variable=self.show_score_penalty_details,
-            command=self._update_score_penalty_columns_visibility,
-        )
+            options_menu.add_checkbutton(
+                label="Mostra dettagli punteggio e penalità",
+                variable=self.show_score_penalty_details,
+                command=self._update_score_penalty_columns_visibility,
+            )
 
-        menu_bar.add_cascade(label="Opzioni", menu=options_menu)
+            menu_bar.add_cascade(label="Opzioni", menu=options_menu)
 
         # Edit menu
         edit_menu = tk.Menu(menu_bar, tearoff=False)
@@ -240,6 +248,8 @@ class OptimizerApp(tk.Tk):
         
         if self.home_frame:
             self.home_frame.destroy()
+
+        self._update_menu_bar(is_homepage=True)
 
         self.home_frame = ttk.Frame(self)
         self.home_frame.pack(expand=True, fill="both")
@@ -713,6 +723,7 @@ class OptimizerApp(tk.Tk):
         if self.home_frame:
             self.home_frame.pack_forget()
         self.main_container.pack(fill="both", expand=True)
+        self._update_menu_bar(is_homepage=False)
         
         self._update_window_title()
 
@@ -757,6 +768,7 @@ class OptimizerApp(tk.Tk):
             if self.home_frame:
                 self.home_frame.pack_forget()
             self.main_container.pack(fill="both", expand=True)
+            self._update_menu_bar(is_homepage=False)
 
             self._apply_result_filters()
             
