@@ -19,17 +19,17 @@ RESULT_COLUMNS = (
 
 
 RESULT_HEADINGS = {
-    "rank": "rank",
-    "score": "score",
-    "cartoner_pitch": "cartoner pitch",
-    "pocket_types": "pocket types",
-    "head_types": "head types",
-    "max_layers": "max layers",
-    "layer_penalty": "layer pen",
-    "carryover_penalty": "carry pen",
-    "grouping_penalty": "group pen",
-    "stability_penalty": "stability pen",
-    "carton_ab_penalty": "A/B pen",
+    "rank": "Posizione",
+    "score": "Punteggio",
+    "cartoner_pitch": "Passo astucciatrice",
+    "pocket_types": "Tipi tasca",
+    "head_types": "Tipi testa",
+    "max_layers": "Max strati",
+    "layer_penalty": "Pen. strati",
+    "carryover_penalty": "Pen. riporto",
+    "grouping_penalty": "Pen. raggrup.",
+    "stability_penalty": "Pen. stabilità",
+    "carton_ab_penalty": "Pen. A/B",
 }
 
 
@@ -148,7 +148,7 @@ def result_display_value(solution, column_name):
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
     frame = ttk.LabelFrame(
         parent,
-        text="Top solutions - click a column header to filter",
+        text="Migliori soluzioni - clicca sull'intestazione per filtrare",
         padding=8,
     )
 
@@ -228,9 +228,9 @@ def build_detail_section(parent, on_format_open_callback):
 
     Full format details are opened in a popup on double click.
     """
-    frame = ttk.LabelFrame(parent, text="Selected solution details", padding=8)
+    frame = ttk.LabelFrame(parent, text="Dettagli soluzione selezionata", padding=8)
 
-    summary_frame = ttk.LabelFrame(frame, text="Solution summary", padding=8)
+    summary_frame = ttk.LabelFrame(frame, text="Riepilogo soluzione", padding=8)
     summary_frame.pack(fill="x", pady=(0, 8))
 
     summary_fields = [
@@ -246,6 +246,19 @@ def build_detail_section(parent, on_format_open_callback):
         "total_carton_ab_ratio_penalty",
     ]
 
+    summary_translations = {
+        "score": "punteggio",
+        "cartoner_pitch": "passo astucciatrice",
+        "number_of_pocket_types": "numero tipi tasca",
+        "number_of_robot_head_types": "numero tipi testa robot",
+        "max_layers": "max strati",
+        "total_layer_penalty": "penalità totale strati",
+        "total_carryover_penalty": "penalità totale riporto",
+        "total_grouping_penalty": "penalità totale raggruppamento",
+        "total_stability_width_penalty": "penalità totale stabilità",
+        "total_carton_ab_ratio_penalty": "penalità totale rapporto A/B",
+    }
+
     summary_vars = {}
     summary_name_labels = {}
     summary_fields_order = list(summary_fields)
@@ -256,7 +269,7 @@ def build_detail_section(parent, on_format_open_callback):
 
         name_label = ttk.Label(
             summary_frame,
-            text=field_name.replace("_", " "),
+            text=summary_translations.get(field_name, field_name.replace("_", " ")),
         )
 
         name_label.grid(
@@ -281,7 +294,7 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_frame = ttk.LabelFrame(
         frame,
-        text="Format overview - double click a row for full format detail",
+        text="Panoramica formati - doppio clic su una riga per i dettagli completi",
         padding=8,
     )
     overview_frame.pack(fill="both", expand=True, pady=(0, 8))
@@ -294,23 +307,23 @@ def build_detail_section(parent, on_format_open_callback):
     )
 
     overview_headings = {
-        "format": "format",
-        "stick_type": "stick type",
-        "input_pitch": "input pitch",
-        "grouping": "group",
-        "dividers": "div",
-        "pockets_per_pitch": "p/pitch",
-        "pocket": "pocket W x H",
-        "pocket_length": "pocket length",
-        "layers": "layers",
-        "stack_height": "stack H",
+        "format": "Formato",
+        "stick_type": "Tipo stick",
+        "input_pitch": "Passo ingr.",
+        "grouping": "Raggrup.",
+        "dividers": "Div.",
+        "pockets_per_pitch": "Tasc/Passo",
+        "pocket": "Tasca L x A",
+        "pocket_length": "Lungh. tasca",
+        "layers": "Strati",
+        "stack_height": "Alt. impil.",
         "carton_A": "A",
         "carton_B": "B",
         "carton_ab_ratio": "A/B",
-        "carton_ab_penalty": "A/B pen",
-        "carryover": "carryover",
-        "head_type": "head type",
-        "pocket_type": "pocket type",
+        "carton_ab_penalty": "Pen. A/B",
+        "carryover": "Riporto",
+        "head_type": "Tipo testa",
+        "pocket_type": "Tipo tasca",
     }
 
     overview_widths = {
@@ -354,14 +367,14 @@ def build_detail_section(parent, on_format_open_callback):
 
     pocket_frame = ttk.LabelFrame(
         commonality_frame,
-        text="Pocket types used",
+        text="Tipi di tasche utilizzati",
         padding=8,
     )
     pocket_frame.pack(side="left", fill="both", expand=True, padx=(0, 4))
 
     head_frame = ttk.LabelFrame(
         commonality_frame,
-        text="Robot head types used",
+        text="Tipi di teste robot utilizzate",
         padding=8,
     )
     head_frame.pack(side="left", fill="both", expand=True, padx=(4, 0))
@@ -391,12 +404,12 @@ def _build_pocket_type_table(parent):
     )
 
     headings = {
-        "pocket_width": "pocket width",
-        "pocket_height": "pocket height",
-        "pocket_length": "pocket length",
-        "dividers": "dividers",
-        "pockets_per_pitch": "p/pitch",
-        "used_by": "used by formats",
+        "pocket_width": "larghezza tasca",
+        "pocket_height": "altezza tasca",
+        "pocket_length": "lunghezza tasca",
+        "dividers": "divisori",
+        "pockets_per_pitch": "tasc/passo",
+        "used_by": "usato da formati",
     }
 
     widths = {
@@ -427,9 +440,9 @@ def _build_robot_head_type_table(parent):
     )
 
     headings = {
-        "grouping": "grouping",
-        "adjusted_input_pitch": "input pitch",
-        "used_by": "used by formats",
+        "grouping": "raggruppamento",
+        "adjusted_input_pitch": "passo ingresso",
+        "used_by": "usato da formati",
     }
 
     widths = {
@@ -498,7 +511,7 @@ def populate_solution_details(widgets, solution) -> None:
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
         pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
-        carryover = "yes" if candidate.carryover_required else "no"
+        carryover = "sì" if candidate.carryover_required else "no"
 
         overview_tree.insert(
             "",
@@ -592,7 +605,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
 def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
-    window.title(f"Format detail - {candidate.format_name}")
+    window.title(f"Dettaglio formato - {candidate.format_name}")
     window.geometry("760x680")
     window.minsize(640, 500)
     window.transient(parent)
@@ -622,8 +635,8 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         show="headings",
     )
 
-    tree.heading("parameter", text="parameter")
-    tree.heading("value", text="value")
+    tree.heading("parameter", text="parametro")
+    tree.heading("value", text="valore")
 
     tree.column("parameter", width=200, anchor="w")
     tree.column("value", width=180, anchor="w")
@@ -732,7 +745,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
             # Pocket width annotation on first pocket
             if p_idx == 0:
                 canvas.create_line(p_origin_x, origin_y - 20, p_origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
-                canvas.create_text(p_origin_x + rect_w / 2, origin_y - 32, text=f"W: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 8, "bold"))
+                canvas.create_text(p_origin_x + rect_w / 2, origin_y - 32, text=f"L: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 8, "bold"))
 
         # Wall marking start of the next pitch (same height & thickness as pocket wall)
         next_pitch_x = origin_x + pitch_px
@@ -744,15 +757,15 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
         # Full pitch dimension annotation line & label
         canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
-        canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Pitch: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
+        canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Passo: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
         # Summary info text at the top
-        info_str = f"Pockets/Pitch: {pockets_count} | Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
+        info_str = f"Tasche/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
         canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
         # Height dimension annotation on the left
         canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
-        canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
+        canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Altezza: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
 
     canvas.bind("<Configure>", draw_pocket_canvas)
 
@@ -761,7 +774,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     ttk.Button(
         button_frame,
-        text="Close",
+        text="Chiudi",
         command=window.destroy,
     ).pack(side="right")
 
@@ -771,39 +784,39 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
 
     sections = [
         (
-            "Transfer",
+            "Trasferimento",
             [
-                ("format name", candidate.format_name),
-                ("stick type", candidate.stick_type_name),
-                ("adjusted input pitch", candidate.adjusted_input_pitch),
-                ("grouping", candidate.grouping),
-                ("deposits per set", candidate.deposits_per_set),
-                ("pockets per pitch", candidate.pockets_per_pitch),
-                ("pocket pitch", candidate.pocket_pitch),
-                ("cartoner pitch", candidate.cartoner_pitch),
+                ("nome formato", candidate.format_name),
+                ("tipo stick", candidate.stick_type_name),
+                ("passo ingresso regolato", candidate.adjusted_input_pitch),
+                ("raggruppamento", candidate.grouping),
+                ("depositi per set", candidate.deposits_per_set),
+                ("tasche per passo", candidate.pockets_per_pitch),
+                ("passo tasca", candidate.pocket_pitch),
+                ("passo astucciatrice", candidate.cartoner_pitch),
             ],
         ),
         (
-            "Pocket",
+            "Tasca",
             [
-                ("pocket width", candidate.pocket_width),
-                ("pocket length", candidate.pocket_length),
-                ("dividers", candidate.dividers),
-                ("occupied width", candidate.occupied_width),
-                ("unused space", candidate.unused_space),
-                ("pocket type", candidate.pocket_type),
+                ("larghezza tasca", candidate.pocket_width),
+                ("lunghezza tasca", candidate.pocket_length),
+                ("divisori", candidate.dividers),
+                ("larghezza occupata", candidate.occupied_width),
+                ("spazio non utilizzato", candidate.unused_space),
+                ("tipo tasca", candidate.pocket_type),
             ],
         ),
         (
-            "Stack and carryover",
+            "Pila e riporto",
             [
-                ("layers", candidate.layers),
-                ("stack height", candidate.stack_height),
+                ("strati", candidate.layers),
+                ("altezza pila", candidate.stack_height),
                 (
-                    "carryover required",
-                    "yes" if candidate.carryover_required else "no",
+                    "riporto richiesto",
+                    "sì" if candidate.carryover_required else "no",
                 ),
-                ("carryover cycle length", candidate.carryover_cycle_length),
+                ("lunghezza ciclo riporto", candidate.carryover_cycle_length),
             ],
         ),
     ]
@@ -811,36 +824,36 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
     if show_details:
         sections.extend([
             (
-                "Carton A/B",
+                "Astuccio A/B",
                 [
-                    ("carton A width", getattr(candidate, "carton_A_mm", "")),
-                    ("carton B height", getattr(candidate, "carton_B_mm", "")),
-                    ("carton A/B ratio", getattr(candidate, "carton_AB_ratio", "")),
+                    ("larghezza A astuccio", getattr(candidate, "carton_A_mm", "")),
+                    ("altezza B astuccio", getattr(candidate, "carton_B_mm", "")),
+                    ("rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
                     (
-                        "carton A/B penalty",
+                        "penalità rapporto A/B",
                         getattr(candidate, "carton_AB_ratio_penalty", ""),
                     ),
                 ],
             ),
             (
-                "Stability and penalties",
+                "Stabilità e penalità",
                 [
-                    ("effective unsupported width", candidate.effective_unsupported_width),
-                    ("width ratio", candidate.width_ratio),
-                    ("layer penalty", candidate.layer_penalty),
-                    ("carryover penalty", candidate.carryover_penalty),
-                    ("grouping penalty", candidate.grouping_penalty),
-                    ("stability width penalty", candidate.stability_width_penalty),
+                    ("larghezza non supportata effettiva", candidate.effective_unsupported_width),
+                    ("rapporto larghezza", candidate.width_ratio),
+                    ("penalità strati", candidate.layer_penalty),
+                    ("penalità riporto", candidate.carryover_penalty),
+                    ("penalità raggruppamento", candidate.grouping_penalty),
+                    ("penalità larghezza stabilità", candidate.stability_width_penalty),
                 ],
             ),
         ])
 
     sections.append(
         (
-            "Types",
+            "Tipi",
             [
-                ("robot head type", candidate.robot_head_type),
-                ("pocket type", candidate.pocket_type),
+                ("tipo testa robot", candidate.robot_head_type),
+                ("tipo tasca", candidate.pocket_type),
             ],
         )
     )
