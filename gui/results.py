@@ -656,20 +656,7 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
-        # Find max carton_B for this pocket type across all candidates if possible, 
-        # or fall back to carton_b / stack height minimums.
-        pocket_h = carton_b
-        try:
-            # Try to find all sibling candidates in the app/parent window if available,
-            # otherwise fall back to carton_b.
-            parent_window = window.master
-            # If we can't easily query solutions, check if carton_b is defined.
-            if not pocket_h or pocket_h <= 0:
-                pocket_h = max(stack_height * 1.2, 40.0)
-        except Exception:
-            pocket_h = max(carton_b, stack_height * 1.2, 40.0)
-
-        pocket_h = max(pocket_h, stack_height * 1.2, 40.0)
+        pocket_h = carton_b if carton_b > 0 else (stack_height * 1.2 if stack_height > 0 else 50.0)
 
         margin_x = 90
         margin_y = 80
