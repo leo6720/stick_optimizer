@@ -404,12 +404,12 @@ def _build_pocket_type_table(parent):
     )
 
     headings = {
-        "pocket_width": "larghezza cassetto",
-        "pocket_height": "altezza cassetto",
-        "pocket_length": "lunghezza cassetto",
-        "dividers": "divisori",
-        "pockets_per_pitch": "cass/passo",
-        "used_by": "usato da formati",
+        "pocket_width": "Larghezza cassetto",
+        "pocket_height": "Altezza cassetto",
+        "pocket_length": "Lunghezza cassetto",
+        "dividers": "Divisori",
+        "pockets_per_pitch": "Cass/passo",
+        "used_by": "Usato da formati",
     }
 
     widths = {
@@ -440,9 +440,9 @@ def _build_robot_head_type_table(parent):
     )
 
     headings = {
-        "grouping": "raggruppamento",
-        "adjusted_input_pitch": "passo ingresso",
-        "used_by": "usato da formati",
+        "grouping": "Raggruppamento",
+        "adjusted_input_pitch": "Passo ingresso",
+        "used_by": "Usato da formati",
     }
 
     widths = {

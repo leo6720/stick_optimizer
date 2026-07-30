@@ -265,7 +265,7 @@ class OptimizerApp(tk.Tk):
 
         self.run_button = ttk.Button(
             toolbar,
-            text="Esegui ottimizzazione",
+            text="Calcola",
             command=self.run_optimization,
         )
         self.run_button.pack(side="left")
@@ -905,9 +905,17 @@ class OptimizerApp(tk.Tk):
             except Exception:
                 pass
 
+        weight_translations = {
+            "layer_penalty_weight": "Peso penalità strati",
+            "carryover_penalty_weight": "Peso penalità riporto",
+            "grouping_penalty_weight": "Peso penalità raggruppamento",
+            "stability_width_penalty_weight": "Peso penalità stabilità",
+            "carton_ab_ratio_penalty_weight": "Peso penalità rapporto A/B",
+        }
         for row, field in enumerate(dataclasses.fields(Weights)):
             dv = getattr(base_weights, field.name)
-            label_text = f"{field.name} ({dv})"
+            friendly_name = weight_translations.get(field.name, field.name.replace("_", " "))
+            label_text = f"{friendly_name} ({dv})"
             lbl = ttk.Label(frame, text=label_text)
             lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
             weight_labels[field.name] = (lbl, dv)
