@@ -607,14 +607,14 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     )
     header.pack(anchor="w", pady=(0, 8))
 
-    content_pane = ttk.PanedWindow(main_frame, orient="horizontal")
+    content_pane = ttk.PanedWindow(main_frame, orient="vertical")
     content_pane.pack(fill="both", expand=True, pady=(0, 8))
 
     param_frame = ttk.Frame(content_pane)
     vis_frame = ttk.Frame(content_pane)
 
-    content_pane.add(param_frame, weight=1)
     content_pane.add(vis_frame, weight=1)
+    content_pane.add(param_frame, weight=1)
 
     tree = ttk.Treeview(
         param_frame,
@@ -679,7 +679,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
         # Render each pocket inside this pitch
         for p_idx in range(pockets_count):
-            p_origin_x = origin_x + p_idx * pocket_spacing + (pocket_spacing - rect_w) / 2
+            p_origin_x = origin_x + p_idx * pocket_spacing
 
             canvas.create_rectangle(
                 p_origin_x, origin_y,
@@ -724,12 +724,12 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
                 canvas.create_line(p_origin_x, origin_y - 20, p_origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
                 canvas.create_text(p_origin_x + rect_w / 2, origin_y - 32, text=f"W: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 8, "bold"))
 
-        # Wall marking start of the next pitch
+        # Wall marking start of the next pitch (same height & thickness as pocket wall)
         next_pitch_x = origin_x + pitch_px
         canvas.create_line(
-            next_pitch_x, origin_y - 10,
-            next_pitch_x, origin_y + rect_h + 10,
-            fill="#000000", width=max(4, wall_width + 1)
+            next_pitch_x, origin_y,
+            next_pitch_x, origin_y + rect_h,
+            fill="#111111", width=wall_width
         )
 
         # Full pitch dimension annotation line & label
