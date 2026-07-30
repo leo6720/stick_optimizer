@@ -345,7 +345,7 @@ class OptimizerApp(tk.Tk):
             columns=[
                 ("format", "Nome formato", 100),
                 ("stick_type", "Tipo stick", 100),
-                ("sticks_per_pocket", "Stick per tasca", 110),
+                ("sticks_per_pocket", "Stick per cassetto", 110),
             ],
             height=7,
             combobox_columns={"stick_type": get_stick_type_choices},
@@ -1007,7 +1007,12 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
-        lbl = ttk.Label(frame, text=f"{field_name} ({default_val})")
+        field_labels = {
+            "number_of_results_to_show": "Numero di risultati da mostrare",
+            "carton_AB_target": "Obiettivo rapporto A/B astuccio"
+        }
+        display_field_name = field_labels.get(field_name, field_name)
+        lbl = ttk.Label(frame, text=f"{display_field_name} ({default_val})")
         lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
 
         entry = ttk.Entry(frame, width=16)

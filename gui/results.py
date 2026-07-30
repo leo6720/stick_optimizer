@@ -22,7 +22,7 @@ RESULT_HEADINGS = {
     "rank": "Posizione",
     "score": "Punteggio",
     "cartoner_pitch": "Passo astucciatrice",
-    "pocket_types": "Tipi tasca",
+    "pocket_types": "Tipi cassetto",
     "head_types": "Tipi testa",
     "max_layers": "Max strati",
     "layer_penalty": "Pen. strati",
@@ -249,7 +249,7 @@ def build_detail_section(parent, on_format_open_callback):
     summary_translations = {
         "score": "punteggio",
         "cartoner_pitch": "passo astucciatrice",
-        "number_of_pocket_types": "numero tipi tasca",
+        "number_of_pocket_types": "numero tipi cassetto",
         "number_of_robot_head_types": "numero tipi testa robot",
         "max_layers": "max strati",
         "total_layer_penalty": "penalità totale strati",
@@ -312,9 +312,9 @@ def build_detail_section(parent, on_format_open_callback):
         "input_pitch": "Passo ingr.",
         "grouping": "Raggrup.",
         "dividers": "Div.",
-        "pockets_per_pitch": "Tasc/Passo",
-        "pocket": "Tasca L x A",
-        "pocket_length": "Lungh. tasca",
+        "pockets_per_pitch": "Cass/Passo",
+        "pocket": "Cassetto L x A",
+        "pocket_length": "Lungh. cassetto",
         "layers": "Strati",
         "stack_height": "Alt. impil.",
         "carton_A": "A",
@@ -323,7 +323,7 @@ def build_detail_section(parent, on_format_open_callback):
         "carton_ab_penalty": "Pen. A/B",
         "carryover": "Riporto",
         "head_type": "Tipo testa",
-        "pocket_type": "Tipo tasca",
+        "pocket_type": "Tipo cassetto",
     }
 
     overview_widths = {
@@ -367,7 +367,7 @@ def build_detail_section(parent, on_format_open_callback):
 
     pocket_frame = ttk.LabelFrame(
         commonality_frame,
-        text="Tipi di tasche utilizzati",
+        text="Tipi di cassetti utilizzati",
         padding=8,
     )
     pocket_frame.pack(side="left", fill="both", expand=True, padx=(0, 4))
@@ -404,11 +404,11 @@ def _build_pocket_type_table(parent):
     )
 
     headings = {
-        "pocket_width": "larghezza tasca",
-        "pocket_height": "altezza tasca",
-        "pocket_length": "lunghezza tasca",
+        "pocket_width": "larghezza cassetto",
+        "pocket_height": "altezza cassetto",
+        "pocket_length": "lunghezza cassetto",
         "dividers": "divisori",
-        "pockets_per_pitch": "tasc/passo",
+        "pockets_per_pitch": "cass/passo",
         "used_by": "usato da formati",
     }
 
@@ -760,7 +760,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Passo: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
         # Summary info text at the top
-        info_str = f"Tasche/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
+        info_str = f"Cassetti/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
         canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
         # Height dimension annotation on the left
@@ -791,20 +791,20 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
                 ("passo ingresso regolato", candidate.adjusted_input_pitch),
                 ("raggruppamento", candidate.grouping),
                 ("depositi per set", candidate.deposits_per_set),
-                ("tasche per passo", candidate.pockets_per_pitch),
-                ("passo tasca", candidate.pocket_pitch),
+                ("cassetti per passo", candidate.pockets_per_pitch),
+                ("passo cassetto", candidate.pocket_pitch),
                 ("passo astucciatrice", candidate.cartoner_pitch),
             ],
         ),
         (
-            "Tasca",
+            "Cassetto",
             [
-                ("larghezza tasca", candidate.pocket_width),
-                ("lunghezza tasca", candidate.pocket_length),
+                ("larghezza cassetto", candidate.pocket_width),
+                ("lunghezza cassetto", candidate.pocket_length),
                 ("divisori", candidate.dividers),
                 ("larghezza occupata", candidate.occupied_width),
                 ("spazio non utilizzato", candidate.unused_space),
-                ("tipo tasca", candidate.pocket_type),
+                ("tipo cassetto", candidate.pocket_type),
             ],
         ),
         (
@@ -853,7 +853,7 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             "Tipi",
             [
                 ("tipo testa robot", candidate.robot_head_type),
-                ("tipo tasca", candidate.pocket_type),
+                ("tipo cassetto", candidate.pocket_type),
             ],
         )
     )
