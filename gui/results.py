@@ -736,12 +736,13 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
         canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Pitch: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
+        # Summary info text at the top
+        info_str = f"Pockets/Pitch: {pockets_count} | Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
+        canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
+
         # Height dimension annotation on the left
         canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
         canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
-
-        info_str = f"Pockets/Pitch: {pockets_count} | Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
-        canvas.create_text(width / 2, height - 12, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
     canvas.bind("<Configure>", draw_pocket_canvas)
 
