@@ -56,10 +56,10 @@ class EditableTable(ttk.LabelFrame):
             image_label.pack(side="left", anchor="n")
 
             legend_text = (
-                "Hs = Stick length [mm]\n"
-                "As = Stick width [mm]\n"
-                "Ss = Stick thickness [mm]\n"
-                "Bs = Fin length [mm]"
+                "Hs = Lunghezza stick [mm]\n"
+                "As = Larghezza stick [mm]\n"
+                "Ss = Spessore stick [mm]\n"
+                "Bs = Lunghezza aletta [mm]"
             )
 
             ttk.Label(
