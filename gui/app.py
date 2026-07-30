@@ -75,7 +75,7 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Stickpack Transfer Optimizer")
+        self.title("Calcolatore abbinamenti stick")
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
         self.iconbitmap("stick_optimizer_logo.ico")
@@ -247,7 +247,7 @@ class OptimizerApp(tk.Tk):
         inner = ttk.Frame(self.home_frame)
         inner.place(relx=0.5, rely=0.5, anchor="center")
         
-        ttk.Label(inner, text="Stickpack Transfer Optimizer", font=("TkDefaultFont", 24, "bold")).pack(pady=(0, 40))
+        ttk.Label(inner, text="Calcolatore abbinamenti stick", font=("TkDefaultFont", 24, "bold")).pack(pady=(0, 40))
         
         btn_frame = ttk.Frame(inner)
         btn_frame.pack()
@@ -637,7 +637,7 @@ class OptimizerApp(tk.Tk):
 
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
-        base_title = "Stickpack Transfer Optimizer"
+        base_title = "Calcolatore abbinamenti stick"
         
         display_name = ""
         if self.current_project_path:
