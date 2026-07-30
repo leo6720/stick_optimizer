@@ -656,7 +656,10 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
-        pocket_h = carton_b if carton_b > 0 else (stack_height * 1.2 if stack_height > 0 else 50.0)
+        # Pocket height should match the height derived for the pocket type (max carton B or fallback)
+        pocket_h = carton_b if carton_b and carton_b > 0 else None
+        if not pocket_h:
+            pocket_h = max(stack_height * 1.2, 40.0)
 
         margin_x = 90
         margin_y = 80
