@@ -247,16 +247,16 @@ def build_detail_section(parent, on_format_open_callback):
     ]
 
     summary_translations = {
-        "score": "punteggio",
-        "cartoner_pitch": "passo astucciatrice",
-        "number_of_pocket_types": "numero tipi cassetto",
-        "number_of_robot_head_types": "numero tipi testa robot",
-        "max_layers": "max strati",
-        "total_layer_penalty": "penalità totale strati",
-        "total_carryover_penalty": "penalità totale riporto",
-        "total_grouping_penalty": "penalità totale raggruppamento",
-        "total_stability_width_penalty": "penalità totale stabilità",
-        "total_carton_ab_ratio_penalty": "penalità totale rapporto A/B",
+        "score": "Punteggio",
+        "cartoner_pitch": "Passo astucciatrice",
+        "number_of_pocket_types": "Numero tipi cassetto",
+        "number_of_robot_head_types": "Numero tipi testa robot",
+        "max_layers": "Max strati",
+        "total_layer_penalty": "Penalità totale strati",
+        "total_carryover_penalty": "Penalità totale riporto",
+        "total_grouping_penalty": "Penalità totale raggruppamento",
+        "total_stability_width_penalty": "Penalità totale stabilità",
+        "total_carton_ab_ratio_penalty": "Penalità totale rapporto A/B",
     }
 
     summary_vars = {}

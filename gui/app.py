@@ -874,27 +874,14 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Modifica pesi di calcolo")
-        dialog.geometry("540x420")
+        dialog.geometry("500x340")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
 
-        frame = ttk.Frame(dialog, padding=12)
-        frame.pack(fill="both", expand=True)
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
-        entries = {}
-
-        def _update_style(e, default_val):
-            try:
-                if e.get().strip() != str(default_val):
-                    e.configure(style="Yellow.TEntry")
-                else:
-                    e.configure(style="TEntry")
-            except:
-                pass
-
-        weight_labels = {}
-        # Load persisted user defaults weights if available, otherwise DEFAULT_WEIGHTS
         base_weights = DEFAULT_WEIGHTS
         if self.user_defaults_path.exists():
             try:
@@ -912,54 +899,82 @@ class OptimizerApp(tk.Tk):
             "stability_width_penalty_weight": "Peso penalità stabilità",
             "carton_ab_ratio_penalty_weight": "Peso penalità rapporto A/B",
         }
-        for row, field in enumerate(dataclasses.fields(Weights)):
-            dv = getattr(base_weights, field.name)
-            friendly_name = weight_translations.get(field.name, field.name.replace("_", " "))
-            label_text = f"{friendly_name} ({dv})"
-            lbl = ttk.Label(frame, text=label_text)
-            lbl.grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
-            weight_labels[field.name] = (lbl, dv)
 
-            entry = ttk.Entry(frame, width=18)
-            entry.grid(row=row, column=1, sticky="w", pady=4)
-            
-            current_value = getattr(self.current_weights, field.name)
-            entry.insert(0, str(current_value))
-            _update_style(entry, dv)
-            entry.bind("<KeyRelease>", lambda e, ev=entry, dv=dv: _update_style(ev, dv))
+        current_defaults = {f.name: getattr(base_weights, f.name) for f in dataclasses.fields(Weights)}
 
-            entries[field.name] = entry
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
-        button_frame = ttk.Frame(frame)
-        button_frame.grid(row=len(dataclasses.fields(Weights)), column=0, columnspan=2, sticky="ew", pady=(16, 0))
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
 
-        ttk.Button(button_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Applica", 
-                   command=lambda: self._save_weights_from_dialog(entries, dialog)).pack(side="right", padx=(4, 0))
-        
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
+        ttk.Button(
+            right_btn_frame,
+            text="Applica",
+            command=lambda: self._save_weights_from_dialog(entries, dialog),
+        ).pack(side="right", padx=(4, 0))
+
+        ttk.Button(
+            right_btn_frame,
+            text="Annulla",
+            command=dialog.destroy,
+        ).pack(side="right", padx=(4, 0))
+
         def reset_weights():
             for field in dataclasses.fields(Weights):
                 dv = getattr(DEFAULT_WEIGHTS, field.name)
-                entries[field.name].delete(0, tk.END)
+                entries[field.name].delete(0, "end")
                 entries[field.name].insert(0, str(dv))
-                _update_style(entries[field.name], dv)
+                entries[field.name].event_generate("<KeyRelease>")
 
         def overwrite_defaults():
             self._save_weights_from_dialog(entries, None)
             self.save_defaults()
-            # Update labels and re-bind key release with new default in the current dialog
             for field in dataclasses.fields(Weights):
-                dv = getattr(self.current_weights, field.name)
-                lbl, _ = weight_labels[field.name]
-                weight_labels[field.name] = (lbl, dv)
-                lbl.config(text=f"{field.name} ({dv})")
-                ev = entries[field.name]
-                ev.unbind("<KeyRelease>")
-                ev.bind("<KeyRelease>", lambda e, ev=ev, dv=dv: _update_style(ev, dv))
-                _update_style(ev, dv)
+                val = entries[field.name].get()
+                current_defaults[field.name] = val
+                friendly_name = weight_translations.get(field.name, field.name.replace("_", " "))
+                lbl_text = f"{friendly_name}  ({val})"
+                popup_labels[field.name].config(text=lbl_text)
+                entries[field.name].event_generate("<KeyRelease>")
 
-        ttk.Button(button_frame, text="Ripristina predefiniti", command=reset_weights).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Sovrascrivi predefiniti", command=overwrite_defaults).pack(side="left")
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset_weights).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite_defaults).pack(side="left")
+
+        from gui.forms import _add_fields_to_frame_with_defaults
+        form_frame = ttk.Frame(main_frame)
+        form_frame.pack(fill="both", expand=True)
+
+        field_names = [f.name for f in dataclasses.fields(Weights)]
+        entries = {}
+        popup_labels = {}
+        defaults_map = {f.name: getattr(base_weights, f.name) for f in dataclasses.fields(Weights)}
+
+        from gui.forms import DISPLAY_LABELS
+        old_labels = dict(DISPLAY_LABELS)
+        DISPLAY_LABELS.update(weight_translations)
+        try:
+            _add_fields_to_frame_with_defaults(
+                form_frame,
+                field_names,
+                entries,
+                popup_labels,
+                defaults_map,
+                entry_width=14,
+                label_width=28,
+            )
+        finally:
+            DISPLAY_LABELS.clear()
+            DISPLAY_LABELS.update(old_labels)
+
+        for field in dataclasses.fields(Weights):
+            entries[field.name].delete(0, "end")
+            current_value = getattr(self.current_weights, field.name)
+            entries[field.name].insert(0, str(current_value))
+            entries[field.name].event_generate("<KeyRelease>")
 
     def _save_weights_from_dialog(self, entries: dict, dialog: Optional[tk.Toplevel]) -> None:
         """Save weights from editor dialog."""
@@ -1125,7 +1140,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("580x450")
+        dialog.geometry("520x400")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -1152,14 +1167,20 @@ class OptimizerApp(tk.Tk):
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(side="bottom", fill="x", pady=(12, 0))
 
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
         ttk.Button(
-            button_frame,
+            right_btn_frame,
             text="Applica",
             command=lambda: self._save_cartoner_settings(popup_entries, dialog),
         ).pack(side="right", padx=(4, 0))
 
         ttk.Button(
-            button_frame,
+            right_btn_frame,
             text="Annulla",
             command=dialog.destroy,
         ).pack(side="right", padx=(4, 0))
@@ -1183,8 +1204,8 @@ class OptimizerApp(tk.Tk):
                 popup_labels[field_name].config(text=lbl_text)
                 popup_entries[field_name].event_generate("<KeyRelease>")
 
-        ttk.Button(button_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
         form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
             main_frame,
