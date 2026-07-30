@@ -569,7 +569,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
         )
 
 
-def open_format_detail_popup(parent, candidate) -> None:
+def open_format_detail_popup(parent, candidate, show_details: bool = True) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Format detail - {candidate.format_name}")
@@ -605,7 +605,7 @@ def open_format_detail_popup(parent, candidate) -> None:
     tree.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    populate_format_detail(tree, candidate)
+    populate_format_detail(tree, candidate, show_details=show_details)
 
     button_frame = ttk.Frame(window, padding=(10, 0, 10, 10))
     button_frame.pack(fill="x")
@@ -617,7 +617,7 @@ def open_format_detail_popup(parent, candidate) -> None:
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate) -> None:
+def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
     clear_tree(tree)
 
     sections = [
@@ -657,37 +657,44 @@ def populate_format_detail(tree, candidate) -> None:
                 ("carryover cycle length", candidate.carryover_cycle_length),
             ],
         ),
-        (
-            "Carton A/B",
-            [
-                ("carton A width", getattr(candidate, "carton_A_mm", "")),
-                ("carton B height", getattr(candidate, "carton_B_mm", "")),
-                ("carton A/B ratio", getattr(candidate, "carton_AB_ratio", "")),
-                (
-                    "carton A/B penalty",
-                    getattr(candidate, "carton_AB_ratio_penalty", ""),
-                ),
-            ],
-        ),
-        (
-            "Stability and penalties",
-            [
-                ("effective unsupported width", candidate.effective_unsupported_width),
-                ("width ratio", candidate.width_ratio),
-                ("layer penalty", candidate.layer_penalty),
-                ("carryover penalty", candidate.carryover_penalty),
-                ("grouping penalty", candidate.grouping_penalty),
-                ("stability width penalty", candidate.stability_width_penalty),
-            ],
-        ),
+    ]
+
+    if show_details:
+        sections.extend([
+            (
+                "Carton A/B",
+                [
+                    ("carton A width", getattr(candidate, "carton_A_mm", "")),
+                    ("carton B height", getattr(candidate, "carton_B_mm", "")),
+                    ("carton A/B ratio", getattr(candidate, "carton_AB_ratio", "")),
+                    (
+                        "carton A/B penalty",
+                        getattr(candidate, "carton_AB_ratio_penalty", ""),
+                    ),
+                ],
+            ),
+            (
+                "Stability and penalties",
+                [
+                    ("effective unsupported width", candidate.effective_unsupported_width),
+                    ("width ratio", candidate.width_ratio),
+                    ("layer penalty", candidate.layer_penalty),
+                    ("carryover penalty", candidate.carryover_penalty),
+                    ("grouping penalty", candidate.grouping_penalty),
+                    ("stability width penalty", candidate.stability_width_penalty),
+                ],
+            ),
+        ])
+
+    sections.append(
         (
             "Types",
             [
                 ("robot head type", candidate.robot_head_type),
                 ("pocket type", candidate.pocket_type),
             ],
-        ),
-    ]
+        )
+    )
 
     for section_name, rows in sections:
         parent = tree.insert(

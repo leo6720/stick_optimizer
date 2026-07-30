@@ -387,6 +387,18 @@ class OptimizerApp(tk.Tk):
         )
 
         # -------------------------------------------------------------
+        # Format overview Treeview
+        # -------------------------------------------------------------
+        if hasattr(self, "detail_widgets") and "format_overview_tree" in self.detail_widgets:
+            overview_tree = self.detail_widgets["format_overview_tree"]
+            overview_all_cols = list(overview_tree["columns"])
+            if show_details:
+                overview_visible = overview_all_cols
+            else:
+                overview_visible = [c for c in overview_all_cols if c != "carton_ab_penalty"]
+            overview_tree.configure(displaycolumns=overview_visible)
+
+        # -------------------------------------------------------------
         # Selected-solution summary
         # -------------------------------------------------------------
         if not hasattr(self, "detail_widgets"):
@@ -1300,7 +1312,7 @@ class OptimizerApp(tk.Tk):
         solution = self.solutions[self.selected_solution_index]
         candidate = solution.candidates[candidate_index]
 
-        open_format_detail_popup(self, candidate)
+        open_format_detail_popup(self, candidate, show_details=self.show_score_penalty_details.get())
 
     # ------------------------------------------------------------------
     # Result filtering
