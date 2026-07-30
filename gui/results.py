@@ -653,6 +653,8 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         grouping = getattr(candidate, "grouping", 1) or 1
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
+        pitch = getattr(candidate, "cartoner_pitch", 0.0) or (pw * 1.5)
+        pockets_count = getattr(candidate, "pockets_per_pitch", 1) or 1
 
         pocket_h = pocket_height if pocket_height and pocket_height > 0 else (carton_b if carton_b > 0 else max(stack_height * 1.2, 40.0))
 
@@ -662,66 +664,84 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         draw_w = width - 2 * margin_x
         draw_h = height - 2 * margin_y
 
-        # Consistent scaling (mm to px) based on real relative mm dimensions
-        scale_px_per_mm = min(draw_w / max(pw, 1.0), draw_h / max(pocket_h, 1.0))
+        scale_px_per_mm = min(draw_w / max(pitch, pw, 1.0), draw_h / max(pocket_h, 1.0))
+        pitch_px = pitch * scale_px_per_mm
         rect_w = pw * scale_px_per_mm
         rect_h = pocket_h * scale_px_per_mm
 
-        origin_x = (width - rect_w) / 2
+        origin_x = (width - pitch_px) / 2
         origin_y = (height - rect_h) / 2
 
-        # Draw prominent pocket outer walls and bottom floor
         wall_width = max(3, int(2.0 * scale_px_per_mm * 0.1))
-        canvas.create_rectangle(
-            origin_x, origin_y,
-            origin_x + rect_w, origin_y + rect_h,
-            outline="#111111", width=wall_width, fill="#ffffff"
+
+        # Pitch space calculation for pockets distribution
+        pocket_spacing = pitch_px / pockets_count
+
+        # Render each pocket inside this pitch
+        for p_idx in range(pockets_count):
+            p_origin_x = origin_x + p_idx * pocket_spacing + (pocket_spacing - rect_w) / 2
+
+            canvas.create_rectangle(
+                p_origin_x, origin_y,
+                p_origin_x + rect_w, origin_y + rect_h,
+                outline="#111111", width=wall_width, fill="#ffffff"
+            )
+
+            compartments = dividers + 1
+            comp_w = rect_w / compartments
+            if dividers > 0:
+                for i in range(1, compartments):
+                    dx = p_origin_x + i * comp_w
+                    canvas.create_line(
+                        dx, origin_y, dx, origin_y + rect_h,
+                        fill="#111111", width=wall_width
+                    )
+
+            stick_h_mm = (stack_height / max(layers, 1)) if stack_height > 0 else (pocket_h * 0.6 / max(layers, 1))
+            scaled_layer_h = stick_h_mm * scale_px_per_mm
+            base_y = origin_y + rect_h
+            sticks_per_comp = max(1, grouping // compartments)
+
+            for layer in range(layers):
+                ly_bottom = base_y - layer * scaled_layer_h
+                ly_top = ly_bottom - scaled_layer_h
+                for comp in range(compartments):
+                    comp_start_x = p_origin_x + comp * comp_w
+                    stick_slot_w = comp_w / max(sticks_per_comp, 1)
+                    for s in range(sticks_per_comp):
+                        sx = comp_start_x + s * stick_slot_w + 2
+                        sy = ly_top + 2
+                        sw = stick_slot_w - 4
+                        sh = scaled_layer_h - 4
+                        if sw > 2 and sh > 2:
+                            canvas.create_oval(
+                                sx, sy, sx + sw, sy + sh,
+                                fill="#73a6ff", outline="#1d4ed8", width=1.5
+                            )
+
+            # Pocket width annotation on first pocket
+            if p_idx == 0:
+                canvas.create_line(p_origin_x, origin_y - 20, p_origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
+                canvas.create_text(p_origin_x + rect_w / 2, origin_y - 32, text=f"W: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 8, "bold"))
+
+        # Wall marking start of the next pitch
+        next_pitch_x = origin_x + pitch_px
+        canvas.create_line(
+            next_pitch_x, origin_y - 10,
+            next_pitch_x, origin_y + rect_h + 10,
+            fill="#000000", width=max(4, wall_width + 1)
         )
 
-        # Draw prominent dividers if any
-        compartments = dividers + 1
-        comp_w = rect_w / compartments
-        if dividers > 0:
-            for i in range(1, compartments):
-                dx = origin_x + i * comp_w
-                canvas.create_line(
-                    dx, origin_y, dx, origin_y + rect_h,
-                    fill="#111111", width=wall_width
-                )
+        # Full pitch dimension annotation line & label
+        canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
+        canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Pitch: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
-        # Draw oval sticks proportional in size and positioned accurately
-        stick_h_mm = (stack_height / max(layers, 1)) if stack_height > 0 else (pocket_h * 0.6 / max(layers, 1))
-        scaled_layer_h = stick_h_mm * scale_px_per_mm
-        base_y = origin_y + rect_h
-
-        sticks_per_comp = max(1, grouping // compartments)
-
-        for layer in range(layers):
-            ly_bottom = base_y - layer * scaled_layer_h
-            ly_top = ly_bottom - scaled_layer_h
-            for comp in range(compartments):
-                comp_start_x = origin_x + comp * comp_w
-                stick_slot_w = comp_w / max(sticks_per_comp, 1)
-                for s in range(sticks_per_comp):
-                    sx = comp_start_x + s * stick_slot_w + 2
-                    sy = ly_top + 2
-                    sw = stick_slot_w - 4
-                    sh = scaled_layer_h - 4
-                    if sw > 2 and sh > 2:
-                        canvas.create_oval(
-                            sx, sy, sx + sw, sy + sh,
-                            fill="#73a6ff", outline="#1d4ed8", width=1.5
-                        )
-
-        # Dimension annotations
-        canvas.create_line(origin_x, origin_y - 20, origin_x + rect_w, origin_y - 20, arrow=tk.BOTH, fill="#4b5563", width=1.2)
-        canvas.create_text(origin_x + rect_w / 2, origin_y - 32, text=f"Width: {fmt(pw)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
-
+        # Height dimension annotation on the left
         canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
         canvas.create_text(origin_x - 48, origin_y + rect_h / 2, text=f"Height: {fmt(pocket_h)} mm", fill="#1f2937", font=("TkDefaultFont", 9, "bold"), angle=90)
 
-        info_str = f"Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
-        canvas.create_text(width / 2, height - 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
+        info_str = f"Pockets/Pitch: {pockets_count} | Grouping: {grouping} | Dividers: {dividers} | Layers: {layers}"
+        canvas.create_text(width / 2, height - 12, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
     canvas.bind("<Configure>", draw_pocket_canvas)
 
