@@ -81,6 +81,7 @@ FORMAT_OVERVIEW_COLUMNS = (
     "dividers",
     "pockets_per_pitch",
     "pocket",
+    "pocket_length",
     "layers",
     "stack_height",
     "carton_A",
@@ -95,6 +96,7 @@ FORMAT_OVERVIEW_COLUMNS = (
 
 POCKET_TYPE_COLUMNS = (
     "pocket_width",
+    "pocket_height",
     "pocket_length",
     "dividers",
     "pockets_per_pitch",
@@ -297,7 +299,8 @@ def build_detail_section(parent, on_format_open_callback):
         "grouping": "group",
         "dividers": "div",
         "pockets_per_pitch": "p/pitch",
-        "pocket": "pocket W x L",
+        "pocket": "pocket W x H",
+        "pocket_length": "pocket length",
         "layers": "layers",
         "stack_height": "stack H",
         "carton_A": "A",
@@ -317,6 +320,7 @@ def build_detail_section(parent, on_format_open_callback):
         "dividers": 50,
         "pockets_per_pitch": 70,
         "pocket": 90,
+        "pocket_length": 90,
         "layers": 60,
         "stack_height": 70,
         "carton_A": 60,
@@ -387,6 +391,7 @@ def _build_pocket_type_table(parent):
 
     headings = {
         "pocket_width": "pocket width",
+        "pocket_height": "pocket height",
         "pocket_length": "pocket length",
         "dividers": "dividers",
         "pockets_per_pitch": "p/pitch",
@@ -395,10 +400,11 @@ def _build_pocket_type_table(parent):
 
     widths = {
         "pocket_width": 90,
+        "pocket_height": 90,
         "pocket_length": 90,
         "dividers": 70,
         "pockets_per_pitch": 70,
-        "used_by": 220,
+        "used_by": 160,
     }
 
     for col in POCKET_TYPE_COLUMNS:
@@ -483,7 +489,8 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(head_tree)
 
     for index, candidate in enumerate(solution.candidates):
-        pocket_size = f"{fmt(candidate.pocket_width)} x {fmt(candidate.pocket_length)}"
+        carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(carton_b)}"
         carryover = "yes" if candidate.carryover_required else "no"
 
         overview_tree.insert(
@@ -497,11 +504,12 @@ def populate_solution_details(widgets, solution) -> None:
                 candidate.grouping,
                 candidate.dividers,
                 candidate.pockets_per_pitch,
-                pocket_size,
+                pocket_wh,
+                fmt(candidate.pocket_length),
                 candidate.layers,
                 fmt(candidate.stack_height),
                 fmt(getattr(candidate, "carton_A_mm", "")),
-                fmt(getattr(candidate, "carton_B_mm", "")),
+                fmt(carton_b),
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
                 carryover,
@@ -523,21 +531,26 @@ def populate_solution_details(widgets, solution) -> None:
 
 def _populate_pocket_type_commonality(tree, candidates):
     grouped = {}
+    max_b_by_pocket = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.pocket_type, []).append(candidate.format_name)
+        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
     for pocket_type, format_names in sorted(
         grouped.items(),
         key=lambda item: str(item[0]),
     ):
         pocket_width, pocket_length, dividers, pockets_per_pitch = pocket_type
+        pocket_height = max_b_by_pocket.get(pocket_type, 0.0)
 
         tree.insert(
             "",
             "end",
             values=(
                 fmt(pocket_width),
+                fmt(pocket_height),
                 fmt(pocket_length),
                 dividers,
                 pockets_per_pitch,
@@ -631,13 +644,13 @@ def open_format_detail_popup(parent, candidate, show_details: bool = True) -> No
 
         pw = getattr(candidate, "pocket_width", 100.0) or 100.0
         pl = getattr(candidate, "pocket_length", 50.0) or 50.0
+        carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         dividers = getattr(candidate, "dividers", 0) or 0
         grouping = getattr(candidate, "grouping", 1) or 1
         layers = getattr(candidate, "layers", 1) or 1
         stack_height = getattr(candidate, "stack_height", 0.0) or 0.0
 
-        # Pocket height should be at least stack height + headroom, or based on pocket length/depth
-        pocket_h = max(pl, stack_height * 1.5, 40.0)
+        pocket_h = max(carton_b, stack_height * 1.2, 40.0)
 
         margin_x = 90
         margin_y = 80
