@@ -69,9 +69,9 @@ def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except AttributeError:
-        base_path = os.path.dirname(os.path.abspath(__file__))
+        base_path = Path(__file__).resolve().parent.parent
 
-    return os.path.join(base_path, relative_path)
+    return str(Path(base_path) / relative_path)
 
 
 class OptimizerApp(tk.Tk):
