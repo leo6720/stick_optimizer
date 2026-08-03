@@ -1,4 +1,5 @@
-
+import sys
+import os
 import dataclasses
 import json
 import tkinter as tk
@@ -45,7 +46,6 @@ from gui.results import (
 )
 from gui.tables import EditableTable
 
-
 SCORE_PENALTY_DETAIL_COLUMNS = {
     "score",
     "layer_penalty",
@@ -65,6 +65,15 @@ SCORE_PENALTY_SUMMARY_FIELDS = {
 }
 
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = Path(__file__).resolve().parent.parent
+
+    return str(Path(base_path) / relative_path)
+
+
 class OptimizerApp(tk.Tk):
     """Tkinter GUI orchestrator.
 
@@ -78,7 +87,7 @@ class OptimizerApp(tk.Tk):
         self.title("Calcolatore abbinamenti stick")
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
-        self.iconbitmap("stick_optimizer_logo.ico")
+        self.iconbitmap(resource_path("stick_optimizer_logo.ico"))
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
@@ -126,7 +135,7 @@ class OptimizerApp(tk.Tk):
         self._show_home_screen()
 
     def _load_ui_image(self, base_name):
-        img_dir = self.project_root / "img"
+        img_dir = Path(resource_path("img"))
 
         for extension in ("png", "jpg", "jpeg", "gif"):
             image_path = img_dir / f"{base_name}.{extension}"
