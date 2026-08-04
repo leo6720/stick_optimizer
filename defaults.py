@@ -26,7 +26,7 @@ COMPARTMENT_LAYOUT = {
 
 DEFAULT_GLOBAL_SETTINGS = GlobalSettings(
     sticks_per_beat=12,
-    max_pitch_shift_mm=10.0,
+    max_pitch_shift_mm=20.0,
     divider_width_mm=2.0,
     pocket_wall_width_mm=3.0,
     clearance_between_adjacent_sticks_mm=1.0,

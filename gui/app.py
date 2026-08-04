@@ -124,8 +124,9 @@ class OptimizerApp(tk.Tk):
         self.status_var = tk.StringVar(value="Ready")
 
         self.mt_image = self._load_ui_image("dati_mt")
+        self.cartoner_image = self._load_ui_image("dati_astucciatrice")
         self.stick_types_image = self._load_ui_image("stick_dim")
-        
+
         self.show_score_penalty_details = tk.BooleanVar(value=False)
 
         self._build_menu_bar()
@@ -147,6 +148,8 @@ class OptimizerApp(tk.Tk):
 
                     if base_name == "dati_mt":
                         new_width = 330
+                    elif base_name == "dati_astucciatrice":
+                        new_width = 450
                     elif base_name == "stick_dim":
                         new_width = 150
                     else:
@@ -1144,7 +1147,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x400")
+        dialog.geometry("520x720")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -1214,7 +1217,8 @@ class OptimizerApp(tk.Tk):
         form_frame, popup_entries, popup_labels = build_cartoner_settings_form(
             main_frame,
             entry_width=14,
-            defaults=current_defaults
+            defaults=current_defaults,
+            cartoner_image=self.cartoner_image
         )
         form_frame.pack(fill="both", expand=True)
 

@@ -33,7 +33,7 @@ class Weights:
 @dataclass(frozen=True)
 class GlobalSettings:
     sticks_per_beat: int
-    max_pitch_shift_mm: float
+    max_pitch_shift_mm: float = 20.0
     divider_width_mm: float
     pocket_wall_width_mm: float
     clearance_between_adjacent_sticks_mm: float = 1.0
