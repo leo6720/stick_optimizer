@@ -381,7 +381,7 @@ class OptimizerApp(tk.Tk):
             text="Calcolatore Abbinamenti Stick",
             font=("Segoe UI", 14, "bold"),
         )
-        title_lbl.pack(side="left", align="center")
+        title_lbl.pack(side="left", anchor="w")
 
         self.run_button = ttk.Button(
             toolbar,
