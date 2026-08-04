@@ -307,7 +307,7 @@ class OptimizerApp(tk.Tk):
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
             entry_width=14,
-            mt_image=None,
+            mt_image=self.mt_image,
         )
         global_frame.pack(fill="x", pady=(0, 8))
 
