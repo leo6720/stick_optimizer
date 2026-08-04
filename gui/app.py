@@ -468,6 +468,7 @@ class OptimizerApp(tk.Tk):
             DEFAULT_GLOBAL_SETTINGS.number_of_results_to_show
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
+        self.current_max_pitch_shift_mm = DEFAULT_GLOBAL_SETTINGS.max_pitch_shift_mm
 
         if hasattr(self, "input_table"):
             self.input_table.clear()
@@ -505,6 +506,7 @@ class OptimizerApp(tk.Tk):
 
         self.current_number_of_results_to_show = settings.number_of_results_to_show
         self.current_carton_AB_target = settings.carton_AB_target
+        self.current_max_pitch_shift_mm = settings.max_pitch_shift_mm
 
         # Load weights
         weight_data = dataclasses.asdict(DEFAULT_WEIGHTS)
@@ -569,6 +571,7 @@ class OptimizerApp(tk.Tk):
                 "global_settings": {
                     "number_of_results_to_show": self.current_number_of_results_to_show,
                     "carton_AB_target": self.current_carton_AB_target,
+                    "max_pitch_shift_mm": self.current_max_pitch_shift_mm,
                     **cartoner_data
                 },
                 "weights": dataclasses.asdict(self.current_weights),
