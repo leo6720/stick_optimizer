@@ -52,7 +52,6 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
 
     mt_fields = [
         "sticks_per_beat",
-        "max_pitch_shift_mm",
     ]
 
     start_row = 1 if mt_image is not None else 0
