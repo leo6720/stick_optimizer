@@ -15,7 +15,7 @@ from defaults import (
     DEFAULT_WEIGHTS,
 )
 from export import export_solution_details_csv, export_solution_summary_csv
-from models import GlobalSettings, Weights, Solution
+from models import GlobalSettings, Weights, Solution, StickType, Format
 from optimizer import optimize
 from project_io import serialize_project, deserialize_project
 
