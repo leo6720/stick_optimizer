@@ -119,6 +119,7 @@ class OptimizerApp(tk.Tk):
             DEFAULT_GLOBAL_SETTINGS.number_of_results_to_show
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
+        self.current_max_pitch_shift_mm = DEFAULT_GLOBAL_SETTINGS.max_pitch_shift_mm
 
         self.status_var = tk.StringVar(value="Ready")
 
@@ -242,6 +243,11 @@ class OptimizerApp(tk.Tk):
         edit_menu.add_command(
             label="Dati astucciatrice",
             command=self.open_cartoner_settings_editor,
+        )
+
+        edit_menu.add_command(
+            label="Dati aggiuntivi MT",
+            command=self.open_mt_extra_settings_editor,
         )
 
         menu_bar.add_cascade(label="Modifica", menu=edit_menu)
@@ -645,8 +651,6 @@ class OptimizerApp(tk.Tk):
         self.input_table.clear()
         if "sticks_per_beat" in self.global_entries:
             self.global_entries["sticks_per_beat"].delete(0, tk.END)
-        if "max_pitch_shift_mm" in self.global_entries:
-            self.global_entries["max_pitch_shift_mm"].delete(0, tk.END)
 
         if result["use_defaults"]:
             # Load example data (formerly built-in defaults) into main window
@@ -689,6 +693,7 @@ class OptimizerApp(tk.Tk):
             self.current_carton_AB_target = data["settings"].carton_AB_target
             
             set_entries_from_dataclass(self.global_entries, data["settings"])
+            self.current_max_pitch_shift_mm = data["settings"].max_pitch_shift_mm
             for field_name in CARTONER_FIELDS:
                 val = getattr(data["settings"], field_name)
                 if field_name in self.cartoner_entries:
@@ -762,6 +767,7 @@ class OptimizerApp(tk.Tk):
             overrides = {
                 "number_of_results_to_show": self.current_number_of_results_to_show,
                 "carton_AB_target": self.current_carton_AB_target,
+                "max_pitch_shift_mm": self.current_max_pitch_shift_mm,
             }
             overrides.update(self._cartoner_values_dict())
             
@@ -976,6 +982,7 @@ class OptimizerApp(tk.Tk):
         current_value: float,
         min_value: Optional[float] = None,
         value_type: type = float,
+        image=None,
     ) -> None:
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
@@ -998,15 +1005,25 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
+        if image:
+            img_lbl = ttk.Label(frame, image=image)
+            img_lbl.image = image
+            img_lbl.pack(side="top", pady=(0, 10))
+
         field_labels = {
             "number_of_results_to_show": "Numero di risultati da mostrare",
-            "carton_AB_target": "Obiettivo rapporto A/B astuccio"
+            "carton_AB_target": "Obiettivo rapporto A/B astuccio",
+            "max_pitch_shift_mm": "D - offset max stick [mm]"
         }
         display_field_name = field_labels.get(field_name, field_name)
-        lbl = ttk.Label(frame, text=f"{display_field_name} ({default_val})")
+        start_row = 1 if image else 0
+        input_frame = ttk.Frame(frame)
+        input_frame.pack(fill="x")
+        
+        lbl = ttk.Label(input_frame, text=f"{display_field_name} ({default_val})")
         lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
 
-        entry = ttk.Entry(frame, width=16)
+        entry = ttk.Entry(input_frame, width=16)
         entry.grid(row=0, column=1, sticky="w", pady=8)
         entry.insert(0, str(current_value))
 
@@ -1023,7 +1040,7 @@ class OptimizerApp(tk.Tk):
         entry.bind("<KeyRelease>", _update_style)
 
         button_frame = ttk.Frame(frame)
-        button_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(16, 0))
+        button_frame.pack(fill="x", pady=(16, 0))
 
         def save_value() -> None:
             try:
@@ -1035,6 +1052,8 @@ class OptimizerApp(tk.Tk):
                     self.current_number_of_results_to_show = value
                 elif field_name == "carton_AB_target":
                     self.current_carton_AB_target = value
+                elif field_name == "max_pitch_shift_mm":
+                    self.current_max_pitch_shift_mm = value
 
                 dialog.destroy()
                 self.status_var.set(f"{field_name} set to {value}")
@@ -1084,6 +1103,17 @@ class OptimizerApp(tk.Tk):
             self.current_carton_AB_target,
             min_value=0,
             value_type=float,
+        )
+
+    def open_mt_extra_settings_editor(self) -> None:
+        """Open editor for additional MT data (Offset max stick D)."""
+        self._open_simple_numeric_editor(
+            "Dati aggiuntivi MT",
+            "max_pitch_shift_mm",
+            self.current_max_pitch_shift_mm,
+            min_value=0,
+            value_type=float,
+            image=self.mt_image
         )
 
     def _cartoner_values_dict(self) -> dict:
@@ -1220,6 +1250,7 @@ class OptimizerApp(tk.Tk):
             overrides = {
                 "number_of_results_to_show": self.current_number_of_results_to_show,
                 "carton_AB_target": self.current_carton_AB_target,
+                "max_pitch_shift_mm": self.current_max_pitch_shift_mm,
             }
             overrides.update(self._cartoner_values_dict())
 
