@@ -146,7 +146,7 @@ def result_display_value(solution, column_name):
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
     frame = ttk.LabelFrame(
         parent,
-        text="Migliori soluzioni - clicca sull'intestazione per filtrare",
+        text="Migliori soluzioni",
         padding=8,
     )
 
@@ -175,8 +175,11 @@ def update_result_headings_for_filters(tree, active_filters):
     for col in RESULT_COLUMNS:
         label = RESULT_HEADINGS[col]
 
-        if col in active_filters:
-            label = f"{label} *"
+        if col in FILTERABLE_RESULT_COLUMNS:
+            if col in active_filters:
+                label = f"{label} 🔍*"
+            else:
+                label = f"{label} 🔍"
 
         tree.heading(col, text=label)
 
