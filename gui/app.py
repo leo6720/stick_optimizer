@@ -307,7 +307,7 @@ class OptimizerApp(tk.Tk):
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
             entry_width=14,
-            mt_image=self.mt_image,
+            mt_image=None,
         )
         global_frame.pack(fill="x", pady=(0, 8))
 
@@ -990,7 +990,10 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("480x180")
+        if image:
+            dialog.geometry("480x420")
+        else:
+            dialog.geometry("480x180")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
