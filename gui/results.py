@@ -262,12 +262,13 @@ def build_detail_section(parent, on_format_open_callback):
     summary_fields_order = list(summary_fields)
 
     for index, field_name in enumerate(summary_fields):
-        row = index // 3
-        base_col = (index % 3) * 2
+        row = index // 4
+        base_col = (index % 4) * 2
 
         name_label = ttk.Label(
             summary_frame,
             text=summary_translations.get(field_name, field_name.replace("_", " ")),
+            font=("TkDefaultFont", 10, "bold"),
         )
 
         name_label.grid(
@@ -275,16 +276,21 @@ def build_detail_section(parent, on_format_open_callback):
             column=base_col,
             sticky="w",
             padx=(0, 4),
-            pady=2,
+            pady=3,
         )
 
-        value_label = ttk.Label(summary_frame, text="-", width=18)
+        value_label = ttk.Label(
+            summary_frame,
+            text="-",
+            width=14,
+            font=("TkDefaultFont", 10),
+        )
         value_label.grid(
             row=row,
             column=base_col + 1,
             sticky="w",
-            padx=(0, 16),
-            pady=2,
+            padx=(0, 12),
+            pady=3,
         )
 
         summary_vars[field_name] = value_label
