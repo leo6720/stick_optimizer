@@ -44,7 +44,7 @@ from gui.results import (
     result_display_value,
     update_result_headings_for_filters,
 )
-from gui.tables import EditableTable
+from gui.tables import HierarchicalInputTable
 
 SCORE_PENALTY_DETAIL_COLUMNS = {
     "score",
@@ -305,20 +305,12 @@ class OptimizerApp(tk.Tk):
         )
         global_frame.pack(fill="x", pady=(0, 8))
 
-        tables_pane = ttk.PanedWindow(
+        self.input_table = HierarchicalInputTable(
             left_pane,
-            orient="vertical",
+            title="Dati Stick e Formati",
+            header_image=self.stick_types_image,
         )
-        tables_pane.pack(fill="both", expand=True)
-
-        stick_container = ttk.Frame(tables_pane)
-        format_container = ttk.Frame(tables_pane)
-
-        tables_pane.add(stick_container, weight=1)
-        tables_pane.add(format_container, weight=1)
-
-        self._build_stick_table(stick_container)
-        self._build_format_table(format_container)
+        self.input_table.pack(fill="both", expand=True)
         
         self._build_output_tables(right_pane)
 
@@ -331,46 +323,6 @@ class OptimizerApp(tk.Tk):
             textvariable=self.status_var,
         ).pack(side="right")
 
-    def _build_stick_table(self, parent):
-        self.stick_table = EditableTable(
-            parent,
-            title="Tipi stick",
-            columns=[
-                ("name", "Tipo", 80),
-                ("length", "Hs [mm]", 60),
-                ("width", "As [mm]", 60),
-                ("thickness", "Ss [mm]", 60),
-                ("fin", "Bs [mm]", 60),
-            ],
-            height=7,
-            header_image=self.stick_types_image,
-        )
-
-        self.stick_table.pack(fill="both", expand=True)
-
-
-    def _build_format_table(self, parent):
-        def get_stick_type_choices():
-            rows = self.stick_table.get_rows()
-            choices = []
-            for r in rows:
-                if r and r[0].strip():
-                    choices.append(r[0].strip())
-            return choices
-
-        self.format_table = EditableTable(
-            parent,
-            title="Formati",
-            columns=[
-                ("format", "Nome formato", 100),
-                ("stick_type", "Tipo stick", 100),
-                ("sticks_per_pocket", "Stick per cassetto", 110),
-            ],
-            height=7,
-            combobox_columns={"stick_type": get_stick_type_choices},
-        )
-
-        self.format_table.pack(fill="both", expand=True)
 
     def _build_output_tables(self, parent: ttk.Frame) -> None:
         """Build results and detail output sections."""
@@ -511,31 +463,16 @@ class OptimizerApp(tk.Tk):
         )
         self.current_carton_AB_target = DEFAULT_GLOBAL_SETTINGS.carton_AB_target
 
-        if hasattr(self, "stick_table"):
-            self.stick_table.set_rows(
-                [
-                    (
-                        stick.stick_type_name,
-                        stick.stick_length_mm,
-                        stick.stick_width_mm,
-                        stick.stick_thickness_mm,
-                        stick.fin_length_mm,
-                    )
-                    for stick in DEFAULT_STICK_TYPES
-                ]
-            )
-
-        if hasattr(self, "format_table"):
-            self.format_table.set_rows(
-                [
-                    (
-                        fmt.format_name,
-                        fmt.stick_type_name,
-                        fmt.sticks_per_pocket,
-                    )
-                    for fmt in DEFAULT_FORMATS
-                ]
-            )
+        if hasattr(self, "input_table"):
+            self.input_table.clear()
+            stick_map = {}
+            for s in DEFAULT_STICK_TYPES:
+                sid = self.input_table.add_stick(s.stick_type_name)
+                self.input_table.tree.item(sid, values=(s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm))
+                stick_map[s.stick_type_name] = sid
+            for f in DEFAULT_FORMATS:
+                if f.stick_type_name in stick_map:
+                    self.input_table.add_format(stick_map[f.stick_type_name], str(f.sticks_per_pocket))
 
         if hasattr(self, "status_var"):
             self.status_var.set("Built-in defaults loaded")
@@ -710,8 +647,7 @@ class OptimizerApp(tk.Tk):
         self._load_defaults()
         
         # Always clear main window data for a new project unless example data is requested
-        self.stick_table.clear()
-        self.format_table.clear()
+        self.input_table.clear()
         if "sticks_per_beat" in self.global_entries:
             self.global_entries["sticks_per_beat"].delete(0, tk.END)
         if "max_pitch_shift_mm" in self.global_entries:
@@ -720,14 +656,14 @@ class OptimizerApp(tk.Tk):
         if result["use_defaults"]:
             # Load example data (formerly built-in defaults) into main window
             set_entries_from_dataclass(self.global_entries, DEFAULT_GLOBAL_SETTINGS)
-            self.stick_table.set_rows([
-                (s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm)
-                for s in DEFAULT_STICK_TYPES
-            ])
-            self.format_table.set_rows([
-                (f.format_name, f.stick_type_name, f.sticks_per_pocket)
-                for f in DEFAULT_FORMATS
-            ])
+            stick_map = {}
+            for s in DEFAULT_STICK_TYPES:
+                sid = self.input_table.add_stick(s.stick_type_name)
+                self.input_table.tree.item(sid, values=(s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm))
+                stick_map[s.stick_type_name] = sid
+            for f in DEFAULT_FORMATS:
+                if f.stick_type_name in stick_map:
+                    self.input_table.add_format(stick_map[f.stick_type_name], str(f.sticks_per_pocket))
 
         if self.home_frame:
             self.home_frame.pack_forget()
@@ -768,8 +704,15 @@ class OptimizerApp(tk.Tk):
                 if val is None:
                     entry.delete(0, "end")
 
-            self.stick_table.set_rows([(s.stick_type_name, s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm) for s in data["stick_types"]])
-            self.format_table.set_rows([(f.format_name, f.stick_type_name, f.sticks_per_pocket) for f in data["formats"]])
+            self.input_table.clear()
+            stick_map = {}
+            for s in data["stick_types"]:
+                sid = self.input_table.add_stick(s.stick_type_name)
+                self.input_table.tree.item(sid, values=(s.stick_length_mm, s.stick_width_mm, s.stick_thickness_mm, s.fin_length_mm))
+                stick_map[s.stick_type_name] = sid
+            for f in data["formats"]:
+                if f.stick_type_name in stick_map:
+                    self.input_table.add_format(stick_map[f.stick_type_name], str(f.sticks_per_pocket))
 
             self.solutions = data["results"]
             self.active_result_filters = data["active_filters"]
@@ -849,8 +792,17 @@ class OptimizerApp(tk.Tk):
             settings_dict.update(overrides)
             settings = GlobalSettings(**settings_dict)
             
-            stick_types = parse_stick_types(self.stick_table.get_rows())
-            formats = parse_formats(self.format_table.get_rows())
+            stick_types = []
+            formats = []
+            for sid in self.input_table.tree.get_children():
+                name = self.input_table.tree.item(sid, "text")
+                v = self.input_table.tree.item(sid, "values")
+                try:
+                    stick_types.append(StickType(name, float(v[0]), float(v[1]), float(v[2]), float(v[3])))
+                except: continue
+                for fid in self.input_table.tree.get_children(sid):
+                    count = self.input_table.tree.item(fid, "text")
+                    formats.append(Format(f"{name}_{count}", name, int(count)))
 
             json_str = serialize_project(
                 settings,
@@ -1277,10 +1229,19 @@ class OptimizerApp(tk.Tk):
             overrides.update(self._cartoner_values_dict())
 
             settings = parse_global_settings(self.global_entries, overrides=overrides)
-
             weights = self.current_weights
-            stick_types = parse_stick_types(self.stick_table.get_rows())
-            formats = parse_formats(self.format_table.get_rows())
+            
+            stick_types = []
+            formats = []
+            for sid in self.input_table.tree.get_children():
+                name = self.input_table.tree.item(sid, "text")
+                v = self.input_table.tree.item(sid, "values")
+                try:
+                    stick_types.append(StickType(name, float(v[0]), float(v[1]), float(v[2]), float(v[3])))
+                except: continue
+                for fid in self.input_table.tree.get_children(sid):
+                    count = self.input_table.tree.item(fid, "text")
+                    formats.append(Format(f"{name}_{count}", name, int(count)))
 
             self.status_var.set("Optimization running...")
             self.run_button.config(state="disabled")

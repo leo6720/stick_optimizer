@@ -46,14 +46,14 @@ DEFAULT_WEIGHTS = Weights()
 # solutions exist and tests can verify the complete optimizer path.
 DEFAULT_STICK_TYPES = [
     StickType(
-        stick_type_name="STICK_A",
+        stick_type_name="A",
         stick_length_mm=110.0,
         stick_width_mm=25.0,
         stick_thickness_mm=6.0,
         fin_length_mm=5.0,
     ),
     StickType(
-        stick_type_name="STICK_B",
+        stick_type_name="B",
         stick_length_mm=100.0,
         stick_width_mm=26.0,
         stick_thickness_mm=8,
@@ -62,13 +62,13 @@ DEFAULT_STICK_TYPES = [
 ]
 
 DEFAULT_FORMATS = [
-    Format(format_name="A_10", stick_type_name="STICK_A", sticks_per_pocket=10),
-    Format(format_name="A_34", stick_type_name="STICK_A", sticks_per_pocket=34),
-    Format(format_name="B_4", stick_type_name="STICK_B", sticks_per_pocket=4),
-    Format(format_name="B_7", stick_type_name="STICK_B", sticks_per_pocket=7),
-    Format(format_name="B_10", stick_type_name="STICK_B", sticks_per_pocket=10),
-    Format(format_name="B_16", stick_type_name="STICK_B", sticks_per_pocket=16),
-    Format(format_name="B_25", stick_type_name="STICK_B", sticks_per_pocket=25),
-    Format(format_name="B_30", stick_type_name="STICK_B", sticks_per_pocket=30),
-    Format(format_name="B_50", stick_type_name="STICK_B", sticks_per_pocket=50)
+    Format(format_name="A_10", stick_type_name="A", sticks_per_pocket=10),
+    Format(format_name="A_34", stick_type_name="A", sticks_per_pocket=34),
+    Format(format_name="B_4", stick_type_name="B", sticks_per_pocket=4),
+    Format(format_name="B_7", stick_type_name="B", sticks_per_pocket=7),
+    Format(format_name="B_10", stick_type_name="B", sticks_per_pocket=10),
+    Format(format_name="B_16", stick_type_name="B", sticks_per_pocket=16),
+    Format(format_name="B_25", stick_type_name="B", sticks_per_pocket=25),
+    Format(format_name="B_30", stick_type_name="B", sticks_per_pocket=30),
+    Format(format_name="B_50", stick_type_name="B", sticks_per_pocket=50)
 ]
