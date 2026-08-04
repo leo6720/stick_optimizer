@@ -1011,6 +1011,9 @@ class OptimizerApp(tk.Tk):
         frame = ttk.Frame(dialog, padding=12)
         frame.pack(fill="both", expand=True)
 
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(side="bottom", fill="x", pady=(16, 0))
+
         if image:
             img_lbl = ttk.Label(frame, image=image)
             img_lbl.image = image
@@ -1044,9 +1047,6 @@ class OptimizerApp(tk.Tk):
 
         _update_style()
         entry.bind("<KeyRelease>", _update_style)
-
-        button_frame = ttk.Frame(frame)
-        button_frame.pack(fill="x", pady=(16, 0))
 
         def save_value() -> None:
             try:
