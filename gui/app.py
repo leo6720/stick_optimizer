@@ -413,8 +413,8 @@ class OptimizerApp(tk.Tk):
 
         # Ricolloca i campi visibili senza lasciare spazi vuoti.
         for index, field_name in enumerate(visible_summary_fields):
-            row = index // 3
-            base_col = (index % 3) * 2
+            row = index // 4
+            base_col = (index % 4) * 2
 
             summary_name_labels[field_name].grid(
                 row=row,
@@ -428,7 +428,7 @@ class OptimizerApp(tk.Tk):
                 row=row,
                 column=base_col + 1,
                 sticky="w",
-                padx=(0, 16),
+                padx=(0, 12),
                 pady=2,
             )
     
