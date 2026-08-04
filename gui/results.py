@@ -75,8 +75,6 @@ FILTER_OPERATORS = (
 
 
 FORMAT_OVERVIEW_COLUMNS = (
-    "format",
-    "stick_type",
     "input_pitch",
     "grouping",
     "dividers",
@@ -148,7 +146,7 @@ def result_display_value(solution, column_name):
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
     frame = ttk.LabelFrame(
         parent,
-        text="Migliori soluzioni - clicca sull'intestazione per filtrare",
+        text="Migliori soluzioni",
         padding=8,
     )
 
@@ -177,8 +175,11 @@ def update_result_headings_for_filters(tree, active_filters):
     for col in RESULT_COLUMNS:
         label = RESULT_HEADINGS[col]
 
-        if col in active_filters:
-            label = f"{label} *"
+        if col in FILTERABLE_RESULT_COLUMNS:
+            if col in active_filters:
+                label = f"{label} 🔽*"
+            else:
+                label = f"{label} 🔽"
 
         tree.heading(col, text=label)
 
@@ -264,8 +265,8 @@ def build_detail_section(parent, on_format_open_callback):
     summary_fields_order = list(summary_fields)
 
     for index, field_name in enumerate(summary_fields):
-        row = index // 3
-        base_col = (index % 3) * 2
+        row = index // 4
+        base_col = (index % 4) * 2
 
         name_label = ttk.Label(
             summary_frame,
@@ -280,12 +281,16 @@ def build_detail_section(parent, on_format_open_callback):
             pady=2,
         )
 
-        value_label = ttk.Label(summary_frame, text="-", width=18)
+        value_label = ttk.Label(
+            summary_frame,
+            text="-",
+            width=14,
+        )
         value_label.grid(
             row=row,
             column=base_col + 1,
             sticky="w",
-            padx=(0, 16),
+            padx=(0, 12),
             pady=2,
         )
 
@@ -302,13 +307,14 @@ def build_detail_section(parent, on_format_open_callback):
     overview_tree = ttk.Treeview(
         overview_frame,
         columns=FORMAT_OVERVIEW_COLUMNS,
-        show="headings",
+        show="tree headings",
         height=7,
     )
 
+    overview_tree.heading("#0", text="Stick / Formato")
+    overview_tree.column("#0", width=150)
+
     overview_headings = {
-        "format": "Formato",
-        "stick_type": "Tipo stick",
         "input_pitch": "Passo ingr.",
         "grouping": "Raggrup.",
         "dividers": "Div.",
@@ -503,23 +509,28 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(head_tree)
 
     max_b_by_pocket = {}
+    stick_parents = {}
+    
     for candidate in solution.candidates:
         b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
     for index, candidate in enumerate(solution.candidates):
+        s_name = candidate.stick_type_name
+        if s_name not in stick_parents:
+            stick_parents[s_name] = overview_tree.insert("", "end", text=s_name, open=True)
+
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
         pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
         carryover = "sì" if candidate.carryover_required else "no"
 
         overview_tree.insert(
-            "",
+            stick_parents[s_name],
             "end",
-            iid=str(index),
+            iid=f"cand_{index}",
+            text=candidate.format_name.split('_')[-1],
             values=(
-                candidate.format_name,
-                candidate.stick_type_name,
                 fmt(candidate.adjusted_input_pitch),
                 candidate.grouping,
                 candidate.dividers,

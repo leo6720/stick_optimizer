@@ -61,3 +61,153 @@
 
 # 2026-07-28 14:52:33.041261
 +can you push the current files to branch defaults-fork
+
+# 2026-08-04 07:11:29.271633
++n
+
+# 2026-08-04 07:12:22.041765
++/add gui/app.py
+
+# 2026-08-04 07:19:04.134724
++i want to edit the input section for sticks and formats. instead of having 2 differentedit the name of the 2 stick types in the example data form "stick_a, stick_b" to just "A, B". then, i want to edit the input section for stick types and formats. instead of having 2 different tables, i would like to have tree wiev. something like:
++A
++|-> 12
++|-> 20
++B
++|-> 4
++|-> 10
++|-> 15
++
++That way one can collapse the view if needed, and does not need to name each format. the same tree structure should be in the output. the name of the formats can just be A_10 with name of stick and stack number.
+
+# 2026-08-04 07:19:16.692450
++y
+
+# 2026-08-04 07:21:58.850894
++/run /home/codespace/.python/current/bin/python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/app.py
+
+# 2026-08-04 07:21:58.850965
++/run /home/codespace/.python/current/bin/python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/app.py
+
+# 2026-08-04 07:22:23.992044
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:24:52.347759
++instead of the rimuovi button make removing one by right clicking in the inuput section. also rename the section to just formati. implement that same tree view in the panoramica formati section of the output
+
+# 2026-08-04 07:25:04.815025
++y
+
+# 2026-08-04 07:26:48.524775
++is there something missing or are you done?
+
+# 2026-08-04 07:27:13.101955
++are you done now?
+
+# 2026-08-04 07:27:27.844952
++y
+
+# 2026-08-04 07:27:27.849257
++/run /home/codespace/.python/current/bin/python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/app.py gui/results.py gui/tables.py
+
+# 2026-08-04 07:27:27.849322
++/run /home/codespace/.python/current/bin/python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/app.py gui/results.py gui/tables.py
+
+# 2026-08-04 07:27:38.869162
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:37:34.143006
++the value of D - offset max stick, should now be moved in a new menu under modifica called dati aggiuntivi MT. in there put again the picture dati_mt.jpg. the default value to start with should be 20 and now that value should be considered a default and not an example, therefore it should not be empty if i uncheck the option at project creation.
+
+# 2026-08-04 07:37:36.433789
++y
+
+# 2026-08-04 07:41:09.803428
++the value of D - offset max stick, should now be moved in a new menu under modifica called dati aggiuntivi MT. in there put again the picture dati_mt.jpg. the default value to start with should be 20 and now that value should be considered a default and not an example, therefore it should not be empty if i uncheck the option at project creation.  was this promt completely fulfilled?
+
+# 2026-08-04 07:41:12.631754
++y
+
+# 2026-08-04 07:41:56.833640
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:43:23.579642
++i see d - max offset stick both in the menu and on the home screen. it should be removed from the home screen. also the menu is too short and i see only a part of it.
+
+# 2026-08-04 07:43:44.418666
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:44:53.995802
++the picture disappeared from the main page in dati mt but the text box for d is still there.
+
+# 2026-08-04 07:46:17.204283
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:47:34.414507
++ok i do not see the field now. but still i do not see the picture in dati mt section. it should be both in dati mt and it the other menu
+
+# 2026-08-04 07:48:21.534449
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 07:49:38.903820
++in dati astucciatrice the buttons are all the way at the bottom. do the same in dati aggiuntivi MT
+
+# 2026-08-04 07:50:04.118276
++/git push -u origin 30-07-02-fork
++
+
+# 2026-08-04 08:06:06.789228
++git pull origin 30-07-02-fork
+
+# 2026-08-04 08:06:19.033696
++/git pull origin 30-07-02-fork
+
+# 2026-08-04 08:11:08.143081
++/add gui/app.py
+
+# 2026-08-04 08:11:13.894201
++/add img/dati_astucciatrice.jpg
+
+# 2026-08-04 08:17:39.210115
++add dati_astucciartice.jpg to dati astucciatrice menu. edit the names of the data input as follows:
++C_1 - Larghezza divisore
++C_2 - Larghezza parete
++C_3 - Gioco stick-parete/div
++C_4 - Gioco stick-stick
++B_extra - Quota B aggiuntiva
++P_tp - Passo max trasporto prodotto
++Incremento passo trasporto prodotto
++Max strati
++
++Gioco stick-stick and stick-parete need to be switched in position. 
+
+# 2026-08-04 08:17:49.582253
++y
+
+# 2026-08-04 08:21:09.104596
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\main.py", line 6, in <module>
++    from gui import OptimizerApp
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\__init__.py", line 1, in <module>
++    from gui.app import OptimizerApp
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 11, in <module>
++    from defaults import (
++    ...<4 lines>...
++    )
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\defaults.py", line 1, in <module>
++    from models import Format, GlobalSettings, StickType, Weights
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\models.py", line 33, in <module>
++    @dataclass(frozen=True)
++     ~~~~~~~~~^^^^^^^^^^^^^
++  File "dataclasses.py", line 1295, in wrap
++  File "dataclasses.py", line 1078, in _process_class
++  File "dataclasses.py", line 627, in _init_fn
++TypeError: non-default argument 'divider_width_mm' follows default argument 'max_pitch_shift_mm'
+
+# 2026-08-04 08:21:18.015775
++y

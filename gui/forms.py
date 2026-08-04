@@ -6,13 +6,13 @@ DISPLAY_LABELS = {
     "sticks_per_beat": "Np - Canali MT",
     "max_pitch_shift_mm": "D - Offset max stick [mm]",
 
-    "divider_width_mm": "Larghezza divisore",
-    "pocket_wall_width_mm": "Larghezza parete",
-    "clearance_between_adjacent_sticks_mm": "Gioco stick-stick",
-    "clearance_stick_to_wall_or_divider_mm": "Gioco stick-parete/div",
-    "carton_B_extra_mm": "B extra",
-    "max_cartoner_pitch_mm": "Passo max astucciatrice",
-    "pitch_step_mm": "Passo incremento",
+    "divider_width_mm": "C_1 - Larghezza divisore",
+    "pocket_wall_width_mm": "C_2 - Larghezza parete",
+    "clearance_stick_to_wall_or_divider_mm": "C_3 - Gioco stick-parete/div",
+    "clearance_between_adjacent_sticks_mm": "C_4 - Gioco stick-stick",
+    "carton_B_extra_mm": "B_extra - Quota B aggiuntiva",
+    "max_cartoner_pitch_mm": "P_tp - Passo max trasporto prodotto",
+    "pitch_step_mm": "Incremento passo trasporto prodotto",
     "max_allowed_layers": "Max strati",
 }
 
@@ -20,8 +20,8 @@ DISPLAY_LABELS = {
 CARTONER_FIELDS = [
     "divider_width_mm",
     "pocket_wall_width_mm",
-    "clearance_between_adjacent_sticks_mm",
     "clearance_stick_to_wall_or_divider_mm",
+    "clearance_between_adjacent_sticks_mm",
     "carton_B_extra_mm",
     "max_cartoner_pitch_mm",
     "pitch_step_mm",
@@ -52,7 +52,6 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
 
     mt_fields = [
         "sticks_per_beat",
-        "max_pitch_shift_mm",
     ]
 
     start_row = 1 if mt_image is not None else 0
@@ -68,12 +67,19 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
     return outer_frame, entries
 
 
-def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict = None):
+def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict = None, cartoner_image=None):
     frame = ttk.Frame(parent)
 
     entries = {}
     labels = {}
     defaults = defaults or {}
+
+    start_row = 0
+    if cartoner_image is not None:
+        image_label = ttk.Label(frame, image=cartoner_image)
+        image_label.image = cartoner_image
+        image_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        start_row = 1
 
     _add_fields_to_frame_with_defaults(
         frame,
@@ -82,7 +88,8 @@ def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict =
         labels,
         defaults,
         entry_width=entry_width,
-        label_width=28,
+        label_width=32,
+        start_row=start_row,
     )
 
     return frame, entries, labels
