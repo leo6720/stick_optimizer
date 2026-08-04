@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 
-class HierarchicalInputTable(ttk.LabelFrame):
+class HierarchicalInputTable(ttk.Frame):
     """
     Hierarchical input for Stick Types and their Formats.
     """
@@ -13,7 +13,7 @@ class HierarchicalInputTable(ttk.LabelFrame):
         title: str,
         header_image=None,
     ):
-        super().__init__(parent, text=title, padding=8)
+        super().__init__(parent, style="Card.TFrame", padding=12)
         
         self.active_editor = None
         self._editing_item = None
@@ -22,9 +22,17 @@ class HierarchicalInputTable(ttk.LabelFrame):
         self.columnconfigure(0, weight=1)
         current_row = 0
 
+        title_lbl = ttk.Label(
+            self,
+            text=title,
+            style="Header.TLabel",
+        )
+        title_lbl.grid(row=current_row, column=0, sticky="w", pady=(0, 8))
+        current_row += 1
+
         if header_image is not None:
-            header_frame = ttk.Frame(self)
-            image_label = ttk.Label(header_frame, image=header_image)
+            header_frame = ttk.Frame(self, style="Card.TFrame")
+            image_label = ttk.Label(header_frame, image=header_image, style="Card.TLabel")
             image_label.image = header_image
             image_label.pack(side="left", anchor="n")
 
@@ -34,7 +42,7 @@ class HierarchicalInputTable(ttk.LabelFrame):
                 "Ss = Spessore stick [mm]\n"
                 "Bs = Lunghezza pinna [mm]"
             )
-            ttk.Label(header_frame, text=legend_text, justify="left").pack(side="left", padx=20, anchor="n")
+            ttk.Label(header_frame, text=legend_text, justify="left", style="Card.TLabel").pack(side="left", padx=20, anchor="n")
             header_frame.grid(row=current_row, column=0, sticky="ew", pady=(0, 8))
             current_row += 1
 

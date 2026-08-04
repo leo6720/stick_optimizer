@@ -144,11 +144,18 @@ def result_display_value(solution, column_name):
 
 
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
-    frame = ttk.LabelFrame(
+    frame = ttk.Frame(
         parent,
-        text="Migliori soluzioni",
-        padding=8,
+        style="Card.TFrame",
+        padding=12,
     )
+
+    header = ttk.Label(
+        frame,
+        text="Migliori Soluzioni",
+        style="Header.TLabel",
+    )
+    header.pack(anchor="w", pady=(0, 8))
 
     tree = ttk.Treeview(
         frame,
@@ -223,16 +230,24 @@ def build_detail_section(parent, on_format_open_callback):
 
     Layout:
     - Solution summary
-    - Format overview
-    - Pocket types used
-    - Robot head types used
+    - Tabbed Notebook:
+      * Panoramica formati
+      * Tipi cassetti usati
+      * Tipi teste robot usate
 
     Full format details are opened in a popup on double click.
     """
-    frame = ttk.LabelFrame(parent, text="Dettagli soluzione selezionata", padding=8)
+    frame = ttk.Frame(parent, style="Card.TFrame", padding=12)
 
-    summary_frame = ttk.LabelFrame(frame, text="Riepilogo soluzione", padding=8)
-    summary_frame.pack(fill="x", pady=(0, 8))
+    title_label = ttk.Label(
+        frame,
+        text="Dettagli Soluzione Selezionata",
+        style="Header.TLabel",
+    )
+    title_label.pack(anchor="w", pady=(0, 8))
+
+    summary_frame = ttk.Frame(frame, style="Card.TFrame")
+    summary_frame.pack(fill="x", pady=(0, 12))
 
     summary_fields = [
         "score",
@@ -271,6 +286,8 @@ def build_detail_section(parent, on_format_open_callback):
         name_label = ttk.Label(
             summary_frame,
             text=summary_translations.get(field_name, field_name.replace("_", " ")),
+            style="Card.TLabel",
+            font=("Segoe UI", 9, "bold"),
         )
 
         name_label.grid(
@@ -285,6 +302,7 @@ def build_detail_section(parent, on_format_open_callback):
             summary_frame,
             text="-",
             width=14,
+            style="Card.TLabel",
         )
         value_label.grid(
             row=row,
@@ -297,18 +315,19 @@ def build_detail_section(parent, on_format_open_callback):
         summary_vars[field_name] = value_label
         summary_name_labels[field_name] = name_label
 
-    overview_frame = ttk.LabelFrame(
-        frame,
-        text="Panoramica formati - doppio clic su una riga per i dettagli completi",
-        padding=8,
-    )
-    overview_frame.pack(fill="both", expand=True, pady=(0, 8))
+    # Details Notebook (Tabs)
+    notebook = ttk.Notebook(frame)
+    notebook.pack(fill="both", expand=True)
+
+    # Tab 1: Panoramica Formati
+    overview_tab = ttk.Frame(notebook, padding=8)
+    notebook.add(overview_tab, text="Panoramica Formati")
 
     overview_tree = ttk.Treeview(
-        overview_frame,
+        overview_tab,
         columns=FORMAT_OVERVIEW_COLUMNS,
         show="tree headings",
-        height=7,
+        height=6,
     )
 
     overview_tree.heading("#0", text="Stick / Formato")
@@ -357,7 +376,7 @@ def build_detail_section(parent, on_format_open_callback):
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
     overview_scroll_x = ttk.Scrollbar(
-        overview_frame,
+        overview_tab,
         orient="horizontal",
         command=overview_tree.xview,
     )
@@ -368,25 +387,15 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
-    commonality_frame = ttk.Frame(frame)
-    commonality_frame.pack(fill="both", expand=True)
+    # Tab 2: Tipi Cassetti
+    pocket_tab = ttk.Frame(notebook, padding=8)
+    notebook.add(pocket_tab, text="Tipi Cassetti")
+    pocket_tree = _build_pocket_type_table(pocket_tab)
 
-    pocket_frame = ttk.LabelFrame(
-        commonality_frame,
-        text="Tipi di cassetti utilizzati",
-        padding=8,
-    )
-    pocket_frame.pack(side="left", fill="both", expand=True, padx=(0, 4))
-
-    head_frame = ttk.LabelFrame(
-        commonality_frame,
-        text="Tipi di teste robot utilizzate",
-        padding=8,
-    )
-    head_frame.pack(side="left", fill="both", expand=True, padx=(4, 0))
-
-    pocket_tree = _build_pocket_type_table(pocket_frame)
-    head_tree = _build_robot_head_type_table(head_frame)
+    # Tab 3: Tipi Teste Robot
+    head_tab = ttk.Frame(notebook, padding=8)
+    notebook.add(head_tab, text="Tipi Teste Robot")
+    head_tree = _build_robot_head_type_table(head_tab)
 
     widgets = {
         "summary_frame": summary_frame,

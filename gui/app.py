@@ -91,6 +91,8 @@ class OptimizerApp(tk.Tk):
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
+        self._configure_styles()
+
         # Ensure container structure exists before loading UI
         self.main_container = None
         self.home_frame = None
@@ -169,7 +171,89 @@ class OptimizerApp(tk.Tk):
                     print("ERROR:", e)
 
         return None
-        
+
+    def _configure_styles(self) -> None:
+        """Centralized modern industrial/engineering style configuration."""
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        # Fonts
+        default_font = ("Segoe UI", 10)
+        bold_font = ("Segoe UI", 11, "bold")
+        small_font = ("Segoe UI", 9)
+
+        # Colors
+        bg_main = "#f4f5f7"
+        bg_card = "#ffffff"
+        fg_text = "#1f2937"
+        primary_blue = "#2563eb"
+        primary_blue_active = "#1d4ed8"
+
+        self.configure(bg=bg_main)
+
+        style.configure(".", font=default_font, background=bg_main, foreground=fg_text)
+        style.configure("TFrame", background=bg_main)
+        style.configure("Card.TFrame", background=bg_card, relief="flat")
+        style.configure("TLabel", background=bg_main, foreground=fg_text)
+        style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
+        style.configure("Header.TLabel", font=bold_font, foreground="#111827")
+
+        # Primary Action Button ("Calcola")
+        style.configure(
+            "Primary.TButton",
+            font=("Segoe UI", 11, "bold"),
+            background=primary_blue,
+            foreground="#ffffff",
+            padding=(20, 8),
+            borderwidth=0,
+            focusthickness=0,
+        )
+        style.map(
+            "Primary.TButton",
+            background=[("active", primary_blue_active), ("disabled", "#9ca3af")],
+            foreground=[("disabled", "#f3f4f6")],
+        )
+
+        # Standard Buttons
+        style.configure("TButton", font=default_font, padding=(10, 5), borderwidth=1)
+
+        # Entry fields
+        style.configure("TEntry", fieldbackground="#ffffff", padding=4)
+        style.configure("Yellow.TEntry", fieldbackground="#fef08a")
+
+        # Treeview
+        style.configure(
+            "Treeview",
+            font=default_font,
+            rowheight=26,
+            fieldbackground="#ffffff",
+            background="#ffffff",
+            borderColor="#e5e7eb",
+        )
+        style.configure(
+            "Treeview.Heading",
+            font=("Segoe UI", 9, "bold"),
+            background="#e5e7eb",
+            foreground="#374151",
+            padding=(4, 6),
+        )
+        style.map("Treeview", background=[("selected", "#dbeafe")], foreground=[("selected", "#1e40af")])
+
+        # Notebook / Tabs
+        style.configure("TNotebook", background=bg_main, tabmargins=[2, 5, 2, 0])
+        style.configure(
+            "TNotebook.Tab",
+            font=("Segoe UI", 10, "bold"),
+            padding=(14, 6),
+            background="#e5e7eb",
+            foreground="#4b5563",
+        )
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", "#ffffff")],
+            foreground=[("selected", primary_blue)],
+        )
+
     # ------------------------------------------------------------------
     # Menu bar
     # ------------------------------------------------------------------
@@ -285,19 +369,29 @@ class OptimizerApp(tk.Tk):
 
     def _build_layout(self) -> None:
         """Build main window layout (hidden initially)."""
-        self.main_container = ttk.Frame(self, padding=8)
+        self.main_container = ttk.Frame(self, padding=12)
         root = self.main_container
 
+        # Header / Toolbar area
         toolbar = ttk.Frame(root)
-        toolbar.pack(fill="x", pady=(0, 8))
+        toolbar.pack(fill="x", pady=(0, 12))
+
+        title_lbl = ttk.Label(
+            toolbar,
+            text="Calcolatore Abbinamenti Stick",
+            font=("Segoe UI", 14, "bold"),
+        )
+        title_lbl.pack(side="left", align="center")
 
         self.run_button = ttk.Button(
             toolbar,
             text="Calcola",
+            style="Primary.TButton",
             command=self.run_optimization,
         )
-        self.run_button.pack(side="left")
+        self.run_button.pack(side="right", padx=(10, 0))
 
+        # Main splitter layout
         main_pane = ttk.PanedWindow(root, orient="horizontal")
         main_pane.pack(fill="both", expand=True, pady=(0, 8))
 
@@ -305,14 +399,15 @@ class OptimizerApp(tk.Tk):
         right_pane = ttk.Frame(main_pane)
 
         main_pane.add(left_pane, weight=1)
-        main_pane.add(right_pane, weight=150)
+        main_pane.add(right_pane, weight=3)
 
+        # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
             entry_width=14,
             mt_image=self.mt_image,
         )
-        global_frame.pack(fill="x", pady=(0, 8))
+        global_frame.pack(fill="x", pady=(0, 12))
 
         self.input_table = HierarchicalInputTable(
             left_pane,
@@ -320,16 +415,19 @@ class OptimizerApp(tk.Tk):
             header_image=self.stick_types_image,
         )
         self.input_table.pack(fill="both", expand=True)
-        
+
+        # Right Main Area (Results & Solution Details)
         self._build_output_tables(right_pane)
 
+        # Bottom Status Bar
         bottom = ttk.Frame(root)
-        bottom.pack(fill="x", side="bottom")
+        bottom.pack(fill="x", side="bottom", pady=(4, 0))
 
         self.status_var = tk.StringVar(value="Ready")
         ttk.Label(
             bottom,
             textvariable=self.status_var,
+            font=("Segoe UI", 9),
         ).pack(side="right")
 
 

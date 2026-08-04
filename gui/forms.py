@@ -34,19 +34,22 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
     Main page only shows MT fields.
     Cartoner settings are edited from menu popup.
     """
-    outer_frame = ttk.Frame(parent)
+    outer_frame = ttk.Frame(parent, style="Card.TFrame", padding=12)
 
     entries = {}
 
-    mt_frame = ttk.LabelFrame(
+    title_label = ttk.Label(
         outer_frame,
         text="Dati MT",
-        padding=8,
+        style="Header.TLabel",
     )
-    mt_frame.pack(fill="x")
+    title_label.pack(anchor="w", pady=(0, 8))
+
+    mt_content = ttk.Frame(outer_frame, style="Card.TFrame")
+    mt_content.pack(fill="x")
 
     if mt_image is not None:
-        image_label = ttk.Label(mt_frame, image=mt_image)
+        image_label = ttk.Label(mt_content, image=mt_image, style="Card.TLabel")
         image_label.image = mt_image
         image_label.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 8))
 
@@ -56,7 +59,7 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
 
     start_row = 1 if mt_image is not None else 0
     _add_fields_to_frame(
-        mt_frame,
+        mt_content,
         mt_fields,
         entries,
         entry_width=entry_width,
