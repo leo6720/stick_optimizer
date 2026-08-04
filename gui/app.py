@@ -184,6 +184,7 @@ class OptimizerApp(tk.Tk):
 
         # Colors
         bg_main = "#ffffff"
+        bg_sidebar = "#f3f4f6"
         bg_card = "#ffffff"
         fg_text = "#1f2937"
         primary_red = "#dc2626"
@@ -193,10 +194,13 @@ class OptimizerApp(tk.Tk):
 
         style.configure(".", font=default_font, background=bg_main, foreground=fg_text)
         style.configure("TFrame", background=bg_main)
+        style.configure("Sidebar.TFrame", background=bg_sidebar)
         style.configure("Card.TFrame", background=bg_card, relief="flat")
         style.configure("TLabel", background=bg_main, foreground=fg_text)
+        style.configure("Sidebar.TLabel", background=bg_sidebar, foreground=fg_text)
         style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
         style.configure("Header.TLabel", font=bold_font, foreground="#111827", background=bg_main)
+        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#111827", background=bg_sidebar)
 
         # Primary Action Button ("Calcola")
         style.configure(
@@ -395,7 +399,7 @@ class OptimizerApp(tk.Tk):
         main_pane = ttk.PanedWindow(root, orient="horizontal")
         main_pane.pack(fill="both", expand=True, pady=(0, 8))
 
-        left_pane = ttk.Frame(main_pane)
+        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
         right_pane = ttk.Frame(main_pane)
 
         main_pane.add(left_pane, weight=1)

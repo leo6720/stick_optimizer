@@ -13,7 +13,7 @@ class HierarchicalInputTable(ttk.Frame):
         title: str,
         header_image=None,
     ):
-        super().__init__(parent, style="Card.TFrame", padding=12)
+        super().__init__(parent, style="Sidebar.TFrame", padding=12)
         
         self.active_editor = None
         self._editing_item = None
@@ -25,14 +25,14 @@ class HierarchicalInputTable(ttk.Frame):
         title_lbl = ttk.Label(
             self,
             text=title,
-            style="Header.TLabel",
+            style="SidebarHeader.TLabel",
         )
         title_lbl.grid(row=current_row, column=0, sticky="w", pady=(0, 8))
         current_row += 1
 
         if header_image is not None:
-            header_frame = ttk.Frame(self, style="Card.TFrame")
-            image_label = ttk.Label(header_frame, image=header_image, style="Card.TLabel")
+            header_frame = ttk.Frame(self, style="Sidebar.TFrame")
+            image_label = ttk.Label(header_frame, image=header_image, style="Sidebar.TLabel")
             image_label.image = header_image
             image_label.pack(side="left", anchor="n")
 
@@ -42,7 +42,7 @@ class HierarchicalInputTable(ttk.Frame):
                 "Ss = Spessore stick [mm]\n"
                 "Bs = Lunghezza pinna [mm]"
             )
-            ttk.Label(header_frame, text=legend_text, justify="left", style="Card.TLabel").pack(side="left", padx=20, anchor="n")
+            ttk.Label(header_frame, text=legend_text, justify="left", style="Sidebar.TLabel").pack(side="left", padx=20, anchor="n")
             header_frame.grid(row=current_row, column=0, sticky="ew", pady=(0, 8))
             current_row += 1
 
@@ -78,7 +78,7 @@ class HierarchicalInputTable(ttk.Frame):
         self.tree.grid(row=0, column=0, sticky="nsew")
         current_row += 1
 
-        buttons = ttk.Frame(self)
+        buttons = ttk.Frame(self, style="Sidebar.TFrame")
         buttons.grid(row=current_row, column=0, sticky="ew", pady=(6, 0))
 
         ttk.Button(buttons, text="Agg. Stick", command=self.add_stick).pack(side="left")
