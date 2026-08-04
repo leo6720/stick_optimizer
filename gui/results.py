@@ -268,7 +268,6 @@ def build_detail_section(parent, on_format_open_callback):
         name_label = ttk.Label(
             summary_frame,
             text=summary_translations.get(field_name, field_name.replace("_", " ")),
-            font=("TkDefaultFont", 10, "bold"),
         )
 
         name_label.grid(
@@ -276,21 +275,20 @@ def build_detail_section(parent, on_format_open_callback):
             column=base_col,
             sticky="w",
             padx=(0, 4),
-            pady=3,
+            pady=2,
         )
 
         value_label = ttk.Label(
             summary_frame,
             text="-",
             width=14,
-            font=("TkDefaultFont", 10),
         )
         value_label.grid(
             row=row,
             column=base_col + 1,
             sticky="w",
             padx=(0, 12),
-            pady=3,
+            pady=2,
         )
 
         summary_vars[field_name] = value_label
