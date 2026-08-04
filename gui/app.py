@@ -183,11 +183,11 @@ class OptimizerApp(tk.Tk):
         small_font = ("Segoe UI", 9)
 
         # Colors
-        bg_main = "#f4f5f7"
+        bg_main = "#ffffff"
         bg_card = "#ffffff"
         fg_text = "#1f2937"
-        primary_blue = "#2563eb"
-        primary_blue_active = "#1d4ed8"
+        primary_red = "#dc2626"
+        primary_red_active = "#b91c1c"
 
         self.configure(bg=bg_main)
 
@@ -196,13 +196,13 @@ class OptimizerApp(tk.Tk):
         style.configure("Card.TFrame", background=bg_card, relief="flat")
         style.configure("TLabel", background=bg_main, foreground=fg_text)
         style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
-        style.configure("Header.TLabel", font=bold_font, foreground="#111827")
+        style.configure("Header.TLabel", font=bold_font, foreground="#111827", background=bg_main)
 
         # Primary Action Button ("Calcola")
         style.configure(
             "Primary.TButton",
             font=("Segoe UI", 11, "bold"),
-            background=primary_blue,
+            background=primary_red,
             foreground="#ffffff",
             padding=(20, 8),
             borderwidth=0,
@@ -210,7 +210,7 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Primary.TButton",
-            background=[("active", primary_blue_active), ("disabled", "#9ca3af")],
+            background=[("active", primary_red_active), ("disabled", "#9ca3af")],
             foreground=[("disabled", "#f3f4f6")],
         )
 
@@ -233,11 +233,11 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "Treeview.Heading",
             font=("Segoe UI", 9, "bold"),
-            background="#e5e7eb",
+            background="#f3f4f6",
             foreground="#374151",
             padding=(4, 6),
         )
-        style.map("Treeview", background=[("selected", "#dbeafe")], foreground=[("selected", "#1e40af")])
+        style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
 
         # Notebook / Tabs
         style.configure("TNotebook", background=bg_main, tabmargins=[2, 5, 2, 0])
@@ -245,13 +245,13 @@ class OptimizerApp(tk.Tk):
             "TNotebook.Tab",
             font=("Segoe UI", 10, "bold"),
             padding=(14, 6),
-            background="#e5e7eb",
+            background="#f3f4f6",
             foreground="#4b5563",
         )
         style.map(
             "TNotebook.Tab",
             background=[("selected", "#ffffff")],
-            foreground=[("selected", primary_blue)],
+            foreground=[("selected", primary_red)],
         )
 
     # ------------------------------------------------------------------
