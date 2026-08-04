@@ -177,9 +177,9 @@ def update_result_headings_for_filters(tree, active_filters):
 
         if col in FILTERABLE_RESULT_COLUMNS:
             if col in active_filters:
-                label = f"{label} 🎛*"
+                label = f"{label} 🔽*"
             else:
-                label = f"{label} 🎛"
+                label = f"{label} 🔽"
 
         tree.heading(col, text=label)
 
