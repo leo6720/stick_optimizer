@@ -307,7 +307,7 @@ class OptimizerApp(tk.Tk):
 
         self.input_table = HierarchicalInputTable(
             left_pane,
-            title="Dati Stick e Formati",
+            title="Formati",
             header_image=self.stick_types_image,
         )
         self.input_table.pack(fill="both", expand=True)
@@ -1333,7 +1333,11 @@ class OptimizerApp(tk.Tk):
         if not selected:
             return
 
-        candidate_index = int(selected[0])
+        item_id = selected[0]
+        if overview_tree.parent(item_id) == "":
+            return
+        
+        candidate_index = int(item_id.split('_')[-1])
         solution = self.solutions[self.selected_solution_index]
         candidate = solution.candidates[candidate_index]
 

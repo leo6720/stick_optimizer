@@ -75,10 +75,18 @@ class HierarchicalInputTable(ttk.LabelFrame):
 
         ttk.Button(buttons, text="Agg. Stick", command=self.add_stick).pack(side="left")
         ttk.Button(buttons, text="Agg. Formato", command=self.add_format).pack(side="left", padx=4)
-        ttk.Button(buttons, text="Rimuovi", command=self.remove_selected).pack(side="left", padx=4)
 
         self.tree.bind("<Double-1>", self._start_cell_edit)
         self.tree.bind("<Button-1>", self._handle_single_click)
+        self.tree.bind("<Button-3>", self._show_context_menu)
+
+    def _show_context_menu(self, event):
+        item = self.tree.identify_row(event.y)
+        if item:
+            self.tree.selection_set(item)
+            menu = tk.Menu(self, tearoff=0)
+            menu.add_command(label="Rimuovi", command=self.remove_selected)
+            menu.post(event.x_root, event.y_root)
 
     def add_stick(self, name="Nuovo Stick"):
         item_id = self.tree.insert("", "end", text=name, values=("", "", "", ""), open=True)
