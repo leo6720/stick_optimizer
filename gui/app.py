@@ -530,31 +530,26 @@ class OptimizerApp(tk.Tk):
                 "" if value is None else str(value),
             )
 
-        if hasattr(self, "stick_table"):
-            self.stick_table.set_rows(
-                [
-                    (
-                        row["stick_type_name"],
-                        row["stick_length_mm"],
-                        row["stick_width_mm"],
-                        row["stick_thickness_mm"],
-                        row["fin_length_mm"],
+        if hasattr(self, "input_table"):
+            self.input_table.clear()
+            stick_map = {}
+            for s in data.get("stick_types", []):
+                sid = self.input_table.add_stick(s["stick_type_name"])
+                self.input_table.tree.item(
+                    sid,
+                    values=(
+                        s["stick_length_mm"],
+                        s["stick_width_mm"],
+                        s["stick_thickness_mm"],
+                        s["fin_length_mm"],
+                    ),
+                )
+                stick_map[s["stick_type_name"]] = sid
+            for f in data.get("formats", []):
+                if f["stick_type_name"] in stick_map:
+                    self.input_table.add_format(
+                        stick_map[f["stick_type_name"]], str(f["sticks_per_pocket"])
                     )
-                    for row in data.get("stick_types", [])
-                ]
-            )
-
-        if hasattr(self, "format_table"):
-            self.format_table.set_rows(
-                [
-                    (
-                        row["format_name"],
-                        row["stick_type_name"],
-                        row["sticks_per_pocket"],
-                    )
-                    for row in data.get("formats", [])
-                ]
-            )
 
     def save_defaults(self) -> None:
         """Save current configuration to user defaults file (Weights, Cartoner, etc)."""
