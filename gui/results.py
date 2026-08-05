@@ -313,16 +313,27 @@ def build_detail_section(parent, on_format_open_callback):
         summary_vars[field_name] = value_label
         summary_name_labels[field_name] = name_label
 
-    # Details Notebook (Tabs)
-    notebook = ttk.Notebook(frame)
-    notebook.pack(fill="both", expand=True)
+    # Segmented Pill Selector for table views
+    pill_frame = ttk.Frame(frame)
+    pill_frame.pack(anchor="w", pady=(0, 8))
 
-    # Tab 1: Panoramica Formati
-    overview_tab = ttk.Frame(notebook, padding=8)
-    notebook.add(overview_tab, text="Panoramica Formati")
+    content_container = ttk.Frame(frame)
+    content_container.pack(fill="both", expand=True)
 
+    # View Frames
+    overview_view = ttk.Frame(content_container)
+    pocket_view = ttk.Frame(content_container)
+    head_view = ttk.Frame(content_container)
+
+    for view in (overview_view, pocket_view, head_view):
+        view.grid(row=0, column=0, sticky="nsew")
+
+    content_container.grid_rowconfigure(0, weight=1)
+    content_container.grid_columnconfigure(0, weight=1)
+
+    # Overview table
     overview_tree = ttk.Treeview(
-        overview_tab,
+        overview_view,
         columns=FORMAT_OVERVIEW_COLUMNS,
         show="tree headings",
         height=6,
@@ -370,7 +381,7 @@ def build_detail_section(parent, on_format_open_callback):
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
     overview_scroll_x = ttk.Scrollbar(
-        overview_tab,
+        overview_view,
         orient="horizontal",
         command=overview_tree.xview,
     )
@@ -381,15 +392,40 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
-    # Tab 2: Tipi Cassetti
-    pocket_tab = ttk.Frame(notebook, padding=8)
-    notebook.add(pocket_tab, text="Tipi Cassetti")
-    pocket_tree = _build_pocket_type_table(pocket_tab)
+    # Pocket Types table
+    pocket_tree = _build_pocket_type_table(pocket_view)
 
-    # Tab 3: Tipi Teste Robot
-    head_tab = ttk.Frame(notebook, padding=8)
-    notebook.add(head_tab, text="Tipi Teste Robot")
-    head_tree = _build_robot_head_type_table(head_tab)
+    # Robot Head Types table
+    head_tree = _build_robot_head_type_table(head_view)
+
+    views = {
+        "overview": (overview_view, "Panoramica Formati"),
+        "pockets": (pocket_view, "Tipi Cassetti"),
+        "heads": (head_view, "Tipi Teste Robot"),
+    }
+
+    pill_buttons = {}
+
+    def switch_view(selected_key):
+        for key, (view_frame, _) in views.items():
+            if key == selected_key:
+                view_frame.tkraise()
+                pill_buttons[key].configure(style="PillActive.TButton")
+            else:
+                pill_buttons[key].configure(style="PillInactive.TButton")
+
+    for key, (_, label_text) in views.items():
+        btn = ttk.Button(
+            pill_frame,
+            text=label_text,
+            style="PillInactive.TButton",
+            command=lambda k=key: switch_view(k),
+        )
+        btn.pack(side="left", padx=(0, 6))
+        pill_buttons[key] = btn
+
+    # Default to overview
+    switch_view("overview")
 
     widgets = {
         "summary_frame": summary_frame,

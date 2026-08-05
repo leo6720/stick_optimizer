@@ -251,24 +251,37 @@ class OptimizerApp(tk.Tk):
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
 
-        # Notebook / Tabs - Modern underline style
-        style.configure("TNotebook", background=bg_main, borderwidth=0, tabmargins=[0, 0, 0, 0])
+        # Pill Style Navigation Buttons
         style.configure(
-            "TNotebook.Tab",
-            font=("Segoe UI", 10, "bold"),
-            padding=(16, 8),
-            background=bg_main,
-            foreground="#6b7280",
+            "PillActive.TButton",
+            font=("Segoe UI", 9, "bold"),
+            background=primary_red,
+            foreground="#ffffff",
+            padding=(12, 5),
             borderwidth=0,
             focusthickness=0,
+            relief="flat",
         )
         style.map(
-            "TNotebook.Tab",
-            background=[("selected", bg_main), ("active", bg_main)],
-            foreground=[("selected", primary_red), ("active", fg_text)],
-            focuscolor=[("selected", bg_main)],
-            bordercolor=[("selected", primary_red)],
-            lightcolor=[("selected", primary_red)],
+            "PillActive.TButton",
+            background=[("active", primary_red_active), ("pressed", primary_red_active)],
+            foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
+        )
+
+        style.configure(
+            "PillInactive.TButton",
+            font=("Segoe UI", 9, "bold"),
+            background="#e5e7eb",
+            foreground="#4b5563",
+            padding=(12, 5),
+            borderwidth=0,
+            focusthickness=0,
+            relief="flat",
+        )
+        style.map(
+            "PillInactive.TButton",
+            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
+            foreground=[("active", fg_text), ("pressed", fg_text)],
         )
 
     # ------------------------------------------------------------------
