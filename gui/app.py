@@ -385,7 +385,7 @@ class OptimizerApp(tk.Tk):
         right_pane = ttk.Frame(main_pane, padding=(12, 12, 12, 0))
 
         main_pane.add(left_pane, weight=8)
-        main_pane.add(right_pane, weight=34)
+        main_pane.add(right_pane, weight=25)
 
         right_toolbar = ttk.Frame(right_pane)
         right_toolbar.pack(fill="x", pady=(0, 12))
