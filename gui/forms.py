@@ -65,6 +65,7 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
         entry_width=entry_width,
         label_width=20,
         start_row=start_row,
+        style_prefix="Sidebar.",
     )
 
     return outer_frame, entries
@@ -106,9 +107,12 @@ def _add_fields_to_frame(
     label_width,
     start_row: int = 0,
     labels=None,
+    style_prefix: str = "",
 ):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
+
+    label_style = f"{style_prefix}TLabel" if style_prefix else "TLabel"
 
     for row, field_name in enumerate(field_names, start=start_row):
         label = ttk.Label(
@@ -116,6 +120,7 @@ def _add_fields_to_frame(
             text=DISPLAY_LABELS.get(field_name, field_name),
             width=label_width,
             anchor="w",
+            style=label_style,
         )
 
         label.grid(
