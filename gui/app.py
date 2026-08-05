@@ -384,8 +384,8 @@ class OptimizerApp(tk.Tk):
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12)
         right_pane = ttk.Frame(main_pane)
 
-        main_pane.add(left_pane, weight=8)
-        main_pane.add(right_pane, weight=32)
+        main_pane.add(left_pane, weight=6)
+        main_pane.add(right_pane, weight=34)
 
         right_toolbar = ttk.Frame(right_pane)
         right_toolbar.pack(fill="x", pady=(0, 12))
@@ -433,8 +433,8 @@ class OptimizerApp(tk.Tk):
         container = ttk.Frame(parent)
         container.pack(fill="both", expand=True)
 
-        container.rowconfigure(0, weight=7)
-        container.rowconfigure(1, weight=13)
+        container.rowconfigure(0, weight=5)
+        container.rowconfigure(1, weight=15)
         container.columnconfigure(0, weight=1)
 
         results_frame, self.results_tree = build_results_section(
