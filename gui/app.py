@@ -381,7 +381,7 @@ class OptimizerApp(tk.Tk):
         main_pane = ttk.PanedWindow(root, orient="horizontal")
         main_pane.pack(fill="both", expand=True)
 
-        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12, width=500)
+        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12, width=800)
         right_pane = ttk.Frame(main_pane, padding=(12, 12, 12, 0))
 
         main_pane.add(left_pane, weight=7)
