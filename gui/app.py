@@ -182,13 +182,13 @@ class OptimizerApp(tk.Tk):
         bold_font = ("Segoe UI", 11, "bold")
         small_font = ("Segoe UI", 9)
 
-        # Colors
-        bg_main = "#ffffff"
-        bg_sidebar = "#f3f4f6"
+        # Colors (Inspired by dashboard design)
+        bg_main = "#e0f2f1"
+        bg_sidebar = "#f8fafc"
         bg_card = "#ffffff"
-        fg_text = "#1f2937"
-        primary_red = "#dc2626"
-        primary_red_active = "#b91c1c"
+        fg_text = "#334155"
+        primary_teal = "#0d9488"
+        primary_teal_active = "#0f766e"
 
         self.configure(bg=bg_main)
 
@@ -199,14 +199,14 @@ class OptimizerApp(tk.Tk):
         style.configure("TLabel", background=bg_main, foreground=fg_text)
         style.configure("Sidebar.TLabel", background=bg_sidebar, foreground=fg_text)
         style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
-        style.configure("Header.TLabel", font=bold_font, foreground="#111827", background=bg_main)
-        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#111827", background=bg_sidebar)
+        style.configure("Header.TLabel", font=bold_font, foreground="#0f172a", background=bg_main)
+        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#0f172a", background=bg_sidebar)
 
         # Primary Action Button ("Calcola")
         style.configure(
             "Primary.TButton",
             font=("Segoe UI", 11, "bold"),
-            background=primary_red,
+            background=primary_teal,
             foreground="#ffffff",
             padding=(20, 8),
             borderwidth=0,
@@ -214,8 +214,8 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Primary.TButton",
-            background=[("active", primary_red_active), ("disabled", "#9ca3af")],
-            foreground=[("disabled", "#f3f4f6")],
+            background=[("active", primary_teal_active), ("disabled", "#94a3b8")],
+            foreground=[("disabled", "#f1f5f9")],
         )
 
         # Standard Buttons
@@ -402,8 +402,8 @@ class OptimizerApp(tk.Tk):
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
         right_pane = ttk.Frame(main_pane)
 
-        main_pane.add(left_pane, weight=1)
-        main_pane.add(right_pane, weight=3)
+        main_pane.add(left_pane, weight=2)
+        main_pane.add(right_pane, weight=8)
 
         # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
