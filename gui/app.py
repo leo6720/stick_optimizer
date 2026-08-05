@@ -251,19 +251,24 @@ class OptimizerApp(tk.Tk):
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
 
-        # Notebook / Tabs
-        style.configure("TNotebook", background=bg_main, tabmargins=[2, 5, 2, 0])
+        # Notebook / Tabs - Modern underline style
+        style.configure("TNotebook", background=bg_main, borderwidth=0, tabmargins=[0, 0, 0, 0])
         style.configure(
             "TNotebook.Tab",
             font=("Segoe UI", 10, "bold"),
-            padding=(14, 6),
-            background="#f3f4f6",
-            foreground="#4b5563",
+            padding=(16, 8),
+            background=bg_main,
+            foreground="#6b7280",
+            borderwidth=0,
+            focusthickness=0,
         )
         style.map(
             "TNotebook.Tab",
-            background=[("selected", "#ffffff")],
-            foreground=[("selected", primary_red)],
+            background=[("selected", bg_main), ("active", bg_main)],
+            foreground=[("selected", primary_red), ("active", fg_text)],
+            focuscolor=[("selected", bg_main)],
+            bordercolor=[("selected", primary_red)],
+            lightcolor=[("selected", primary_red)],
         )
 
     # ------------------------------------------------------------------
