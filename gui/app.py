@@ -182,13 +182,13 @@ class OptimizerApp(tk.Tk):
         bold_font = ("Segoe UI", 11, "bold")
         small_font = ("Segoe UI", 9)
 
-        # Colors (Minimal Red & White Dashboard)
-        bg_main = "#f8fafc"
-        bg_sidebar = "#f1f5f9"
+        # Colors
+        bg_main = "#ffffff"
+        bg_sidebar = "#f3f4f6"
         bg_card = "#ffffff"
-        fg_text = "#1e293b"
-        primary_red = "#e11d48"
-        primary_red_active = "#be123c"
+        fg_text = "#1f2937"
+        primary_red = "#dc2626"
+        primary_red_active = "#b91c1c"
 
         self.configure(bg=bg_main)
 
@@ -199,8 +199,8 @@ class OptimizerApp(tk.Tk):
         style.configure("TLabel", background=bg_main, foreground=fg_text)
         style.configure("Sidebar.TLabel", background=bg_sidebar, foreground=fg_text)
         style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
-        style.configure("Header.TLabel", font=bold_font, foreground="#0f172a", background=bg_main)
-        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#0f172a", background=bg_sidebar)
+        style.configure("Header.TLabel", font=bold_font, foreground="#111827", background=bg_main)
+        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#111827", background=bg_sidebar)
 
         # Primary Action Button ("Calcola")
         style.configure(
@@ -214,8 +214,8 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Primary.TButton",
-            background=[("active", primary_red_active), ("disabled", "#cbd5e1")],
-            foreground=[("disabled", "#f8fafc")],
+            background=[("active", primary_red_active), ("disabled", "#9ca3af")],
+            foreground=[("disabled", "#f3f4f6")],
         )
 
         # Standard Buttons
@@ -402,8 +402,8 @@ class OptimizerApp(tk.Tk):
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
         right_pane = ttk.Frame(main_pane)
 
-        main_pane.add(left_pane, weight=16)
-        main_pane.add(right_pane, weight=84)
+        main_pane.add(left_pane, weight=1)
+        main_pane.add(right_pane, weight=3)
 
         # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
