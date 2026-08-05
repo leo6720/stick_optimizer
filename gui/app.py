@@ -84,10 +84,10 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.overrideredirect(True)
-        self.after(10, lambda: self.set_appwindow())
+        self.title("Calcolatore abbinamenti stick")
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
+        self.iconbitmap(resource_path("stick_optimizer_logo.ico"))
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
@@ -374,68 +374,30 @@ class OptimizerApp(tk.Tk):
 
     def _build_layout(self) -> None:
         """Build main window layout (hidden initially)."""
-        self.main_container = ttk.Frame(self)
+        self.main_container = ttk.Frame(self, padding=12)
         root = self.main_container
 
-        # Custom thick header
-        header = ttk.Frame(root, style="Sidebar.TFrame", padding=(20, 20))
-        header.pack(fill="x", side="top")
+        # Header / Toolbar area
+        toolbar = ttk.Frame(root)
+        toolbar.pack(fill="x", pady=(0, 12))
 
-        # Enable window dragging
-        header.bind("<Button-1>", self._start_move)
-        header.bind("<B1-Motion>", self._do_move)
-        
-        title_container = ttk.Frame(header, style="Sidebar.TFrame")
-        title_container.pack(side="left", fill="y")
+        self.run_button = ttk.Button(
+            toolbar,
+            text="Calcola",
+            style="Primary.TButton",
+            command=self.run_optimization,
+        )
+        self.run_button.pack(side="right", padx=(10, 0))
 
-        ttk.Label(
-            title_container,
-            text="Calcolatore Abbinamenti Stick",
-            font=("Segoe UI", 18, "bold"),
-            style="SidebarHeader.TLabel"
-        ).pack(side="left")
-
-        ttk.Label(
-            title_container,
-            text="  |  ",
-            font=("Segoe UI", 18),
-            style="SidebarHeader.TLabel"
-        ).pack(side="left")
-
-        ttk.Label(
-            title_container,
-            textvariable=self.project_name_var,
-            font=("Segoe UI", 18, "bold"),
-            style="SidebarHeader.TLabel"
-        ).pack(side="left")
-
-        # Control buttons for borderless window
-        controls = ttk.Frame(header, style="Sidebar.TFrame")
-        controls.pack(side="right")
-
-        min_btn = tk.Label(controls, text="—", font=("Arial", 12), bg="#f3f4f6", cursor="hand2", padx=10)
-        min_btn.pack(side="left")
-        min_btn.bind("<Button-1>", lambda e: self.iconify())
-        
-        close_btn = tk.Label(controls, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2", padx=10)
-        close_btn.pack(side="left")
-        close_btn.bind("<Button-1>", lambda e: self.destroy())
-
-        # Main splitter layout - No top padding for content area to allow sidebar to touch menu
-        content_area = ttk.Frame(root)
-        content_area.pack(fill="both", expand=True)
-
-        main_pane = ttk.PanedWindow(content_area, orient="horizontal")
-        main_pane.pack(fill="both", expand=True)
+        # Main splitter layout
+        main_pane = ttk.PanedWindow(root, orient="horizontal")
+        main_pane.pack(fill="both", expand=True, pady=(0, 8))
 
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12)
-        right_pane = ttk.Frame(main_pane, padding=12)
+        right_pane = ttk.Frame(main_pane)
 
         main_pane.add(left_pane, weight=1)
         main_pane.add(right_pane, weight=3)
-
-        # Right Main Area Toolbar (Calcola button) - Repositioned inside main section
-        right_toolbar = ttk.Frame(right_pane)
         right_toolbar.pack(fill="x", pady=(0, 12))
 
         self.run_button = ttk.Button(
@@ -741,41 +703,20 @@ class OptimizerApp(tk.Tk):
         """Reload defaults from file."""
         self._load_defaults()
 
-    def _start_move(self, event):
-        self.x = event.x
-        self.y = event.y
-
-    def _do_move(self, event):
-        deltax = event.x - self.x
-        deltay = event.y - self.y
-        x = self.winfo_x() + deltax
-        y = self.winfo_y() + deltay
-        self.geometry(f"+{x}+{y}")
-
-    def set_appwindow(self):
-        """Helper to show icon in taskbar for borderless window."""
-        try:
-            from ctypes import windll
-            GWL_EXSTYLE = -20
-            WS_EX_APPWINDOW = 0x00040000
-            WS_EX_TOOLWINDOW = 0x00000080
-            hwnd = windll.user32.GetParent(self.winfo_id())
-            style = windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
-            style = style & ~WS_EX_TOOLWINDOW
-            style = style | WS_EX_APPWINDOW
-            windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
-            self.withdraw()
-            self.after(10, self.deiconify)
-        except Exception:
-            pass
-
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
+        base_title = "Calcolatore abbinamenti stick"
+        
         display_name = ""
         if self.current_project_path:
             display_name = self.current_project_path.name
         elif self.current_project_name:
             display_name = self.current_project_name
+
+        if display_name:
+            self.title(f"{base_title} - {display_name}")
+        else:
+            self.title(base_title)
 
         self.project_name_var.set(display_name)
 
