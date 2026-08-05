@@ -384,7 +384,7 @@ class OptimizerApp(tk.Tk):
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12)
         right_pane = ttk.Frame(main_pane, padding=(12, 12, 12, 0))
 
-        main_pane.add(left_pane, weight=7)
+        main_pane.add(left_pane, weight=7, minsize=350)
         main_pane.add(right_pane, weight=34)
 
         right_toolbar = ttk.Frame(right_pane)
@@ -415,17 +415,6 @@ class OptimizerApp(tk.Tk):
 
         # Right Main Area (Results & Solution Details)
         self._build_output_tables(right_pane)
-
-        # Bottom Status Bar
-        bottom = ttk.Frame(root, padding=(0, 0, 12, 4))
-        bottom.pack(fill="x", side="bottom")
-
-        self.status_var = tk.StringVar(value="Ready")
-        ttk.Label(
-            bottom,
-            textvariable=self.status_var,
-            font=("Segoe UI", 9),
-        ).pack(side="right")
 
 
     def _build_output_tables(self, parent: ttk.Frame) -> None:
