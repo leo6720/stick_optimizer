@@ -53,7 +53,7 @@ class HierarchicalInputTable(ttk.Frame):
         tree_frame.rowconfigure(0, weight=1)
 
         self.columns = [
-            ("name", "Nome / Conteggio", 120),
+            ("name", "Nome / Conteggio", 95),
             ("hs", "Hs", 56),
             ("as", "As", 56),
             ("ss", "Ss", 56),
