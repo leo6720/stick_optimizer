@@ -182,13 +182,13 @@ class OptimizerApp(tk.Tk):
         bold_font = ("Segoe UI", 11, "bold")
         small_font = ("Segoe UI", 9)
 
-        # Colors (Inspired by dashboard design)
-        bg_main = "#e0f2f1"
-        bg_sidebar = "#f8fafc"
+        # Colors (Minimal Red & White Dashboard)
+        bg_main = "#f8fafc"
+        bg_sidebar = "#f1f5f9"
         bg_card = "#ffffff"
-        fg_text = "#334155"
-        primary_teal = "#0d9488"
-        primary_teal_active = "#0f766e"
+        fg_text = "#1e293b"
+        primary_red = "#e11d48"
+        primary_red_active = "#be123c"
 
         self.configure(bg=bg_main)
 
@@ -206,7 +206,7 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "Primary.TButton",
             font=("Segoe UI", 11, "bold"),
-            background=primary_teal,
+            background=primary_red,
             foreground="#ffffff",
             padding=(20, 8),
             borderwidth=0,
@@ -214,8 +214,8 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Primary.TButton",
-            background=[("active", primary_teal_active), ("disabled", "#94a3b8")],
-            foreground=[("disabled", "#f1f5f9")],
+            background=[("active", primary_red_active), ("disabled", "#cbd5e1")],
+            foreground=[("disabled", "#f8fafc")],
         )
 
         # Standard Buttons
@@ -255,7 +255,7 @@ class OptimizerApp(tk.Tk):
         style.map(
             "TNotebook.Tab",
             background=[("selected", "#ffffff")],
-            foreground=[("selected", primary_teal)],
+            foreground=[("selected", primary_red)],
         )
 
     # ------------------------------------------------------------------
@@ -402,8 +402,8 @@ class OptimizerApp(tk.Tk):
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
         right_pane = ttk.Frame(main_pane)
 
-        main_pane.add(left_pane, weight=2)
-        main_pane.add(right_pane, weight=8)
+        main_pane.add(left_pane, weight=16)
+        main_pane.add(right_pane, weight=84)
 
         # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
