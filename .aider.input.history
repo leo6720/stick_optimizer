@@ -673,3 +673,23 @@
 # 2026-08-05 14:25:45.532070
 +remove the bar at the bottom that contains messages. also set a minimum width to the sidebar on the left 
 +
+
+# 2026-08-05 14:27:55.800569
++C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork>Traceback (most recent call last):
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\main.py", line 10, in <module>
++    app = OptimizerApp()
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 136, in __init__
++    self._build_layout()
++    ~~~~~~~~~~~~~~~~~~^^
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 387, in _build_layout
++    main_pane.add(left_pane, weight=7, minsize=400)
++    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++  File "C:\Users\Chiste_L\tools\py313\Lib\tkinter\__init__.py", line 4818, in add
++    self.tk.call((self._w, 'add', child) + self._options(kw))
++    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++_tkinter.TclError: unknown option "-minsize"
++
+
+# 2026-08-05 14:28:56.126555
++/git push -u origin 30-07-02-fork
++
