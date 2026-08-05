@@ -255,7 +255,7 @@ class OptimizerApp(tk.Tk):
         style.map(
             "TNotebook.Tab",
             background=[("selected", "#ffffff")],
-            foreground=[("selected", primary_red)],
+            foreground=[("selected", primary_teal)],
         )
 
     # ------------------------------------------------------------------
