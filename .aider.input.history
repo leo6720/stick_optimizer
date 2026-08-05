@@ -618,3 +618,30 @@
 
 # 2026-08-05 13:42:35.576249
 +the sidebar has a darker colour. can you make that stretch all the way to the left border of the window and to the bottom? and also to the top stretch all the way to the bar with file, opzioni, modifica
+
+# 2026-08-05 13:46:36.434365
++make the columns of the formati table thinner by 20%
+
+# 2026-08-05 13:46:40.954002
++y
+
+# 2026-08-05 13:47:32.700761
++make the columns of the formati table thinner by 20%
+
+# 2026-08-05 13:48:11.716888
++aider --model gemini/gemini-3.5-flash --weak-model gemini/gemini-3.5-flash-lite --edit-format diff
+
+# 2026-08-05 13:48:23.236413
++make the columns of the formati table thinner by 20%
+
+# 2026-08-05 13:48:36.344288
++yt
+
+# 2026-08-05 13:48:37.728773
++y
+
+# 2026-08-05 13:59:56.934494
++make the columns of the formati table thinner by 20%
+
+# 2026-08-05 14:00:02.103121
++y
