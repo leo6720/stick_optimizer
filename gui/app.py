@@ -84,7 +84,8 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Calcolatore abbinamenti stick")
+        self.overrideredirect(True)
+        self.after(10, lambda: self.set_appwindow())
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
         self.geometry("1450x900")
@@ -377,7 +378,7 @@ class OptimizerApp(tk.Tk):
         root = self.main_container
 
         # Custom thick header
-        header = ttk.Frame(root, style="Sidebar.TFrame", padding=(20, 15))
+        header = ttk.Frame(root, style="Sidebar.TFrame", padding=(20, 20))
         header.pack(fill="x", side="top")
 
         # Enable window dragging
@@ -390,43 +391,48 @@ class OptimizerApp(tk.Tk):
         ttk.Label(
             title_container,
             text="Calcolatore Abbinamenti Stick",
-            font=("Segoe UI", 16, "bold"),
+            font=("Segoe UI", 18, "bold"),
             style="SidebarHeader.TLabel"
         ).pack(side="left")
 
         ttk.Label(
             title_container,
-            text=" | ",
-            font=("Segoe UI", 16),
+            text="  |  ",
+            font=("Segoe UI", 18),
             style="SidebarHeader.TLabel"
-        ).pack(side="left", padx=5)
+        ).pack(side="left")
 
         ttk.Label(
             title_container,
             textvariable=self.project_name_var,
-            font=("Segoe UI", 16, "bold"),
+            font=("Segoe UI", 18, "bold"),
             style="SidebarHeader.TLabel"
         ).pack(side="left")
 
-        # Close button for borderless window
-        close_btn = tk.Label(header, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2")
-        close_btn.pack(side="right", padx=(20, 0))
-        close_btn.bind("<Button-1>", lambda e: self.destroy())
+        # Control buttons for borderless window
+        controls = ttk.Frame(header, style="Sidebar.TFrame")
+        controls.pack(side="right")
 
-        # Main splitter layout
-        content_area = ttk.Frame(root, padding=12)
+        tk.Label(controls, text="—", font=("Arial", 12), bg="#f3f4f6", cursor="hand2", padx=10).pack(side="left") \
+            .bind("<Button-1>", lambda e: self.iconify())
+        
+        tk.Label(controls, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2", padx=10).pack(side="left") \
+            .bind("<Button-1>", lambda e: self.destroy())
+
+        # Main splitter layout - No top padding for content area to allow sidebar to touch menu
+        content_area = ttk.Frame(root)
         content_area.pack(fill="both", expand=True)
 
         main_pane = ttk.PanedWindow(content_area, orient="horizontal")
-        main_pane.pack(fill="both", expand=True, pady=(0, 8))
+        main_pane.pack(fill="both", expand=True)
 
-        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
-        right_pane = ttk.Frame(main_pane)
+        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12)
+        right_pane = ttk.Frame(main_pane, padding=12)
 
         main_pane.add(left_pane, weight=1)
         main_pane.add(right_pane, weight=3)
 
-        # Right Main Area Toolbar (Calcola button)
+        # Right Main Area Toolbar (Calcola button) - Repositioned inside main section
         right_toolbar = ttk.Frame(right_pane)
         right_toolbar.pack(fill="x", pady=(0, 12))
 
@@ -743,6 +749,23 @@ class OptimizerApp(tk.Tk):
         x = self.winfo_x() + deltax
         y = self.winfo_y() + deltay
         self.geometry(f"+{x}+{y}")
+
+    def set_appwindow(self):
+        """Helper to show icon in taskbar for borderless window."""
+        try:
+            from ctypes import windll
+            GWL_EXSTYLE = -20
+            WS_EX_APPWINDOW = 0x00040000
+            WS_EX_TOOLWINDOW = 0x00000080
+            hwnd = windll.user32.GetParent(self.winfo_id())
+            style = windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            style = style & ~WS_EX_TOOLWINDOW
+            style = style | WS_EX_APPWINDOW
+            windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+            self.withdraw()
+            self.after(10, self.deiconify)
+        except Exception:
+            pass
 
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
