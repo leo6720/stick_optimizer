@@ -1224,7 +1224,7 @@ class OptimizerApp(tk.Tk):
             self.current_max_pitch_shift_mm,
             min_value=0,
             value_type=float,
-            image=self.mt_image
+            image=self._load_ui_image("dati_mt_menu")
         )
 
     def _cartoner_values_dict(self) -> dict:
