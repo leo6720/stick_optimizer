@@ -84,7 +84,7 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.overrideredirect(True)
+        self.title("Calcolatore abbinamenti stick")
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
         self.geometry("1450x900")
@@ -379,6 +379,10 @@ class OptimizerApp(tk.Tk):
         # Custom thick header
         header = ttk.Frame(root, style="Sidebar.TFrame", padding=(20, 15))
         header.pack(fill="x", side="top")
+
+        # Enable window dragging
+        header.bind("<Button-1>", self._start_move)
+        header.bind("<B1-Motion>", self._do_move)
         
         title_container = ttk.Frame(header, style="Sidebar.TFrame")
         title_container.pack(side="left", fill="y")
@@ -728,6 +732,17 @@ class OptimizerApp(tk.Tk):
     def reload_defaults(self) -> None:
         """Reload defaults from file."""
         self._load_defaults()
+
+    def _start_move(self, event):
+        self.x = event.x
+        self.y = event.y
+
+    def _do_move(self, event):
+        deltax = event.x - self.x
+        deltay = event.y - self.y
+        x = self.winfo_x() + deltax
+        y = self.winfo_y() + deltay
+        self.geometry(f"+{x}+{y}")
 
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
