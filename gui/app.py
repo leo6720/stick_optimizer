@@ -430,19 +430,22 @@ class OptimizerApp(tk.Tk):
 
     def _build_output_tables(self, parent: ttk.Frame) -> None:
         """Build results and detail output sections."""
-        parent.rowconfigure(0, weight=7)
-        parent.rowconfigure(1, weight=13)
-        parent.columnconfigure(0, weight=1)
+        container = ttk.Frame(parent)
+        container.pack(fill="both", expand=True)
+
+        container.rowconfigure(0, weight=7)
+        container.rowconfigure(1, weight=13)
+        container.columnconfigure(0, weight=1)
 
         results_frame, self.results_tree = build_results_section(
-            parent,
+            container,
             self._on_solution_selected,
             self._open_result_column_filter,
         )
         results_frame.grid(row=0, column=0, sticky="nsew", pady=(0, 8))
 
         detail_frame, self.detail_widgets = build_detail_section(
-            parent,
+            container,
             self._open_selected_format_popup,
         )
         detail_frame.grid(row=1, column=0, sticky="nsew")
