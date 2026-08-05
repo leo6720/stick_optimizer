@@ -54,10 +54,10 @@ class HierarchicalInputTable(ttk.Frame):
 
         self.columns = [
             ("name", "Nome / Conteggio", 80),
-            ("hs", "Hs", 50),
-            ("as", "As", 50),
-            ("ss", "Ss", 50),
-            ("bs", "Bs", 50),
+            ("hs", "Hs", 55),
+            ("as", "As", 55),
+            ("ss", "Ss", 55),
+            ("bs", "Bs", 55),
         ]
         self.column_keys = [c[0] for c in self.columns]
 
@@ -69,7 +69,7 @@ class HierarchicalInputTable(ttk.Frame):
         )
 
         self.tree.heading("#0", text="Impilamenti")
-        self.tree.column("#0", width=100)
+        self.tree.column("#0", width=115)
 
         for key, heading, width in self.columns[1:]:
             self.tree.heading(key, text=heading)
