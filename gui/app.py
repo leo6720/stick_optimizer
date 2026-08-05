@@ -241,6 +241,13 @@ class OptimizerApp(tk.Tk):
             background="#f3f4f6",
             foreground="#374151",
             padding=(4, 6),
+            borderwidth=0,
+            relief="flat",
+        )
+        style.map(
+            "Treeview.Heading",
+            background=[("active", "#f3f4f6"), ("pressed", "#e5e7eb")],
+            relief=[("active", "flat"), ("pressed", "flat")],
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
 
