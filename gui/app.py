@@ -377,18 +377,6 @@ class OptimizerApp(tk.Tk):
         self.main_container = ttk.Frame(self, padding=12)
         root = self.main_container
 
-        # Header / Toolbar area
-        toolbar = ttk.Frame(root)
-        toolbar.pack(fill="x", pady=(0, 12))
-
-        self.run_button = ttk.Button(
-            toolbar,
-            text="Calcola",
-            style="Primary.TButton",
-            command=self.run_optimization,
-        )
-        self.run_button.pack(side="right", padx=(10, 0))
-
         # Main splitter layout
         main_pane = ttk.PanedWindow(root, orient="horizontal")
         main_pane.pack(fill="both", expand=True, pady=(0, 8))
