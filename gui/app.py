@@ -84,10 +84,9 @@ class OptimizerApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Calcolatore abbinamenti stick")
+        self.overrideredirect(True)
         self.home_frame: Optional[ttk.Frame] = None
         self.main_container: Optional[ttk.Frame] = None
-        self.iconbitmap(resource_path("stick_optimizer_logo.ico"))
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
@@ -124,6 +123,7 @@ class OptimizerApp(tk.Tk):
         self.current_max_pitch_shift_mm = DEFAULT_GLOBAL_SETTINGS.max_pitch_shift_mm
 
         self.status_var = tk.StringVar(value="Ready")
+        self.project_name_var = tk.StringVar(value="")
 
         self.mt_image = self._load_ui_image("dati_mt")
         self.cartoner_image = self._load_ui_image("dati_astucciatrice")
@@ -373,30 +373,47 @@ class OptimizerApp(tk.Tk):
 
     def _build_layout(self) -> None:
         """Build main window layout (hidden initially)."""
-        self.main_container = ttk.Frame(self, padding=12)
+        self.main_container = ttk.Frame(self)
         root = self.main_container
 
-        # Header / Toolbar area
-        toolbar = ttk.Frame(root)
-        toolbar.pack(fill="x", pady=(0, 12))
+        # Custom thick header
+        header = ttk.Frame(root, style="Sidebar.TFrame", padding=(20, 15))
+        header.pack(fill="x", side="top")
+        
+        title_container = ttk.Frame(header, style="Sidebar.TFrame")
+        title_container.pack(side="left", fill="y")
 
-        title_lbl = ttk.Label(
-            toolbar,
+        ttk.Label(
+            title_container,
             text="Calcolatore Abbinamenti Stick",
-            font=("Segoe UI", 14, "bold"),
-        )
-        title_lbl.pack(side="left", anchor="w")
+            font=("Segoe UI", 16, "bold"),
+            style="SidebarHeader.TLabel"
+        ).pack(side="left")
 
-        self.run_button = ttk.Button(
-            toolbar,
-            text="Calcola",
-            style="Primary.TButton",
-            command=self.run_optimization,
-        )
-        self.run_button.pack(side="right", padx=(10, 0))
+        ttk.Label(
+            title_container,
+            text=" | ",
+            font=("Segoe UI", 16),
+            style="SidebarHeader.TLabel"
+        ).pack(side="left", padx=5)
+
+        ttk.Label(
+            title_container,
+            textvariable=self.project_name_var,
+            font=("Segoe UI", 16, "bold"),
+            style="SidebarHeader.TLabel"
+        ).pack(side="left")
+
+        # Close button for borderless window
+        close_btn = tk.Label(header, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2")
+        close_btn.pack(side="right", padx=(20, 0))
+        close_btn.bind("<Button-1>", lambda e: self.destroy())
 
         # Main splitter layout
-        main_pane = ttk.PanedWindow(root, orient="horizontal")
+        content_area = ttk.Frame(root, padding=12)
+        content_area.pack(fill="both", expand=True)
+
+        main_pane = ttk.PanedWindow(content_area, orient="horizontal")
         main_pane.pack(fill="both", expand=True, pady=(0, 8))
 
         left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame")
@@ -404,6 +421,18 @@ class OptimizerApp(tk.Tk):
 
         main_pane.add(left_pane, weight=1)
         main_pane.add(right_pane, weight=3)
+
+        # Right Main Area Toolbar (Calcola button)
+        right_toolbar = ttk.Frame(right_pane)
+        right_toolbar.pack(fill="x", pady=(0, 12))
+
+        self.run_button = ttk.Button(
+            right_toolbar,
+            text="Calcola",
+            style="Primary.TButton",
+            command=self.run_optimization,
+        )
+        self.run_button.pack(side="right")
 
         # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
@@ -702,18 +731,13 @@ class OptimizerApp(tk.Tk):
 
     def _update_window_title(self) -> None:
         """Update window title with current project name."""
-        base_title = "Calcolatore abbinamenti stick"
-        
         display_name = ""
         if self.current_project_path:
             display_name = self.current_project_path.name
         elif self.current_project_name:
             display_name = self.current_project_name
 
-        if display_name:
-            self.title(f"{base_title} - {display_name}")
-        else:
-            self.title(base_title)
+        self.project_name_var.set(display_name)
 
     def new_project(self) -> None:
         """Reset application to a new project state."""
