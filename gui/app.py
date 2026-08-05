@@ -398,6 +398,8 @@ class OptimizerApp(tk.Tk):
 
         main_pane.add(left_pane, weight=1)
         main_pane.add(right_pane, weight=3)
+
+        right_toolbar = ttk.Frame(right_pane)
         right_toolbar.pack(fill="x", pady=(0, 12))
 
         self.run_button = ttk.Button(
