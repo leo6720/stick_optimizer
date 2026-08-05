@@ -413,11 +413,13 @@ class OptimizerApp(tk.Tk):
         controls = ttk.Frame(header, style="Sidebar.TFrame")
         controls.pack(side="right")
 
-        tk.Label(controls, text="—", font=("Arial", 12), bg="#f3f4f6", cursor="hand2", padx=10).pack(side="left") \
-            .bind("<Button-1>", lambda e: self.iconify())
+        min_btn = tk.Label(controls, text="—", font=("Arial", 12), bg="#f3f4f6", cursor="hand2", padx=10)
+        min_btn.pack(side="left")
+        min_btn.bind("<Button-1>", lambda e: self.iconify())
         
-        tk.Label(controls, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2", padx=10).pack(side="left") \
-            .bind("<Button-1>", lambda e: self.destroy())
+        close_btn = tk.Label(controls, text="✕", font=("Arial", 14), bg="#f3f4f6", cursor="hand2", padx=10)
+        close_btn.pack(side="left")
+        close_btn.bind("<Button-1>", lambda e: self.destroy())
 
         # Main splitter layout - No top padding for content area to allow sidebar to touch menu
         content_area = ttk.Frame(root)
