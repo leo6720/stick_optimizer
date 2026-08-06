@@ -588,12 +588,7 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(pocket_tree)
     clear_tree(head_tree)
 
-    max_b_by_pocket = {}
     stick_parents = {}
-    
-    for candidate in solution.candidates:
-        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
     for index, candidate in enumerate(solution.candidates):
         s_name = candidate.stick_type_name
@@ -601,8 +596,7 @@ def populate_solution_details(widgets, solution) -> None:
             stick_parents[s_name] = overview_tree.insert("", "end", text=s_name, open=True)
 
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
-        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
+        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(carton_b)}"
         carryover = "sì" if candidate.carryover_required else "no"
 
         overview_tree.insert(
