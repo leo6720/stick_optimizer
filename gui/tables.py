@@ -97,7 +97,15 @@ class HierarchicalInputTable(ttk.Frame):
 
         style = ttk.Style()
         style.configure("White.TButton", background="#ffffff")
-        style.map("White.TButton", background=[("active", "#f3f4f6"), ("pressed", "#e5e7eb")])
+        style.map(
+            "White.TButton",
+            background=[("active", "#fee2e2"), ("pressed", "#fecaca")],
+            bordercolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            lightcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            darkcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            foreground=[("active", "#991b1b"), ("pressed", "#991b1b")],
+            relief=[("active", "flat"), ("pressed", "flat")],
+        )
 
         buttons = ttk.Frame(self, style="Sidebar.TFrame")
         buttons.grid(row=current_row, column=0, sticky="ew", pady=(6, 0))
