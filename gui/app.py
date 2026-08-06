@@ -1089,7 +1089,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Modifica pesi di calcolo")
-        dialog.geometry("500x340")
+        dialog.geometry("520x720")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1229,12 +1229,9 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        if image:
-            dialog.geometry("480x420")
-        else:
-            dialog.geometry("480x180")
+        dialog.geometry("520x720")
         dialog.resizable(False, False)
-        dialog.configure(bg="#F0F0F0")
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -1248,11 +1245,17 @@ class OptimizerApp(tk.Tk):
             except Exception:
                 pass
 
-        frame = ttk.Frame(dialog, padding=12)
+        frame = ttk.Frame(dialog, style="Card.TFrame", padding=12)
         frame.pack(fill="both", expand=True)
 
         button_frame = ttk.Frame(frame)
-        button_frame.pack(side="bottom", fill="x", pady=(16, 0))
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
+
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
 
         if image:
             img_lbl = ttk.Label(frame, image=image)
@@ -1326,10 +1329,10 @@ class OptimizerApp(tk.Tk):
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
 
-        ttk.Button(button_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
+        ttk.Button(right_btn_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(right_btn_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
     def open_number_of_results_editor(self) -> None:
         """Open editor for number of results to show."""
