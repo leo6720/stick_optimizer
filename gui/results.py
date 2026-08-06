@@ -159,7 +159,7 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
         frame,
         columns=RESULT_COLUMNS,
         show="headings",
-        height=8,
+        height=6,
     )
 
     for col in RESULT_COLUMNS:
