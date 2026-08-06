@@ -389,7 +389,7 @@ def build_detail_section(parent, on_format_open_callback):
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
 
     overview_tree.pack(fill="both", expand=True)
-    overview_scroll_x.pack(fill="x")
+    overview_scroll_x.pack(fill="x", ipady=6)
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 

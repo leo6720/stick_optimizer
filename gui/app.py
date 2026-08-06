@@ -378,8 +378,6 @@ class OptimizerApp(tk.Tk):
             background="#4b5563",
             troughcolor="#ffffff",
             borderwidth=0,
-            relief="flat",
-            width=30,
         )
         style.map(
             "Minimal.Horizontal.TScrollbar",
