@@ -1089,7 +1089,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Modifica pesi di calcolo")
-        dialog.geometry("520x500")
+        dialog.geometry("520x350")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1229,7 +1229,7 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("520x200")
+        dialog.geometry("520x160")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1387,7 +1387,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x650")
+        dialog.geometry("520x550")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
