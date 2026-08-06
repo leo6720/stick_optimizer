@@ -375,15 +375,15 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "Minimal.Horizontal.TScrollbar",
             arrowsize=0,
-            background="#9ca3af",
-            troughcolor="#f3f4f6",
-            borderwidth=1,
+            background="#4b5563",
+            troughcolor="#ffffff",
+            borderwidth=0,
             relief="flat",
-            width=12,
+            width=10,
         )
         style.map(
             "Minimal.Horizontal.TScrollbar",
-            background=[("active", "#6b7280")],
+            background=[("active", "#1f2937")],
         )
 
         style.configure(
