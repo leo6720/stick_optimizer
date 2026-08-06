@@ -384,7 +384,7 @@ def build_detail_section(parent, on_format_open_callback):
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
-        width=14,
+        width=20,
 
         bd=0,
         relief="flat",
