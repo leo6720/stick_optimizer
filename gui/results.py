@@ -393,7 +393,7 @@ def build_detail_section(parent, on_format_open_callback):
         highlightthickness=0,
         elementborderwidth=0,
         
-        bg="#bdbdbd",
+        bg="#ffffff",
         activebackground="#a8a8a8",
         troughcolor="#ffffff"
     )
