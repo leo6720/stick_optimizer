@@ -809,3 +809,26 @@
 
 # 2026-08-06 13:12:20.037112
 +n
+
+# 2026-08-06 13:16:50.377936
++scrap all that. make the dati_mt image in the sidebar centered instead
+
+# 2026-08-06 13:17:14.892710
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:59:14.297868
++/add gui/results.py
+
+# 2026-08-06 13:59:45.906365
++change the backgroung to the pill buttons in dettagli to be f3f4f6 as the rest of the ui bc now it appears different
+
+# 2026-08-06 14:00:06.227112
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:01:17.778197
++git add .
++git commit -m "edited"
++git push -u origin 06-08-01-fork
++

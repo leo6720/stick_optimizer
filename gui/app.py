@@ -151,7 +151,7 @@ class OptimizerApp(tk.Tk):
                     img = Image.open(image_path)
 
                     if base_name == "dati_mt":
-                        new_width = 300
+                        new_width = 250
                     elif base_name == "dati_astucciatrice":
                         new_width = 450
                     elif base_name == "stick_dim":
