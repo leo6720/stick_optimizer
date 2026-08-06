@@ -155,8 +155,11 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
     )
     header.pack(anchor="w", pady=(0, 8))
 
+    tree_container = ttk.Frame(frame)
+    tree_container.pack(fill="both", expand=True)
+
     tree = ttk.Treeview(
-        frame,
+        tree_container,
         columns=RESULT_COLUMNS,
         show="headings",
         height=5,
@@ -169,9 +172,6 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
             command=lambda c=col: on_header_filter_callback(c),
         )
         tree.column(col, width=RESULT_WIDTHS[col], anchor="center")
-
-    tree_container = ttk.Frame(frame)
-    tree_container.pack(fill="both", expand=True)
 
     scroll_y = tk.Scrollbar(
         tree_container,
