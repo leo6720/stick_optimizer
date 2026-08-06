@@ -51,20 +51,22 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
     if mt_image is not None:
         image_label = ttk.Label(mt_content, image=mt_image, style="Sidebar.TLabel")
         image_label.image = mt_image
-        image_label.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 8))
+        image_label.pack(anchor="center", pady=(0, 8))
+
+    fields_frame = ttk.Frame(mt_content, style="Sidebar.TFrame")
+    fields_frame.pack(fill="x")
 
     mt_fields = [
         "sticks_per_beat",
     ]
 
-    start_row = 1 if mt_image is not None else 0
     _add_fields_to_frame(
-        mt_content,
+        fields_frame,
         mt_fields,
         entries,
         entry_width=entry_width,
         label_width=20,
-        start_row=start_row,
+        start_row=0,
         style_prefix="Sidebar.",
     )
 
