@@ -832,3 +832,64 @@
 +git commit -m "edited"
 +git push -u origin 06-08-01-fork
 +
+
+# 2026-08-06 14:02:38.363352
++the text in the pill buttons inactive looks lighter compared to column headings? correct
+
+# 2026-08-06 14:02:48.113650
++d
+
+# 2026-08-06 14:02:58.682724
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:04:57.469463
++/add gui/app.py
+
+# 2026-08-06 14:05:46.310006
++add a vertical scroll bar to formati input table and to migliori soluzioni table. same look as horizontal scroll bar in panoramica formati
+
+# 2026-08-06 14:05:55.244658
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:07:11.191006
++you placed thel like shit. in formati section is on the side of the whole frame instead of just the table. in migliori soluzioni is on top op the table instead of next to it
+
+# 2026-08-06 14:07:23.837323
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:08:18.102144
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\main.py", line 10, in <module>
++    app = OptimizerApp()
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 137, in __init__
++    self._build_layout()
++    ~~~~~~~~~~~~~~~~~~^^
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 568, in _build_layout
++    input_scroll_y.pack(side="right", fill="y")
++    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
++  File "C:\Users\Chiste_L\tools\py313\Lib\tkinter\__init__.py", line 2607, in pack_configure
++    self.tk.call(
++    ~~~~~~~~~~~~^
++          ('pack', 'configure', self._w)
++          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++          + self._options(cnf, kw))
++          ^^^^^^^^^^^^^^^^^^^^^^^^^
++_tkinter.TclError: cannot use geometry manager pack inside .!frame.!panedwindow.!frame.!hierarchicalinputtable which already has slaves managed by grid
+
+# 2026-08-06 14:08:26.092880
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:10:00.729381
++the one for migliori soluzioni is alright. the one for formati is still on the side of both image+legend and the table. it should be just next to the table, under the inage+legend
+
+# 2026-08-06 14:10:08.424197
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:10:43.841165
++no now everything is broken and white. go back
+
+# 2026-08-06 14:13:19.848349
++d

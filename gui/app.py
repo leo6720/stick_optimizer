@@ -547,31 +547,7 @@ class OptimizerApp(tk.Tk):
             title="Formati",
             header_image=self.stick_types_image,
         )
-        self.input_table.pack(fill="x", pady=(0, 8))
-
-        input_container = ttk.Frame(left_pane)
-        input_container.pack(fill="both", expand=True)
-
-        self.input_table.pack_forget()
-
-        input_scroll_y = tk.Scrollbar(
-            input_container,
-            orient="vertical",
-            command=self.input_table.tree.yview,
-            width=18,
-            bd=0,
-            relief="flat",
-            activerelief="flat",
-            highlightthickness=0,
-            elementborderwidth=0,
-            bg="#bdbdbd",
-            activebackground="#a8a8a8",
-            troughcolor="#f3f4f6"
-        )
-        self.input_table.tree.configure(yscrollcommand=input_scroll_y.set)
-
-        self.input_table.pack(in_=input_container, side="left", fill="both", expand=True)
-        input_scroll_y.pack(side="right", fill="y")
+        self.input_table.pack(fill="both", expand=True)
 
         # Right Main Area (Results & Solution Details)
         self._build_output_tables(right_pane)
