@@ -230,8 +230,8 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "TButton",
             font=default_font,
-            padding=(12, 6),
-            borderwidth=3,
+            padding=(10, 4),
+            borderwidth=2,
             bordercolor="#d1d5db",
             lightcolor="#d1d5db",
             darkcolor="#d1d5db",
@@ -313,6 +313,7 @@ class OptimizerApp(tk.Tk):
         self.option_add("*Menu.activeForeground", "#991b1b")
         self.option_add("*Menu.borderWidth", 0)
         self.option_add("*Menu.activeBorderWidth", 0)
+        self.option_add("*Menu.relief", "flat")
 
         # Combobox Dropdown Listbox styling for subtle shadow/border and vertical spacing
         self.option_add("*TCombobox*Listbox.background", "#ffffff")
@@ -1090,11 +1091,11 @@ class OptimizerApp(tk.Tk):
         dialog.title("Modifica pesi di calcolo")
         dialog.geometry("500x340")
         dialog.resizable(False, False)
-        dialog.configure(bg="#F0F0F0")
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
-        main_frame = ttk.Frame(dialog)
+        main_frame = ttk.Frame(dialog, style="Card.TFrame")
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         base_weights = DEFAULT_WEIGHTS
@@ -1385,12 +1386,12 @@ class OptimizerApp(tk.Tk):
         dialog.title("Dati astucciatrice")
         dialog.geometry("520x720")
         dialog.resizable(False, False)
-        dialog.configure(bg="#F0F0F0")
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
         # Main container with proper layout
-        main_frame = ttk.Frame(dialog)
+        main_frame = ttk.Frame(dialog, style="Card.TFrame")
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Form content
