@@ -373,7 +373,7 @@ def build_detail_section(parent, on_format_open_callback):
         "grouping": "Raggrup.",
         "dividers": "Div.",
         "pockets_per_pitch": "Cass/Passo",
-        "pocket": "A x B",
+        "pocket": "A x B ast.",
         "carton_ab_ratio": "A/B",
         "pocket_length": "Lungh. cassetto",
         "layers": "Strati",
