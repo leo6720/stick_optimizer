@@ -749,7 +749,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     style = ttk.Style()
     style.configure("Bold.Treeview", font=("Segoe UI", 9, "bold"))
     
-    populate_format_detail(tree, candidate, show_details=show_details)
+    populate_format_detail(tree, candidate, pocket_height=pocket_height, show_details=show_details)
 
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
     canvas.pack(fill="both", expand=True)
@@ -878,7 +878,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
+def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
     clear_tree(tree)
 
     tag_bold = "bold_tag"
