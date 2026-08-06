@@ -210,7 +210,7 @@ class OptimizerApp(tk.Tk):
             background=primary_red,
             foreground="#ffffff",
             padding=(20, 8),
-            borderwidth=1,
+            borderwidth=2,
             bordercolor=primary_red,
             lightcolor=primary_red,
             darkcolor=primary_red,
@@ -230,7 +230,7 @@ class OptimizerApp(tk.Tk):
             "TButton",
             font=default_font,
             padding=(10, 5),
-            borderwidth=1,
+            borderwidth=2,
             bordercolor="#d1d5db",
             lightcolor="#d1d5db",
             darkcolor="#d1d5db",
@@ -313,13 +313,14 @@ class OptimizerApp(tk.Tk):
         self.option_add("*Menu.borderWidth", 0)
         self.option_add("*Menu.activeBorderWidth", 0)
 
-        # Combobox Dropdown Listbox styling for subtle shadow/border
+        # Combobox Dropdown Listbox styling for subtle shadow/border and vertical spacing
         self.option_add("*TCombobox*Listbox.background", "#ffffff")
         self.option_add("*TCombobox*Listbox.foreground", fg_text)
         self.option_add("*TCombobox*Listbox.selectBackground", "#fee2e2")
         self.option_add("*TCombobox*Listbox.selectForeground", "#991b1b")
         self.option_add("*TCombobox*Listbox.borderWidth", 1)
         self.option_add("*TCombobox*Listbox.relief", "flat")
+        self.option_add("*TCombobox*Listbox.selectBorderWidth", 3)
 
         # Treeview
         style.configure(
@@ -353,13 +354,19 @@ class OptimizerApp(tk.Tk):
             background=primary_red,
             foreground="#ffffff",
             padding=(12, 5),
-            borderwidth=0,
+            borderwidth=2,
+            bordercolor=primary_red,
+            lightcolor=primary_red,
+            darkcolor=primary_red,
             focusthickness=0,
             relief="flat",
         )
         style.map(
             "PillActive.TButton",
             background=[("active", primary_red_active), ("pressed", primary_red_active)],
+            bordercolor=[("active", primary_red_active), ("pressed", primary_red_active)],
+            lightcolor=[("active", primary_red_active), ("pressed", primary_red_active)],
+            darkcolor=[("active", primary_red_active), ("pressed", primary_red_active)],
             foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
         )
 
@@ -369,13 +376,19 @@ class OptimizerApp(tk.Tk):
             background="#e5e7eb",
             foreground="#4b5563",
             padding=(12, 5),
-            borderwidth=0,
+            borderwidth=2,
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
             focusthickness=0,
             relief="flat",
         )
         style.map(
             "PillInactive.TButton",
             background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
+            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
             foreground=[("active", fg_text), ("pressed", fg_text)],
         )
 
