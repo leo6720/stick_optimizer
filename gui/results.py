@@ -322,6 +322,8 @@ def build_detail_section(parent, on_format_open_callback):
 
     # View Frames
     overview_view = ttk.Frame(content_container)
+    overview_view.configure(background="#ffffff")
+    
     pocket_view = ttk.Frame(content_container)
     head_view = ttk.Frame(content_container)
 
