@@ -104,6 +104,7 @@ POCKET_TYPE_COLUMNS = (
 ROBOT_HEAD_TYPE_COLUMNS = (
     "grouping",
     "adjusted_input_pitch",
+    "head_width",
     "used_by",
 )
 
@@ -525,13 +526,15 @@ def _build_robot_head_type_table(parent):
     headings = {
         "grouping": "Raggruppamento",
         "adjusted_input_pitch": "Passo ingresso",
+        "head_width": "Larghezza testa",
         "used_by": "Usato da formati",
     }
 
     widths = {
         "grouping": 80,
         "adjusted_input_pitch": 100,
-        "used_by": 260,
+        "head_width": 110,
+        "used_by": 220,
     }
 
     for col in ROBOT_HEAD_TYPE_COLUMNS:
@@ -667,15 +670,20 @@ def _populate_pocket_type_commonality(tree, candidates):
 
 def _populate_robot_head_type_commonality(tree, candidates):
     grouped = {}
+    sticks_per_beat_by_head = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
+        spb = getattr(candidate, "sticks_per_beat", 1)
+        sticks_per_beat_by_head[candidate.robot_head_type] = spb
 
     for robot_head_type, format_names in sorted(
         grouped.items(),
         key=lambda item: str(item[0]),
     ):
         grouping, adjusted_input_pitch = robot_head_type
+        spb = sticks_per_beat_by_head.get(robot_head_type, 1)
+        head_width = adjusted_input_pitch * spb
 
         tree.insert(
             "",
@@ -683,6 +691,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
             values=(
                 grouping,
                 fmt(adjusted_input_pitch),
+                fmt(head_width),
                 ", ".join(format_names),
             ),
         )
@@ -925,7 +934,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             "Testa Robot",
             [
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
-                ("Larghezza testa [mm]", candidate.adjusted_input_pitch * getattr(candidate, "sticks_per_beat", 1)),
+                ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * getattr(candidate, "sticks_per_beat", 1)),
                 ("Raggruppamento", candidate.grouping),
             ],
         ),
