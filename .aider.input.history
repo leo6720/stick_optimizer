@@ -956,3 +956,143 @@
 
 # 2026-08-06 14:32:19.715156
 +/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:41:17.620251
++i want the pop ous to open more towards the center of the screen instead of at the top left
+
+# 2026-08-06 14:41:31.776385
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:44:26.558656
++in the format details in the results. make the sticks main red border with lighter red center. then make the vertical scroll bar like the one for migliori soluzioni. and remove the headers from the table. instead make the left column text bold
+
+# 2026-08-06 14:44:48.730906
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:47:10.608624
++in the title write, as example "Stick: A | Impilamento: 10" then remove nome formato row. also remove the info at the top of the diagram.ù
+
+# 2026-08-06 14:47:18.425389
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:51:44.048224
++remove tipo stick row. then make the sections collapsable like in input formati table. by default all expanded
+
+# 2026-08-06 14:51:49.564258
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:53:13.188655
++the sections are not collapsable. use the same logic used for panoramica formati table, but instead of having the formati as collapsable sections use the ones present there
+
+# 2026-08-06 14:53:20.964499
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:54:13.194264
++the header reappered. can you not have that hidden with collaplsable sections?
+
+# 2026-08-06 14:54:23.071321
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:57:27.980741
++make "passo ingresso regolato" -> "passo trasporto stick". remove depositi per set row. add altezza cassetto row
+
+# 2026-08-06 14:57:36.181416
++y
+
+# 2026-08-06 14:57:41.674628
++/run python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/results.py
+
+# 2026-08-06 14:57:41.674719
++/run python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/results.py
+
+# 2026-08-06 14:57:46.865514
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:00:00.860246
++passo astucciatrice should become "passo trasporto prodotto". remove larghezza occupata and spazio non occupato
+
+# 2026-08-06 15:00:10.379343
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:01:33.338279
++add units of measure to the various rows. example larghezza cassetto [mm]
+
+# 2026-08-06 15:01:43.741970
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:09:22.049930
++let's group the data properly:
++
++Impilamento
++|->raggruppamento
++|->strati
++|->altezza pila
++|->riporto richiesto
++|->lunghezza ciclo riporto
++Caasetto
++|->larghezza cassetto
++|->altezza cassetto
++|->lunghezza cassetto
++|->divisori
++Trasporto Prodotto
++|->passo trasporto prodotto
++|->passo cassetto
++|->cassetti per passo
++Trasporto stick
++|->passo trasporto stick
++Testa Robot
++|->Passo stick in prelievo
++|->Raggruppamento (again)
++
++make them all with first letter uppercase
+
+# 2026-08-06 15:09:31.903012
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:11:39.660912
++instead of tipi cassetti and tipi teste robot in the pill buttons say "formati cassetti" and "formati teste robot"
+
+# 2026-08-06 15:13:16.044130
++in formati teste robot add a value "larghezza testa" (add that to the format detail pop up) that equals passo trasporto stick x no.piste MT 
+
+# 2026-08-06 15:13:22.305810
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:15:53.301288
++larghezza testa shoud be "passo_stick_prelievo" multiplied by "n_piste MT". that value should also be added as a column in the formati teste robot table
+
+# 2026-08-06 15:16:03.526004
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:17:11.728731
++i just see the value of passo trasporto. you are not doing the multiplication correctly. do you need and other file for that?
+
+# 2026-08-06 15:17:24.804728
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:20:07.223641
++bro but you are stupid. the multiplication should be done such that that value is the same everywhere and can be exported with the rest of the data in csv and such (YOU THOUGHT OF THAT RIGHT????) right now the value is correct in details pop up but wrong in the teste robot table, which makes me think you are doing it there before inserting the value in the table, which of coure does not make any sense, you should do it way before in the pipeline and there just fetch the value
+
+# 2026-08-06 15:20:16.437637
++y
+
+# 2026-08-06 15:20:26.784678
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:21:44.657746
++YOU ARE SO STUPID THINK WHEN YOU DO STUFF. the value is still wrong in the formati teste robot table, how am i supposed to trust you doing things right if you can't even understand that basic instruction
+
+# 2026-08-06 15:22:01.663732
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:24:59.281326
++in the A x B column of panoramica risultati i think there is a whole logic about the max value of the B. if so remove that, otherwise report back what is there
+
+# 2026-08-06 15:25:10.489932
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:25:47.473978
++call the column "A x B ast."
+
+# 2026-08-06 15:25:54.692673
++/git push -u origin 06-08-01-fork
