@@ -400,8 +400,26 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
 
-    overview_tree.pack(fill="both", expand=True)
-    overview_scroll_x.pack(fill="x")
+    table_frame = ttk.Frame(overview_view)
+    table_frame.pack(fill="both", expand=True)
+
+    table_frame.rowconfigure(0, weight=1)
+    table_frame.columnconfigure(0, weight=1)
+
+    overview_tree.grid(
+        row=0,
+        column=0,
+        sticky="nsew"
+    )
+
+    overview_scroll_x.grid(
+        row=1,
+        column=0,
+        sticky="ew"
+    )
+
+    #overview_tree.pack(fill="both", expand=True)
+    #overview_scroll_x.pack(fill="x")
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
