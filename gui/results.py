@@ -715,24 +715,43 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     content_pane.add(vis_frame, weight=1)
     content_pane.add(param_frame, weight=1)
 
+    tree_container = ttk.Frame(param_frame)
+    tree_container.pack(fill="both", expand=True)
+
     tree = ttk.Treeview(
-        param_frame,
+        tree_container,
         columns=("parameter", "value"),
-        show="headings",
+        show="tree",
     )
 
-    tree.heading("parameter", text="parametro")
-    tree.heading("value", text="valore")
+    tree.heading("#0", text="")
+    tree.column("#0", width=0, stretch=False)
 
     tree.column("parameter", width=200, anchor="w")
     tree.column("value", width=180, anchor="w")
 
-    scrollbar = ttk.Scrollbar(param_frame, orient="vertical", command=tree.yview)
+    scrollbar = tk.Scrollbar(
+        tree_container,
+        orient="vertical",
+        command=tree.yview,
+        width=18,
+        bd=0,
+        relief="flat",
+        activerelief="flat",
+        highlightthickness=0,
+        elementborderwidth=0,
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#F0F0F0"
+    )
     tree.configure(yscrollcommand=scrollbar.set)
 
     tree.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
+    style = ttk.Style()
+    style.configure("Bold.Treeview", font=("Segoe UI", 9, "bold"))
+    
     populate_format_detail(tree, candidate, show_details=show_details)
 
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
@@ -825,7 +844,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
                         if sw > 2 and sh > 2:
                             canvas.create_oval(
                                 sx, sy, sx + sw, sy + sh,
-                                fill="#73a6ff", outline="#1d4ed8", width=1.5
+                                fill="#fee2e2", outline="#dc2626", width=1.5
                             )
 
             # Pocket width annotation on first pocket
@@ -867,6 +886,9 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
 def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
     clear_tree(tree)
+
+    tag_bold = "bold_tag"
+    tree.tag_configure(tag_bold, font=("Segoe UI", 9, "bold"))
 
     sections = [
         (
@@ -950,6 +972,7 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             "end",
             values=(section_name, ""),
             open=True,
+            tags=(tag_bold,),
         )
 
         for name, value in rows:
