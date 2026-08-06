@@ -542,14 +542,17 @@ class OptimizerApp(tk.Tk):
         )
         global_frame.pack(fill="x", pady=(0, 12))
 
-        input_container = ttk.Frame(left_pane)
-        input_container.pack(fill="both", expand=True)
-
         self.input_table = HierarchicalInputTable(
-            input_container,
+            left_pane,
             title="Formati",
             header_image=self.stick_types_image,
         )
+        self.input_table.pack(fill="x", pady=(0, 8))
+
+        input_container = ttk.Frame(left_pane)
+        input_container.pack(fill="both", expand=True)
+
+        self.input_table.pack_forget()
 
         input_scroll_y = tk.Scrollbar(
             input_container,
@@ -567,7 +570,7 @@ class OptimizerApp(tk.Tk):
         )
         self.input_table.tree.configure(yscrollcommand=input_scroll_y.set)
 
-        self.input_table.pack(side="left", fill="both", expand=True)
+        self.input_table.pack(in_=input_container, side="left", fill="both", expand=True)
         input_scroll_y.pack(side="right", fill="y")
 
         # Right Main Area (Results & Solution Details)
