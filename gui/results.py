@@ -886,35 +886,46 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
 
     sections = [
         (
-            "Trasferimento",
+            "Impilamento",
             [
-                ("passo trasporto stick [mm]", candidate.adjusted_input_pitch),
-                ("raggruppamento", candidate.grouping),
-                ("cassetti per passo", candidate.pockets_per_pitch),
-                ("passo cassetto [mm]", candidate.pocket_pitch),
-                ("passo trasporto prodotto [mm]", candidate.cartoner_pitch),
+                ("Raggruppamento", candidate.grouping),
+                ("Strati", candidate.layers),
+                ("Altezza pila [mm]", candidate.stack_height),
+                (
+                    "Riporto richiesto",
+                    "Sì" if candidate.carryover_required else "No",
+                ),
+                ("Lunghezza ciclo riporto [mm]", candidate.carryover_cycle_length),
             ],
         ),
         (
             "Cassetto",
             [
-                ("larghezza cassetto [mm]", candidate.pocket_width),
-                ("altezza cassetto [mm]", pocket_height),
-                ("lunghezza cassetto [mm]", candidate.pocket_length),
-                ("divisori", candidate.dividers),
-                ("tipo cassetto", candidate.pocket_type),
+                ("Larghezza cassetto [mm]", candidate.pocket_width),
+                ("Altezza cassetto [mm]", pocket_height),
+                ("Lunghezza cassetto [mm]", candidate.pocket_length),
+                ("Divisori", candidate.dividers),
             ],
         ),
         (
-            "Pila e riporto",
+            "Trasporto Prodotto",
             [
-                ("strati", candidate.layers),
-                ("altezza pila [mm]", candidate.stack_height),
-                (
-                    "riporto richiesto",
-                    "sì" if candidate.carryover_required else "no",
-                ),
-                ("lunghezza ciclo riporto [mm]", candidate.carryover_cycle_length),
+                ("Passo trasporto prodotto [mm]", candidate.cartoner_pitch),
+                ("Passo cassetto [mm]", candidate.pocket_pitch),
+                ("Cassetti per passo", candidate.pockets_per_pitch),
+            ],
+        ),
+        (
+            "Trasporto stick",
+            [
+                ("Passo trasporto stick [mm]", candidate.adjusted_input_pitch),
+            ],
+        ),
+        (
+            "Testa Robot",
+            [
+                ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
+                ("Raggruppamento", candidate.grouping),
             ],
         ),
     ]
@@ -924,11 +935,11 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             (
                 "Astuccio A/B",
                 [
-                    ("larghezza A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
-                    ("altezza B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
-                    ("rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
+                    ("Larghezza A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
+                    ("Altezza B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
+                    ("Rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
                     (
-                        "penalità rapporto A/B",
+                        "Penalità rapporto A/B",
                         getattr(candidate, "carton_AB_ratio_penalty", ""),
                     ),
                 ],
@@ -936,25 +947,15 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             (
                 "Stabilità e penalità",
                 [
-                    ("larghezza non supportata effettiva [mm]", candidate.effective_unsupported_width),
-                    ("rapporto larghezza", candidate.width_ratio),
-                    ("penalità strati", candidate.layer_penalty),
-                    ("penalità riporto", candidate.carryover_penalty),
-                    ("penalità raggruppamento", candidate.grouping_penalty),
-                    ("penalità larghezza stabilità", candidate.stability_width_penalty),
+                    ("Larghezza non supportata effettiva [mm]", candidate.effective_unsupported_width),
+                    ("Rapporto larghezza", candidate.width_ratio),
+                    ("Penalità strati", candidate.layer_penalty),
+                    ("Penalità riporto", candidate.carryover_penalty),
+                    ("Penalità raggruppamento", candidate.grouping_penalty),
+                    ("Penalità larghezza stabilità", candidate.stability_width_penalty),
                 ],
             ),
         ])
-
-    sections.append(
-        (
-            "Tipi",
-            [
-                ("tipo testa robot", candidate.robot_head_type),
-                ("tipo cassetto", candidate.pocket_type),
-            ],
-        )
-    )
 
     for section_name, rows in sections:
         parent = tree.insert(
