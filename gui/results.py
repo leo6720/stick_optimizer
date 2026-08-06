@@ -720,15 +720,15 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     tree = ttk.Treeview(
         tree_container,
-        columns=("parameter", "value"),
-        show="tree",
+        columns=("value",),
+        show="tree headings",
     )
 
-    tree.heading("#0", text="")
-    tree.column("#0", width=0, stretch=False)
+    tree.heading("#0", text="Sezione / Parametro")
+    tree.heading("value", text="Valore")
 
-    tree.column("parameter", width=200, anchor="w")
-    tree.column("value", width=180, anchor="w")
+    tree.column("#0", width=200, anchor="w")
+    tree.column("value", width=180, anchor="center")
 
     scrollbar = tk.Scrollbar(
         tree_container,
@@ -965,7 +965,8 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
         parent = tree.insert(
             "",
             "end",
-            values=(section_name, ""),
+            text=section_name,
+            values=("",),
             open=True,
             tags=(tag_bold,),
         )
@@ -974,5 +975,6 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             tree.insert(
                 parent,
                 "end",
-                values=(name, fmt(value)),
+                text=name,
+                values=(fmt(value),),
             )
