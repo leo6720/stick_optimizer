@@ -1053,6 +1053,7 @@ class OptimizerApp(tk.Tk):
         dialog.title("Modifica pesi di calcolo")
         dialog.geometry("500x340")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -1195,6 +1196,7 @@ class OptimizerApp(tk.Tk):
         else:
             dialog.geometry("480x180")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -1346,6 +1348,7 @@ class OptimizerApp(tk.Tk):
         dialog.title("Dati astucciatrice")
         dialog.geometry("520x720")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
