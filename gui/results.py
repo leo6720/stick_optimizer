@@ -314,6 +314,10 @@ def build_detail_section(parent, on_format_open_callback):
         summary_name_labels[field_name] = name_label
 
     # Segmented Pill Selector for table views
+    style = ttk.Style()
+    style.configure("PillInactive.TButton", background="#f3f4f6")
+    style.configure("PillActive.TButton", background="#f3f4f6")
+
     pill_frame = ttk.Frame(frame)
     pill_frame.pack(anchor="w", pady=(0, 8))
 
