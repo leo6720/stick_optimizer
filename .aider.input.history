@@ -944,3 +944,15 @@
 
 # 2026-08-06 14:25:35.815499
 +/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:29:34.109191
++pesi di calcolo and dati astucciatrice have a grey frame. remove it, make the whole window bkd white. the dropdown menus have a slight grey border too. remove it. the buttons in the menus are too big and do not show the whole text make them smaller in the menus.
+
+# 2026-08-06 14:29:44.051097
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:32:07.684651
++all the menus in moifica should have the width of "dati astucciatrice and use that exact size and positioning of the buttons.
+
+# 2026-08-06 14:32:19.715156
++/git push -u origin 06-08-01-fork

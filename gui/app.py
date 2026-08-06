@@ -1229,7 +1229,7 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("520x720")
+        dialog.geometry("520x300")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
