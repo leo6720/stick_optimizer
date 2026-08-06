@@ -321,7 +321,7 @@ def build_detail_section(parent, on_format_open_callback):
     content_container.pack(fill="both", expand=True)
 
     # View Frames
-    overview_view = ttk.Frame(content_container, style="TFrame")
+    overview_view = tk.Frame(content_container, bg="#ffffff")
     pocket_view = ttk.Frame(content_container)
     head_view = ttk.Frame(content_container)
 
@@ -387,6 +387,7 @@ def build_detail_section(parent, on_format_open_callback):
         width=18,
         bd=0,
         highlightthickness=0,
+        highlightbackground="#ffffff",
         elementborderwidth=-1,
         bg="#ffffff",
         activebackground="#a8a8a8",
