@@ -161,10 +161,6 @@ def _add_fields_to_frame_with_defaults(
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
 
-    style = ttk.Style()
-    style.configure("Yellow.TEntry", fieldbackground="lightyellow")
-    style.map("Yellow.TEntry", fieldbackground=[("active", "lightyellow"), ("!disabled", "lightyellow")])
-
     for row, field_name in enumerate(field_names, start=start_row):
         default_val = defaults.get(field_name, "")
         display_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({default_val})"
@@ -197,32 +193,6 @@ def _add_fields_to_frame_with_defaults(
             sticky="e",
             pady=2,
         )
-
-        def make_validation(e, d):
-            def check(*_args):
-                try:
-                    current_val = e.get().strip()
-                    expected = str(d).strip()
-                    if current_val != expected:
-                        e.configure(style="Yellow.TEntry")
-                        try:
-                            e.config(background="lightyellow")
-                        except Exception:
-                            pass
-                    else:
-                        e.configure(style="TEntry")
-                        try:
-                            e.config(background="white")
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
-            return check
-
-        validation_cmd = make_validation(entry, default_val)
-        entry.bind("<KeyRelease>", validation_cmd)
-        # Check initial state on creation
-        validation_cmd()
 
         entries[field_name] = entry
 
