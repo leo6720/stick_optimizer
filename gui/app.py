@@ -209,8 +209,8 @@ class OptimizerApp(tk.Tk):
             font=("Segoe UI", 11, "bold"),
             background=primary_red,
             foreground="#ffffff",
-            padding=(20, 8),
-            borderwidth=2,
+            padding=(24, 10),
+            borderwidth=3,
             bordercolor=primary_red,
             lightcolor=primary_red,
             darkcolor=primary_red,
@@ -229,8 +229,8 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "TButton",
             font=default_font,
-            padding=(10, 5),
-            borderwidth=2,
+            padding=(12, 6),
+            borderwidth=3,
             bordercolor="#d1d5db",
             lightcolor="#d1d5db",
             darkcolor="#d1d5db",
@@ -320,7 +320,8 @@ class OptimizerApp(tk.Tk):
         self.option_add("*TCombobox*Listbox.selectForeground", "#991b1b")
         self.option_add("*TCombobox*Listbox.borderWidth", 1)
         self.option_add("*TCombobox*Listbox.relief", "flat")
-        self.option_add("*TCombobox*Listbox.selectBorderWidth", 3)
+        self.option_add("*TCombobox*Listbox.font", ("Segoe UI", 11))
+        self.option_add("*TCombobox*Listbox.selectBorderWidth", 6)
 
         # Treeview
         style.configure(
