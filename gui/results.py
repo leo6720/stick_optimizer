@@ -701,7 +701,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     header = ttk.Label(
         main_frame,
-        text=f"{candidate.format_name} / {candidate.stick_type_name}",
+        text=f"Stick: {candidate.stick_type_name} | Impilamento: {candidate.format_name.split('_')[-1]}",
         font=("TkDefaultFont", 11, "bold"),
     )
     header.pack(anchor="w", pady=(0, 8))
@@ -864,9 +864,6 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
         canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Passo: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
-        # Summary info text at the top
-        info_str = f"Cassetti/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
-        canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
         # Height dimension annotation on the left
         canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
@@ -894,7 +891,6 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
         (
             "Trasferimento",
             [
-                ("nome formato", candidate.format_name),
                 ("tipo stick", candidate.stick_type_name),
                 ("passo ingresso regolato", candidate.adjusted_input_pitch),
                 ("raggruppamento", candidate.grouping),
