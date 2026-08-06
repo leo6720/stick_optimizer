@@ -670,20 +670,18 @@ def _populate_pocket_type_commonality(tree, candidates):
 
 def _populate_robot_head_type_commonality(tree, candidates):
     grouped = {}
-    sticks_per_beat_by_head = {}
+    head_width_by_head = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
-        spb = getattr(candidate, "sticks_per_beat", 1)
-        sticks_per_beat_by_head[candidate.robot_head_type] = spb
+        head_width_by_head[candidate.robot_head_type] = getattr(candidate, "robot_head_width", candidate.adjusted_input_pitch)
 
     for robot_head_type, format_names in sorted(
         grouped.items(),
         key=lambda item: str(item[0]),
     ):
         grouping, adjusted_input_pitch = robot_head_type
-        spb = sticks_per_beat_by_head.get(robot_head_type, 1)
-        head_width = adjusted_input_pitch * spb
+        head_width = head_width_by_head.get(robot_head_type, adjusted_input_pitch)
 
         tree.insert(
             "",
