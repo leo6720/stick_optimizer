@@ -888,19 +888,19 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
         (
             "Trasferimento",
             [
-                ("passo trasporto stick", candidate.adjusted_input_pitch),
+                ("passo trasporto stick [mm]", candidate.adjusted_input_pitch),
                 ("raggruppamento", candidate.grouping),
                 ("cassetti per passo", candidate.pockets_per_pitch),
-                ("passo cassetto", candidate.pocket_pitch),
-                ("passo trasporto prodotto", candidate.cartoner_pitch),
+                ("passo cassetto [mm]", candidate.pocket_pitch),
+                ("passo trasporto prodotto [mm]", candidate.cartoner_pitch),
             ],
         ),
         (
             "Cassetto",
             [
-                ("larghezza cassetto", candidate.pocket_width),
-                ("altezza cassetto", pocket_height),
-                ("lunghezza cassetto", candidate.pocket_length),
+                ("larghezza cassetto [mm]", candidate.pocket_width),
+                ("altezza cassetto [mm]", pocket_height),
+                ("lunghezza cassetto [mm]", candidate.pocket_length),
                 ("divisori", candidate.dividers),
                 ("tipo cassetto", candidate.pocket_type),
             ],
@@ -909,12 +909,12 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             "Pila e riporto",
             [
                 ("strati", candidate.layers),
-                ("altezza pila", candidate.stack_height),
+                ("altezza pila [mm]", candidate.stack_height),
                 (
                     "riporto richiesto",
                     "sì" if candidate.carryover_required else "no",
                 ),
-                ("lunghezza ciclo riporto", candidate.carryover_cycle_length),
+                ("lunghezza ciclo riporto [mm]", candidate.carryover_cycle_length),
             ],
         ),
     ]
@@ -924,8 +924,8 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             (
                 "Astuccio A/B",
                 [
-                    ("larghezza A astuccio", getattr(candidate, "carton_A_mm", "")),
-                    ("altezza B astuccio", getattr(candidate, "carton_B_mm", "")),
+                    ("larghezza A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
+                    ("altezza B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
                     ("rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
                     (
                         "penalità rapporto A/B",
@@ -936,7 +936,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             (
                 "Stabilità e penalità",
                 [
-                    ("larghezza non supportata effettiva", candidate.effective_unsupported_width),
+                    ("larghezza non supportata effettiva [mm]", candidate.effective_unsupported_width),
                     ("rapporto larghezza", candidate.width_ratio),
                     ("penalità strati", candidate.layer_penalty),
                     ("penalità riporto", candidate.carryover_penalty),
