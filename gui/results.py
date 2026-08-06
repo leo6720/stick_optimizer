@@ -384,7 +384,7 @@ def build_detail_section(parent, on_format_open_callback):
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
-        width=18,
+        width=14,
 
         bd=0,
         relief="flat",
@@ -392,10 +392,10 @@ def build_detail_section(parent, on_format_open_callback):
 
         highlightthickness=0,
         elementborderwidth=0,
-
-        bg="#808080",
-        activebackground="#808080",
-        troughcolor="#f0f0f0",
+        
+        bg="#bdbdbd"
+        activebackground="#a8a8a8"
+        troughcolor="#f3f4f6"
     )
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
