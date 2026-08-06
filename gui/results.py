@@ -891,7 +891,6 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
         (
             "Trasferimento",
             [
-                ("tipo stick", candidate.stick_type_name),
                 ("passo ingresso regolato", candidate.adjusted_input_pitch),
                 ("raggruppamento", candidate.grouping),
                 ("depositi per set", candidate.deposits_per_set),
