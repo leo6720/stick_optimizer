@@ -389,7 +389,18 @@ def build_detail_section(parent, on_format_open_callback):
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
 
     overview_tree.pack(fill="both", expand=True)
-    overview_scroll_x.pack(fill="x", ipady=6)
+    scrollbar_frame = ttk.Frame(overview_view, height=20)
+    scrollbar_frame.pack(fill="x")
+    scrollbar_frame.pack_propagate(False)
+
+    overview_scroll_x = ttk.Scrollbar(
+        scrollbar_frame,
+        orient="horizontal",
+        style="Minimal.Horizontal.TScrollbar",
+        command=overview_tree.xview,
+    )
+
+    overview_scroll_x.pack(fill="both", expand=True)
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
