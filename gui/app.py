@@ -309,8 +309,8 @@ class OptimizerApp(tk.Tk):
         # Dropdown Menus (tk.Menu styling via option database)
         self.option_add("*Menu.background", "#ffffff")
         self.option_add("*Menu.foreground", fg_text)
-        self.option_add("*Menu.activeBackground", "#e5e7eb")
-        self.option_add("*Menu.activeForeground", fg_text)
+        self.option_add("*Menu.activeBackground", "#fee2e2")
+        self.option_add("*Menu.activeForeground", "#991b1b")
         self.option_add("*Menu.borderWidth", 0)
         self.option_add("*Menu.activeBorderWidth", 0)
 
