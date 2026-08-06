@@ -888,9 +888,8 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
         (
             "Trasferimento",
             [
-                ("passo ingresso regolato", candidate.adjusted_input_pitch),
+                ("passo trasporto stick", candidate.adjusted_input_pitch),
                 ("raggruppamento", candidate.grouping),
-                ("depositi per set", candidate.deposits_per_set),
                 ("cassetti per passo", candidate.pockets_per_pitch),
                 ("passo cassetto", candidate.pocket_pitch),
                 ("passo astucciatrice", candidate.cartoner_pitch),
@@ -900,6 +899,7 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             "Cassetto",
             [
                 ("larghezza cassetto", candidate.pocket_width),
+                ("altezza cassetto", pocket_height),
                 ("lunghezza cassetto", candidate.pocket_length),
                 ("divisori", candidate.dividers),
                 ("larghezza occupata", candidate.occupied_width),
