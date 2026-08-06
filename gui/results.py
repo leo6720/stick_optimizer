@@ -421,7 +421,7 @@ def build_detail_section(parent, on_format_open_callback):
             style="PillInactive.TButton",
             command=lambda k=key: switch_view(k),
         )
-        btn.pack(side="left", padx=(0, 6))
+        btn.pack(side="left")
         pill_buttons[key] = btn
 
     # Default to overview
