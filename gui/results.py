@@ -692,7 +692,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Dettaglio formato - {candidate.format_name}")
-    window.geometry("760x680")
+    window.geometry(f"760x680+{parent.winfo_rootx() + (parent.winfo_width() - 760) // 2}+{parent.winfo_rooty() + (parent.winfo_height() - 680) // 2}")
     window.minsize(640, 500)
     window.transient(parent)
 

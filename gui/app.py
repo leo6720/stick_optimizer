@@ -848,7 +848,7 @@ class OptimizerApp(tk.Tk):
         """Reset application to a new project state."""
         dialog = tk.Toplevel(self)
         dialog.title("Nuovo Progetto")
-        dialog.geometry("350x200")
+        dialog.geometry(f"350x200+{self.winfo_rootx() + (self.winfo_width() - 350) // 2}+{self.winfo_rooty() + (self.winfo_height() - 200) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#F0F0F0")
         dialog.transient(self)
@@ -1089,7 +1089,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Modifica pesi di calcolo")
-        dialog.geometry("520x350")
+        dialog.geometry(f"520x350+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 350) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1229,7 +1229,7 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("520x160")
+        dialog.geometry(f"520x160+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1387,7 +1387,7 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x550")
+        dialog.geometry(f"520x550+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 550) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1655,7 +1655,7 @@ class OptimizerApp(tk.Tk):
 
         dialog = tk.Toplevel(self)
         dialog.title(f"Filter: {column_name}")
-        dialog.geometry("410x520")
+        dialog.geometry(f"410x520+{self.winfo_rootx() + (self.winfo_width() - 410) // 2}+{self.winfo_rooty() + (self.winfo_height() - 520) // 2}")
         dialog.minsize(360, 420)
         dialog.transient(self)
         dialog.grab_set()
