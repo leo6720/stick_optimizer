@@ -893,3 +893,54 @@
 
 # 2026-08-06 14:13:19.848349
 +d
+
+# 2026-08-06 14:16:51.268017
++i removed the changes to the input panel. now take the vertical scrollbar from results and pu an identical one next to input formati table, JUST next to the table, exactly like it appears in output section
+
+# 2026-08-06 14:16:54.718340
++y
+
+# 2026-08-06 14:17:20.330769
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:18:33.385872
++/add gui/forms.py
+
+# 2026-08-06 14:18:55.598988
++instead of f3f4f6 use F0F0F0 everywhere it appears. scan every inch of the files and substiture one colour for the other
+
+# 2026-08-06 14:19:10.028341
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:21:13.468621
++can we set the title bar to f0f0f0 too? also the buttons make them f0f0f0 in the pop up menus. the two in formato section make white bkg
+
+# 2026-08-06 14:21:23.774146
++y
+
+# 2026-08-06 14:21:43.004259
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:23:01.279494
++for every button make the hover appearence like the seceted rows in the tables
+
+# 2026-08-06 14:23:14.702934
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:23:54.233641
++the two buttons in formati have grey colour on hover instead of that light grey.
+
+# 2026-08-06 14:24:06.559879
++sorry i meant that light re
+
+# 2026-08-06 14:24:37.855299
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:25:25.688760
++make the same light red for hover in the dropdown menus
+
+# 2026-08-06 14:25:35.815499
++/git push -u origin 06-08-01-fork
