@@ -380,18 +380,11 @@ def build_detail_section(parent, on_format_open_callback):
         overview_tree.heading(col, text=overview_headings[col])
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
-    overview_scroll_x = tk.Scrollbar(
+    overview_scroll_x = ttk.Scrollbar(
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
-        width=18,
-        bd=0,
-        highlightthickness=0,
-        highlightbackground="#ffffff",
-        elementborderwidth=-1,
-        bg="#ffffff",
-        activebackground="#a8a8a8",
-        troughcolor="#ffffff"
+        style="White.Horizontal.TScrollbar"
     )
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
