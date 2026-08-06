@@ -220,12 +220,57 @@ class OptimizerApp(tk.Tk):
         )
 
         # Standard Buttons
-        style.configure("TButton", font=default_font, padding=(10, 5), borderwidth=1)
+        style.configure(
+            "TButton",
+            font=default_font,
+            padding=(10, 5),
+            borderwidth=0,
+            focusthickness=0,
+            relief="flat",
+            background="#e5e7eb",
+            foreground=fg_text,
+        )
+        style.map(
+            "TButton",
+            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
+            foreground=[("active", fg_text), ("pressed", fg_text)],
+            relief=[("active", "flat"), ("pressed", "flat")],
+        )
 
         # Entry fields
-        style.configure("TEntry", fieldbackground="#ffffff", padding=4, bordercolor="#d1d5db", focuscolor=primary_red)
-        style.map("TEntry", bordercolor=[("focus", primary_red)], focuscolor=[("focus", primary_red)])
-        style.configure("Yellow.TEntry", fieldbackground="#fef08a", bordercolor="#d1d5db", focuscolor=primary_red)
+        style.configure(
+            "TEntry",
+            fieldbackground="#ffffff",
+            padding=4,
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focuscolor=primary_red,
+            focusthickness=1,
+        )
+        style.map(
+            "TEntry",
+            bordercolor=[("focus", primary_red)],
+            lightcolor=[("focus", primary_red)],
+            darkcolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
+        style.configure(
+            "Yellow.TEntry",
+            fieldbackground="#fef08a",
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focuscolor=primary_red,
+            focusthickness=1,
+        )
+        style.map(
+            "Yellow.TEntry",
+            bordercolor=[("focus", primary_red)],
+            lightcolor=[("focus", primary_red)],
+            darkcolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
 
         # Checkbutton fields
         style.configure("TCheckbutton", background=bg_main, foreground=fg_text)
