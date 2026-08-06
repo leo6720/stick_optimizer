@@ -349,14 +349,6 @@ class OptimizerApp(tk.Tk):
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
 
-        # Custom White Scrollbar Style
-        style.configure(
-            "White.Horizontal.TScrollbar",
-            background="#ffffff",
-            troughcolor="#ffffff",
-            bordercolor="#ffffff",
-            arrowcolor="#1f2937",
-        )
 
         # Pill Style Navigation Buttons
         style.configure(
