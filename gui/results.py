@@ -438,8 +438,8 @@ def build_detail_section(parent, on_format_open_callback):
 
     views = {
         "overview": (overview_view, "Panoramica Formati"),
-        "pockets": (pocket_view, "Tipi Cassetti"),
-        "heads": (head_view, "Tipi Teste Robot"),
+        "pockets": (pocket_view, "Formati Cassetti"),
+        "heads": (head_view, "Formati Teste Robot"),
     }
 
     pill_buttons = {}
