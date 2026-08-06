@@ -80,7 +80,8 @@ def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict =
 
     start_row = 0
     if cartoner_image is not None:
-        image_label = ttk.Label(frame, image=cartoner_image)
+        import tkinter as tk
+        image_label = tk.Label(frame, image=cartoner_image, bd=0, highlightthickness=0, bg="#ffffff")
         image_label.image = cartoner_image
         image_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
         start_row = 1
