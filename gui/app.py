@@ -223,8 +223,13 @@ class OptimizerApp(tk.Tk):
         style.configure("TButton", font=default_font, padding=(10, 5), borderwidth=1)
 
         # Entry fields
-        style.configure("TEntry", fieldbackground="#ffffff", padding=4)
-        style.configure("Yellow.TEntry", fieldbackground="#fef08a")
+        style.configure("TEntry", fieldbackground="#ffffff", padding=4, bordercolor="#d1d5db", focuscolor=primary_red)
+        style.map("TEntry", bordercolor=[("focus", primary_red)], focuscolor=[("focus", primary_red)])
+        style.configure("Yellow.TEntry", fieldbackground="#fef08a", bordercolor="#d1d5db", focuscolor=primary_red)
+
+        # Checkbutton fields
+        style.configure("TCheckbutton", background=bg_main, foreground=fg_text)
+        style.map("TCheckbutton", background=[("active", bg_main)])
 
         # Treeview
         style.configure(
@@ -737,18 +742,22 @@ class OptimizerApp(tk.Tk):
         dialog.title("Nuovo Progetto")
         dialog.geometry("350x200")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
         result = {"name": None, "use_defaults": False}
 
-        ttk.Label(dialog, text="Nome Progetto:").pack(pady=(15, 5))
-        name_entry = ttk.Entry(dialog, width=35)
+        main_frame = ttk.Frame(dialog, padding=15)
+        main_frame.pack(fill="both", expand=True)
+
+        ttk.Label(main_frame, text="Nome Progetto:").pack(pady=(5, 5))
+        name_entry = ttk.Entry(main_frame, width=35)
         name_entry.pack(pady=5)
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="usa dati di esempio per i formati stick", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(main_frame, text="usa dati di esempio per i formati stick", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
@@ -759,7 +768,7 @@ class OptimizerApp(tk.Tk):
             result["use_defaults"] = use_defaults_var.get()
             dialog.destroy()
 
-        ttk.Button(dialog, text="Crea", command=on_ok).pack(pady=10)
+        ttk.Button(main_frame, text="Crea", command=on_ok).pack(pady=10)
 
         self.wait_window(dialog)
 
