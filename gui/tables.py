@@ -103,7 +103,7 @@ class HierarchicalInputTable(ttk.Frame):
         buttons.grid(row=current_row, column=0, sticky="ew", pady=(6, 0))
 
         ttk.Button(buttons, text="Agg. Stick", style="White.TButton", command=self.add_stick).pack(side="left")
-        ttk.Button(buttons, text="Agg. Formato", style="White.TButton", style="White.TButton", command=self.add_format).pack(side="left", padx=4)
+        ttk.Button(buttons, text="Agg. Formato", style="White.TButton", command=self.add_format).pack(side="left", padx=4)
 
         self.tree.bind("<Double-1>", self._start_cell_edit)
         self.tree.bind("<Button-1>", self._handle_single_click)
