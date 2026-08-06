@@ -697,7 +697,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
         )
 
 
-def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
+def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Dettaglio formato - {candidate.format_name}")
@@ -758,7 +758,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     style = ttk.Style()
     style.configure("Bold.Treeview", font=("Segoe UI", 9, "bold"))
     
-    populate_format_detail(tree, candidate, pocket_height=pocket_height, show_details=show_details)
+    populate_format_detail(tree, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=show_details)
 
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
     canvas.pack(fill="both", expand=True)
@@ -887,7 +887,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
+def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True) -> None:
     clear_tree(tree)
 
     tag_bold = "bold_tag"
@@ -934,7 +934,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             "Testa Robot",
             [
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
-                ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * getattr(candidate, "sticks_per_beat", 1)),
+                ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * sticks_per_beat),
                 ("Raggruppamento", candidate.grouping),
             ],
         ),

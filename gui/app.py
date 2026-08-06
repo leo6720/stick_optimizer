@@ -1625,7 +1625,13 @@ class OptimizerApp(tk.Tk):
 
         pocket_height = max_b_by_pocket.get(candidate.pocket_type, getattr(candidate, "carton_B_mm", 0.0) or 0.0)
 
-        open_format_detail_popup(self, candidate, pocket_height=pocket_height, show_details=self.show_score_penalty_details.get())
+        sticks_per_beat = 1.0
+        try:
+            sticks_per_beat = float(self.global_entries["sticks_per_beat"].get().strip())
+        except Exception:
+            pass
+
+        open_format_detail_popup(self, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=self.show_score_penalty_details.get())
 
     # ------------------------------------------------------------------
     # Result filtering
