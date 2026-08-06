@@ -750,3 +750,62 @@
 # 2026-08-06 10:07:54.790028
 +/git push -u origin 06-08-01-fork
 +
+
+# 2026-08-06 13:02:50.770564
++/add gui/app.py
+
+# 2026-08-06 13:02:54.866054
++/add gui/results.py
+
+# 2026-08-06 13:03:21.257649
++i want the horizontal bar background to be white instead of light gray
+
+# 2026-08-06 13:03:36.737163
++i want the horizontal scrollbar background to be white instead of light gray
+
+# 2026-08-06 13:04:02.424267
++d
+
+# 2026-08-06 13:04:13.665677
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:04:57.666972
++absolutely did not have any result. isn't the frame background dictating that colour
+
+# 2026-08-06 13:05:47.679711
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:06:34.991058
++anythong you do makes absolutely no difference whatsoever to the appearence of the bar. Aren't you smart?
+
+# 2026-08-06 13:07:14.650081
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:08:42.869149
++the bakckgroung of the scrollbar appears to be f0f0f0 colour. does that help?
+
+# 2026-08-06 13:09:22.852023
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:10:09.982514
++now the background is white but the bar look like it came out of the 90s it's awful
+
+# 2026-08-06 13:10:38.544622
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:11:07.525821
++go bak to how it was at the beginning
+
+# 2026-08-06 13:11:59.837841
++go bak to before moving to ttk bc now its crashing
+
+# 2026-08-06 13:12:10.168688
++y
+
+# 2026-08-06 13:12:20.037112
++n

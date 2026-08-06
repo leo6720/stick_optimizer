@@ -321,7 +321,7 @@ def build_detail_section(parent, on_format_open_callback):
     content_container.pack(fill="both", expand=True)
 
     # View Frames
-    overview_view = tk.Frame(content_container, bg="#ffffff")
+    overview_view = ttk.Frame(content_container)
     pocket_view = ttk.Frame(content_container)
     head_view = ttk.Frame(content_container)
 
@@ -384,14 +384,18 @@ def build_detail_section(parent, on_format_open_callback):
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
-        height=12,
+        width=18,
+
         bd=0,
-        bg="#e5e7eb",
-        troughcolor="#ffffff",
-        activebackground="#d1d5db",
-        highlightthickness=0,
         relief="flat",
-        elementborderwidth=0
+        activerelief="flat",
+
+        highlightthickness=0,
+        elementborderwidth=0,
+        
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#f3f4f6"
     )
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
