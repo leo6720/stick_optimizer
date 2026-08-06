@@ -380,27 +380,23 @@ def build_detail_section(parent, on_format_open_callback):
         overview_tree.heading(col, text=overview_headings[col])
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
-    overview_scroll_x = ttk.Scrollbar(
+    overview_scroll_x = tk.Scrollbar(
         overview_view,
         orient="horizontal",
-        style="Minimal.Horizontal.TScrollbar",
         command=overview_tree.xview,
+        width=20,                 # thickness
+        relief="flat",
+        bd=0,
+        bg="#4b5563",
+        activebackground="#1f2937",
+        troughcolor="#ffffff",
+        highlightthickness=0,
     )
+
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
 
     overview_tree.pack(fill="both", expand=True)
-    scrollbar_frame = ttk.Frame(overview_view, height=20)
-    scrollbar_frame.pack(fill="x")
-    scrollbar_frame.pack_propagate(False)
-
-    overview_scroll_x = ttk.Scrollbar(
-        scrollbar_frame,
-        orient="horizontal",
-        style="Minimal.Horizontal.TScrollbar",
-        command=overview_tree.xview,
-    )
-
-    overview_scroll_x.pack(fill="both", expand=True)
+    overview_scroll_x.pack(fill="x")
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
