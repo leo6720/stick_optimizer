@@ -892,7 +892,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
                 ("raggruppamento", candidate.grouping),
                 ("cassetti per passo", candidate.pockets_per_pitch),
                 ("passo cassetto", candidate.pocket_pitch),
-                ("passo astucciatrice", candidate.cartoner_pitch),
+                ("passo trasporto prodotto", candidate.cartoner_pitch),
             ],
         ),
         (
@@ -902,8 +902,6 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
                 ("altezza cassetto", pocket_height),
                 ("lunghezza cassetto", candidate.pocket_length),
                 ("divisori", candidate.dividers),
-                ("larghezza occupata", candidate.occupied_width),
-                ("spazio non utilizzato", candidate.unused_space),
                 ("tipo cassetto", candidate.pocket_type),
             ],
         ),
