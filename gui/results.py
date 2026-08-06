@@ -170,7 +170,28 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
         )
         tree.column(col, width=RESULT_WIDTHS[col], anchor="center")
 
-    tree.pack(fill="both", expand=True)
+    tree_container = ttk.Frame(frame)
+    tree_container.pack(fill="both", expand=True)
+
+    scroll_y = tk.Scrollbar(
+        tree_container,
+        orient="vertical",
+        command=tree.yview,
+        width=18,
+        bd=0,
+        relief="flat",
+        activerelief="flat",
+        highlightthickness=0,
+        elementborderwidth=0,
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#f3f4f6"
+    )
+    tree.configure(yscrollcommand=scroll_y.set)
+
+    tree.pack(side="left", fill="both", expand=True)
+    scroll_y.pack(side="right", fill="y")
+
     tree.bind("<<TreeviewSelect>>", on_select_callback)
 
     return frame, tree
