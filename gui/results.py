@@ -185,7 +185,7 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
         elementborderwidth=0,
         bg="#bdbdbd",
         activebackground="#a8a8a8",
-        troughcolor="#f3f4f6"
+        troughcolor="#F0F0F0"
     )
     tree.configure(yscrollcommand=scroll_y.set)
 
@@ -336,7 +336,7 @@ def build_detail_section(parent, on_format_open_callback):
 
     # Segmented Pill Selector for table views
     style = ttk.Style()
-    style.configure("PillInactive.TButton", background="#f3f4f6", foreground="#1f2937")
+    style.configure("PillInactive.TButton", background="#F0F0F0", foreground="#1f2937")
     style.configure("PillActive.TButton", background="#dc2626", foreground="#ffffff")
 
     pill_frame = ttk.Frame(frame)
@@ -420,7 +420,7 @@ def build_detail_section(parent, on_format_open_callback):
         
         bg="#bdbdbd",
         activebackground="#a8a8a8",
-        troughcolor="#f3f4f6"
+        troughcolor="#F0F0F0"
     )
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)

@@ -186,7 +186,7 @@ class OptimizerApp(tk.Tk):
 
         # Colors
         bg_main = "#ffffff"
-        bg_sidebar = "#f3f4f6"
+        bg_sidebar = "#F0F0F0"
         bg_card = "#ffffff"
         fg_text = "#1f2937"
         primary_red = "#dc2626"
@@ -293,7 +293,7 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "TCombobox",
             fieldbackground="#ffffff",
-            background="#f3f4f6",
+            background="#F0F0F0",
             bordercolor="#d1d5db",
             arrowcolor=fg_text,
             padding=4,
@@ -336,7 +336,7 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "Treeview.Heading",
             font=("Segoe UI", 9, "bold"),
-            background="#f3f4f6",
+            background="#F0F0F0",
             foreground="#374151",
             padding=(4, 6),
             borderwidth=0,
@@ -344,7 +344,7 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Treeview.Heading",
-            background=[("active", "#f3f4f6"), ("pressed", "#e5e7eb")],
+            background=[("active", "#F0F0F0"), ("pressed", "#e5e7eb")],
             relief=[("active", "flat"), ("pressed", "flat")],
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])

@@ -87,7 +87,7 @@ class HierarchicalInputTable(ttk.Frame):
             elementborderwidth=0,
             bg="#bdbdbd",
             activebackground="#a8a8a8",
-            troughcolor="#f3f4f6"
+            troughcolor="#F0F0F0"
         )
         self.tree.configure(yscrollcommand=scroll_y.set)
 
