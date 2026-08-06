@@ -700,3 +700,53 @@
 # 2026-08-05 14:31:06.408766
 +/git push -u origin 30-07-02-fork
 +
+
+# 2026-08-06 09:57:44.808929
++n
+
+# 2026-08-06 09:58:54.716814
++/add gui/app.py
+
+# 2026-08-06 09:59:30.871951
++the three buttons in dettagli soluzione. make them touch each other on the sides.
+
+# 2026-08-06 09:59:50.777644
++y
+
+# 2026-08-06 10:00:12.365529
++n
+
+# 2026-08-06 10:00:44.021860
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:02:59.990550
++the horizontal scroll bar i see in panoramica formati. ca you make its appearence mmore minimal? 
+
+# 2026-08-06 10:03:19.158629
++d
+
+# 2026-08-06 10:03:26.008041
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:04:29.137636
++thaths better but now it is a bit hard to understand what's going on with it
+
+# 2026-08-06 10:04:57.049313
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:06:22.081815
++you should remove the border surrounding the whole bar space. and make the bar itself and the two end stops darker
+
+# 2026-08-06 10:06:39.151012
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:07:12.446795
++make it 50% thicker
+
+# 2026-08-06 10:07:54.790028
++/git push -u origin 06-08-01-fork
++
