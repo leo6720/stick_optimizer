@@ -75,17 +75,15 @@ FILTER_OPERATORS = (
 
 
 FORMAT_OVERVIEW_COLUMNS = (
-    "input_pitch",
     "grouping",
+    "layers",
+    "stack_height",
+    "input_pitch",
     "dividers",
     "pockets_per_pitch",
     "pocket",
-    "pocket_length",
-    "layers",
-    "stack_height",
-    "carton_A",
-    "carton_B",
     "carton_ab_ratio",
+    "pocket_length",
     "carton_ab_penalty",
     "carryover",
     "head_type",
@@ -144,11 +142,18 @@ def result_display_value(solution, column_name):
 
 
 def build_results_section(parent, on_select_callback, on_header_filter_callback):
-    frame = ttk.LabelFrame(
+    frame = ttk.Frame(
         parent,
-        text="Migliori soluzioni",
-        padding=8,
+        style="Card.TFrame",
+        padding=12,
     )
+
+    header = ttk.Label(
+        frame,
+        text="Migliori Soluzioni",
+        style="Header.TLabel",
+    )
+    header.pack(anchor="w", pady=(0, 8))
 
     tree = ttk.Treeview(
         frame,
@@ -223,16 +228,24 @@ def build_detail_section(parent, on_format_open_callback):
 
     Layout:
     - Solution summary
-    - Format overview
-    - Pocket types used
-    - Robot head types used
+    - Tabbed Notebook:
+      * Panoramica formati
+      * Tipi cassetti usati
+      * Tipi teste robot usate
 
     Full format details are opened in a popup on double click.
     """
-    frame = ttk.LabelFrame(parent, text="Dettagli soluzione selezionata", padding=8)
+    frame = ttk.Frame(parent, style="Card.TFrame", padding=12)
 
-    summary_frame = ttk.LabelFrame(frame, text="Riepilogo soluzione", padding=8)
-    summary_frame.pack(fill="x", pady=(0, 8))
+    title_label = ttk.Label(
+        frame,
+        text="Dettagli Soluzione Selezionata",
+        style="Header.TLabel",
+    )
+    title_label.pack(anchor="w", pady=(0, 8))
+
+    summary_frame = ttk.Frame(frame, style="Card.TFrame")
+    summary_frame.pack(fill="x", pady=(0, 12))
 
     summary_fields = [
         "score",
@@ -271,6 +284,8 @@ def build_detail_section(parent, on_format_open_callback):
         name_label = ttk.Label(
             summary_frame,
             text=summary_translations.get(field_name, field_name.replace("_", " ")),
+            style="Card.TLabel",
+            font=("Segoe UI", 9, "bold"),
         )
 
         name_label.grid(
@@ -285,6 +300,7 @@ def build_detail_section(parent, on_format_open_callback):
             summary_frame,
             text="-",
             width=14,
+            style="Card.TLabel",
         )
         value_label.grid(
             row=row,
@@ -297,18 +313,30 @@ def build_detail_section(parent, on_format_open_callback):
         summary_vars[field_name] = value_label
         summary_name_labels[field_name] = name_label
 
-    overview_frame = ttk.LabelFrame(
-        frame,
-        text="Panoramica formati - doppio clic su una riga per i dettagli completi",
-        padding=8,
-    )
-    overview_frame.pack(fill="both", expand=True, pady=(0, 8))
+    # Segmented Pill Selector for table views
+    pill_frame = ttk.Frame(frame)
+    pill_frame.pack(anchor="w", pady=(0, 8))
 
+    content_container = ttk.Frame(frame)
+    content_container.pack(fill="both", expand=True)
+
+    # View Frames
+    overview_view = ttk.Frame(content_container)
+    pocket_view = ttk.Frame(content_container)
+    head_view = ttk.Frame(content_container)
+
+    for view in (overview_view, pocket_view, head_view):
+        view.grid(row=0, column=0, sticky="nsew")
+
+    content_container.grid_rowconfigure(0, weight=1)
+    content_container.grid_columnconfigure(0, weight=1)
+
+    # Overview table
     overview_tree = ttk.Treeview(
-        overview_frame,
+        overview_view,
         columns=FORMAT_OVERVIEW_COLUMNS,
         show="tree headings",
-        height=7,
+        height=6,
     )
 
     overview_tree.heading("#0", text="Stick / Formato")
@@ -319,13 +347,11 @@ def build_detail_section(parent, on_format_open_callback):
         "grouping": "Raggrup.",
         "dividers": "Div.",
         "pockets_per_pitch": "Cass/Passo",
-        "pocket": "Cassetto L x A",
+        "pocket": "A x B",
+        "carton_ab_ratio": "A/B",
         "pocket_length": "Lungh. cassetto",
         "layers": "Strati",
         "stack_height": "Alt. impil.",
-        "carton_A": "A",
-        "carton_B": "B",
-        "carton_ab_ratio": "A/B",
         "carton_ab_penalty": "Pen. A/B",
         "carryover": "Riporto",
         "head_type": "Tipo testa",
@@ -340,12 +366,10 @@ def build_detail_section(parent, on_format_open_callback):
         "dividers": 50,
         "pockets_per_pitch": 70,
         "pocket": 90,
+        "carton_ab_ratio": 60,
         "pocket_length": 90,
         "layers": 60,
         "stack_height": 70,
-        "carton_A": 60,
-        "carton_B": 60,
-        "carton_ab_ratio": 60,
         "carton_ab_penalty": 75,
         "carryover": 80,
         "head_type": 110,
@@ -357,7 +381,7 @@ def build_detail_section(parent, on_format_open_callback):
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
     overview_scroll_x = ttk.Scrollbar(
-        overview_frame,
+        overview_view,
         orient="horizontal",
         command=overview_tree.xview,
     )
@@ -368,25 +392,40 @@ def build_detail_section(parent, on_format_open_callback):
 
     overview_tree.bind("<Double-1>", on_format_open_callback)
 
-    commonality_frame = ttk.Frame(frame)
-    commonality_frame.pack(fill="both", expand=True)
+    # Pocket Types table
+    pocket_tree = _build_pocket_type_table(pocket_view)
 
-    pocket_frame = ttk.LabelFrame(
-        commonality_frame,
-        text="Tipi di cassetti utilizzati",
-        padding=8,
-    )
-    pocket_frame.pack(side="left", fill="both", expand=True, padx=(0, 4))
+    # Robot Head Types table
+    head_tree = _build_robot_head_type_table(head_view)
 
-    head_frame = ttk.LabelFrame(
-        commonality_frame,
-        text="Tipi di teste robot utilizzate",
-        padding=8,
-    )
-    head_frame.pack(side="left", fill="both", expand=True, padx=(4, 0))
+    views = {
+        "overview": (overview_view, "Panoramica Formati"),
+        "pockets": (pocket_view, "Tipi Cassetti"),
+        "heads": (head_view, "Tipi Teste Robot"),
+    }
 
-    pocket_tree = _build_pocket_type_table(pocket_frame)
-    head_tree = _build_robot_head_type_table(head_frame)
+    pill_buttons = {}
+
+    def switch_view(selected_key):
+        for key, (view_frame, _) in views.items():
+            if key == selected_key:
+                view_frame.tkraise()
+                pill_buttons[key].configure(style="PillActive.TButton")
+            else:
+                pill_buttons[key].configure(style="PillInactive.TButton")
+
+    for key, (_, label_text) in views.items():
+        btn = ttk.Button(
+            pill_frame,
+            text=label_text,
+            style="PillInactive.TButton",
+            command=lambda k=key: switch_view(k),
+        )
+        btn.pack(side="left", padx=(0, 6))
+        pill_buttons[key] = btn
+
+    # Default to overview
+    switch_view("overview")
 
     widgets = {
         "summary_frame": summary_frame,
@@ -531,17 +570,15 @@ def populate_solution_details(widgets, solution) -> None:
             iid=f"cand_{index}",
             text=candidate.format_name.split('_')[-1],
             values=(
-                fmt(candidate.adjusted_input_pitch),
                 candidate.grouping,
+                candidate.layers,
+                fmt(candidate.stack_height),
+                fmt(candidate.adjusted_input_pitch),
                 candidate.dividers,
                 candidate.pockets_per_pitch,
                 pocket_wh,
-                fmt(candidate.pocket_length),
-                candidate.layers,
-                fmt(candidate.stack_height),
-                fmt(getattr(candidate, "carton_A_mm", "")),
-                fmt(carton_b),
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
+                fmt(candidate.pocket_length),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
                 carryover,
                 candidate.robot_head_type,

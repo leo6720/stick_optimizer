@@ -34,19 +34,22 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
     Main page only shows MT fields.
     Cartoner settings are edited from menu popup.
     """
-    outer_frame = ttk.Frame(parent)
+    outer_frame = ttk.Frame(parent, style="Sidebar.TFrame", padding=12)
 
     entries = {}
 
-    mt_frame = ttk.LabelFrame(
+    title_label = ttk.Label(
         outer_frame,
         text="Dati MT",
-        padding=8,
+        style="SidebarHeader.TLabel",
     )
-    mt_frame.pack(fill="x")
+    title_label.pack(anchor="w", pady=(0, 8))
+
+    mt_content = ttk.Frame(outer_frame, style="Sidebar.TFrame")
+    mt_content.pack(fill="x")
 
     if mt_image is not None:
-        image_label = ttk.Label(mt_frame, image=mt_image)
+        image_label = ttk.Label(mt_content, image=mt_image, style="Sidebar.TLabel")
         image_label.image = mt_image
         image_label.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 8))
 
@@ -56,12 +59,13 @@ def build_grouped_global_settings_form(parent, entry_width: int = 10, mt_image=N
 
     start_row = 1 if mt_image is not None else 0
     _add_fields_to_frame(
-        mt_frame,
+        mt_content,
         mt_fields,
         entries,
         entry_width=entry_width,
         label_width=20,
         start_row=start_row,
+        style_prefix="Sidebar.",
     )
 
     return outer_frame, entries
@@ -76,7 +80,8 @@ def build_cartoner_settings_form(parent, entry_width: int = 12, defaults: dict =
 
     start_row = 0
     if cartoner_image is not None:
-        image_label = ttk.Label(frame, image=cartoner_image)
+        import tkinter as tk
+        image_label = tk.Label(frame, image=cartoner_image, bd=0, highlightthickness=0, bg="#ffffff")
         image_label.image = cartoner_image
         image_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
         start_row = 1
@@ -103,9 +108,12 @@ def _add_fields_to_frame(
     label_width,
     start_row: int = 0,
     labels=None,
+    style_prefix: str = "",
 ):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
+
+    label_style = f"{style_prefix}TLabel" if style_prefix else "TLabel"
 
     for row, field_name in enumerate(field_names, start=start_row):
         label = ttk.Label(
@@ -113,6 +121,7 @@ def _add_fields_to_frame(
             text=DISPLAY_LABELS.get(field_name, field_name),
             width=label_width,
             anchor="w",
+            style=label_style,
         )
 
         label.grid(
@@ -153,10 +162,6 @@ def _add_fields_to_frame_with_defaults(
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=0)
 
-    style = ttk.Style()
-    style.configure("Yellow.TEntry", fieldbackground="lightyellow")
-    style.map("Yellow.TEntry", fieldbackground=[("active", "lightyellow"), ("!disabled", "lightyellow")])
-
     for row, field_name in enumerate(field_names, start=start_row):
         default_val = defaults.get(field_name, "")
         display_text = f"{DISPLAY_LABELS.get(field_name, field_name)}  ({default_val})"
@@ -189,32 +194,6 @@ def _add_fields_to_frame_with_defaults(
             sticky="e",
             pady=2,
         )
-
-        def make_validation(e, d):
-            def check(*_args):
-                try:
-                    current_val = e.get().strip()
-                    expected = str(d).strip()
-                    if current_val != expected:
-                        e.configure(style="Yellow.TEntry")
-                        try:
-                            e.config(background="lightyellow")
-                        except Exception:
-                            pass
-                    else:
-                        e.configure(style="TEntry")
-                        try:
-                            e.config(background="white")
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
-            return check
-
-        validation_cmd = make_validation(entry, default_val)
-        entry.bind("<KeyRelease>", validation_cmd)
-        # Check initial state on creation
-        validation_cmd()
 
         entries[field_name] = entry
 

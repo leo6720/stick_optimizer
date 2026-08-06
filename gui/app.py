@@ -91,6 +91,8 @@ class OptimizerApp(tk.Tk):
         self.geometry("1450x900")
         self.minsize(1200, 720)
 
+        self._configure_styles()
+
         # Ensure container structure exists before loading UI
         self.main_container = None
         self.home_frame = None
@@ -122,6 +124,7 @@ class OptimizerApp(tk.Tk):
         self.current_max_pitch_shift_mm = DEFAULT_GLOBAL_SETTINGS.max_pitch_shift_mm
 
         self.status_var = tk.StringVar(value="Ready")
+        self.project_name_var = tk.StringVar(value="")
 
         self.mt_image = self._load_ui_image("dati_mt")
         self.cartoner_image = self._load_ui_image("dati_astucciatrice")
@@ -169,7 +172,227 @@ class OptimizerApp(tk.Tk):
                     print("ERROR:", e)
 
         return None
-        
+
+    def _configure_styles(self) -> None:
+        """Centralized modern industrial/engineering style configuration."""
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        # Fonts
+        default_font = ("Segoe UI", 10)
+        bold_font = ("Segoe UI", 11, "bold")
+        small_font = ("Segoe UI", 9)
+
+        # Colors
+        bg_main = "#ffffff"
+        bg_sidebar = "#f3f4f6"
+        bg_card = "#ffffff"
+        fg_text = "#1f2937"
+        primary_red = "#dc2626"
+        primary_red_active = "#b91c1c"
+
+        self.configure(bg=bg_main)
+
+        style.configure(".", font=default_font, background=bg_main, foreground=fg_text)
+        style.configure("TFrame", background=bg_main)
+        style.configure("Sidebar.TFrame", background=bg_sidebar)
+        style.configure("Card.TFrame", background=bg_card, relief="flat")
+        style.configure("TLabel", background=bg_main, foreground=fg_text)
+        style.configure("Sidebar.TLabel", background=bg_sidebar, foreground=fg_text)
+        style.configure("Card.TLabel", background=bg_card, foreground=fg_text)
+        style.configure("Header.TLabel", font=bold_font, foreground="#111827", background=bg_main)
+        style.configure("SidebarHeader.TLabel", font=bold_font, foreground="#111827", background=bg_sidebar)
+
+        # Primary Action Button ("Calcola")
+        style.configure(
+            "Primary.TButton",
+            font=("Segoe UI", 11, "bold"),
+            background=primary_red,
+            foreground="#ffffff",
+            padding=(24, 10),
+            borderwidth=3,
+            bordercolor=primary_red,
+            lightcolor=primary_red,
+            darkcolor=primary_red,
+            focusthickness=0,
+        )
+        style.map(
+            "Primary.TButton",
+            background=[("active", primary_red_active), ("disabled", "#9ca3af")],
+            bordercolor=[("active", primary_red_active), ("disabled", "#9ca3af")],
+            lightcolor=[("active", primary_red_active), ("disabled", "#9ca3af")],
+            darkcolor=[("active", primary_red_active), ("disabled", "#9ca3af")],
+            foreground=[("disabled", "#f3f4f6")],
+        )
+
+        # Standard Buttons
+        style.configure(
+            "TButton",
+            font=default_font,
+            padding=(12, 6),
+            borderwidth=3,
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focusthickness=0,
+            relief="flat",
+            background="#e5e7eb",
+            foreground=fg_text,
+        )
+        style.map(
+            "TButton",
+            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
+            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            foreground=[("active", fg_text), ("pressed", fg_text)],
+            relief=[("active", "flat"), ("pressed", "flat")],
+        )
+
+        # Entry fields
+        style.configure(
+            "TEntry",
+            fieldbackground="#ffffff",
+            padding=4,
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focuscolor=primary_red,
+            focusthickness=1,
+        )
+        style.map(
+            "TEntry",
+            bordercolor=[("focus", primary_red)],
+            lightcolor=[("focus", primary_red)],
+            darkcolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
+        style.configure(
+            "Yellow.TEntry",
+            fieldbackground="#fef08a",
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focuscolor=primary_red,
+            focusthickness=1,
+        )
+        style.map(
+            "Yellow.TEntry",
+            bordercolor=[("focus", primary_red)],
+            lightcolor=[("focus", primary_red)],
+            darkcolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
+
+        # Checkbutton fields
+        style.configure("TCheckbutton", background=bg_main, foreground=fg_text)
+        style.map("TCheckbutton", background=[("active", bg_main)])
+
+        # Combobox fields
+        style.configure(
+            "TCombobox",
+            fieldbackground="#ffffff",
+            background="#f3f4f6",
+            bordercolor="#d1d5db",
+            arrowcolor=fg_text,
+            padding=4,
+        )
+        style.map(
+            "TCombobox",
+            fieldbackground=[("readonly", "#ffffff")],
+            background=[("active", "#e5e7eb"), ("pressed", "#d1d5db")],
+            bordercolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
+
+        # Dropdown Menus (tk.Menu styling via option database)
+        self.option_add("*Menu.background", "#ffffff")
+        self.option_add("*Menu.foreground", fg_text)
+        self.option_add("*Menu.activeBackground", "#e5e7eb")
+        self.option_add("*Menu.activeForeground", fg_text)
+        self.option_add("*Menu.borderWidth", 0)
+        self.option_add("*Menu.activeBorderWidth", 0)
+
+        # Combobox Dropdown Listbox styling for subtle shadow/border and vertical spacing
+        self.option_add("*TCombobox*Listbox.background", "#ffffff")
+        self.option_add("*TCombobox*Listbox.foreground", fg_text)
+        self.option_add("*TCombobox*Listbox.selectBackground", "#fee2e2")
+        self.option_add("*TCombobox*Listbox.selectForeground", "#991b1b")
+        self.option_add("*TCombobox*Listbox.borderWidth", 1)
+        self.option_add("*TCombobox*Listbox.relief", "flat")
+        self.option_add("*TCombobox*Listbox.font", ("Segoe UI", 11))
+        self.option_add("*TCombobox*Listbox.selectBorderWidth", 6)
+
+        # Treeview
+        style.configure(
+            "Treeview",
+            font=default_font,
+            rowheight=26,
+            fieldbackground="#ffffff",
+            background="#ffffff",
+            borderColor="#e5e7eb",
+        )
+        style.configure(
+            "Treeview.Heading",
+            font=("Segoe UI", 9, "bold"),
+            background="#f3f4f6",
+            foreground="#374151",
+            padding=(4, 6),
+            borderwidth=0,
+            relief="flat",
+        )
+        style.map(
+            "Treeview.Heading",
+            background=[("active", "#f3f4f6"), ("pressed", "#e5e7eb")],
+            relief=[("active", "flat"), ("pressed", "flat")],
+        )
+        style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
+
+        # Pill Style Navigation Buttons
+        style.configure(
+            "PillActive.TButton",
+            font=("Segoe UI", 9, "bold"),
+            background=primary_red,
+            foreground="#ffffff",
+            padding=(12, 5),
+            borderwidth=2,
+            bordercolor=primary_red,
+            lightcolor=primary_red,
+            darkcolor=primary_red,
+            focusthickness=0,
+            relief="flat",
+        )
+        style.map(
+            "PillActive.TButton",
+            background=[("active", primary_red_active), ("pressed", primary_red_active)],
+            bordercolor=[("active", primary_red_active), ("pressed", primary_red_active)],
+            lightcolor=[("active", primary_red_active), ("pressed", primary_red_active)],
+            darkcolor=[("active", primary_red_active), ("pressed", primary_red_active)],
+            foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
+        )
+
+        style.configure(
+            "PillInactive.TButton",
+            font=("Segoe UI", 9, "bold"),
+            background="#e5e7eb",
+            foreground="#4b5563",
+            padding=(12, 5),
+            borderwidth=2,
+            bordercolor="#d1d5db",
+            lightcolor="#d1d5db",
+            darkcolor="#d1d5db",
+            focusthickness=0,
+            relief="flat",
+        )
+        style.map(
+            "PillInactive.TButton",
+            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
+            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
+            foreground=[("active", fg_text), ("pressed", fg_text)],
+        )
+
     # ------------------------------------------------------------------
     # Menu bar
     # ------------------------------------------------------------------
@@ -285,34 +508,37 @@ class OptimizerApp(tk.Tk):
 
     def _build_layout(self) -> None:
         """Build main window layout (hidden initially)."""
-        self.main_container = ttk.Frame(self, padding=8)
+        self.main_container = ttk.Frame(self, padding=0)
         root = self.main_container
 
-        toolbar = ttk.Frame(root)
-        toolbar.pack(fill="x", pady=(0, 8))
+        # Main splitter layout
+        main_pane = tk.PanedWindow(root, orient="horizontal")
+        main_pane.pack(fill="both", expand=True)
+
+        left_pane = ttk.Frame(main_pane, style="Sidebar.TFrame", padding=12)
+        right_pane = ttk.Frame(main_pane, padding=(12, 12, 12, 0))
+
+        main_pane.add(left_pane, minsize=150, stretch="never")
+        main_pane.add(right_pane, stretch="always")
+
+        right_toolbar = ttk.Frame(right_pane)
+        right_toolbar.pack(fill="x", pady=(0, 12))
 
         self.run_button = ttk.Button(
-            toolbar,
+            right_toolbar,
             text="Calcola",
+            style="Primary.TButton",
             command=self.run_optimization,
         )
-        self.run_button.pack(side="left")
+        self.run_button.pack(side="right")
 
-        main_pane = ttk.PanedWindow(root, orient="horizontal")
-        main_pane.pack(fill="both", expand=True, pady=(0, 8))
-
-        left_pane = ttk.Frame(main_pane)
-        right_pane = ttk.Frame(main_pane)
-
-        main_pane.add(left_pane, weight=1)
-        main_pane.add(right_pane, weight=150)
-
+        # Left Sidebar (Inputs)
         global_frame, self.global_entries = build_grouped_global_settings_form(
             left_pane,
             entry_width=14,
             mt_image=self.mt_image,
         )
-        global_frame.pack(fill="x", pady=(0, 8))
+        global_frame.pack(fill="x", pady=(0, 12))
 
         self.input_table = HierarchicalInputTable(
             left_pane,
@@ -320,33 +546,32 @@ class OptimizerApp(tk.Tk):
             header_image=self.stick_types_image,
         )
         self.input_table.pack(fill="both", expand=True)
-        
+
+        # Right Main Area (Results & Solution Details)
         self._build_output_tables(right_pane)
-
-        bottom = ttk.Frame(root)
-        bottom.pack(fill="x", side="bottom")
-
-        self.status_var = tk.StringVar(value="Ready")
-        ttk.Label(
-            bottom,
-            textvariable=self.status_var,
-        ).pack(side="right")
 
 
     def _build_output_tables(self, parent: ttk.Frame) -> None:
         """Build results and detail output sections."""
+        container = ttk.Frame(parent)
+        container.pack(fill="both", expand=True)
+
+        container.rowconfigure(0, weight=5)
+        container.rowconfigure(1, weight=15)
+        container.columnconfigure(0, weight=1)
+
         results_frame, self.results_tree = build_results_section(
-            parent,
+            container,
             self._on_solution_selected,
             self._open_result_column_filter,
         )
-        results_frame.pack(fill="both", expand=True, pady=(0, 8))
+        results_frame.grid(row=0, column=0, sticky="nsew", pady=(0, 8))
 
         detail_frame, self.detail_widgets = build_detail_section(
-            parent,
+            container,
             self._open_selected_format_popup,
         )
-        detail_frame.pack(fill="both", expand=True)
+        detail_frame.grid(row=1, column=0, sticky="nsew")
         
         self._update_score_penalty_columns_visibility()
         
@@ -613,24 +838,30 @@ class OptimizerApp(tk.Tk):
         else:
             self.title(base_title)
 
+        self.project_name_var.set(display_name)
+
     def new_project(self) -> None:
         """Reset application to a new project state."""
         dialog = tk.Toplevel(self)
         dialog.title("Nuovo Progetto")
         dialog.geometry("350x200")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
         result = {"name": None, "use_defaults": False}
 
-        ttk.Label(dialog, text="Nome Progetto:").pack(pady=(15, 5))
-        name_entry = ttk.Entry(dialog, width=35)
+        main_frame = ttk.Frame(dialog, padding=15)
+        main_frame.pack(fill="both", expand=True)
+
+        ttk.Label(main_frame, text="Nome Progetto:").pack(pady=(5, 5))
+        name_entry = ttk.Entry(main_frame, width=35)
         name_entry.pack(pady=5)
         name_entry.focus_set()
 
         use_defaults_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(dialog, text="usa dati di esempio per i formati stick", variable=use_defaults_var).pack(pady=10)
+        ttk.Checkbutton(main_frame, text="usa dati di esempio per i formati stick", variable=use_defaults_var).pack(pady=10)
 
         def on_ok():
             name = name_entry.get().strip()
@@ -641,7 +872,7 @@ class OptimizerApp(tk.Tk):
             result["use_defaults"] = use_defaults_var.get()
             dialog.destroy()
 
-        ttk.Button(dialog, text="Crea", command=on_ok).pack(pady=10)
+        ttk.Button(main_frame, text="Crea", command=on_ok).pack(pady=10)
 
         self.wait_window(dialog)
 
@@ -856,6 +1087,7 @@ class OptimizerApp(tk.Tk):
         dialog.title("Modifica pesi di calcolo")
         dialog.geometry("500x340")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -998,6 +1230,7 @@ class OptimizerApp(tk.Tk):
         else:
             dialog.geometry("480x180")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -1122,7 +1355,7 @@ class OptimizerApp(tk.Tk):
             self.current_max_pitch_shift_mm,
             min_value=0,
             value_type=float,
-            image=self.mt_image
+            image=self._load_ui_image("dati_mt_menu")
         )
 
     def _cartoner_values_dict(self) -> dict:
@@ -1149,6 +1382,7 @@ class OptimizerApp(tk.Tk):
         dialog.title("Dati astucciatrice")
         dialog.geometry("520x720")
         dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
