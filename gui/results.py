@@ -925,6 +925,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             "Testa Robot",
             [
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
+                ("Larghezza testa [mm]", candidate.adjusted_input_pitch * getattr(candidate, "sticks_per_beat", 1)),
                 ("Raggruppamento", candidate.grouping),
             ],
         ),
