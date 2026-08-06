@@ -298,7 +298,8 @@ class OptimizerApp(tk.Tk):
         self.option_add("*Menu.foreground", fg_text)
         self.option_add("*Menu.activeBackground", "#e5e7eb")
         self.option_add("*Menu.activeForeground", fg_text)
-        self.option_add("*Menu.borderWidth", 1)
+        self.option_add("*Menu.borderWidth", 0)
+        self.option_add("*Menu.activeBorderWidth", 0)
 
         # Treeview
         style.configure(
