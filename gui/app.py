@@ -242,11 +242,11 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "TButton",
-            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
-            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            foreground=[("active", fg_text), ("pressed", fg_text)],
+            background=[("active", "#fee2e2"), ("pressed", "#fecaca")],
+            bordercolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            lightcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            darkcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            foreground=[("active", "#991b1b"), ("pressed", "#991b1b")],
             relief=[("active", "flat"), ("pressed", "flat")],
         )
 
