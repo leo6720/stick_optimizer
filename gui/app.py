@@ -276,6 +276,30 @@ class OptimizerApp(tk.Tk):
         style.configure("TCheckbutton", background=bg_main, foreground=fg_text)
         style.map("TCheckbutton", background=[("active", bg_main)])
 
+        # Combobox fields
+        style.configure(
+            "TCombobox",
+            fieldbackground="#ffffff",
+            background="#f3f4f6",
+            bordercolor="#d1d5db",
+            arrowcolor=fg_text,
+            padding=4,
+        )
+        style.map(
+            "TCombobox",
+            fieldbackground=[("readonly", "#ffffff")],
+            background=[("active", "#e5e7eb"), ("pressed", "#d1d5db")],
+            bordercolor=[("focus", primary_red)],
+            focuscolor=[("focus", primary_red)],
+        )
+
+        # Dropdown Menus (tk.Menu styling via option database)
+        self.option_add("*Menu.background", "#ffffff")
+        self.option_add("*Menu.foreground", fg_text)
+        self.option_add("*Menu.activeBackground", "#e5e7eb")
+        self.option_add("*Menu.activeForeground", fg_text)
+        self.option_add("*Menu.borderWidth", 1)
+
         # Treeview
         style.configure(
             "Treeview",
