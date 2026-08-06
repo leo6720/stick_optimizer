@@ -383,6 +383,7 @@ def build_detail_section(parent, on_format_open_callback):
     overview_scroll_x = ttk.Scrollbar(
         overview_view,
         orient="horizontal",
+        style="Minimal.Horizontal.TScrollbar",
         command=overview_tree.xview,
     )
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)

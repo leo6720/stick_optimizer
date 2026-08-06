@@ -371,6 +371,20 @@ class OptimizerApp(tk.Tk):
             foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
         )
 
+        # Minimal Scrollbar Style
+        style.configure(
+            "Minimal.Horizontal.TScrollbar",
+            arrowsize=0,
+            background="#e5e7eb",
+            troughcolor="#ffffff",
+            borderwidth=0,
+            relief="flat",
+        )
+        style.map(
+            "Minimal.Horizontal.TScrollbar",
+            background=[("active", "#d1d5db")],
+        )
+
         style.configure(
             "PillInactive.TButton",
             font=("Segoe UI", 9, "bold"),
