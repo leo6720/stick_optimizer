@@ -393,9 +393,9 @@ def build_detail_section(parent, on_format_open_callback):
         highlightthickness=0,
         elementborderwidth=0,
         
-        bg="#bdbdbd"
-        activebackground="#a8a8a8"
-        troughcolor="#f3f4f6"
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#f3f4f6",
     )
 
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
