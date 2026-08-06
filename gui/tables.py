@@ -75,7 +75,24 @@ class HierarchicalInputTable(ttk.Frame):
             self.tree.heading(key, text=heading)
             self.tree.column(key, width=width, anchor="center")
 
-        self.tree.grid(row=0, column=0, sticky="nsew")
+        scroll_y = tk.Scrollbar(
+            tree_frame,
+            orient="vertical",
+            command=self.tree.yview,
+            width=18,
+            bd=0,
+            relief="flat",
+            activerelief="flat",
+            highlightthickness=0,
+            elementborderwidth=0,
+            bg="#bdbdbd",
+            activebackground="#a8a8a8",
+            troughcolor="#f3f4f6"
+        )
+        self.tree.configure(yscrollcommand=scroll_y.set)
+
+        self.tree.pack(side="left", fill="both", expand=True)
+        scroll_y.pack(side="right", fill="y")
         current_row += 1
 
         buttons = ttk.Frame(self, style="Sidebar.TFrame")
