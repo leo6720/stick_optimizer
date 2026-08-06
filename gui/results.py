@@ -384,11 +384,11 @@ def build_detail_section(parent, on_format_open_callback):
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
-        width=20,                 # thickness
+        width=15,                 # thickness
         relief="flat",
         bd=0,
         bg="#4b5563",
-        activebackground="#1f2937",
+        activebackground="#ffffff",
         troughcolor="#ffffff",
         highlightthickness=0,
     )
