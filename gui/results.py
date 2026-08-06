@@ -721,11 +721,8 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     tree = ttk.Treeview(
         tree_container,
         columns=("value",),
-        show="tree headings",
+        show="tree",
     )
-
-    tree.heading("#0", text="Sezione / Parametro")
-    tree.heading("value", text="Valore")
 
     tree.column("#0", width=200, anchor="w")
     tree.column("value", width=180, anchor="center")
