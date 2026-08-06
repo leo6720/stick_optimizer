@@ -380,8 +380,8 @@ def build_detail_section(parent, on_format_open_callback):
         "stack_height": "Alt. impil.",
         "carton_ab_penalty": "Pen. A/B",
         "carryover": "Riporto",
-        "head_type": "Tipo testa",
-        "pocket_type": "Tipo cassetto",
+        "head_type": "Formato testa",
+        "pocket_type": "Formato cassetto",
     }
 
     overview_widths = {
