@@ -285,8 +285,8 @@ def build_detail_section(parent, on_format_open_callback):
     summary_translations = {
         "score": "Punteggio",
         "cartoner_pitch": "Passo astucciatrice",
-        "number_of_pocket_types": "Numero tipi cassetto",
-        "number_of_robot_head_types": "Numero tipi testa robot",
+        "number_of_pocket_types": "Numero formati cassetto",
+        "number_of_robot_head_types": "Numero formati testa robot",
         "max_layers": "Max strati",
         "total_layer_penalty": "Penalità totale strati",
         "total_carryover_penalty": "Penalità totale riporto",
