@@ -606,7 +606,7 @@ def populate_solution_details(widgets, solution, sticks_per_beat: float = 1.0) -
             stick_parents[s_name],
             "end",
             iid=f"cand_{index}",
-            text=candidate.format_name.split('-')[-1],
+            text=candidate.format_name,
             values=(
                 candidate.grouping,
                 candidate.layers,
@@ -667,7 +667,7 @@ def _populate_pocket_type_commonality(tree, candidates):
             tree.insert(
                 parent_id,
                 "end",
-                text=candidate.format_name.split('-')[-1],
+                text=candidate.format_name,
                 values=("", "", "", "", ""),
             )
 
@@ -703,7 +703,7 @@ def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: flo
             tree.insert(
                 parent_id,
                 "end",
-                text=candidate.format_name.split('-')[-1],
+                text=candidate.format_name,
                 values=("", "", "", ""),
             )
 
@@ -721,7 +721,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     header = ttk.Label(
         main_frame,
-        text=f"Stick: {candidate.stick_type_name} | Impilamento: {candidate.format_name.split('-')[-1]}",
+        text=f"Stick: {candidate.stick_type_name} | Impilamento: {candidate.format_name}",
         font=("TkDefaultFont", 11, "bold"),
     )
     header.pack(anchor="w", pady=(0, 8))
