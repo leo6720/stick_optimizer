@@ -22,8 +22,8 @@ RESULT_HEADINGS = {
     "rank": "Posizione",
     "score": "Punteggio",
     "cartoner_pitch": "Passo astucciatrice",
-    "pocket_types": "Tipi cassetto",
-    "head_types": "Tipi testa",
+    "pocket_types": "Formati cassetto",
+    "head_types": "Formati teste robot",
     "max_layers": "Max strati",
     "layer_penalty": "Pen. strati",
     "carryover_penalty": "Pen. riporto",
@@ -78,16 +78,14 @@ FORMAT_OVERVIEW_COLUMNS = (
     "grouping",
     "layers",
     "stack_height",
-    "input_pitch",
+    "carryover",
+    "pocket_dim",
     "dividers",
     "pockets_per_pitch",
-    "pocket",
+    "carton_dim",
     "carton_ab_ratio",
-    "pocket_length",
     "carton_ab_penalty",
-    "carryover",
     "head_type",
-    "pocket_type",
 )
 
 
@@ -97,14 +95,14 @@ POCKET_TYPE_COLUMNS = (
     "pocket_length",
     "dividers",
     "pockets_per_pitch",
-    "used_by",
 )
 
 
 ROBOT_HEAD_TYPE_COLUMNS = (
-    "grouping",
+    "pockets_per_pitch",
     "adjusted_input_pitch",
-    "used_by",
+    "grouping",
+    "head_width",
 )
 
 
@@ -155,11 +153,14 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
     )
     header.pack(anchor="w", pady=(0, 8))
 
+    tree_container = ttk.Frame(frame)
+    tree_container.pack(fill="both", expand=True)
+
     tree = ttk.Treeview(
-        frame,
+        tree_container,
         columns=RESULT_COLUMNS,
         show="headings",
-        height=8,
+        height=5,
     )
 
     for col in RESULT_COLUMNS:
@@ -170,7 +171,25 @@ def build_results_section(parent, on_select_callback, on_header_filter_callback)
         )
         tree.column(col, width=RESULT_WIDTHS[col], anchor="center")
 
-    tree.pack(fill="both", expand=True)
+    scroll_y = tk.Scrollbar(
+        tree_container,
+        orient="vertical",
+        command=tree.yview,
+        width=18,
+        bd=0,
+        relief="flat",
+        activerelief="flat",
+        highlightthickness=0,
+        elementborderwidth=0,
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#F0F0F0"
+    )
+    tree.configure(yscrollcommand=scroll_y.set)
+
+    tree.pack(side="left", fill="both", expand=True)
+    scroll_y.pack(side="right", fill="y")
+
     tree.bind("<<TreeviewSelect>>", on_select_callback)
 
     return frame, tree
@@ -263,8 +282,8 @@ def build_detail_section(parent, on_format_open_callback):
     summary_translations = {
         "score": "Punteggio",
         "cartoner_pitch": "Passo astucciatrice",
-        "number_of_pocket_types": "Numero tipi cassetto",
-        "number_of_robot_head_types": "Numero tipi testa robot",
+        "number_of_pocket_types": "Numero formati cassetto",
+        "number_of_robot_head_types": "Numero formati testa robot",
         "max_layers": "Max strati",
         "total_layer_penalty": "Penalità totale strati",
         "total_carryover_penalty": "Penalità totale riporto",
@@ -314,6 +333,10 @@ def build_detail_section(parent, on_format_open_callback):
         summary_name_labels[field_name] = name_label
 
     # Segmented Pill Selector for table views
+    style = ttk.Style()
+    style.configure("PillInactive.TButton", background="#F0F0F0", foreground="#1f2937")
+    style.configure("PillActive.TButton", background="#dc2626", foreground="#ffffff")
+
     pill_frame = ttk.Frame(frame)
     pill_frame.pack(anchor="w", pady=(0, 8))
 
@@ -343,48 +366,55 @@ def build_detail_section(parent, on_format_open_callback):
     overview_tree.column("#0", width=150)
 
     overview_headings = {
-        "input_pitch": "Passo ingr.",
         "grouping": "Raggrup.",
-        "dividers": "Div.",
-        "pockets_per_pitch": "Cass/Passo",
-        "pocket": "A x B",
-        "carton_ab_ratio": "A/B",
-        "pocket_length": "Lungh. cassetto",
         "layers": "Strati",
         "stack_height": "Alt. impil.",
-        "carton_ab_penalty": "Pen. A/B",
         "carryover": "Riporto",
-        "head_type": "Tipo testa",
-        "pocket_type": "Tipo cassetto",
+        "pocket_dim": "A x B x H cass.",
+        "dividers": "Div.",
+        "pockets_per_pitch": "Cass/Passo",
+        "carton_dim": "A x B x H astuc.",
+        "carton_ab_ratio": "A/B ast.",
+        "carton_ab_penalty": "Pen. A/B",
+        "head_type": "Formato testa robot",
     }
 
     overview_widths = {
-        "format": 90,
-        "stick_type": 90,
-        "input_pitch": 80,
         "grouping": 60,
-        "dividers": 50,
-        "pockets_per_pitch": 70,
-        "pocket": 90,
-        "carton_ab_ratio": 60,
-        "pocket_length": 90,
         "layers": 60,
         "stack_height": 70,
+        "carryover": 65,
+        "pocket_dim": 130,
+        "dividers": 50,
+        "pockets_per_pitch": 75,
+        "carton_dim": 130,
+        "carton_ab_ratio": 65,
         "carton_ab_penalty": 75,
-        "carryover": 80,
-        "head_type": 110,
-        "pocket_type": 160,
+        "head_type": 140,
     }
 
     for col in FORMAT_OVERVIEW_COLUMNS:
         overview_tree.heading(col, text=overview_headings[col])
         overview_tree.column(col, width=overview_widths[col], anchor="center")
 
-    overview_scroll_x = ttk.Scrollbar(
+    overview_scroll_x = tk.Scrollbar(
         overview_view,
         orient="horizontal",
         command=overview_tree.xview,
+        width=18,
+
+        bd=0,
+        relief="flat",
+        activerelief="flat",
+
+        highlightthickness=0,
+        elementborderwidth=0,
+        
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#F0F0F0"
     )
+
     overview_tree.configure(xscrollcommand=overview_scroll_x.set)
 
     overview_tree.pack(fill="both", expand=True)
@@ -400,8 +430,8 @@ def build_detail_section(parent, on_format_open_callback):
 
     views = {
         "overview": (overview_view, "Panoramica Formati"),
-        "pockets": (pocket_view, "Tipi Cassetti"),
-        "heads": (head_view, "Tipi Teste Robot"),
+        "pockets": (pocket_view, "Formati Cassetti"),
+        "heads": (head_view, "Formati Teste Robot"),
     }
 
     pill_buttons = {}
@@ -421,7 +451,7 @@ def build_detail_section(parent, on_format_open_callback):
             style="PillInactive.TButton",
             command=lambda k=key: switch_view(k),
         )
-        btn.pack(side="left", padx=(0, 6))
+        btn.pack(side="left")
         pill_buttons[key] = btn
 
     # Default to overview
@@ -444,9 +474,12 @@ def _build_pocket_type_table(parent):
     tree = ttk.Treeview(
         parent,
         columns=POCKET_TYPE_COLUMNS,
-        show="headings",
+        show="tree headings",
         height=6,
     )
+
+    tree.heading("#0", text="Formati")
+    tree.column("#0", width=150, anchor="w")
 
     headings = {
         "pocket_width": "Larghezza cassetto",
@@ -454,23 +487,20 @@ def _build_pocket_type_table(parent):
         "pocket_length": "Lunghezza cassetto",
         "dividers": "Divisori",
         "pockets_per_pitch": "Cass/passo",
-        "used_by": "Usato da formati",
     }
 
     widths = {
-        "pocket_width": 90,
-        "pocket_height": 90,
-        "pocket_length": 90,
-        "dividers": 70,
-        "pockets_per_pitch": 70,
-        "used_by": 160,
+        "pocket_width": 110,
+        "pocket_height": 110,
+        "pocket_length": 110,
+        "dividers": 80,
+        "pockets_per_pitch": 80,
     }
 
     for col in POCKET_TYPE_COLUMNS:
         tree.heading(col, text=headings[col])
         tree.column(col, width=widths[col], anchor="center")
 
-    tree.column("used_by", anchor="w")
     tree.pack(fill="both", expand=True)
 
     return tree
@@ -480,27 +510,31 @@ def _build_robot_head_type_table(parent):
     tree = ttk.Treeview(
         parent,
         columns=ROBOT_HEAD_TYPE_COLUMNS,
-        show="headings",
+        show="tree headings",
         height=6,
     )
 
+    tree.heading("#0", text="Formati")
+    tree.column("#0", width=150, anchor="w")
+
     headings = {
+        "pockets_per_pitch": "N° prese",
+        "adjusted_input_pitch": "Passo prelievo",
         "grouping": "Raggruppamento",
-        "adjusted_input_pitch": "Passo ingresso",
-        "used_by": "Usato da formati",
+        "head_width": "Larghezza testa",
     }
 
     widths = {
-        "grouping": 80,
-        "adjusted_input_pitch": 100,
-        "used_by": 260,
+        "pockets_per_pitch": 90,
+        "adjusted_input_pitch": 110,
+        "grouping": 120,
+        "head_width": 120,
     }
 
     for col in ROBOT_HEAD_TYPE_COLUMNS:
         tree.heading(col, text=headings[col])
         tree.column(col, width=widths[col], anchor="center")
 
-    tree.column("used_by", anchor="w")
     tree.pack(fill="both", expand=True)
 
     return tree
@@ -515,7 +549,7 @@ def clear_solution_details(widgets) -> None:
     clear_tree(widgets["robot_head_type_tree"])
 
 
-def populate_solution_details(widgets, solution) -> None:
+def populate_solution_details(widgets, solution, sticks_per_beat: float = 1.0) -> None:
     """Populate summary, format overview and commonality tables."""
     summary_vars = widgets["summary_vars"]
     overview_tree = widgets["format_overview_tree"]
@@ -548,41 +582,43 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(head_tree)
 
     max_b_by_pocket = {}
+    for c in solution.candidates:
+        b_val = getattr(c, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[c.pocket_type] = max(max_b_by_pocket.get(c.pocket_type, 0.0), b_val)
+
     stick_parents = {}
-    
-    for candidate in solution.candidates:
-        b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
     for index, candidate in enumerate(solution.candidates):
         s_name = candidate.stick_type_name
         if s_name not in stick_parents:
             stick_parents[s_name] = overview_tree.insert("", "end", text=s_name, open=True)
 
+        carton_a = getattr(candidate, "carton_A_mm", 0.0) or 0.0
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        pocket_height = max_b_by_pocket.get(candidate.pocket_type, carton_b)
-        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(pocket_height)}"
+        pocket_h = max_b_by_pocket.get(candidate.pocket_type, carton_b)
+
+        pocket_dim_str = f"{fmt(candidate.pocket_width)} x {fmt(pocket_h)} x {fmt(candidate.pocket_length)}"
+        carton_dim_str = f"{fmt(carton_a)} x {fmt(carton_b)} x {fmt(candidate.pocket_length)}"
         carryover = "sì" if candidate.carryover_required else "no"
+        head_type_str = f"{fmt(sticks_per_beat)}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
 
         overview_tree.insert(
             stick_parents[s_name],
             "end",
             iid=f"cand_{index}",
-            text=candidate.format_name.split('_')[-1],
+            text=candidate.format_name,
             values=(
                 candidate.grouping,
                 candidate.layers,
                 fmt(candidate.stack_height),
-                fmt(candidate.adjusted_input_pitch),
+                carryover,
+                pocket_dim_str,
                 candidate.dividers,
                 candidate.pockets_per_pitch,
-                pocket_wh,
+                carton_dim_str,
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
-                fmt(candidate.pocket_length),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
-                carryover,
-                candidate.robot_head_type,
-                candidate.pocket_type,
+                head_type_str,
             ),
         )
 
@@ -594,6 +630,7 @@ def populate_solution_details(widgets, solution) -> None:
     _populate_robot_head_type_commonality(
         head_tree,
         solution.candidates,
+        sticks_per_beat=sticks_per_beat,
     )
 
 
@@ -602,59 +639,80 @@ def _populate_pocket_type_commonality(tree, candidates):
     max_b_by_pocket = {}
 
     for candidate in candidates:
-        grouped.setdefault(candidate.pocket_type, []).append(candidate.format_name)
+        grouped.setdefault(candidate.pocket_type, []).append(candidate)
         b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
-    for pocket_type, format_names in sorted(
-        grouped.items(),
-        key=lambda item: str(item[0]),
+    for idx, (pocket_type, cand_list) in enumerate(
+        sorted(grouped.items(), key=lambda item: str(item[0])), start=1
     ):
         pocket_width, pocket_length, dividers, pockets_per_pitch = pocket_type
         pocket_height = max_b_by_pocket.get(pocket_type, 0.0)
 
-        tree.insert(
+        parent_id = tree.insert(
             "",
             "end",
+            text=f"Cassetto {idx}",
+            open=True,
             values=(
                 fmt(pocket_width),
                 fmt(pocket_height),
                 fmt(pocket_length),
                 dividers,
                 pockets_per_pitch,
-                ", ".join(format_names),
             ),
         )
 
+        for candidate in cand_list:
+            tree.insert(
+                parent_id,
+                "end",
+                text=candidate.format_name,
+                values=("", "", "", "", ""),
+            )
 
-def _populate_robot_head_type_commonality(tree, candidates):
+
+def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: float = 1.0):
     grouped = {}
+    head_width_by_head = {}
 
     for candidate in candidates:
-        grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
+        grouped.setdefault(candidate.robot_head_type, []).append(candidate)
+        head_width_by_head[candidate.robot_head_type] = getattr(candidate, "robot_head_width", candidate.adjusted_input_pitch)
 
-    for robot_head_type, format_names in sorted(
-        grouped.items(),
-        key=lambda item: str(item[0]),
+    for idx, (robot_head_type, cand_list) in enumerate(
+        sorted(grouped.items(), key=lambda item: str(item[0])), start=1
     ):
         grouping, adjusted_input_pitch = robot_head_type
+        head_width = head_width_by_head.get(robot_head_type, adjusted_input_pitch)
 
-        tree.insert(
+        parent_id = tree.insert(
             "",
             "end",
+            text=f"Testa {idx}",
+            open=True,
             values=(
-                grouping,
+                fmt(sticks_per_beat),
                 fmt(adjusted_input_pitch),
-                ", ".join(format_names),
+                grouping,
+                fmt(head_width),
             ),
         )
 
+        for candidate in cand_list:
+            tree.insert(
+                parent_id,
+                "end",
+                text=candidate.format_name,
+                values=("", "", "", ""),
+            )
 
-def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, show_details: bool = True) -> None:
+
+def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True, number_of_channels: int = 1) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Dettaglio formato - {candidate.format_name}")
-    window.geometry("760x680")
+    window.geometry(f"760x680+{parent.winfo_rootx() + (parent.winfo_width() - 760) // 2}+{parent.winfo_rooty() + (parent.winfo_height() - 680) // 2}")
     window.minsize(640, 500)
     window.transient(parent)
 
@@ -663,7 +721,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
 
     header = ttk.Label(
         main_frame,
-        text=f"{candidate.format_name} / {candidate.stick_type_name}",
+        text=f"Stick: {candidate.stick_type_name} | Impilamento: {candidate.format_name}",
         font=("TkDefaultFont", 11, "bold"),
     )
     header.pack(anchor="w", pady=(0, 8))
@@ -677,25 +735,41 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     content_pane.add(vis_frame, weight=1)
     content_pane.add(param_frame, weight=1)
 
+    tree_container = ttk.Frame(param_frame)
+    tree_container.pack(fill="both", expand=True)
+
     tree = ttk.Treeview(
-        param_frame,
-        columns=("parameter", "value"),
-        show="headings",
+        tree_container,
+        columns=("value",),
+        show="tree",
     )
 
-    tree.heading("parameter", text="parametro")
-    tree.heading("value", text="valore")
+    tree.column("#0", width=200, anchor="w")
+    tree.column("value", width=180, anchor="center")
 
-    tree.column("parameter", width=200, anchor="w")
-    tree.column("value", width=180, anchor="w")
-
-    scrollbar = ttk.Scrollbar(param_frame, orient="vertical", command=tree.yview)
+    scrollbar = tk.Scrollbar(
+        tree_container,
+        orient="vertical",
+        command=tree.yview,
+        width=18,
+        bd=0,
+        relief="flat",
+        activerelief="flat",
+        highlightthickness=0,
+        elementborderwidth=0,
+        bg="#bdbdbd",
+        activebackground="#a8a8a8",
+        troughcolor="#F0F0F0"
+    )
     tree.configure(yscrollcommand=scrollbar.set)
 
     tree.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    populate_format_detail(tree, candidate, show_details=show_details)
+    style = ttk.Style()
+    style.configure("Bold.Treeview", font=("Segoe UI", 9, "bold"))
+    
+    populate_format_detail(tree, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=show_details, number_of_channels=number_of_channels)
 
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
     canvas.pack(fill="both", expand=True)
@@ -787,7 +861,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
                         if sw > 2 and sh > 2:
                             canvas.create_oval(
                                 sx, sy, sx + sw, sy + sh,
-                                fill="#73a6ff", outline="#1d4ed8", width=1.5
+                                fill="#fee2e2", outline="#dc2626", width=1.5
                             )
 
             # Pocket width annotation on first pocket
@@ -807,9 +881,6 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
         canvas.create_line(origin_x, origin_y + rect_h + 25, next_pitch_x, origin_y + rect_h + 25, arrow=tk.BOTH, fill="#111827", width=1.5)
         canvas.create_text(origin_x + pitch_px / 2, origin_y + rect_h + 40, text=f"Passo: {fmt(pitch)} mm", fill="#111827", font=("TkDefaultFont", 9, "bold"))
 
-        # Summary info text at the top
-        info_str = f"Cassetti/Passo: {pockets_count} | Raggruppamento: {grouping} | Divisori: {dividers} | Strati: {layers}"
-        canvas.create_text(width / 2, 15, text=info_str, fill="#1f2937", font=("TkDefaultFont", 9, "bold"))
 
         # Height dimension annotation on the left
         canvas.create_line(origin_x - 20, origin_y, origin_x - 20, origin_y + rect_h, arrow=tk.BOTH, fill="#4b5563", width=1.2)
@@ -827,44 +898,64 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
+def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True, number_of_channels: int = 1) -> None:
     clear_tree(tree)
+
+    tag_bold = "bold_tag"
+    tree.tag_configure(tag_bold, font=("Segoe UI", 9, "bold"))
 
     sections = [
         (
-            "Trasferimento",
+            "Impilamento",
             [
-                ("nome formato", candidate.format_name),
-                ("tipo stick", candidate.stick_type_name),
-                ("passo ingresso regolato", candidate.adjusted_input_pitch),
-                ("raggruppamento", candidate.grouping),
-                ("depositi per set", candidate.deposits_per_set),
-                ("cassetti per passo", candidate.pockets_per_pitch),
-                ("passo cassetto", candidate.pocket_pitch),
-                ("passo astucciatrice", candidate.cartoner_pitch),
+                ("Raggruppamento", candidate.grouping),
+                ("Strati", candidate.layers),
+                ("Altezza pila [mm]", candidate.stack_height),
+                (
+                    "Riporto richiesto",
+                    "Sì" if candidate.carryover_required else "No",
+                ),
+                ("Lunghezza ciclo riporto [mm]", candidate.carryover_cycle_length),
             ],
         ),
         (
             "Cassetto",
             [
-                ("larghezza cassetto", candidate.pocket_width),
-                ("lunghezza cassetto", candidate.pocket_length),
-                ("divisori", candidate.dividers),
-                ("larghezza occupata", candidate.occupied_width),
-                ("spazio non utilizzato", candidate.unused_space),
-                ("tipo cassetto", candidate.pocket_type),
+                ("Larghezza cassetto [mm]", candidate.pocket_width),
+                ("Altezza cassetto [mm]", pocket_height),
+                ("Lunghezza cassetto [mm]", candidate.pocket_length),
+                ("Divisori", candidate.dividers),
             ],
         ),
         (
-            "Pila e riporto",
+            "Trasporto Prodotto",
             [
-                ("strati", candidate.layers),
-                ("altezza pila", candidate.stack_height),
-                (
-                    "riporto richiesto",
-                    "sì" if candidate.carryover_required else "no",
-                ),
-                ("lunghezza ciclo riporto", candidate.carryover_cycle_length),
+                ("Passo trasporto prodotto [mm]", candidate.cartoner_pitch),
+                ("Passo cassetto [mm]", candidate.pocket_pitch),
+                ("Cassetti per passo", candidate.pockets_per_pitch),
+            ],
+        ),
+        (
+            "Trasporto stick",
+            [
+                ("Passo trasporto stick [mm]", candidate.adjusted_input_pitch),
+            ],
+        ),
+        (
+            "Astuccio",
+            [
+                ("Quota A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
+                ("Quota B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
+                ("Quota H astuccio [mm]", candidate.pocket_length),
+            ],
+        ),
+        (
+            "Testa Robot",
+            [
+                ("N° prese", fmt(sticks_per_beat)),
+                ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
+                ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * sticks_per_beat),
+                ("Raggruppamento", candidate.grouping),
             ],
         ),
     ]
@@ -874,11 +965,11 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             (
                 "Astuccio A/B",
                 [
-                    ("larghezza A astuccio", getattr(candidate, "carton_A_mm", "")),
-                    ("altezza B astuccio", getattr(candidate, "carton_B_mm", "")),
-                    ("rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
+                    ("Larghezza A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
+                    ("Altezza B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
+                    ("Rapporto A/B astuccio", getattr(candidate, "carton_AB_ratio", "")),
                     (
-                        "penalità rapporto A/B",
+                        "Penalità rapporto A/B",
                         getattr(candidate, "carton_AB_ratio_penalty", ""),
                     ),
                 ],
@@ -886,37 +977,30 @@ def populate_format_detail(tree, candidate, show_details: bool = True) -> None:
             (
                 "Stabilità e penalità",
                 [
-                    ("larghezza non supportata effettiva", candidate.effective_unsupported_width),
-                    ("rapporto larghezza", candidate.width_ratio),
-                    ("penalità strati", candidate.layer_penalty),
-                    ("penalità riporto", candidate.carryover_penalty),
-                    ("penalità raggruppamento", candidate.grouping_penalty),
-                    ("penalità larghezza stabilità", candidate.stability_width_penalty),
+                    ("Larghezza non supportata effettiva [mm]", candidate.effective_unsupported_width),
+                    ("Rapporto larghezza", candidate.width_ratio),
+                    ("Penalità strati", candidate.layer_penalty),
+                    ("Penalità riporto", candidate.carryover_penalty),
+                    ("Penalità raggruppamento", candidate.grouping_penalty),
+                    ("Penalità larghezza stabilità", candidate.stability_width_penalty),
                 ],
             ),
         ])
-
-    sections.append(
-        (
-            "Tipi",
-            [
-                ("tipo testa robot", candidate.robot_head_type),
-                ("tipo cassetto", candidate.pocket_type),
-            ],
-        )
-    )
 
     for section_name, rows in sections:
         parent = tree.insert(
             "",
             "end",
-            values=(section_name, ""),
+            text=section_name,
+            values=("",),
             open=True,
+            tags=(tag_bold,),
         )
 
         for name, value in rows:
             tree.insert(
                 parent,
                 "end",
-                values=(name, fmt(value)),
+                text=name,
+                values=(fmt(value),),
             )

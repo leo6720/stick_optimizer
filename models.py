@@ -77,6 +77,7 @@ class Candidate:
     deposits_per_set: int
     pocket_type: Tuple[int, float, int, int]
     robot_head_type: Tuple[int, float]
+    robot_head_width: float
 
 
 @dataclass

@@ -700,3 +700,480 @@
 # 2026-08-05 14:31:06.408766
 +/git push -u origin 30-07-02-fork
 +
+
+# 2026-08-06 09:57:44.808929
++n
+
+# 2026-08-06 09:58:54.716814
++/add gui/app.py
+
+# 2026-08-06 09:59:30.871951
++the three buttons in dettagli soluzione. make them touch each other on the sides.
+
+# 2026-08-06 09:59:50.777644
++y
+
+# 2026-08-06 10:00:12.365529
++n
+
+# 2026-08-06 10:00:44.021860
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:02:59.990550
++the horizontal scroll bar i see in panoramica formati. ca you make its appearence mmore minimal? 
+
+# 2026-08-06 10:03:19.158629
++d
+
+# 2026-08-06 10:03:26.008041
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:04:29.137636
++thaths better but now it is a bit hard to understand what's going on with it
+
+# 2026-08-06 10:04:57.049313
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:06:22.081815
++you should remove the border surrounding the whole bar space. and make the bar itself and the two end stops darker
+
+# 2026-08-06 10:06:39.151012
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 10:07:12.446795
++make it 50% thicker
+
+# 2026-08-06 10:07:54.790028
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:02:50.770564
++/add gui/app.py
+
+# 2026-08-06 13:02:54.866054
++/add gui/results.py
+
+# 2026-08-06 13:03:21.257649
++i want the horizontal bar background to be white instead of light gray
+
+# 2026-08-06 13:03:36.737163
++i want the horizontal scrollbar background to be white instead of light gray
+
+# 2026-08-06 13:04:02.424267
++d
+
+# 2026-08-06 13:04:13.665677
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:04:57.666972
++absolutely did not have any result. isn't the frame background dictating that colour
+
+# 2026-08-06 13:05:47.679711
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:06:34.991058
++anythong you do makes absolutely no difference whatsoever to the appearence of the bar. Aren't you smart?
+
+# 2026-08-06 13:07:14.650081
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:08:42.869149
++the bakckgroung of the scrollbar appears to be f0f0f0 colour. does that help?
+
+# 2026-08-06 13:09:22.852023
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:10:09.982514
++now the background is white but the bar look like it came out of the 90s it's awful
+
+# 2026-08-06 13:10:38.544622
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:11:07.525821
++go bak to how it was at the beginning
+
+# 2026-08-06 13:11:59.837841
++go bak to before moving to ttk bc now its crashing
+
+# 2026-08-06 13:12:10.168688
++y
+
+# 2026-08-06 13:12:20.037112
++n
+
+# 2026-08-06 13:16:50.377936
++scrap all that. make the dati_mt image in the sidebar centered instead
+
+# 2026-08-06 13:17:14.892710
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 13:59:14.297868
++/add gui/results.py
+
+# 2026-08-06 13:59:45.906365
++change the backgroung to the pill buttons in dettagli to be f3f4f6 as the rest of the ui bc now it appears different
+
+# 2026-08-06 14:00:06.227112
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:01:17.778197
++git add .
++git commit -m "edited"
++git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:02:38.363352
++the text in the pill buttons inactive looks lighter compared to column headings? correct
+
+# 2026-08-06 14:02:48.113650
++d
+
+# 2026-08-06 14:02:58.682724
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:04:57.469463
++/add gui/app.py
+
+# 2026-08-06 14:05:46.310006
++add a vertical scroll bar to formati input table and to migliori soluzioni table. same look as horizontal scroll bar in panoramica formati
+
+# 2026-08-06 14:05:55.244658
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:07:11.191006
++you placed thel like shit. in formati section is on the side of the whole frame instead of just the table. in migliori soluzioni is on top op the table instead of next to it
+
+# 2026-08-06 14:07:23.837323
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:08:18.102144
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\main.py", line 10, in <module>
++    app = OptimizerApp()
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 137, in __init__
++    self._build_layout()
++    ~~~~~~~~~~~~~~~~~~^^
++  File "C:\Users\Chiste_L\Desktop\py_app\abb_stick_fork\gui\app.py", line 568, in _build_layout
++    input_scroll_y.pack(side="right", fill="y")
++    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
++  File "C:\Users\Chiste_L\tools\py313\Lib\tkinter\__init__.py", line 2607, in pack_configure
++    self.tk.call(
++    ~~~~~~~~~~~~^
++          ('pack', 'configure', self._w)
++          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++          + self._options(cnf, kw))
++          ^^^^^^^^^^^^^^^^^^^^^^^^^
++_tkinter.TclError: cannot use geometry manager pack inside .!frame.!panedwindow.!frame.!hierarchicalinputtable which already has slaves managed by grid
+
+# 2026-08-06 14:08:26.092880
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:10:00.729381
++the one for migliori soluzioni is alright. the one for formati is still on the side of both image+legend and the table. it should be just next to the table, under the inage+legend
+
+# 2026-08-06 14:10:08.424197
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:10:43.841165
++no now everything is broken and white. go back
+
+# 2026-08-06 14:13:19.848349
++d
+
+# 2026-08-06 14:16:51.268017
++i removed the changes to the input panel. now take the vertical scrollbar from results and pu an identical one next to input formati table, JUST next to the table, exactly like it appears in output section
+
+# 2026-08-06 14:16:54.718340
++y
+
+# 2026-08-06 14:17:20.330769
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:18:33.385872
++/add gui/forms.py
+
+# 2026-08-06 14:18:55.598988
++instead of f3f4f6 use F0F0F0 everywhere it appears. scan every inch of the files and substiture one colour for the other
+
+# 2026-08-06 14:19:10.028341
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:21:13.468621
++can we set the title bar to f0f0f0 too? also the buttons make them f0f0f0 in the pop up menus. the two in formato section make white bkg
+
+# 2026-08-06 14:21:23.774146
++y
+
+# 2026-08-06 14:21:43.004259
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:23:01.279494
++for every button make the hover appearence like the seceted rows in the tables
+
+# 2026-08-06 14:23:14.702934
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-06 14:23:54.233641
++the two buttons in formati have grey colour on hover instead of that light grey.
+
+# 2026-08-06 14:24:06.559879
++sorry i meant that light re
+
+# 2026-08-06 14:24:37.855299
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:25:25.688760
++make the same light red for hover in the dropdown menus
+
+# 2026-08-06 14:25:35.815499
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:29:34.109191
++pesi di calcolo and dati astucciatrice have a grey frame. remove it, make the whole window bkd white. the dropdown menus have a slight grey border too. remove it. the buttons in the menus are too big and do not show the whole text make them smaller in the menus.
+
+# 2026-08-06 14:29:44.051097
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:32:07.684651
++all the menus in moifica should have the width of "dati astucciatrice and use that exact size and positioning of the buttons.
+
+# 2026-08-06 14:32:19.715156
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:41:17.620251
++i want the pop ous to open more towards the center of the screen instead of at the top left
+
+# 2026-08-06 14:41:31.776385
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:44:26.558656
++in the format details in the results. make the sticks main red border with lighter red center. then make the vertical scroll bar like the one for migliori soluzioni. and remove the headers from the table. instead make the left column text bold
+
+# 2026-08-06 14:44:48.730906
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:47:10.608624
++in the title write, as example "Stick: A | Impilamento: 10" then remove nome formato row. also remove the info at the top of the diagram.ù
+
+# 2026-08-06 14:47:18.425389
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:51:44.048224
++remove tipo stick row. then make the sections collapsable like in input formati table. by default all expanded
+
+# 2026-08-06 14:51:49.564258
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:53:13.188655
++the sections are not collapsable. use the same logic used for panoramica formati table, but instead of having the formati as collapsable sections use the ones present there
+
+# 2026-08-06 14:53:20.964499
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:54:13.194264
++the header reappered. can you not have that hidden with collaplsable sections?
+
+# 2026-08-06 14:54:23.071321
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 14:57:27.980741
++make "passo ingresso regolato" -> "passo trasporto stick". remove depositi per set row. add altezza cassetto row
+
+# 2026-08-06 14:57:36.181416
++y
+
+# 2026-08-06 14:57:41.674628
++/run python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/results.py
+
+# 2026-08-06 14:57:41.674719
++/run python -m flake8 --select=E9,F821,F823,F831,F406,F407,F701,F702,F704,F706 --show-source --isolated gui/results.py
+
+# 2026-08-06 14:57:46.865514
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:00:00.860246
++passo astucciatrice should become "passo trasporto prodotto". remove larghezza occupata and spazio non occupato
+
+# 2026-08-06 15:00:10.379343
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:01:33.338279
++add units of measure to the various rows. example larghezza cassetto [mm]
+
+# 2026-08-06 15:01:43.741970
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:09:22.049930
++let's group the data properly:
++
++Impilamento
++|->raggruppamento
++|->strati
++|->altezza pila
++|->riporto richiesto
++|->lunghezza ciclo riporto
++Caasetto
++|->larghezza cassetto
++|->altezza cassetto
++|->lunghezza cassetto
++|->divisori
++Trasporto Prodotto
++|->passo trasporto prodotto
++|->passo cassetto
++|->cassetti per passo
++Trasporto stick
++|->passo trasporto stick
++Testa Robot
++|->Passo stick in prelievo
++|->Raggruppamento (again)
++
++make them all with first letter uppercase
+
+# 2026-08-06 15:09:31.903012
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:11:39.660912
++instead of tipi cassetti and tipi teste robot in the pill buttons say "formati cassetti" and "formati teste robot"
+
+# 2026-08-06 15:13:16.044130
++in formati teste robot add a value "larghezza testa" (add that to the format detail pop up) that equals passo trasporto stick x no.piste MT 
+
+# 2026-08-06 15:13:22.305810
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:15:53.301288
++larghezza testa shoud be "passo_stick_prelievo" multiplied by "n_piste MT". that value should also be added as a column in the formati teste robot table
+
+# 2026-08-06 15:16:03.526004
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:17:11.728731
++i just see the value of passo trasporto. you are not doing the multiplication correctly. do you need and other file for that?
+
+# 2026-08-06 15:17:24.804728
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:20:07.223641
++bro but you are stupid. the multiplication should be done such that that value is the same everywhere and can be exported with the rest of the data in csv and such (YOU THOUGHT OF THAT RIGHT????) right now the value is correct in details pop up but wrong in the teste robot table, which makes me think you are doing it there before inserting the value in the table, which of coure does not make any sense, you should do it way before in the pipeline and there just fetch the value
+
+# 2026-08-06 15:20:16.437637
++y
+
+# 2026-08-06 15:20:26.784678
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:21:44.657746
++YOU ARE SO STUPID THINK WHEN YOU DO STUFF. the value is still wrong in the formati teste robot table, how am i supposed to trust you doing things right if you can't even understand that basic instruction
+
+# 2026-08-06 15:22:01.663732
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:24:59.281326
++in the A x B column of panoramica risultati i think there is a whole logic about the max value of the B. if so remove that, otherwise report back what is there
+
+# 2026-08-06 15:25:10.489932
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:25:47.473978
++call the column "A x B ast."
+
+# 2026-08-06 15:25:54.692673
++/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:27:51.444061
++in the overview of dettagli soluzione selezionata for cassetto and testa robot substitute "tipi" with "formati"
+
+# 2026-08-06 15:28:42.653157
++no i meant where there is "Numero tipi cassetto" and "numero tipi teste robot"
+
+# 2026-08-06 15:28:49.195533
++/git push -u origin 06-08-01-fork
+
+# 2026-08-07 12:59:04.364903
++/add gui/app.py
+
+# 2026-08-07 13:01:31.564435
++righ now dati aggiuntivi mt shares the window builer function with other two windows, the open_simple_numeric_editor. separate that one from the other two duplicating the existing function
+
+# 2026-08-07 13:03:26.902124
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:06:48.920293
++i'm changing the dialog.geometry of that new function but the size of mt window stays the same
+
+# 2026-08-07 13:07:27.999734
++/undo
+
+# 2026-08-07 13:22:35.048378
++i want to reorganize the panoramica formati columns as follows:
++
++raggrup.
++strati
++alt. impil.
++riporto
++A x B x H cass. (should be as example 66 x 50 x 110, representing larghezza, altezza, lunghezza cassetto respectively)
++divisori
++cass/passo
++A x B x H astuccio (current A x B but adding H (which is equal to lunghezza cassetto)
++A/B ast. (current A/B)
++
++also add in format details menu a "Astuccio" section containing: Quota A astuccio [mm], Quota B astuccio [mm], Quota H astuccio [mm].it should be between trasporto stick and testa robot.
+
+# 2026-08-07 13:23:00.888169
++y
+
+# 2026-08-07 13:23:16.313625
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:33:43.828411
++in migliori soluzioni table, tipi cassetto -> formati cassetto, tipi teste -> formati testa robot. remove formato cassetto column in panoramica formati. in formati teste robot add a column called "N° prese" = to Np-canali MT. the column order should be: N° prese, passo prelievo (old passo ingresso, change name), raggruppamento, larghezza testa, usato da formati. add it also to dettagli formato menu as the first in the teste robot section of the pop up. then Formato testa column in panoramica formati table shoud become like this: (example 12x60 gr.2) representing "N° prese"x"passo prelievo" gr."raggruppamento".
+
+# 2026-08-07 13:34:25.514075
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:36:31.899709
++everithing is alright except that N°prese is equal to the input value of the text box "Np - Canali MT", not whatever you put now
+
+# 2026-08-07 13:37:14.326904
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:38:30.486775
++i don't have a clue of what you put for N° prese. i see it as 1. its the sticks_per_beat the value i want
+
+# 2026-08-07 13:38:53.026908
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:42:56.628115
++for the formati cassetti and formati teste robot tables. remove in both the usato da formati column and instead make the two tables like the fomati table in which there is a collapsable tree view. The firs table should just be called formati, That enumerates the current rows and as child has the stick formats like A_10 etc.
+
+# 2026-08-07 13:43:31.972311
++for the formati cassetti and formati teste robot tables. remove in both the usato da formati column and instead make the two tables like the fomati table in which there is a collapsable treeview. The firs column should just be called formati, That enumerates the current rows and as child has the stick formats like A_10 etc.            
+
+# 2026-08-07 13:43:53.017525
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:44:49.309538
++Instead of calling the "formato cassetto 1" just say "Cassetto 1" same for teste.

@@ -215,6 +215,7 @@ def compute_candidate(
 
     pocket_type = (pocket_width, pocket_length, dividers, pockets_per_pitch)
     robot_head_type = (grouping, adjusted_input_pitch)
+    robot_head_width = adjusted_input_pitch * settings.sticks_per_beat
 
     return Candidate(
         format_name=fmt.format_name,
@@ -246,6 +247,7 @@ def compute_candidate(
         deposits_per_set=int(settings.sticks_per_beat / grouping),
         pocket_type=pocket_type,
         robot_head_type=robot_head_type,
+        robot_head_width=robot_head_width,
     )
 
 

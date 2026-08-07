@@ -75,14 +75,43 @@ class HierarchicalInputTable(ttk.Frame):
             self.tree.heading(key, text=heading)
             self.tree.column(key, width=width, anchor="center")
 
-        self.tree.grid(row=0, column=0, sticky="nsew")
+        scroll_y = tk.Scrollbar(
+            tree_frame,
+            orient="vertical",
+            command=self.tree.yview,
+            width=18,
+            bd=0,
+            relief="flat",
+            activerelief="flat",
+            highlightthickness=0,
+            elementborderwidth=0,
+            bg="#bdbdbd",
+            activebackground="#a8a8a8",
+            troughcolor="#F0F0F0"
+        )
+        self.tree.configure(yscrollcommand=scroll_y.set)
+
+        self.tree.pack(side="left", fill="both", expand=True)
+        scroll_y.pack(side="right", fill="y")
         current_row += 1
+
+        style = ttk.Style()
+        style.configure("White.TButton", background="#ffffff")
+        style.map(
+            "White.TButton",
+            background=[("active", "#fee2e2"), ("pressed", "#fecaca")],
+            bordercolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            lightcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            darkcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            foreground=[("active", "#991b1b"), ("pressed", "#991b1b")],
+            relief=[("active", "flat"), ("pressed", "flat")],
+        )
 
         buttons = ttk.Frame(self, style="Sidebar.TFrame")
         buttons.grid(row=current_row, column=0, sticky="ew", pady=(6, 0))
 
-        ttk.Button(buttons, text="Agg. Stick", command=self.add_stick).pack(side="left")
-        ttk.Button(buttons, text="Agg. Formato", command=self.add_format).pack(side="left", padx=4)
+        ttk.Button(buttons, text="Agg. Stick", style="White.TButton", command=self.add_stick).pack(side="left")
+        ttk.Button(buttons, text="Agg. Formato", style="White.TButton", command=self.add_format).pack(side="left", padx=4)
 
         self.tree.bind("<Double-1>", self._start_cell_edit)
         self.tree.bind("<Button-1>", self._handle_single_click)

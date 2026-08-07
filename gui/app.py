@@ -150,9 +150,9 @@ class OptimizerApp(tk.Tk):
                     img = Image.open(image_path)
 
                     if base_name == "dati_mt":
-                        new_width = 330
+                        new_width = 250
                     elif base_name == "dati_astucciatrice":
-                        new_width = 450
+                        new_width = 350
                     elif base_name == "stick_dim":
                         new_width = 150
                     else:
@@ -185,7 +185,7 @@ class OptimizerApp(tk.Tk):
 
         # Colors
         bg_main = "#ffffff"
-        bg_sidebar = "#f3f4f6"
+        bg_sidebar = "#F0F0F0"
         bg_card = "#ffffff"
         fg_text = "#1f2937"
         primary_red = "#dc2626"
@@ -229,8 +229,8 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "TButton",
             font=default_font,
-            padding=(12, 6),
-            borderwidth=3,
+            padding=(10, 4),
+            borderwidth=2,
             bordercolor="#d1d5db",
             lightcolor="#d1d5db",
             darkcolor="#d1d5db",
@@ -241,11 +241,11 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "TButton",
-            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
-            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            foreground=[("active", fg_text), ("pressed", fg_text)],
+            background=[("active", "#fee2e2"), ("pressed", "#fecaca")],
+            bordercolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            lightcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            darkcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            foreground=[("active", "#991b1b"), ("pressed", "#991b1b")],
             relief=[("active", "flat"), ("pressed", "flat")],
         )
 
@@ -292,7 +292,7 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "TCombobox",
             fieldbackground="#ffffff",
-            background="#f3f4f6",
+            background="#F0F0F0",
             bordercolor="#d1d5db",
             arrowcolor=fg_text,
             padding=4,
@@ -308,10 +308,11 @@ class OptimizerApp(tk.Tk):
         # Dropdown Menus (tk.Menu styling via option database)
         self.option_add("*Menu.background", "#ffffff")
         self.option_add("*Menu.foreground", fg_text)
-        self.option_add("*Menu.activeBackground", "#e5e7eb")
-        self.option_add("*Menu.activeForeground", fg_text)
+        self.option_add("*Menu.activeBackground", "#fee2e2")
+        self.option_add("*Menu.activeForeground", "#991b1b")
         self.option_add("*Menu.borderWidth", 0)
         self.option_add("*Menu.activeBorderWidth", 0)
+        self.option_add("*Menu.relief", "flat")
 
         # Combobox Dropdown Listbox styling for subtle shadow/border and vertical spacing
         self.option_add("*TCombobox*Listbox.background", "#ffffff")
@@ -335,7 +336,7 @@ class OptimizerApp(tk.Tk):
         style.configure(
             "Treeview.Heading",
             font=("Segoe UI", 9, "bold"),
-            background="#f3f4f6",
+            background="#F0F0F0",
             foreground="#374151",
             padding=(4, 6),
             borderwidth=0,
@@ -343,10 +344,11 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "Treeview.Heading",
-            background=[("active", "#f3f4f6"), ("pressed", "#e5e7eb")],
+            background=[("active", "#F0F0F0"), ("pressed", "#e5e7eb")],
             relief=[("active", "flat"), ("pressed", "flat")],
         )
         style.map("Treeview", background=[("selected", "#fee2e2")], foreground=[("selected", "#991b1b")])
+
 
         # Pill Style Navigation Buttons
         style.configure(
@@ -386,11 +388,12 @@ class OptimizerApp(tk.Tk):
         )
         style.map(
             "PillInactive.TButton",
-            background=[("active", "#d1d5db"), ("pressed", "#cbd5e1")],
-            bordercolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            lightcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            darkcolor=[("active", "#cbd5e1"), ("pressed", "#cbd5e1")],
-            foreground=[("active", fg_text), ("pressed", fg_text)],
+            background=[("active", "#fee2e2"), ("pressed", "#fecaca")],
+            bordercolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            lightcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            darkcolor=[("active", "#fca5a5"), ("pressed", "#fca5a5")],
+            foreground=[("active", "#991b1b"), ("pressed", "#991b1b")],
+            relief=[("active", "flat"), ("pressed", "flat")],
         )
 
     # ------------------------------------------------------------------
@@ -844,9 +847,9 @@ class OptimizerApp(tk.Tk):
         """Reset application to a new project state."""
         dialog = tk.Toplevel(self)
         dialog.title("Nuovo Progetto")
-        dialog.geometry("350x200")
+        dialog.geometry(f"350x200+{self.winfo_rootx() + (self.winfo_width() - 350) // 2}+{self.winfo_rooty() + (self.winfo_height() - 200) // 2}")
         dialog.resizable(False, False)
-        dialog.configure(bg="#ffffff")
+        dialog.configure(bg="#F0F0F0")
         dialog.transient(self)
         dialog.grab_set()
 
@@ -1040,7 +1043,7 @@ class OptimizerApp(tk.Tk):
                 except: continue
                 for fid in self.input_table.tree.get_children(sid):
                     count = self.input_table.tree.item(fid, "text")
-                    formats.append(Format(f"{name}_{count}", name, int(count)))
+                    formats.append(Format(f"{name}-{count}", name, int(count)))
 
             json_str = serialize_project(
                 settings,
@@ -1085,13 +1088,13 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit scoring weights."""
         dialog = tk.Toplevel(self)
         dialog.title("Modifica pesi di calcolo")
-        dialog.geometry("500x340")
+        dialog.geometry(f"520x350+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 350) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
-        main_frame = ttk.Frame(dialog)
+        main_frame = ttk.Frame(dialog, style="Card.TFrame")
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         base_weights = DEFAULT_WEIGHTS
@@ -1225,10 +1228,7 @@ class OptimizerApp(tk.Tk):
         """Generic editor for single numeric value."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        if image:
-            dialog.geometry("480x420")
-        else:
-            dialog.geometry("480x180")
+        dialog.geometry(f"520x160+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
@@ -1244,11 +1244,17 @@ class OptimizerApp(tk.Tk):
             except Exception:
                 pass
 
-        frame = ttk.Frame(dialog, padding=12)
+        frame = ttk.Frame(dialog, style="Card.TFrame", padding=12)
         frame.pack(fill="both", expand=True)
 
         button_frame = ttk.Frame(frame)
-        button_frame.pack(side="bottom", fill="x", pady=(16, 0))
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
+
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
 
         if image:
             img_lbl = ttk.Label(frame, image=image)
@@ -1322,10 +1328,10 @@ class OptimizerApp(tk.Tk):
             except Exception as exc:
                 messagebox.showerror("Error", str(exc))
 
-        ttk.Button(button_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
-        ttk.Button(button_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
-        ttk.Button(button_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
+        ttk.Button(right_btn_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(right_btn_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
     def open_number_of_results_editor(self) -> None:
         """Open editor for number of results to show."""
@@ -1349,14 +1355,98 @@ class OptimizerApp(tk.Tk):
 
     def open_mt_extra_settings_editor(self) -> None:
         """Open editor for additional MT data (Offset max stick D)."""
-        self._open_simple_numeric_editor(
-            "Dati aggiuntivi MT",
-            "max_pitch_shift_mm",
-            self.current_max_pitch_shift_mm,
-            min_value=0,
-            value_type=float,
-            image=self._load_ui_image("dati_mt_menu")
-        )
+        dialog = tk.Toplevel(self)
+        dialog.title("Dati aggiuntivi MT")
+        dialog.geometry(f"520x360+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
+        dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, "max_pitch_shift_mm")
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("global_settings", {})
+                    if "max_pitch_shift_mm" in udata and udata["max_pitch_shift_mm"] is not None:
+                        default_val = udata["max_pitch_shift_mm"]
+            except Exception:
+                pass
+
+        frame = ttk.Frame(dialog, style="Card.TFrame", padding=12)
+        frame.pack(fill="both", expand=True)
+
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
+
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
+        image = self._load_ui_image("dati_mt_menu")
+        if image:
+            img_lbl = ttk.Label(frame, image=image)
+            img_lbl.image = image
+            img_lbl.pack(side="top", pady=(0, 10))
+
+        display_field_name = "D - offset max stick [mm]"
+        input_frame = ttk.Frame(frame)
+        input_frame.pack(fill="x")
+
+        lbl = ttk.Label(input_frame, text=f"{display_field_name} ({default_val})")
+        lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
+
+        entry = ttk.Entry(input_frame, width=16)
+        entry.grid(row=0, column=1, sticky="w", pady=8)
+        entry.insert(0, str(self.current_max_pitch_shift_mm))
+
+        def _update_style(*args):
+            try:
+                if entry.get().strip() != str(default_val):
+                    entry.configure(style="Yellow.TEntry")
+                else:
+                    entry.configure(style="TEntry")
+            except:
+                pass
+
+        _update_style()
+        entry.bind("<KeyRelease>", _update_style)
+
+        def save_value() -> None:
+            try:
+                value = float(entry.get().strip())
+                if value <= 0:
+                    raise ValueError("max_pitch_shift_mm must be > 0.")
+
+                self.current_max_pitch_shift_mm = value
+                dialog.destroy()
+                self.status_var.set(f"max_pitch_shift_mm set to {value}")
+            except Exception as exc:
+                messagebox.showerror("Invalid max_pitch_shift_mm", str(exc))
+
+        def reset():
+            entry.delete(0, tk.END)
+            entry.insert(0, str(default_val))
+            _update_style()
+
+        def overwrite():
+            try:
+                value = float(entry.get().strip())
+                self.current_max_pitch_shift_mm = value
+                self.save_defaults()
+                nonlocal default_val
+                default_val = value
+                lbl.config(text=f"{display_field_name} ({default_val})")
+                _update_style()
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+
+        ttk.Button(right_btn_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(right_btn_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
     def _cartoner_values_dict(self) -> dict:
         """Extract cartoner entry values into a dict."""
@@ -1380,14 +1470,14 @@ class OptimizerApp(tk.Tk):
         """Open dialog to edit cartoner/machine settings."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati astucciatrice")
-        dialog.geometry("520x720")
+        dialog.geometry(f"520x550+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 550) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)
         dialog.grab_set()
 
         # Main container with proper layout
-        main_frame = ttk.Frame(dialog)
+        main_frame = ttk.Frame(dialog, style="Card.TFrame")
         main_frame.pack(fill="both", expand=True, padx=12, pady=12)
 
         # Form content
@@ -1511,7 +1601,7 @@ class OptimizerApp(tk.Tk):
                 except: continue
                 for fid in self.input_table.tree.get_children(sid):
                     count = self.input_table.tree.item(fid, "text")
-                    formats.append(Format(f"{name}_{count}", name, int(count)))
+                    formats.append(Format(f"{name}-{count}", name, int(count)))
 
             self.status_var.set("Optimization running...")
             self.run_button.config(state="disabled")
@@ -1581,9 +1671,16 @@ class OptimizerApp(tk.Tk):
             index = int(selected[0])
             self.selected_solution_index = index
 
+            sticks_per_beat = 1.0
+            try:
+                sticks_per_beat = float(self.global_entries["sticks_per_beat"].get().strip())
+            except Exception:
+                pass
+
             populate_solution_details(
                 self.detail_widgets,
                 self.solutions[index],
+                sticks_per_beat=sticks_per_beat,
             )
 
             self.status_var.set(f"Selected solution {index + 1}")
@@ -1618,7 +1715,19 @@ class OptimizerApp(tk.Tk):
 
         pocket_height = max_b_by_pocket.get(candidate.pocket_type, getattr(candidate, "carton_B_mm", 0.0) or 0.0)
 
-        open_format_detail_popup(self, candidate, pocket_height=pocket_height, show_details=self.show_score_penalty_details.get())
+        sticks_per_beat = 1.0
+        try:
+            sticks_per_beat = float(self.global_entries["sticks_per_beat"].get().strip())
+        except Exception:
+            pass
+
+        number_of_channels = 1
+        try:
+            number_of_channels = int(float(self.global_entries["number_of_channels"].get().strip()))
+        except Exception:
+            pass
+
+        open_format_detail_popup(self, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=self.show_score_penalty_details.get(), number_of_channels=number_of_channels)
 
     # ------------------------------------------------------------------
     # Result filtering
@@ -1648,7 +1757,7 @@ class OptimizerApp(tk.Tk):
 
         dialog = tk.Toplevel(self)
         dialog.title(f"Filter: {column_name}")
-        dialog.geometry("410x520")
+        dialog.geometry(f"410x520+{self.winfo_rootx() + (self.winfo_width() - 410) // 2}+{self.winfo_rooty() + (self.winfo_height() - 520) // 2}")
         dialog.minsize(360, 420)
         dialog.transient(self)
         dialog.grab_set()
