@@ -23,7 +23,7 @@ RESULT_HEADINGS = {
     "score": "Punteggio",
     "cartoner_pitch": "Passo astucciatrice",
     "pocket_types": "Formati cassetto",
-    "head_types": "Formati testa robot",
+    "head_types": "Formati teste robot",
     "max_layers": "Max strati",
     "layer_penalty": "Pen. strati",
     "carryover_penalty": "Pen. riporto",
@@ -378,7 +378,7 @@ def build_detail_section(parent, on_format_open_callback):
         "carton_dim": "A x B x H astuc.",
         "carton_ab_ratio": "A/B ast.",
         "carton_ab_penalty": "Pen. A/B",
-        "head_type": "Formato testa",
+        "head_type": "Formato testa robot",
     }
 
     overview_widths = {
