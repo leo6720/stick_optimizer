@@ -95,7 +95,6 @@ POCKET_TYPE_COLUMNS = (
     "pocket_length",
     "dividers",
     "pockets_per_pitch",
-    "used_by",
 )
 
 
@@ -104,7 +103,6 @@ ROBOT_HEAD_TYPE_COLUMNS = (
     "adjusted_input_pitch",
     "grouping",
     "head_width",
-    "used_by",
 )
 
 
@@ -476,9 +474,12 @@ def _build_pocket_type_table(parent):
     tree = ttk.Treeview(
         parent,
         columns=POCKET_TYPE_COLUMNS,
-        show="headings",
+        show="tree headings",
         height=6,
     )
+
+    tree.heading("#0", text="Formati")
+    tree.column("#0", width=150, anchor="w")
 
     headings = {
         "pocket_width": "Larghezza cassetto",
@@ -486,23 +487,20 @@ def _build_pocket_type_table(parent):
         "pocket_length": "Lunghezza cassetto",
         "dividers": "Divisori",
         "pockets_per_pitch": "Cass/passo",
-        "used_by": "Usato da formati",
     }
 
     widths = {
-        "pocket_width": 90,
-        "pocket_height": 90,
-        "pocket_length": 90,
-        "dividers": 70,
-        "pockets_per_pitch": 70,
-        "used_by": 160,
+        "pocket_width": 110,
+        "pocket_height": 110,
+        "pocket_length": 110,
+        "dividers": 80,
+        "pockets_per_pitch": 80,
     }
 
     for col in POCKET_TYPE_COLUMNS:
         tree.heading(col, text=headings[col])
         tree.column(col, width=widths[col], anchor="center")
 
-    tree.column("used_by", anchor="w")
     tree.pack(fill="both", expand=True)
 
     return tree
@@ -512,31 +510,31 @@ def _build_robot_head_type_table(parent):
     tree = ttk.Treeview(
         parent,
         columns=ROBOT_HEAD_TYPE_COLUMNS,
-        show="headings",
+        show="tree headings",
         height=6,
     )
+
+    tree.heading("#0", text="Formati")
+    tree.column("#0", width=150, anchor="w")
 
     headings = {
         "pockets_per_pitch": "N° prese",
         "adjusted_input_pitch": "Passo prelievo",
         "grouping": "Raggruppamento",
         "head_width": "Larghezza testa",
-        "used_by": "Usato da formati",
     }
 
     widths = {
-        "pockets_per_pitch": 80,
-        "adjusted_input_pitch": 100,
-        "grouping": 110,
-        "head_width": 110,
-        "used_by": 220,
+        "pockets_per_pitch": 90,
+        "adjusted_input_pitch": 110,
+        "grouping": 120,
+        "head_width": 120,
     }
 
     for col in ROBOT_HEAD_TYPE_COLUMNS:
         tree.heading(col, text=headings[col])
         tree.column(col, width=widths[col], anchor="center")
 
-    tree.column("used_by", anchor="w")
     tree.pack(fill="both", expand=True)
 
     return tree
@@ -641,29 +639,37 @@ def _populate_pocket_type_commonality(tree, candidates):
     max_b_by_pocket = {}
 
     for candidate in candidates:
-        grouped.setdefault(candidate.pocket_type, []).append(candidate.format_name)
+        grouped.setdefault(candidate.pocket_type, []).append(candidate)
         b_val = getattr(candidate, "carton_B_mm", 0.0) or 0.0
         max_b_by_pocket[candidate.pocket_type] = max(max_b_by_pocket.get(candidate.pocket_type, 0.0), b_val)
 
-    for pocket_type, format_names in sorted(
-        grouped.items(),
-        key=lambda item: str(item[0]),
+    for idx, (pocket_type, cand_list) in enumerate(
+        sorted(grouped.items(), key=lambda item: str(item[0])), start=1
     ):
         pocket_width, pocket_length, dividers, pockets_per_pitch = pocket_type
         pocket_height = max_b_by_pocket.get(pocket_type, 0.0)
 
-        tree.insert(
+        parent_id = tree.insert(
             "",
             "end",
+            text=f"Formato cassetto {idx}",
+            open=True,
             values=(
                 fmt(pocket_width),
                 fmt(pocket_height),
                 fmt(pocket_length),
                 dividers,
                 pockets_per_pitch,
-                ", ".join(format_names),
             ),
         )
+
+        for candidate in cand_list:
+            tree.insert(
+                parent_id,
+                "end",
+                text=candidate.format_name,
+                values=("", "", "", "", ""),
+            )
 
 
 def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: float = 1.0):
@@ -671,27 +677,35 @@ def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: flo
     head_width_by_head = {}
 
     for candidate in candidates:
-        grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
+        grouped.setdefault(candidate.robot_head_type, []).append(candidate)
         head_width_by_head[candidate.robot_head_type] = getattr(candidate, "robot_head_width", candidate.adjusted_input_pitch)
 
-    for robot_head_type, format_names in sorted(
-        grouped.items(),
-        key=lambda item: str(item[0]),
+    for idx, (robot_head_type, cand_list) in enumerate(
+        sorted(grouped.items(), key=lambda item: str(item[0])), start=1
     ):
         grouping, adjusted_input_pitch = robot_head_type
         head_width = head_width_by_head.get(robot_head_type, adjusted_input_pitch)
 
-        tree.insert(
+        parent_id = tree.insert(
             "",
             "end",
+            text=f"Formato testa {idx}",
+            open=True,
             values=(
                 fmt(sticks_per_beat),
                 fmt(adjusted_input_pitch),
                 grouping,
                 fmt(head_width),
-                ", ".join(format_names),
             ),
         )
+
+        for candidate in cand_list:
+            tree.insert(
+                parent_id,
+                "end",
+                text=candidate.format_name,
+                values=("", "", "", ""),
+            )
 
 
 def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True, number_of_channels: int = 1) -> None:
