@@ -1043,7 +1043,7 @@ class OptimizerApp(tk.Tk):
                 except: continue
                 for fid in self.input_table.tree.get_children(sid):
                     count = self.input_table.tree.item(fid, "text")
-                    formats.append(Format(f"{name}_{count}", name, int(count)))
+                    formats.append(Format(f"{name}-{count}", name, int(count)))
 
             json_str = serialize_project(
                 settings,
@@ -1601,7 +1601,7 @@ class OptimizerApp(tk.Tk):
                 except: continue
                 for fid in self.input_table.tree.get_children(sid):
                     count = self.input_table.tree.item(fid, "text")
-                    formats.append(Format(f"{name}_{count}", name, int(count)))
+                    formats.append(Format(f"{name}-{count}", name, int(count)))
 
             self.status_var.set("Optimization running...")
             self.run_button.config(state="disabled")
