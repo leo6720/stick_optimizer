@@ -652,7 +652,7 @@ def _populate_pocket_type_commonality(tree, candidates):
         parent_id = tree.insert(
             "",
             "end",
-            text=f"Formato cassetto {idx}",
+            text=f"Cassetto {idx}",
             open=True,
             values=(
                 fmt(pocket_width),
@@ -689,7 +689,7 @@ def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: flo
         parent_id = tree.insert(
             "",
             "end",
-            text=f"Formato testa {idx}",
+            text=f"Testa {idx}",
             open=True,
             values=(
                 fmt(sticks_per_beat),
