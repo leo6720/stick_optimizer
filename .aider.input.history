@@ -1121,3 +1121,59 @@
 
 # 2026-08-07 13:07:27.999734
 +/undo
+
+# 2026-08-07 13:22:35.048378
++i want to reorganize the panoramica formati columns as follows:
++
++raggrup.
++strati
++alt. impil.
++riporto
++A x B x H cass. (should be as example 66 x 50 x 110, representing larghezza, altezza, lunghezza cassetto respectively)
++divisori
++cass/passo
++A x B x H astuccio (current A x B but adding H (which is equal to lunghezza cassetto)
++A/B ast. (current A/B)
++
++also add in format details menu a "Astuccio" section containing: Quota A astuccio [mm], Quota B astuccio [mm], Quota H astuccio [mm].it should be between trasporto stick and testa robot.
+
+# 2026-08-07 13:23:00.888169
++y
+
+# 2026-08-07 13:23:16.313625
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:33:43.828411
++in migliori soluzioni table, tipi cassetto -> formati cassetto, tipi teste -> formati testa robot. remove formato cassetto column in panoramica formati. in formati teste robot add a column called "N° prese" = to Np-canali MT. the column order should be: N° prese, passo prelievo (old passo ingresso, change name), raggruppamento, larghezza testa, usato da formati. add it also to dettagli formato menu as the first in the teste robot section of the pop up. then Formato testa column in panoramica formati table shoud become like this: (example 12x60 gr.2) representing "N° prese"x"passo prelievo" gr."raggruppamento".
+
+# 2026-08-07 13:34:25.514075
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:36:31.899709
++everithing is alright except that N°prese is equal to the input value of the text box "Np - Canali MT", not whatever you put now
+
+# 2026-08-07 13:37:14.326904
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:38:30.486775
++i don't have a clue of what you put for N° prese. i see it as 1. its the sticks_per_beat the value i want
+
+# 2026-08-07 13:38:53.026908
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:42:56.628115
++for the formati cassetti and formati teste robot tables. remove in both the usato da formati column and instead make the two tables like the fomati table in which there is a collapsable tree view. The firs table should just be called formati, That enumerates the current rows and as child has the stick formats like A_10 etc.
+
+# 2026-08-07 13:43:31.972311
++for the formati cassetti and formati teste robot tables. remove in both the usato da formati column and instead make the two tables like the fomati table in which there is a collapsable treeview. The firs column should just be called formati, That enumerates the current rows and as child has the stick formats like A_10 etc.            
+
+# 2026-08-07 13:43:53.017525
++/git push -u origin 06-08-01-fork
++
+
+# 2026-08-07 13:44:49.309538
++Instead of calling the "formato cassetto 1" just say "Cassetto 1" same for teste.
