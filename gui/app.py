@@ -1358,7 +1358,7 @@ class OptimizerApp(tk.Tk):
         """Open editor for additional MT data (Offset max stick D)."""
         dialog = tk.Toplevel(self)
         dialog.title("Dati aggiuntivi MT")
-        dialog.geometry(f"520x160+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
+        dialog.geometry(f"520x350+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
         dialog.resizable(False, False)
         dialog.configure(bg="#ffffff")
         dialog.transient(self)

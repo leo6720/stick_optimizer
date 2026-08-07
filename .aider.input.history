@@ -1096,3 +1096,22 @@
 
 # 2026-08-06 15:25:54.692673
 +/git push -u origin 06-08-01-fork
+
+# 2026-08-06 15:27:51.444061
++in the overview of dettagli soluzione selezionata for cassetto and testa robot substitute "tipi" with "formati"
+
+# 2026-08-06 15:28:42.653157
++no i meant where there is "Numero tipi cassetto" and "numero tipi teste robot"
+
+# 2026-08-06 15:28:49.195533
++/git push -u origin 06-08-01-fork
+
+# 2026-08-07 12:59:04.364903
++/add gui/app.py
+
+# 2026-08-07 13:01:31.564435
++righ now dati aggiuntivi mt shares the window builer function with other two windows, the open_simple_numeric_editor. separate that one from the other two duplicating the existing function
+
+# 2026-08-07 13:03:26.902124
++/git push -u origin 06-08-01-fork
++
