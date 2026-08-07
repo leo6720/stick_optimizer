@@ -22,8 +22,8 @@ RESULT_HEADINGS = {
     "rank": "Posizione",
     "score": "Punteggio",
     "cartoner_pitch": "Passo astucciatrice",
-    "pocket_types": "Tipi cassetto",
-    "head_types": "Tipi testa",
+    "pocket_types": "Formati cassetto",
+    "head_types": "Formati testa robot",
     "max_layers": "Max strati",
     "layer_penalty": "Pen. strati",
     "carryover_penalty": "Pen. riporto",
@@ -86,7 +86,6 @@ FORMAT_OVERVIEW_COLUMNS = (
     "carton_ab_ratio",
     "carton_ab_penalty",
     "head_type",
-    "pocket_type",
 )
 
 
@@ -101,8 +100,9 @@ POCKET_TYPE_COLUMNS = (
 
 
 ROBOT_HEAD_TYPE_COLUMNS = (
-    "grouping",
+    "pockets_per_pitch",
     "adjusted_input_pitch",
+    "grouping",
     "head_width",
     "used_by",
 )
@@ -379,7 +379,6 @@ def build_detail_section(parent, on_format_open_callback):
         "carton_ab_ratio": "A/B ast.",
         "carton_ab_penalty": "Pen. A/B",
         "head_type": "Formato testa",
-        "pocket_type": "Formato cassetto",
     }
 
     overview_widths = {
@@ -393,8 +392,7 @@ def build_detail_section(parent, on_format_open_callback):
         "carton_dim": 130,
         "carton_ab_ratio": 65,
         "carton_ab_penalty": 75,
-        "head_type": 110,
-        "pocket_type": 160,
+        "head_type": 140,
     }
 
     for col in FORMAT_OVERVIEW_COLUMNS:
@@ -519,15 +517,17 @@ def _build_robot_head_type_table(parent):
     )
 
     headings = {
+        "pockets_per_pitch": "N° prese",
+        "adjusted_input_pitch": "Passo prelievo",
         "grouping": "Raggruppamento",
-        "adjusted_input_pitch": "Passo ingresso",
         "head_width": "Larghezza testa",
         "used_by": "Usato da formati",
     }
 
     widths = {
-        "grouping": 80,
+        "pockets_per_pitch": 80,
         "adjusted_input_pitch": 100,
+        "grouping": 110,
         "head_width": 110,
         "used_by": 220,
     }
@@ -602,6 +602,7 @@ def populate_solution_details(widgets, solution) -> None:
         pocket_dim_str = f"{fmt(candidate.pocket_width)} x {fmt(pocket_h)} x {fmt(candidate.pocket_length)}"
         carton_dim_str = f"{fmt(carton_a)} x {fmt(carton_b)} x {fmt(candidate.pocket_length)}"
         carryover = "sì" if candidate.carryover_required else "no"
+        head_type_str = f"{candidate.pockets_per_pitch}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
 
         overview_tree.insert(
             stick_parents[s_name],
@@ -619,8 +620,7 @@ def populate_solution_details(widgets, solution) -> None:
                 carton_dim_str,
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
-                candidate.robot_head_type,
-                candidate.pocket_type,
+                head_type_str,
             ),
         )
 
@@ -668,10 +668,12 @@ def _populate_pocket_type_commonality(tree, candidates):
 def _populate_robot_head_type_commonality(tree, candidates):
     grouped = {}
     head_width_by_head = {}
+    pockets_per_pitch_by_head = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
         head_width_by_head[candidate.robot_head_type] = getattr(candidate, "robot_head_width", candidate.adjusted_input_pitch)
+        pockets_per_pitch_by_head[candidate.robot_head_type] = candidate.pockets_per_pitch
 
     for robot_head_type, format_names in sorted(
         grouped.items(),
@@ -679,13 +681,15 @@ def _populate_robot_head_type_commonality(tree, candidates):
     ):
         grouping, adjusted_input_pitch = robot_head_type
         head_width = head_width_by_head.get(robot_head_type, adjusted_input_pitch)
+        pockets_per_pitch = pockets_per_pitch_by_head.get(robot_head_type, 1)
 
         tree.insert(
             "",
             "end",
             values=(
-                grouping,
+                pockets_per_pitch,
                 fmt(adjusted_input_pitch),
+                grouping,
                 fmt(head_width),
                 ", ".join(format_names),
             ),
@@ -936,6 +940,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
         (
             "Testa Robot",
             [
+                ("N° prese", candidate.pockets_per_pitch),
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
                 ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * sticks_per_beat),
                 ("Raggruppamento", candidate.grouping),
