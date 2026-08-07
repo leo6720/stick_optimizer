@@ -1715,7 +1715,13 @@ class OptimizerApp(tk.Tk):
         except Exception:
             pass
 
-        open_format_detail_popup(self, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=self.show_score_penalty_details.get())
+        number_of_channels = 1
+        try:
+            number_of_channels = int(float(self.global_entries["number_of_channels"].get().strip()))
+        except Exception:
+            pass
+
+        open_format_detail_popup(self, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=self.show_score_penalty_details.get(), number_of_channels=number_of_channels)
 
     # ------------------------------------------------------------------
     # Result filtering

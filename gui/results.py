@@ -551,7 +551,7 @@ def clear_solution_details(widgets) -> None:
     clear_tree(widgets["robot_head_type_tree"])
 
 
-def populate_solution_details(widgets, solution) -> None:
+def populate_solution_details(widgets, solution, number_of_channels: int = 1) -> None:
     """Populate summary, format overview and commonality tables."""
     summary_vars = widgets["summary_vars"]
     overview_tree = widgets["format_overview_tree"]
@@ -602,7 +602,7 @@ def populate_solution_details(widgets, solution) -> None:
         pocket_dim_str = f"{fmt(candidate.pocket_width)} x {fmt(pocket_h)} x {fmt(candidate.pocket_length)}"
         carton_dim_str = f"{fmt(carton_a)} x {fmt(carton_b)} x {fmt(candidate.pocket_length)}"
         carryover = "sì" if candidate.carryover_required else "no"
-        head_type_str = f"{candidate.pockets_per_pitch}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
+        head_type_str = f"{number_of_channels}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
 
         overview_tree.insert(
             stick_parents[s_name],
@@ -632,6 +632,7 @@ def populate_solution_details(widgets, solution) -> None:
     _populate_robot_head_type_commonality(
         head_tree,
         solution.candidates,
+        number_of_channels=number_of_channels,
     )
 
 
@@ -665,15 +666,13 @@ def _populate_pocket_type_commonality(tree, candidates):
         )
 
 
-def _populate_robot_head_type_commonality(tree, candidates):
+def _populate_robot_head_type_commonality(tree, candidates, number_of_channels: int = 1):
     grouped = {}
     head_width_by_head = {}
-    pockets_per_pitch_by_head = {}
 
     for candidate in candidates:
         grouped.setdefault(candidate.robot_head_type, []).append(candidate.format_name)
         head_width_by_head[candidate.robot_head_type] = getattr(candidate, "robot_head_width", candidate.adjusted_input_pitch)
-        pockets_per_pitch_by_head[candidate.robot_head_type] = candidate.pockets_per_pitch
 
     for robot_head_type, format_names in sorted(
         grouped.items(),
@@ -681,13 +680,12 @@ def _populate_robot_head_type_commonality(tree, candidates):
     ):
         grouping, adjusted_input_pitch = robot_head_type
         head_width = head_width_by_head.get(robot_head_type, adjusted_input_pitch)
-        pockets_per_pitch = pockets_per_pitch_by_head.get(robot_head_type, 1)
 
         tree.insert(
             "",
             "end",
             values=(
-                pockets_per_pitch,
+                number_of_channels,
                 fmt(adjusted_input_pitch),
                 grouping,
                 fmt(head_width),
@@ -696,7 +694,7 @@ def _populate_robot_head_type_commonality(tree, candidates):
         )
 
 
-def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True) -> None:
+def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True, number_of_channels: int = 1) -> None:
     """Open a popup with the complete detail for one format candidate."""
     window = tk.Toplevel(parent)
     window.title(f"Dettaglio formato - {candidate.format_name}")
@@ -757,7 +755,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     style = ttk.Style()
     style.configure("Bold.Treeview", font=("Segoe UI", 9, "bold"))
     
-    populate_format_detail(tree, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=show_details)
+    populate_format_detail(tree, candidate, pocket_height=pocket_height, sticks_per_beat=sticks_per_beat, show_details=show_details, number_of_channels=number_of_channels)
 
     canvas = tk.Canvas(vis_frame, bg="white", highlightthickness=0)
     canvas.pack(fill="both", expand=True)
@@ -886,7 +884,7 @@ def open_format_detail_popup(parent, candidate, pocket_height: Optional[float] =
     ).pack(side="right")
 
 
-def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True) -> None:
+def populate_format_detail(tree, candidate, pocket_height: Optional[float] = None, sticks_per_beat: float = 1.0, show_details: bool = True, number_of_channels: int = 1) -> None:
     clear_tree(tree)
 
     tag_bold = "bold_tag"
@@ -940,7 +938,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
         (
             "Testa Robot",
             [
-                ("N° prese", candidate.pockets_per_pitch),
+                ("N° prese", number_of_channels),
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
                 ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * sticks_per_beat),
                 ("Raggruppamento", candidate.grouping),
