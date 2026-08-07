@@ -78,14 +78,13 @@ FORMAT_OVERVIEW_COLUMNS = (
     "grouping",
     "layers",
     "stack_height",
-    "input_pitch",
+    "carryover",
+    "pocket_dim",
     "dividers",
     "pockets_per_pitch",
-    "pocket",
+    "carton_dim",
     "carton_ab_ratio",
-    "pocket_length",
     "carton_ab_penalty",
-    "carryover",
     "head_type",
     "pocket_type",
 )
@@ -369,35 +368,31 @@ def build_detail_section(parent, on_format_open_callback):
     overview_tree.column("#0", width=150)
 
     overview_headings = {
-        "input_pitch": "Passo ingr.",
         "grouping": "Raggrup.",
-        "dividers": "Div.",
-        "pockets_per_pitch": "Cass/Passo",
-        "pocket": "A x B ast.",
-        "carton_ab_ratio": "A/B",
-        "pocket_length": "Lungh. cassetto",
         "layers": "Strati",
         "stack_height": "Alt. impil.",
-        "carton_ab_penalty": "Pen. A/B",
         "carryover": "Riporto",
+        "pocket_dim": "A x B x H cass.",
+        "dividers": "Div.",
+        "pockets_per_pitch": "Cass/Passo",
+        "carton_dim": "A x B x H astuc.",
+        "carton_ab_ratio": "A/B ast.",
+        "carton_ab_penalty": "Pen. A/B",
         "head_type": "Formato testa",
         "pocket_type": "Formato cassetto",
     }
 
     overview_widths = {
-        "format": 90,
-        "stick_type": 90,
-        "input_pitch": 80,
         "grouping": 60,
-        "dividers": 50,
-        "pockets_per_pitch": 70,
-        "pocket": 90,
-        "carton_ab_ratio": 60,
-        "pocket_length": 90,
         "layers": 60,
         "stack_height": 70,
+        "carryover": 65,
+        "pocket_dim": 130,
+        "dividers": 50,
+        "pockets_per_pitch": 75,
+        "carton_dim": 130,
+        "carton_ab_ratio": 65,
         "carton_ab_penalty": 75,
-        "carryover": 80,
         "head_type": 110,
         "pocket_type": 160,
     }
@@ -588,6 +583,11 @@ def populate_solution_details(widgets, solution) -> None:
     clear_tree(pocket_tree)
     clear_tree(head_tree)
 
+    max_b_by_pocket = {}
+    for c in solution.candidates:
+        b_val = getattr(c, "carton_B_mm", 0.0) or 0.0
+        max_b_by_pocket[c.pocket_type] = max(max_b_by_pocket.get(c.pocket_type, 0.0), b_val)
+
     stick_parents = {}
 
     for index, candidate in enumerate(solution.candidates):
@@ -595,8 +595,12 @@ def populate_solution_details(widgets, solution) -> None:
         if s_name not in stick_parents:
             stick_parents[s_name] = overview_tree.insert("", "end", text=s_name, open=True)
 
+        carton_a = getattr(candidate, "carton_A_mm", 0.0) or 0.0
         carton_b = getattr(candidate, "carton_B_mm", 0.0) or 0.0
-        pocket_wh = f"{fmt(candidate.pocket_width)} x {fmt(carton_b)}"
+        pocket_h = max_b_by_pocket.get(candidate.pocket_type, carton_b)
+
+        pocket_dim_str = f"{fmt(candidate.pocket_width)} x {fmt(pocket_h)} x {fmt(candidate.pocket_length)}"
+        carton_dim_str = f"{fmt(carton_a)} x {fmt(carton_b)} x {fmt(candidate.pocket_length)}"
         carryover = "sì" if candidate.carryover_required else "no"
 
         overview_tree.insert(
@@ -608,14 +612,13 @@ def populate_solution_details(widgets, solution) -> None:
                 candidate.grouping,
                 candidate.layers,
                 fmt(candidate.stack_height),
-                fmt(candidate.adjusted_input_pitch),
+                carryover,
+                pocket_dim_str,
                 candidate.dividers,
                 candidate.pockets_per_pitch,
-                pocket_wh,
+                carton_dim_str,
                 fmt(getattr(candidate, "carton_AB_ratio", "")),
-                fmt(candidate.pocket_length),
                 fmt(getattr(candidate, "carton_AB_ratio_penalty", "")),
-                carryover,
                 candidate.robot_head_type,
                 candidate.pocket_type,
             ),
@@ -920,6 +923,14 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
             "Trasporto stick",
             [
                 ("Passo trasporto stick [mm]", candidate.adjusted_input_pitch),
+            ],
+        ),
+        (
+            "Astuccio",
+            [
+                ("Quota A astuccio [mm]", getattr(candidate, "carton_A_mm", "")),
+                ("Quota B astuccio [mm]", getattr(candidate, "carton_B_mm", "")),
+                ("Quota H astuccio [mm]", candidate.pocket_length),
             ],
         ),
         (
