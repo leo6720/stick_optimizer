@@ -1356,14 +1356,98 @@ class OptimizerApp(tk.Tk):
 
     def open_mt_extra_settings_editor(self) -> None:
         """Open editor for additional MT data (Offset max stick D)."""
-        self._open_simple_numeric_editor(
-            "Dati aggiuntivi MT",
-            "max_pitch_shift_mm",
-            self.current_max_pitch_shift_mm,
-            min_value=0,
-            value_type=float,
-            image=self._load_ui_image("dati_mt_menu")
-        )
+        dialog = tk.Toplevel(self)
+        dialog.title("Dati aggiuntivi MT")
+        dialog.geometry(f"520x160+{self.winfo_rootx() + (self.winfo_width() - 520) // 2}+{self.winfo_rooty() + (self.winfo_height() - 160) // 2}")
+        dialog.resizable(False, False)
+        dialog.configure(bg="#ffffff")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        default_val = getattr(DEFAULT_GLOBAL_SETTINGS, "max_pitch_shift_mm")
+        if self.user_defaults_path.exists():
+            try:
+                with open(self.user_defaults_path, "r", encoding="utf-8") as file:
+                    udata = json.load(file).get("global_settings", {})
+                    if "max_pitch_shift_mm" in udata and udata["max_pitch_shift_mm"] is not None:
+                        default_val = udata["max_pitch_shift_mm"]
+            except Exception:
+                pass
+
+        frame = ttk.Frame(dialog, style="Card.TFrame", padding=12)
+        frame.pack(fill="both", expand=True)
+
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(side="bottom", fill="x", pady=(12, 0))
+
+        left_btn_frame = ttk.Frame(button_frame)
+        left_btn_frame.pack(side="left")
+
+        right_btn_frame = ttk.Frame(button_frame)
+        right_btn_frame.pack(side="right")
+
+        image = self._load_ui_image("dati_mt_menu")
+        if image:
+            img_lbl = ttk.Label(frame, image=image)
+            img_lbl.image = image
+            img_lbl.pack(side="top", pady=(0, 10))
+
+        display_field_name = "D - offset max stick [mm]"
+        input_frame = ttk.Frame(frame)
+        input_frame.pack(fill="x")
+
+        lbl = ttk.Label(input_frame, text=f"{display_field_name} ({default_val})")
+        lbl.grid(row=0, column=0, sticky="w", padx=(0, 8), pady=8)
+
+        entry = ttk.Entry(input_frame, width=16)
+        entry.grid(row=0, column=1, sticky="w", pady=8)
+        entry.insert(0, str(self.current_max_pitch_shift_mm))
+
+        def _update_style(*args):
+            try:
+                if entry.get().strip() != str(default_val):
+                    entry.configure(style="Yellow.TEntry")
+                else:
+                    entry.configure(style="TEntry")
+            except:
+                pass
+
+        _update_style()
+        entry.bind("<KeyRelease>", _update_style)
+
+        def save_value() -> None:
+            try:
+                value = float(entry.get().strip())
+                if value <= 0:
+                    raise ValueError("max_pitch_shift_mm must be > 0.")
+
+                self.current_max_pitch_shift_mm = value
+                dialog.destroy()
+                self.status_var.set(f"max_pitch_shift_mm set to {value}")
+            except Exception as exc:
+                messagebox.showerror("Invalid max_pitch_shift_mm", str(exc))
+
+        def reset():
+            entry.delete(0, tk.END)
+            entry.insert(0, str(default_val))
+            _update_style()
+
+        def overwrite():
+            try:
+                value = float(entry.get().strip())
+                self.current_max_pitch_shift_mm = value
+                self.save_defaults()
+                nonlocal default_val
+                default_val = value
+                lbl.config(text=f"{display_field_name} ({default_val})")
+                _update_style()
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+
+        ttk.Button(right_btn_frame, text="Applica", command=save_value).pack(side="right", padx=(4, 0))
+        ttk.Button(right_btn_frame, text="Annulla", command=dialog.destroy).pack(side="right", padx=(4, 0))
+        ttk.Button(left_btn_frame, text="Ripristina predefiniti", command=reset).pack(side="left", padx=(0, 4))
+        ttk.Button(left_btn_frame, text="Sovrascrivi predefiniti", command=overwrite).pack(side="left")
 
     def _cartoner_values_dict(self) -> dict:
         """Extract cartoner entry values into a dict."""
