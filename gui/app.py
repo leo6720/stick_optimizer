@@ -1672,16 +1672,16 @@ class OptimizerApp(tk.Tk):
             index = int(selected[0])
             self.selected_solution_index = index
 
-            number_of_channels = 1
+            sticks_per_beat = 1.0
             try:
-                number_of_channels = int(float(self.global_entries["number_of_channels"].get().strip()))
+                sticks_per_beat = float(self.global_entries["sticks_per_beat"].get().strip())
             except Exception:
                 pass
 
             populate_solution_details(
                 self.detail_widgets,
                 self.solutions[index],
-                number_of_channels=number_of_channels,
+                sticks_per_beat=sticks_per_beat,
             )
 
             self.status_var.set(f"Selected solution {index + 1}")

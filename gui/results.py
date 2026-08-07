@@ -551,7 +551,7 @@ def clear_solution_details(widgets) -> None:
     clear_tree(widgets["robot_head_type_tree"])
 
 
-def populate_solution_details(widgets, solution, number_of_channels: int = 1) -> None:
+def populate_solution_details(widgets, solution, sticks_per_beat: float = 1.0) -> None:
     """Populate summary, format overview and commonality tables."""
     summary_vars = widgets["summary_vars"]
     overview_tree = widgets["format_overview_tree"]
@@ -602,7 +602,7 @@ def populate_solution_details(widgets, solution, number_of_channels: int = 1) ->
         pocket_dim_str = f"{fmt(candidate.pocket_width)} x {fmt(pocket_h)} x {fmt(candidate.pocket_length)}"
         carton_dim_str = f"{fmt(carton_a)} x {fmt(carton_b)} x {fmt(candidate.pocket_length)}"
         carryover = "sì" if candidate.carryover_required else "no"
-        head_type_str = f"{number_of_channels}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
+        head_type_str = f"{fmt(sticks_per_beat)}x{fmt(candidate.adjusted_input_pitch)} gr.{candidate.grouping}"
 
         overview_tree.insert(
             stick_parents[s_name],
@@ -632,7 +632,7 @@ def populate_solution_details(widgets, solution, number_of_channels: int = 1) ->
     _populate_robot_head_type_commonality(
         head_tree,
         solution.candidates,
-        number_of_channels=number_of_channels,
+        sticks_per_beat=sticks_per_beat,
     )
 
 
@@ -666,7 +666,7 @@ def _populate_pocket_type_commonality(tree, candidates):
         )
 
 
-def _populate_robot_head_type_commonality(tree, candidates, number_of_channels: int = 1):
+def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: float = 1.0):
     grouped = {}
     head_width_by_head = {}
 
@@ -685,7 +685,7 @@ def _populate_robot_head_type_commonality(tree, candidates, number_of_channels: 
             "",
             "end",
             values=(
-                number_of_channels,
+                fmt(sticks_per_beat),
                 fmt(adjusted_input_pitch),
                 grouping,
                 fmt(head_width),
@@ -938,7 +938,7 @@ def populate_format_detail(tree, candidate, pocket_height: Optional[float] = Non
         (
             "Testa Robot",
             [
-                ("N° prese", number_of_channels),
+                ("N° prese", fmt(sticks_per_beat)),
                 ("Passo stick in prelievo [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch)),
                 ("Larghezza testa [mm]", getattr(candidate, "robot_head_pitch", candidate.adjusted_input_pitch) * sticks_per_beat),
                 ("Raggruppamento", candidate.grouping),
