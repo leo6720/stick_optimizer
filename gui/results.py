@@ -667,7 +667,7 @@ def _populate_pocket_type_commonality(tree, candidates):
             tree.insert(
                 parent_id,
                 "end",
-                text=candidate.format_name,
+                text=candidate.format_name.split('-')[-1],
                 values=("", "", "", "", ""),
             )
 
@@ -703,7 +703,7 @@ def _populate_robot_head_type_commonality(tree, candidates, sticks_per_beat: flo
             tree.insert(
                 parent_id,
                 "end",
-                text=candidate.format_name,
+                text=candidate.format_name.split('-')[-1],
                 values=("", "", "", ""),
             )
 
