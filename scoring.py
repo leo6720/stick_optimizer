@@ -56,7 +56,7 @@ def build_solution(candidates: list[Candidate], weights: Weights) -> Solution:
 
     pitch = candidates[0].cartoner_pitch
     pocket_types = {c.pocket_type for c in candidates}
-    robot_head_types = {c.robot_head_type for c in candidates}
+    robot_head_types = {c.robot_head_type for c in candidates if c.grouping != 1}
 
     solution = Solution(
         candidates=list(candidates),
