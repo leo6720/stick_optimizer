@@ -1,5 +1,37 @@
 # Istruzioni per Codex
 
+## Migrazione Rust: istruzioni prevalenti per il nuovo codice
+
+La riscrittura è sul branch `rust-rewrite`; `python-beta-reference` conserva
+lo stato Python iniziale. Leggere anche `docs/rust-migration.md` prima di
+lavorare. Il workspace Rust ha tre componenti: `crates/core` (dominio e ricerca),
+`crates/io` (file e preferenze) e `crates/desktop` (GUI). La fase 2 contiene solo
+la struttura; non presumere che calcolo, salvataggi o GUI siano implementati.
+
+- Le PR della migrazione hanno base `rust-rewrite`, mai `main` automaticamente.
+- Il core non dipende dalla GUI o dai formati di file; la GUI non ricalcola
+  formule, metriche o vincoli fisici.
+- Nessuna compatibilità richiesta con vecchi `.sop`, CSV o preferenze. Per
+  nuovi formati definire uno schema versionato e verificarne il round trip.
+- Conservare significato fisico, millimetri ed esclusione delle teste con
+  raggruppamento 1. Documentare ogni cambiamento intenzionale. Definire
+  arrotondamenti e confronto dei passi; Python e Rust possono differire.
+- Usare la toolchain versionata; eseguire `cargo fmt --all -- --check`,
+  `cargo check --workspace --all-targets --locked`,
+  `cargo clippy --workspace --all-targets --locked -- -D warnings`,
+  `cargo test --workspace --locked` e
+  `cargo build --workspace --release --locked` quando pertinenti.
+- Zero test nella struttura iniziale non certificano il motore. Quando il
+  motore esiste, verificare casi deterministici, vincoli, Pareto e risultati
+  contro un riferimento esatto piccolo prima di ottimizzare.
+- Per la GUI eseguire prove desktop; riportare ciò che non è stato verificato.
+- Non modificare dati utente per prove, non usare `launcher.py`, non introdurre
+  workflow GitHub Actions, non eseguire merge o deploy autonomamente.
+
+Le istruzioni Python seguenti continuano a valere per il codice Python di
+riferimento. Il requisito legacy di apertura dei `.sop` non si applica alla
+nuova app Rust, secondo l'indicazione esplicita dell'utente.
+
 ## Contesto
 
 Questo repository contiene un'app desktop Tkinter per confrontare configurazioni geometriche di trasferimento degli stick dalla macchina stickpack all'astucciatrice. Il codice produce candidati per ciascun formato, combina quelli con lo stesso passo astucciatrice, applica un filtro Pareto e ordina le soluzioni con un punteggio pesato. È uno strumento di supporto alla progettazione: una soluzione calcolata richiede comunque verifica meccanica e di processo.

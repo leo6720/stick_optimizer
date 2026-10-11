@@ -1,5 +1,43 @@
 # Sviluppo e verifica
 
+## Workspace Rust sul branch di migrazione
+
+Il workspace contiene `stick-optimizer-core`, `stick-optimizer-io` e
+`stick-optimizer-desktop`. Il motore non dipende da IO o GUI; IO dipende dal
+motore; desktop dipende da entrambi. Non ci sono dipendenze esterne nella
+struttura iniziale. `Cargo.lock` viene versionato.
+
+Usare la toolchain indicata in `rust-toolchain.toml`. Su Windows serve anche
+il workload C++ di Visual Studio Build Tools con Windows SDK. Rust 1.85 è il
+minimo dichiarato dai manifest; la verifica del minimo è distinta dalla verifica
+con la toolchain fissata. L'installazione standard mette Cargo in
+`$env:USERPROFILE\.cargo\bin`; dopo l'installazione può servire una nuova shell.
+
+```powershell
+cargo fmt --all -- --check
+cargo check --workspace --all-targets --locked
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+cargo build --workspace --release --locked
+cargo run -p stick-optimizer-desktop --release --locked
+```
+
+Nella fase 2 le librerie contengono soltanto documentazione e l'eseguibile stampa
+un messaggio esplicito. I test possono riportare zero casi: la build verifica
+la struttura, non la correttezza di un motore ancora assente. Non introdurre
+test fittizi per certificare questa fase.
+
+La GUI egui/eframe è una proposta da validare nella fase 3. Le nuove istruzioni
+Rust prevalgono sui percorsi Python soltanto per i componenti Rust. Nessuna
+compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento
+tecnico leggere anche `docs/architecture.md` e `docs/rust-migration.md`.
+
+Le PR della migrazione devono avere base `rust-rewrite`, non `main`. Le attività
+successive devono rispettare dipendenze e traguardi del piano; il merge resta
+una decisione umana. Non eseguire aggiornamenti dal vecchio launcher.
+
+## Sviluppo della versione Python di riferimento
+
 ## Preparazione
 
 Da una shell nella radice del repository:

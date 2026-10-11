@@ -1,6 +1,7 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
-Stato: fase 1 completata come specifica iniziale; implementazione non iniziata.
+Stato: specifica iniziale e fase 2 completate. La struttura Rust
+è presente, mentre motore e GUI non sono ancora implementati.
 Data: 11 ottobre 2026.
 
 ## Obiettivo e decisioni concordate
@@ -139,6 +140,43 @@ la riscrittura.
 
 ## Stato operativo della fase 1
 
-Creato soltanto questo documento. Nessun codice, file utente, branch, issue,
-repo GitHub o automazione modificato in questa fase. La preparazione dello
-workspace Rust è il prossimo passo.
+La fase 1 ha creato soltanto questo documento, senza modificare codice o dati
+utente. Le operazioni successive appartengono alla fase 2.
+
+## Preparazione della fase 2
+
+- Branch di migrazione: `rust-rewrite`.
+- Riferimento Python: tag `python-beta-reference`, commit `0eef599`.
+- Il riferimento include le modifiche locali a README e .gitignore e i file
+  AGENTS.md, requirements.txt e docs presenti prima dello scaffold Rust.
+- `main` resta al commit `3214abe` durante la preparazione.
+- Workspace creato con `crates/core`, `crates/io` e `crates/desktop`, senza
+  dipendenze esterne. Le librerie sono soltanto predisposte; il binario stampa
+  un messaggio di stato e termina.
+- Istruzioni e automazione aggiornate per Rust e PR verso `rust-rewrite`, con
+  la cadenza precedente di 3 ore.
+- Nessuna issue creata e nessuna fase successiva iniziata automaticamente.
+- Rust 1.99.0 e Visual Studio Build Tools 2022 con strumenti C++ e Windows SDK
+  installati sul PC. Toolchain fissata in `rust-toolchain.toml`.
+- Build, controlli statici e avvio dell'eseguibile iniziale verificati.
+
+### Verifica locale della fase 2 (11 ottobre 2026)
+
+Eseguiti dalla radice del repository, con Rust 1.99.0 e target Windows x64 MSVC:
+
+| Comando | Esito |
+| --- | --- |
+| `cargo generate-lockfile --offline` | Generato Cargo.lock, sole dipendenze locali |
+| `cargo fmt --all -- --check` | Superato |
+| `cargo check --workspace --all-targets --locked` | Superato per i tre componenti |
+| `cargo clippy --workspace --all-targets --locked -- -D warnings` | Superato senza warning |
+| `cargo test --workspace --locked` | Completato; zero test perché il motore è ancora assente |
+| `cargo build --workspace --release --locked` | Esito positivo, eseguibile Windows generato |
+| `cargo run -p stick-optimizer-desktop --release --locked` | Messaggio di struttura iniziale, uscita con codice 0 |
+| `git diff --check` | Nessun errore di whitespace |
+
+Le verifiche certificano solo lo scaffold e il collegamento dell'eseguibile.
+Non è stata verificata una GUI (non ancora presente), né un motore di calcolo.
+Il minimo Rust 1.85 dichiarato nei manifest non è stato provato separatamente.
+Il file utente `user_defaults.json` e i sorgenti Python non sono stati modificati
+durante la preparazione Rust. Il prossimo passo è la prova GUI della fase 3.

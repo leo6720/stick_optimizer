@@ -3,3 +3,7 @@
 __pycache__/
 *.py[cod]
 .last_commit
+
+# Rust build output and local scratch files
+/target/
+/work/

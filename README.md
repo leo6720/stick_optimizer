@@ -1,5 +1,30 @@
 # Stick Optimizer
 
+## Migrazione Rust in corso
+
+Sul branch `rust-rewrite` è presente un workspace Rust iniziale con tre
+componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
+(`crates/desktop`). Al momento contiene soltanto la struttura: non calcola
+soluzioni e non apre una GUI. La libreria grafica verrà provata nella fase 3.
+
+La versione Python di riferimento, comprese le modifiche locali presenti prima
+della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
+non viene sostituito durante questa preparazione. I file Python restano
+utilizzabili nel branch di migrazione.
+
+Da una shell con Rust e gli strumenti C++ Windows disponibili:
+
+```powershell
+cargo build --workspace --locked
+cargo run -p stick-optimizer-desktop --locked
+```
+
+Il secondo comando stampa un messaggio di preparazione e termina: non è ancora
+l'app desktop finale. Vedere [il piano](docs/rust-migration.md) e
+[le istruzioni di sviluppo](docs/development.md) per fasi e verifiche.
+
+## Versione Python di riferimento
+
 Applicazione desktop di supporto alla progettazione del trasferimento degli stick dalla macchina stickpack (MT) all'astucciatrice. Cerca configurazioni geometricamente ammissibili per più formati commerciali e preferisce quelle che condividono cassetti e teste robot, riducendo penalità di strati, riporto, raggruppamento, stabilità e rapporto A/B dell'astuccio.
 
 Il programma **non** valida la fattibilità produttiva: non modella cinematica, tempi ciclo, collisioni, dinamica del prodotto o capacità effettiva della macchina. Ogni soluzione richiede verifica ingegneristica.

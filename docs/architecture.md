@@ -1,5 +1,23 @@
 # Architettura e modello di calcolo
 
+## Struttura Rust iniziale
+
+Il branch `rust-rewrite` contiene un workspace Cargo con tre componenti:
+
+```text
+desktop -> io -> core
+desktop ------> core
+```
+
+`core` ospiterà dominio e calcolo, `io` i formati e `desktop` interfaccia e
+gestione dei lavori. Nella fase 2 questi confini sono predisposti, ma il motore,
+la persistenza e la GUI non sono ancora implementati. La scelta grafica e il
+nuovo schema di progetto restano quelli proposti in `rust-migration.md`, da
+validare nelle fasi successive.
+
+Le sezioni seguenti descrivono il riferimento Python conservato nel tag
+`python-beta-reference`, non funzioni Rust già disponibili.
+
 ## Scopo e confini
 
 L'app aiuta a scegliere una configurazione statica di trasferimento degli stick tra macchina stickpack (MT) e astucciatrice per più formati commerciali. Ogni `Format` indica un tipo di stick e quanti stick entrano in un cassetto. `GlobalSettings` descrive la macchina e i limiti geometrici. `Weights` controlla l'ordinamento delle soluzioni. Tutte le lunghezze sono in millimetri.
