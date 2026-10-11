@@ -2,10 +2,11 @@
 
 ## Migrazione Rust in corso
 
-Sul branch `rust-rewrite` è presente un workspace Rust iniziale con tre
+La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
-(`crates/desktop`). Al momento contiene soltanto la struttura: non calcola
-soluzioni e non apre una GUI. La libreria grafica verrà provata nella fase 3.
+(`crates/desktop`). Il passo 3 introduce una GUI di prova in egui/eframe:
+stick e formati modificabili, parametri, risultati dimostrativi selezionabili,
+ordinamento e filtro. Il motore e i salvataggi non sono ancora implementati.
 
 La versione Python di riferimento, comprese le modifiche locali presenti prima
 della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
@@ -19,8 +20,15 @@ cargo build --workspace --locked
 cargo run -p stick-optimizer-desktop --locked
 ```
 
-Il secondo comando stampa un messaggio di preparazione e termina: non è ancora
-l'app desktop finale. Vedere [il piano](docs/rust-migration.md) e
+Il secondo comando apre la finestra «Stick Optimizer — Anteprima Rust».
+Inizia con dati di esempio: modifica le celle, controlla i parametri e premi
+**Mostra risultati di esempio**. Il punto e la virgola sono accettati come
+separatori decimali; quantità e conteggi richiedono interi positivi. I risultati
+sono valori fissi illustrativi, indipendenti dagli input: non sono soluzioni
+calcolate. Ogni modifica agli input li rimuove. Le modifiche allo studio restano
+solo nella sessione; salvataggi, CSV e ricerca reale arriveranno dopo.
+
+Vedere [il piano](docs/rust-migration.md) e
 [le istruzioni di sviluppo](docs/development.md) per fasi e verifiche.
 
 ## Versione Python di riferimento

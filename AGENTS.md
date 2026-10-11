@@ -5,8 +5,11 @@
 La riscrittura è sul branch `rust-rewrite`; `python-beta-reference` conserva
 lo stato Python iniziale. Leggere anche `docs/rust-migration.md` prima di
 lavorare. Il workspace Rust ha tre componenti: `crates/core` (dominio e ricerca),
-`crates/io` (file e preferenze) e `crates/desktop` (GUI). La fase 2 contiene solo
-la struttura; non presumere che calcolo, salvataggi o GUI siano implementati.
+`crates/io` (file e preferenze) e `crates/desktop` (GUI). Il passo 3 aggiunge una
+GUI dimostrativa in egui/eframe; non presumere che calcolo o salvataggi siano
+implementati. Le bozze GUI in `crates/desktop/src/draft.rs` hanno soltanto
+validazione sintattica e non sostituiscono il dominio futuro in `core`.
+I risultati del prototipo sono fissi.
 
 - Le PR della migrazione hanno base `rust-rewrite`, mai `main` automaticamente.
 - Il core non dipende dalla GUI o dai formati di file; la GUI non ricalcola

@@ -4,11 +4,11 @@
 
 Il workspace contiene `stick-optimizer-core`, `stick-optimizer-io` e
 `stick-optimizer-desktop`. Il motore non dipende da IO o GUI; IO dipende dal
-motore; desktop dipende da entrambi. Non ci sono dipendenze esterne nella
-struttura iniziale. `Cargo.lock` viene versionato.
+motore; desktop dipende da entrambi. La GUI usa egui/eframe e egui_extras
+0.36.2, con backend Glow e font incorporati. `Cargo.lock` viene versionato.
 
 Usare la toolchain indicata in `rust-toolchain.toml`. Su Windows serve anche
-il workload C++ di Visual Studio Build Tools con Windows SDK. Rust 1.85 è il
+il workload C++ di Visual Studio Build Tools con Windows SDK. Rust 1.95 è il
 minimo dichiarato dai manifest; la verifica del minimo è distinta dalla verifica
 con la toolchain fissata. L'installazione standard mette Cargo in
 `$env:USERPROFILE\.cargo\bin`; dopo l'installazione può servire una nuova shell.
@@ -22,13 +22,32 @@ cargo build --workspace --release --locked
 cargo run -p stick-optimizer-desktop --release --locked
 ```
 
-Nella fase 2 le librerie contengono soltanto documentazione e l'eseguibile stampa
-un messaggio esplicito. I test possono riportare zero casi: la build verifica
-la struttura, non la correttezza di un motore ancora assente. Non introdurre
-test fittizi per certificare questa fase.
+Nella fase 3 le librerie core e IO contengono soltanto documentazione; desktop
+apre una finestra nativa. I test desktop verificano parsing, riferimenti tra
+righe, invalidazione dei risultati, filtri, editing con Ctrl+A e Tab tramite
+eventi egui sintetici, rendering a dimensioni ridotte e virtualizzazione.
+I risultati sono fixture indipendenti dagli input. Queste prove non certificano
+un motore di ricerca, ancora assente.
 
-La GUI egui/eframe è una proposta da validare nella fase 3. Le nuove istruzioni
-Rust prevalgono sui percorsi Python soltanto per i componenti Rust. Nessuna
+Per verificare anche la funzione di anteprima e acquisire sei schermate native:
+
+```powershell
+cargo check --workspace --all-targets --all-features --locked
+cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+cargo test --workspace --all-features --locked
+.\scripts\preview-gui.ps1
+```
+
+Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
+`ui-preview`, avvia e chiude il prototipo per ciascuna vista e salva PNG in
+`work/phase3` (non versionata). Controllare visivamente input, parametri,
+risultati, finestra compatta, zoom UI 150% e molte righe. Lo zoom UI è una prova
+di layout, non una verifica di ogni configurazione DPI Windows. La build
+release normale non abilita questa funzione. Completare le prove con editing,
+selezione, scorrimento e conferme manuali; gli eventi sintetici non sostituiscono
+la verifica fisica di tastiera e monitor.
+
+Le nuove istruzioni Rust prevalgono sui percorsi Python soltanto per i componenti Rust. Nessuna
 compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento
 tecnico leggere anche `docs/architecture.md` e `docs/rust-migration.md`.
 

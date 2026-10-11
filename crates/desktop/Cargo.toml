@@ -8,6 +8,13 @@ publish.workspace = true
 [dependencies]
 stick-optimizer-core.workspace = true
 stick-optimizer-io.workspace = true
+eframe.workspace = true
+egui_extras.workspace = true
+image = { version = "=0.25.10", default-features = false, features = ["png"], optional = true }
+
+[features]
+# Native viewport screenshots, enabled only for local visual QA.
+ui-preview = ["dep:image"]
 
 [lints]
 workspace = true

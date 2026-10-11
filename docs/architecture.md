@@ -1,6 +1,6 @@
 # Architettura e modello di calcolo
 
-## Struttura Rust iniziale
+## Struttura Rust e prova GUI
 
 Il branch `rust-rewrite` contiene un workspace Cargo con tre componenti:
 
@@ -10,10 +10,17 @@ desktop ------> core
 ```
 
 `core` ospiterà dominio e calcolo, `io` i formati e `desktop` interfaccia e
-gestione dei lavori. Nella fase 2 questi confini sono predisposti, ma il motore,
-la persistenza e la GUI non sono ancora implementati. La scelta grafica e il
-nuovo schema di progetto restano quelli proposti in `rust-migration.md`, da
-validare nelle fasi successive.
+gestione dei lavori. Il passo 3 aggiunge una GUI egui/eframe in `desktop`:
+`draft.rs` mantiene bozze editabili e controlli sintattici (non fattibilità
+meccanica), `app.rs` gestisce schermate, tabelle e risultati illustrativi.
+Gli ID di stick e formati sono indipendenti dai nomi modificabili. La rimozione
+di uno stick elimina i formati associati dopo conferma; la modifica degli input
+invalida sempre i risultati mostrati. Le tabelle rendono soltanto le righe visibili.
+
+Il motore e la persistenza non sono implementati. Le tre righe di risultato
+sono fixture fisse, etichettate come esempi e indipendenti dagli input. Non
+esiste ancora alcun percorso GUI verso un ottimizzatore Rust. La scelta del
+nuovo schema di progetto resta proposta in `rust-migration.md`.
 
 Le sezioni seguenti descrivono il riferimento Python conservato nel tag
 `python-beta-reference`, non funzioni Rust già disponibili.

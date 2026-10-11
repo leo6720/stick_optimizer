@@ -1,7 +1,7 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
-Stato: specifica iniziale e fase 2 completate. La struttura Rust
-è presente, mentre motore e GUI non sono ancora implementati.
+Stato: specifica e preparazione completate; prototipo GUI della fase 3
+implementato. Motore e salvataggi non sono ancora implementati.
 Data: 11 ottobre 2026.
 
 ## Obiettivo e decisioni concordate
@@ -82,9 +82,10 @@ Workspace Rust con tre componenti: `core` (dominio e ricerca), `io`
 Il core non dipende dalla libreria grafica. La GUI usa uno snapshot degli input
 per ciascun calcolo e non associa risultati vecchi a input modificati.
 
-Prima candidata per la GUI: egui/eframe. La scelta diventa definitiva dopo
-una prova con tabella editabile, parametri, risultati simulati, tastiera,
-ridimensionamento e scaling Windows. Non è ancora una dipendenza adottata.
+GUI del prototipo: egui/eframe 0.36.2 con egui_extras per le tabelle e backend
+Glow. La fase 3 prova editing, parametri, risultati simulati, tastiera,
+ridimensionamento e zoom. La libreria è adottata per proseguire la migrazione;
+restano da raccogliere feedback d'uso e prove su altri monitor/DPI Windows.
 
 Nuovo formato proposto: JSON con identificatore del formato e versione dello
 schema. Input, preferenze e risultati sono distinti; eventuali risultati salvati
@@ -127,10 +128,10 @@ avanzate arrivano dopo questo percorso completo minimo.
 
 ## Git, PR e automazione
 
-Prima di iniziare l'implementazione creare il branch di migrazione e adattare
-AGENTS.md e il prompt dell'automazione alle verifiche Rust e alla destinazione
-delle PR. Il vecchio prompt usa ancora il workflow Python e il branch predefinito:
-non è il workflow definitivo della migrazione.
+Il branch di migrazione è `rust-rewrite`. AGENTS.md e il prompt
+dell'automazione sono stati adattati alle verifiche Rust e alle PR verso quel
+branch nella fase 2. L'automazione mantiene la cadenza di 3 ore e rispetta
+dipendenze e criteri di accettazione delle issue pronte.
 
 Preparare issue piccole con dipendenze e criteri di accettazione; una PR per
 attività coerente verso il branch di migrazione. L'automazione non decide da
@@ -180,3 +181,48 @@ Non è stata verificata una GUI (non ancora presente), né un motore di calcolo.
 Il minimo Rust 1.85 dichiarato nei manifest non è stato provato separatamente.
 Il file utente `user_defaults.json` e i sorgenti Python non sono stati modificati
 durante la preparazione Rust. Il prossimo passo è la prova GUI della fase 3.
+
+## Prototipo della fase 3
+
+- Branch di lavoro: `codex/phase-3-gui`, base PR `rust-rewrite`.
+- Finestra Windows nativa egui/eframe 0.36.2 con tre schede: stick/formati,
+  parametri e risultati. Avvio da dati incorporati o creazione di studio vuoto.
+- Tabelle editabili, associazioni tramite ID stabili, aggiunta e rimozione.
+  La rimozione di stick e il cambio di studio richiedono conferma modale.
+- Input numerici con virgola o punto, interi positivi per conteggi e quantità,
+  rifiuto di valori non finiti, nomi duplicati e riferimenti mancanti.
+- Tre risultati fissi, filtro sul numero di tipi di testa, ordinamento per
+  passo/punteggio e dettaglio selezionato. Ogni modifica agli input li cancella.
+- Scorrimento orizzontale nelle tabelle e verticale nel contenuto; soltanto
+  le righe visibili vengono renderizzate. Colonne adattabili anche dopo lo zoom
+  e la prima inizializzazione nativa della finestra.
+- Toolchain sempre Rust 1.99.0; minimo manifest aggiornato a 1.95 per egui 0.36.
+- Core e IO restano predisposti. Nessuna formula fisica è stata tradotta, nessun
+  salvataggio o CSV implementato; nessun dato utente o sorgente Python modificato.
+
+### Verifica locale della fase 3 (11 ottobre 2026)
+
+| Comando | Esito |
+| --- | --- |
+| `cargo fmt --all -- --check` | Superato |
+| `cargo check --workspace --all-targets --all-features --locked` | Superato |
+| `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings` | Superato senza warning |
+| `cargo test --workspace --all-features --locked` | 10 test desktop superati; core e IO senza test perché ancora assenti |
+| `.\scripts\preview-gui.ps1` | Sei PNG nativi acquisiti e controllati: input, parametri, risultati, 760×620, zoom 150%, 120 stick e 121 formati |
+| `cargo build --workspace --release --locked` | Eseguibile Windows ottimizzato generato |
+| Avvio di `target/release/stick-optimizer-desktop.exe` | Finestra nativa aperta sul desktop |
+| `git diff --check` | Nessun errore di whitespace |
+
+I test della tastiera inviano eventi egui sintetici e verificano sostituzione
+del testo con Ctrl+A, inserimento del decimale e passaggio alla cella seguente
+con Tab. La prova di virtualizzazione usa 1000 stick e 1001 formati. Un test
+di regressione verifica che le colonne numeriche restino visibili dopo il
+passaggio dalle dimensioni provvisorie di avvio a quelle effettive con zoom.
+Le catture usano l'API pubblica del viewport dopo che il layout si è stabilizzato;
+la funzione `ui-preview` e la scrittura PNG sono escluse dalla build normale.
+
+La resa nativa è stata verificata sul PC corrente. Non è stata eseguita una
+prova manuale completa con tastiera/mouse fisici, né il passaggio tra monitor
+con DPI differenti. Il prototipo serve a raccogliere questo feedback prima
+di stabilizzare la GUI; non certifica correttezza meccanica o prestazioni.
+Il passo successivo previsto è la fase 4, motore Rust di riferimento.
