@@ -27,11 +27,14 @@ Il secondo comando apre la finestra «Stick Optimizer — Beta Rust».
 Inizia con dati di esempio: modifica gli stick e i formati nella tabella
 gerarchica a sinistra, controlla i parametri da **Modifica** e premi
 **Calcola** a destra. **File** permette di creare uno studio vuoto
-o ricaricare l'esempio. Clic destro sulle righe per rimuoverle; **Agg. Formato**
+o ricaricare l'esempio. Seleziona una riga e premi **Rimuovi**, oppure usa il
+clic destro; eliminare uno stick richiede conferma per i formati associati. **Agg. Formato**
 aggiunge un formato allo stick selezionato. Il punto e la virgola sono accettati come
 separatori decimali; quantità e conteggi richiedono interi positivi e MT almeno
 due canali. Dal menu **Modifica** sono disponibili geometria, giochi e gli otto
-pesi del punteggio. **Annulla calcolo** interrompe il lavoro senza mostrare risultati
+pesi del punteggio. Il dialogo usa **Applica** e **Annulla**: i risultati vengono
+invalidati solo dopo l'applicazione di parametri validi e diversi.
+**Annulla calcolo** interrompe il lavoro senza mostrare risultati
 parziali. La selezione di una soluzione popola i dettagli per formato, tipi di
 cassetto e tipi di testa robot. Ogni modifica agli input cancella i risultati
 e scarta il calcolo precedente.
@@ -41,8 +44,13 @@ Se erano presenti risultati, Apri li ricalcola in background e ripristina la
 selezione. Salva richiede input completi e validi. La chiusura segnala le
 modifiche non salvate. **File → Esporta** scrive le soluzioni visibili o il
 dettaglio selezionato in CSV. **Filtri…** permette di limitare passo, cassetti,
-teste, strati e punteggio; **Vista geometrica** mostra la sezione del formato
-scelto sotto i risultati. Da **Modifica** puoi salvare i parametri predefiniti
+teste, strati e punteggio. Nella **Panoramica formati**, il doppio clic su una
+riga apre quote complete e disegno nello stesso popup; **Apri dettaglio…**
+apre il formato selezionato, oppure il primo. Il popup permette di cambiare
+formato ed è chiudibile con Esc. La vista grafica non è una scheda separata.
+Ctrl+O apre, Ctrl+S salva, Ctrl+Maiusc+S salva con nome e Ctrl+N crea un nuovo
+studio, rispettando le conferme per modifiche non salvate. Rinominare lo studio
+conserva i risultati già calcolati. Da **Modifica** puoi salvare i parametri predefiniti
 per i nuovi studi. I vecchi `.sop` e `user_defaults.json` non sono usati dalla
 versione Rust. Formati e limiti sono descritti in
 [docs/rust-files.md](docs/rust-files.md).

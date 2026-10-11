@@ -20,7 +20,11 @@ nell'eseguibile e decodificate una sola volta all'avvio. Colori e gerarchia
 visiva seguono `ui-design.md`; non ci sono pagine separate per input/output.
 Gli ID di stick e formati sono indipendenti dai nomi modificabili. La rimozione
 di uno stick elimina i formati associati dopo conferma; la modifica degli input
-invalida sempre i risultati mostrati. Le tabelle rendono soltanto le righe visibili.
+di calcolo invalida i risultati mostrati; rinominare lo studio li conserva.
+Le tabelle rendono soltanto le righe visibili. Il dialogo dei parametri modifica
+una bozza: validazione e invalidazione avvengono dopo Applica. Annulla conserva
+lo studio. `app/details.rs` presenta i campi del candidato e la geometria nello
+stesso popup, aperto con doppio clic o pulsante, senza ricalcolare valori fisici.
 
 Il passo 4 aggiunge il percorso `draft.to_study -> core.validate -> optimize`.
 La ricerca genera candidati, interseca passi comuni, enumera combinazioni e

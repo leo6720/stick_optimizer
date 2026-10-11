@@ -92,9 +92,11 @@ impl PrototypeApp {
         self.study = StudyDraft::from_study(document.name, document.study);
         self.collapsed.clear();
         self.selected_stick = None;
+        self.selected_input = None;
         self.current_path = Some(path.to_owned());
         self.pending = None;
         self.parameters_open = false;
+        self.parameters_draft = None;
         self.filter_editor.open = false;
         self.apply_view(document.view.clone());
         self.dirty = false;

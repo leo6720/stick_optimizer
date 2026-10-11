@@ -70,8 +70,10 @@ Estremi vuoti non impongono limiti; minimo uguale a massimo seleziona un
 valore esatto. I filtri agiscono sulle prime N soluzioni già restituite dal
 motore: non estendono la ricerca e non cambiano Pareto o score.
 
-**Vista geometrica** mantiene i dettagli sotto la classifica e permette di
-scegliere un formato della soluzione. Il core produce rettangoli in mm;
+Il **popup del dettaglio formato**, aperto dal doppio clic nella Panoramica
+formati o da Apri dettaglio, raccoglie quote e disegno nella stessa finestra.
+Permette di scegliere un formato della soluzione di origine e si chiude con Esc.
+Il core produce rettangoli in mm;
 la GUI li scala e disegna. La sezione rappresenta cassetti per passo,
 compartimenti, divisori e strati. Il contorno verticale usa B astuccio come
 riferimento, non un'altezza fisica del cassetto non definita dal modello.

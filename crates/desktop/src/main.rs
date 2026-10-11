@@ -8,7 +8,10 @@ mod preview;
 
 fn main() -> eframe::Result {
     #[cfg(feature = "ui-preview")]
-    let window_size = if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("compact") {
+    let window_size = if matches!(
+        std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(),
+        Ok("compact" | "detail-compact")
+    ) {
         [760.0, 620.0]
     } else {
         [1450.0, 900.0]

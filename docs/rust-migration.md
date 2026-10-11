@@ -1,7 +1,8 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
-Stato: fasi 1–4 implementate, con motore e primo calcolo reale dalla GUI.
-Salvataggi, CSV e disegni geometrici grafici restano per la beta completa.
+Stato: fasi 1–5 implementate, con motore reale, studi, preferenze, CSV e sezioni
+geometriche. Rifinitura delle interazioni GUI in corso sul branch
+`codex/ui-refinements`, basato sulla beta della PR #14. Le PR restano da integrare.
 Data: 11 ottobre 2026.
 
 ## Obiettivo e decisioni concordate
@@ -296,3 +297,26 @@ chiusura e più monitor/DPI. Per questo la PR rimane draft. Studi vuoti o
 bozze numeriche incomplete non vengono salvati. Nessun benchmark, installer,
 release pubblicata, migrazione Python o modifica dei dati utente. Non si
 avvia automaticamente la fase 6; occorre un perimetro autorizzato o una issue pronta.
+
+## Rifinitura GUI richiesta dall'utente
+
+Branch `codex/ui-refinements`, basato su `f10fd00` della PR #14, con PR su
+`rust-rewrite`. Il perimetro riguarda interazioni e presentazione; non avvia
+benchmark, nuove formule fisiche o distribuzione della release.
+
+- Righe compatte e testo allineato, tooltip sui contenuti troncati,
+  selezione delle righe anche cliccando sul testo.
+- Doppio clic nella Panoramica formati: popup con quote complete e disegno
+  insieme, pulsante equivalente, scelta formato ed Esc. Nessuna scheda grafica
+  separata; invalidazione del popup dopo modifiche agli input.
+- Parametri in una bozza con Applica/Annulla e validazione; rimozione esplicita
+  della riga di input, menu e scorciatoie, rinomina senza perdita dei risultati.
+- Confronto funzionale e differenze rispetto a Python in `ui-design.md`.
+
+Verifica: 45 test (10 core, 29 desktop, 6 IO), inclusi eventi egui per
+doppio clic, dialoghi, rimozione, selezione e scorciatoie. Il set di anteprime
+produce 21 viste native, includendo menu, popup normale/compatto/zoomato,
+scorrimento delle quote e riporto. La cattura del viewport verifica il layout,
+non sostituisce i test fisici dei selettori Windows o di più monitor/DPI.
+Le limitazioni residue di salvataggio e rappresentazione geometrica sono
+documentate in `rust-files.md`; schema e motore non vengono modificati.

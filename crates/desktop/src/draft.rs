@@ -20,7 +20,7 @@ pub struct FormatDraft {
     pub quantity: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Parameters {
     pub channels: String,
     pub offset: String,

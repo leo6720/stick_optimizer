@@ -27,7 +27,11 @@ core confrontano campi e classifiche con fixture Python su casi piccoli,
 verificano vincoli, arrotondamenti e Pareto contro un prodotto cartesiano
 materializzato indipendente. I test desktop verificano snapshot, worker,
 annullamento, risultati obsoleti, click su Calcola tramite eventi egui,
-filtri, Ctrl+A/Tab, dimensioni ridotte e virtualizzazione.
+filtri, Ctrl+A/Tab, dimensioni ridotte e virtualizzazione. I test delle rifiniture
+verificano clic sul testo di una soluzione, doppio clic sul formato corrispondente,
+apertura esplicita ed Esc del popup, invalidazione dei dettagli obsoleti,
+Applica/Annulla con risultati esistenti, validazione prima di applicare,
+rimozione distinta di stick/formato, scorciatoie e rinomina senza ricalcolo.
 La fase 5 verifica anche la riapertura con risultati, filtri e selezione,
 ID ricaricati, errori senza perdita dello studio corrente, modifiche durante
 la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
@@ -39,7 +43,7 @@ Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
 risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
 incorporati e non richiede Python durante i test o nell'eseguibile.
 
-Per verificare anche la funzione di anteprima e acquisire sedici schermate native:
+Per verificare anche la funzione di anteprima e acquisire ventuno schermate native:
 
 ```powershell
 cargo check --workspace --all-targets --all-features --locked
@@ -50,11 +54,12 @@ cargo test --workspace --all-features --locked
 
 Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 `ui-preview`, avvia e chiude il prototipo per ciascuna vista e salva PNG in
-`work/phase5` (non versionata). Controllare visivamente input e
+`work/ui-refinements` (non versionata). Controllare visivamente input e
 risultati reali nella stessa area di lavoro, parametri, tipi cassetto, tipi testa,
 diagnostica senza candidati/senza passo comune, finestra compatta, zoom UI 150%
-e molte righe. Le nuove viste coprono filtri, geometria (anche dopo lo
-scorrimento), studio salvato e riaperto, conferma modifiche non salvate e
+e molte righe. Le nuove viste coprono filtri, menu File/Modifica, popup del formato
+normale/compatto/zoomato, quote dopo lo scorrimento e formato con riporto,
+studio salvato e riaperto, conferma modifiche non salvate e
 messaggio di errore file. L'anteprima `reopened` scrive solo
 `work/phase5/qa-roundtrip.stic`; le altre non salvano preferenze.
 Per ripetere soltanto una vista:

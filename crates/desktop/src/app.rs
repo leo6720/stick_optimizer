@@ -8,6 +8,7 @@ use stick_optimizer_core::{
 };
 
 use crate::draft::{StudyDraft, parse_decimal};
+mod details;
 mod files;
 use files::FileAction;
 use stick_optimizer_io::{Range, ViewState};
@@ -20,13 +21,18 @@ enum DetailView {
     Formats,
     Pockets,
     Heads,
-    Geometry,
 }
 
 #[derive(Clone, Copy)]
 enum InputRow {
     Stick(usize),
     Format(usize),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum InputSelection {
+    Stick(u64),
+    Format(u64),
 }
 
 #[derive(Clone, Copy)]
@@ -64,9 +70,13 @@ impl Drop for SearchJob {
 pub struct PrototypeApp {
     study: StudyDraft,
     parameters_open: bool,
+    parameters_draft: Option<crate::draft::Parameters>,
+    parameters_error: Option<String>,
+    detail_popup: Option<(usize, u64)>,
     detail_view: DetailView,
     collapsed: HashSet<u64>,
     selected_stick: Option<u64>,
+    selected_input: Option<InputSelection>,
     mt_image: Option<egui::TextureHandle>,
     stick_image: Option<egui::TextureHandle>,
     results: Vec<ResultRow>,
@@ -94,9 +104,13 @@ impl Default for PrototypeApp {
         Self {
             study: StudyDraft::example(),
             parameters_open: false,
+            parameters_draft: None,
+            parameters_error: None,
+            detail_popup: None,
             detail_view: DetailView::Formats,
             collapsed: HashSet::new(),
             selected_stick: None,
+            selected_input: None,
             mt_image: None,
             stick_image: None,
             results: Vec::new(),
@@ -125,28 +139,34 @@ impl PrototypeApp {
     pub fn new(ctx: &egui::Context) -> Self {
         ctx.set_visuals(egui::Visuals::light());
         ctx.global_style_mut(|style| {
-            style.spacing.item_spacing = egui::vec2(6.0, 6.0);
-            style.spacing.button_padding = egui::vec2(10.0, 5.0);
+            style.spacing.item_spacing = egui::vec2(6.0, 4.0);
+            style.spacing.button_padding = egui::vec2(8.0, 4.0);
+            style.spacing.window_margin = egui::Margin::same(12);
+            style.spacing.menu_margin = egui::Margin::same(8);
+            style.spacing.menu_width = 340.0;
+            style.visuals.window_fill = Color32::WHITE;
+            style.visuals.faint_bg_color = Color32::from_rgb(246, 246, 246);
             style.visuals.selection.bg_fill = ACCENT;
             style.visuals.selection.stroke.color = Color32::WHITE;
             style.visuals.widgets.active.bg_fill = ACCENT;
             style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(248, 233, 233);
             style.visuals.widgets.noninteractive.fg_stroke.color = MUTED;
             style.visuals.widgets.inactive.bg_fill = Color32::WHITE;
-            style.visuals.widgets.inactive.bg_stroke.color = Color32::from_rgb(210, 212, 212);
+            style.visuals.widgets.inactive.bg_stroke =
+                egui::Stroke::new(1.0, Color32::from_rgb(210, 212, 212));
             style.visuals.widgets.noninteractive.corner_radius = egui::CornerRadius::same(2);
             style.visuals.widgets.inactive.corner_radius = egui::CornerRadius::same(2);
             style.visuals.widgets.hovered.corner_radius = egui::CornerRadius::same(2);
             style.visuals.widgets.active.corner_radius = egui::CornerRadius::same(2);
             style
                 .text_styles
-                .insert(egui::TextStyle::Body, egui::FontId::proportional(14.0));
+                .insert(egui::TextStyle::Body, egui::FontId::proportional(13.0));
             style
                 .text_styles
-                .insert(egui::TextStyle::Button, egui::FontId::proportional(14.0));
+                .insert(egui::TextStyle::Button, egui::FontId::proportional(13.0));
             style
                 .text_styles
-                .insert(egui::TextStyle::Heading, egui::FontId::proportional(21.0));
+                .insert(egui::TextStyle::Heading, egui::FontId::proportional(17.0));
         });
         #[allow(unused_mut)] // Preview modes mutate the initial state only in QA builds.
         let mut app = Self {
@@ -178,8 +198,13 @@ impl PrototypeApp {
                 app.detail_view = DetailView::Heads;
                 app.start_search();
             }
-            Ok("geometry" | "geometry-detail") => {
-                app.detail_view = DetailView::Geometry;
+            Ok(
+                "geometry" | "geometry-detail" | "detail" | "detail-compact" | "detail-scaled"
+                | "detail-bottom" | "detail-carry",
+            ) => {
+                if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-scaled") {
+                    ctx.set_zoom_factor(1.5);
+                }
                 app.start_search();
             }
             Ok("filters") => {
@@ -240,6 +265,7 @@ impl PrototypeApp {
         self.dirty = true;
         self.restore_view = None;
         self.geometry_format = None;
+        self.detail_popup = None;
         self.results.clear();
         self.selected = None;
         self.diagnostic = None;
@@ -395,6 +421,10 @@ impl PrototypeApp {
                 return;
             }
         }
+        self.selected_input = None;
+        self.parameters_open = false;
+        self.parameters_draft = None;
+        self.filter_editor.open = false;
         self.pending = None;
         self.invalidate_results();
     }
@@ -432,6 +462,7 @@ impl PrototypeApp {
     fn render(&mut self, ui: &mut egui::Ui) {
         self.poll_search();
         self.handle_file_action();
+        self.shortcuts(ui.ctx());
         if self.allow_close {
             ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
         }
@@ -443,9 +474,12 @@ impl PrototypeApp {
             .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(10))
             .show(ui, |ui| {
                 egui::MenuBar::new().ui(ui, |ui| {
-                    ui.menu_button("File", |ui| {
+                    let _file_menu = ui.menu_button("File", |ui| {
                         if ui
-                            .add_enabled(self.job.is_none(), egui::Button::new("Apri studio…"))
+                            .add_enabled(
+                                self.job.is_none(),
+                                egui::Button::new("Apri studio…").shortcut_text("Ctrl+O"),
+                            )
                             .clicked()
                         {
                             if self.dirty {
@@ -456,7 +490,10 @@ impl PrototypeApp {
                             ui.close();
                         }
                         if ui
-                            .add_enabled(self.job.is_none(), egui::Button::new("Salva studio"))
+                            .add_enabled(
+                                self.job.is_none(),
+                                egui::Button::new("Salva studio").shortcut_text("Ctrl+S"),
+                            )
                             .clicked()
                         {
                             self.file_action = Some(FileAction::Save);
@@ -465,7 +502,8 @@ impl PrototypeApp {
                         if ui
                             .add_enabled(
                                 self.job.is_none(),
-                                egui::Button::new("Salva studio con nome…"),
+                                egui::Button::new("Salva studio con nome…")
+                                    .shortcut_text("Ctrl+Maiusc+S"),
                             )
                             .clicked()
                         {
@@ -473,7 +511,10 @@ impl PrototypeApp {
                             ui.close();
                         }
                         ui.separator();
-                        if ui.button("Nuovo studio").clicked() {
+                        if ui
+                            .add(egui::Button::new("Nuovo studio").shortcut_text("Ctrl+N"))
+                            .clicked()
+                        {
                             self.pending = Some(PendingAction::EmptyStudy);
                             ui.close();
                         }
@@ -482,28 +523,37 @@ impl PrototypeApp {
                             ui.close();
                         }
                         ui.separator();
-                        if ui
-                            .add_enabled(
-                                !self.visible_results().is_empty(),
-                                egui::Button::new("Esporta soluzioni visibili (CSV)…"),
-                            )
-                            .clicked()
-                        {
-                            self.file_action = Some(FileAction::Summary);
-                            ui.close();
-                        }
-                        if ui
-                            .add_enabled(
-                                self.selected.is_some(),
-                                egui::Button::new("Esporta dettaglio selezionato (CSV)…"),
-                            )
-                            .clicked()
-                        {
-                            self.file_action = Some(FileAction::Details);
-                            ui.close();
-                        }
+                        ui.menu_button("Esporta CSV", |ui| {
+                            if ui
+                                .add_enabled(
+                                    !self.visible_results().is_empty(),
+                                    egui::Button::new("Soluzioni visibili…"),
+                                )
+                                .clicked()
+                            {
+                                self.file_action = Some(FileAction::Summary);
+                                ui.close();
+                            }
+                            if ui
+                                .add_enabled(
+                                    self.selected.is_some(),
+                                    egui::Button::new("Dettagli della soluzione…"),
+                                )
+                                .clicked()
+                            {
+                                self.file_action = Some(FileAction::Details);
+                                ui.close();
+                            }
+                        });
                     });
-                    ui.menu_button("Modifica", |ui| {
+                    #[cfg(feature = "ui-preview")]
+                    if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("file-menu") {
+                        egui::Popup::open_id(
+                            ui.ctx(),
+                            egui::Popup::default_response_id(&_file_menu.response),
+                        );
+                    }
+                    let _edit_menu = ui.menu_button("Modifica", |ui| {
                         if ui.button("Parametri astucciatrice e ricerca…").clicked() {
                             self.parameters_open = true;
                             ui.close();
@@ -518,6 +568,13 @@ impl PrototypeApp {
                             ui.close();
                         }
                     });
+                    #[cfg(feature = "ui-preview")]
+                    if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("edit-menu") {
+                        egui::Popup::open_id(
+                            ui.ctx(),
+                            egui::Popup::default_response_id(&_edit_menu.response),
+                        );
+                    }
                     ui.separator();
                     ui.label(RichText::new("Stick Optimizer").strong().color(ACCENT));
                     if ui
@@ -528,7 +585,7 @@ impl PrototypeApp {
                         )
                         .changed()
                     {
-                        self.invalidate_results();
+                        self.dirty = true;
                     }
                     ui.label(RichText::new("Beta Rust").small().color(MUTED));
                     if self.dirty {
@@ -670,6 +727,7 @@ Dimensioni in mm",
                     });
             });
         self.parameters_window(ui.ctx());
+        self.details_window(ui.ctx());
         if let Some(ranges) = self.filter_editor.show(ui.ctx()) {
             self.ranges = ranges;
             self.dirty = true;
@@ -708,6 +766,7 @@ Dimensioni in mm",
                 TableBuilder::new(ui)
                     .id_salt("hierarchical_inputs")
                     .striped(true)
+                    .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
                     .column(Column::remainder().at_least(130.0).clip(true))
                     .column(Column::exact(40.0))
                     .columns(Column::exact(43.0), 4)
@@ -716,16 +775,19 @@ Dimensioni in mm",
                     .header(26.0, |mut header| {
                         for label in ["Stick / Formato", "Qtà", "Hs", "As", "Ss", "Bs"] {
                             header.col(|ui| {
-                                ui.strong(label);
+                                ui.add(egui::Label::new(RichText::new(label).strong()).truncate())
+                                    .on_hover_text(label);
                             });
                         }
                     })
                     .body(|body| {
-                        body.rows(30.0, rows.len(), |mut row| match rows[row.index()] {
+                        body.rows(26.0, rows.len(), |mut row| match rows[row.index()] {
                             InputRow::Stick(index) => {
                                 let stick = &mut self.study.sticks[index];
                                 let id = stick.id;
-                                row.set_selected(self.selected_stick == Some(id));
+                                row.set_selected(
+                                    self.selected_input == Some(InputSelection::Stick(id)),
+                                );
                                 row.col(|ui| {
                                     ui.horizontal(|ui| {
                                         let closed = self.collapsed.contains(&id);
@@ -748,6 +810,7 @@ Dimensioni in mm",
                                             == Some(Id::new(("stick_name", id)))
                                         {
                                             self.selected_stick = Some(id);
+                                            self.selected_input = Some(InputSelection::Stick(id));
                                         }
                                     });
                                 });
@@ -766,12 +829,14 @@ Dimensioni in mm",
                                             == Some(Id::new((key, id)))
                                         {
                                             self.selected_stick = Some(id);
+                                            self.selected_input = Some(InputSelection::Stick(id));
                                         }
                                     });
                                 }
                                 let response = row.response();
                                 if response.clicked() {
                                     self.selected_stick = Some(id);
+                                    self.selected_input = Some(InputSelection::Stick(id));
                                 }
                                 response.context_menu(|ui| {
                                     if ui.button("Rimuovi stick e formati associati").clicked() {
@@ -784,6 +849,9 @@ Dimensioni in mm",
                                 let format = &mut self.study.formats[index];
                                 let id = format.id;
                                 let parent = format.stick_id;
+                                row.set_selected(
+                                    self.selected_input == Some(InputSelection::Format(id)),
+                                );
                                 row.col(|ui| {
                                     ui.horizontal(|ui| {
                                         ui.add_space(24.0);
@@ -792,6 +860,7 @@ Dimensioni in mm",
                                             == Some(Id::new(("format_name", id)))
                                         {
                                             self.selected_stick = parent;
+                                            self.selected_input = Some(InputSelection::Format(id));
                                         }
                                     });
                                 });
@@ -801,6 +870,7 @@ Dimensioni in mm",
                                         == Some(Id::new(("quantity", id)))
                                     {
                                         self.selected_stick = parent;
+                                        self.selected_input = Some(InputSelection::Format(id));
                                     }
                                 });
                                 for _ in 0..4 {
@@ -809,6 +879,7 @@ Dimensioni in mm",
                                 let response = row.response();
                                 if response.clicked() {
                                     self.selected_stick = parent;
+                                    self.selected_input = Some(InputSelection::Format(id));
                                 }
                                 response.context_menu(|ui| {
                                     if ui.button("Rimuovi formato").clicked() {
@@ -820,14 +891,11 @@ Dimensioni in mm",
                         });
                     });
             });
-        if let Some(id) = remove_format {
-            self.study.formats.retain(|format| format.id != id);
-            changed = true;
-        }
         ui.horizontal_wrapped(|ui| {
             if ui.button("Agg. Stick").clicked() {
                 self.study.add_stick();
                 self.selected_stick = self.study.sticks.last().map(|stick| stick.id);
+                self.selected_input = self.selected_stick.map(InputSelection::Stick);
                 changed = true;
             }
             if ui
@@ -850,9 +918,35 @@ Dimensioni in mm",
                         .stick_id = Some(parent);
                     self.collapsed.remove(&parent);
                 }
+                if let Some(format) = self.study.formats.last() {
+                    self.selected_input = Some(InputSelection::Format(format.id));
+                    if let Some(parent) = format.stick_id {
+                        self.collapsed.remove(&parent);
+                    }
+                }
                 changed = true;
             }
+            if ui
+                .add_enabled(self.selected_input.is_some(), egui::Button::new("Rimuovi"))
+                .on_hover_text(
+                    "Rimuovi la riga selezionata; per uno stick conferma anche i formati associati",
+                )
+                .clicked()
+            {
+                match self.selected_input {
+                    Some(InputSelection::Stick(id)) => {
+                        self.pending = Some(PendingAction::RemoveStick(id))
+                    }
+                    Some(InputSelection::Format(id)) => remove_format = Some(id),
+                    None => {}
+                }
+            }
         });
+        if let Some(id) = remove_format {
+            self.study.formats.retain(|format| format.id != id);
+            self.selected_input = None;
+            changed = true;
+        }
         ui.label(
             RichText::new("Punto o virgola per i decimali · clic destro per rimuovere")
                 .small()
@@ -863,44 +957,96 @@ Dimensioni in mm",
 
     fn parameters_window(&mut self, ctx: &egui::Context) {
         if !self.parameters_open {
+            self.parameters_draft = None;
+            self.parameters_error = None;
             return;
         }
+        let mut draft = self
+            .parameters_draft
+            .take()
+            .unwrap_or_else(|| self.study.parameters.clone());
         let mut open = true;
-        let mut done = false;
-        let mut changed = false;
+        let mut apply = false;
+        let mut cancel = false;
         egui::Window::new("Parametri astucciatrice e ricerca")
             .id(Id::new("parameters_window"))
             .open(&mut open)
-            .default_width(580.0)
+            .default_width(540.0)
+            .default_height((ctx.content_rect().height() - 120.0).clamp(280.0, 660.0))
+            .min_size(egui::vec2(300.0, 240.0))
+            .default_pos(ctx.content_rect().center() - egui::vec2(280.0, 260.0))
+            .collapsible(false)
             .show(ctx, |ui| {
-                egui::ScrollArea::both().max_height(420.0).show(ui, |ui| {
-                    changed = self.parameters(ui);
-                });
-                if ui.button("Chiudi").clicked() {
-                    done = true;
+                egui::ScrollArea::both()
+                    .max_height(
+                        (ui.available_height()
+                            - if self.parameters_error.is_some() {
+                                110.0
+                            } else {
+                                50.0
+                            })
+                        .clamp(100.0, 480.0),
+                    )
+                    .show(ui, |ui| {
+                        Self::parameters(ui, &mut draft);
+                    });
+                if let Some(error) = &self.parameters_error {
+                    ui.colored_label(ACCENT, error);
                 }
+                ui.separator();
+                ui.horizontal(|ui| {
+                    cancel = ui.button("Annulla").clicked();
+                    apply = ui
+                        .add(
+                            egui::Button::new(RichText::new("Applica").color(Color32::WHITE))
+                                .fill(ACCENT),
+                        )
+                        .clicked();
+                });
+                cancel |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
-        self.parameters_open = open && !done;
-        if changed {
-            self.invalidate_results();
+        // Channels are edited in the sidebar, not in this dialog.
+        draft.channels.clone_from(&self.study.parameters.channels);
+        if apply && self.apply_parameters(&draft) {
+            open = false;
+        }
+        self.parameters_open = open && !cancel;
+        if self.parameters_open {
+            self.parameters_draft = Some(draft);
+        } else {
+            self.parameters_error = None;
         }
     }
 
-    fn parameters(&mut self, ui: &mut egui::Ui) -> bool {
+    fn apply_parameters(&mut self, draft: &crate::draft::Parameters) -> bool {
+        let mut check = StudyDraft::example();
+        check.parameters = draft.clone();
+        if let Err(errors) = check.to_study() {
+            self.parameters_error = Some(errors.join("; "));
+            return false;
+        }
+        if self.study.parameters != *draft {
+            self.study.parameters = draft.clone();
+            self.invalidate_results();
+        }
+        true
+    }
+
+    fn parameters(ui: &mut egui::Ui, parameters: &mut crate::draft::Parameters) -> bool {
         let mut changed = false;
         ui.heading(RichText::new("Parametri dello studio").color(ACCENT));
         ui.label(RichText::new("Geometria e vincoli applicati alla ricerca.").color(MUTED));
-        ui.add_space(12.0);
-        let grid_width = ui.available_width().max(550.0);
+        ui.add_space(8.0);
+        let grid_width = ui.available_width().max(460.0);
         egui::ScrollArea::horizontal()
             .id_salt("parameters_horizontal")
             .show(ui, |ui| {
                 ui.set_width(grid_width);
                 egui::Grid::new("parameters")
                     .num_columns(3)
-                    .spacing([20.0, 15.0])
+                    .spacing([16.0, 6.0])
                     .show(ui, |ui| {
-                        let p = &mut self.study.parameters;
+                        let p = &mut *parameters;
                         for (label, value, unit) in [
                             ("Offset massimo stick", &mut p.offset, "mm"),
                             ("Passo massimo astucciatrice", &mut p.max_pitch, "mm"),
@@ -932,7 +1078,7 @@ Dimensioni in mm",
                         }
                     });
             });
-        ui.add_space(16.0);
+        ui.add_space(10.0);
         ui.heading(RichText::new("Pesi del punteggio").color(ACCENT));
         ui.label("Valori non negativi. Il filtro Pareto mantiene le sue sette metriche; i pesi ordinano le soluzioni.");
         egui::Grid::new("weights").show(ui, |ui| {
@@ -947,7 +1093,7 @@ Dimensioni in mm",
                 "Rapporto A/B",
             ]
             .into_iter()
-            .zip(&mut self.study.parameters.weights)
+            .zip(&mut parameters.weights)
             {
                 ui.label(label);
                 changed |= ui
@@ -961,12 +1107,12 @@ Dimensioni in mm",
             }
         });
         if ui.button("Ripristina pesi incorporati").clicked() {
-            self.study.parameters.weights = stick_optimizer_core::Weights::default()
+            parameters.weights = stick_optimizer_core::Weights::default()
                 .values()
                 .map(|v| v.to_string());
             changed = true;
         }
-        if let Ok(ratio) = parse_decimal(&self.study.parameters.ab_target) {
+        if let Ok(ratio) = parse_decimal(&parameters.ab_target) {
             ui.label(
                 RichText::new(format!("Rapporto A/B inserito: {}", format_number(ratio)))
                     .small()
@@ -986,10 +1132,10 @@ Dimensioni in mm",
                 });
         }
         if self.results.is_empty() {
-            ui.add_space(12.0);
+            ui.add_space(8.0);
             ui.label("Inserisci i dati nella sidebar e premi «Calcola».");
         }
-        ui.add_space(12.0);
+        ui.add_space(8.0);
         ui.horizontal_wrapped(|ui| {
             if ui.checkbox(&mut self.one_head_only, "Una sola testa")
                 .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio").changed() {self.dirty = true;}
@@ -1034,30 +1180,46 @@ Dimensioni in mm",
                 TableBuilder::new(ui)
                     .id_salt("results")
                     .striped(true)
+                    .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
                     .column(Column::remainder().clip(true))
                     .columns(Column::exact(105.0), 5)
                     .max_scroll_height(175.0)
                     .sense(egui::Sense::click())
-                    .header(28.0, |mut header| {
-                        for label in [
+                    .header(26.0, |mut header| {
+                        for (index, label) in [
                             "Posizione",
                             "Passo (mm)",
                             "Formati cassetto",
                             "Teste robot",
                             "Strati max",
                             "Punteggio",
-                        ] {
+                        ]
+                        .into_iter()
+                        .enumerate()
+                        {
                             header.col(|ui| {
-                                ui.strong(label);
+                                table_text(ui, label, index > 0, false, true);
                             });
                         }
                     })
                     .body(|body| {
-                        body.rows(38.0, rows.len(), |mut row| {
+                        body.rows(24.0, rows.len(), |mut row| {
                             let result = &rows[row.index()];
                             row.set_selected(self.selected == Some(result.id));
                             row.col(|ui| {
-                                ui.label(format!("Soluzione {:02}", result.id));
+                                ui.add(
+                                    egui::Label::new(
+                                        RichText::new(format!("Soluzione {:02}", result.id)).color(
+                                            if self.selected == Some(result.id) {
+                                                Color32::WHITE
+                                            } else {
+                                                MUTED
+                                            },
+                                        ),
+                                    )
+                                    .truncate()
+                                    .selectable(false),
+                                );
                             });
                             for value in [
                                 format_number(result.pitch),
@@ -1067,7 +1229,13 @@ Dimensioni in mm",
                                 format_number(result.score),
                             ] {
                                 row.col(|ui| {
-                                    ui.label(value);
+                                    table_text(
+                                        ui,
+                                        &value,
+                                        true,
+                                        self.selected == Some(result.id),
+                                        false,
+                                    );
                                 });
                             }
                             if row.response().clicked() {
@@ -1081,10 +1249,12 @@ Dimensioni in mm",
             ui.add_space(18.0);
             egui::Frame::group(ui.style())
                 .fill(Color32::WHITE)
-                .inner_margin(16)
+                .inner_margin(8)
                 .show(ui, |ui| {
-                    ui.heading(RichText::new("Dettagli Soluzione Selezionata").color(ACCENT));
-                    ui.label(format!("Soluzione {:02}", result.id));
+                    ui.strong(
+                        RichText::new(format!("Soluzione {:02} · dettagli", result.id))
+                            .color(ACCENT),
+                    );
                     ui.horizontal_wrapped(|ui| {
                         ui.label(format!("Passo: {} mm", format_number(result.pitch)));
                         ui.separator();
@@ -1108,16 +1278,15 @@ Dimensioni in mm",
                 });
         } else {
             ui.add_space(18.0);
-            ui.heading(RichText::new("Dettagli Soluzione Selezionata").color(ACCENT));
+            ui.strong(RichText::new("Dettagli della soluzione").color(ACCENT));
             ui.label("Seleziona una soluzione per visualizzare il riepilogo.");
         }
-        ui.add_space(12.0);
+        ui.add_space(8.0);
         ui.horizontal_wrapped(|ui| {
             for (view, label) in [
                 (DetailView::Formats, "Panoramica formati"),
                 (DetailView::Pockets, "Tipi cassetti usati"),
                 (DetailView::Heads, "Tipi teste robot usate"),
-                (DetailView::Geometry, "Vista geometrica"),
             ] {
                 ui.selectable_value(&mut self.detail_view, view, label);
             }
@@ -1126,64 +1295,6 @@ Dimensioni in mm",
         if let Some(result) = rows.iter().find(|r| Some(r.id) == self.selected) {
             let solution = &result.solution;
             match self.detail_view {
-                DetailView::Geometry => {
-                    if !solution
-                        .candidates
-                        .iter()
-                        .any(|c| Some(c.format_id) == self.geometry_format)
-                    {
-                        self.geometry_format = solution.candidates.first().map(|c| c.format_id);
-                    }
-                    egui::ComboBox::from_id_salt("geometry_format")
-                        .selected_text(
-                            solution
-                                .candidates
-                                .iter()
-                                .find(|c| Some(c.format_id) == self.geometry_format)
-                                .map(|c| c.format_name.as_str())
-                                .unwrap_or("Formato"),
-                        )
-                        .show_ui(ui, |ui| {
-                            for c in &solution.candidates {
-                                ui.selectable_value(
-                                    &mut self.geometry_format,
-                                    Some(c.format_id),
-                                    &c.format_name,
-                                );
-                            }
-                        });
-                    if let Some(c) = solution
-                        .candidates
-                        .iter()
-                        .find(|c| Some(c.format_id) == self.geometry_format)
-                    {
-                        ui.label(format!(
-                            "A {} mm · B {} mm · pila {} mm · {} strati · {} divisori",
-                            format_number(c.carton_a),
-                            format_number(c.carton_b),
-                            format_number(c.stack_height),
-                            c.layers,
-                            c.dividers
-                        ));
-                        if c.carryover_required {
-                            ui.label(format!(
-                                "Riporto · ciclo {}. L'ultimo strato è rappresentato parziale.",
-                                c.carryover_cycle
-                            ));
-                        }
-                        if let Ok(study) = self.study.to_study()
-                            && let Some(g) = stick_optimizer_core::schematic(&study, c)
-                        {
-                            crate::beta::draw_geometry(ui, &g);
-                            #[cfg(feature = "ui-preview")]
-                            if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref()
-                                == Ok("geometry-detail")
-                            {
-                                ui.scroll_to_cursor(Some(egui::Align::BOTTOM));
-                            }
-                        }
-                    }
-                }
                 DetailView::Formats => {
                     let data = solution
                         .candidates
@@ -1211,7 +1322,7 @@ Dimensioni in mm",
                             ]
                         })
                         .collect();
-                    detail_table(
+                    if let Some((index, open)) = detail_table(
                         ui,
                         "format_details",
                         &[
@@ -1231,7 +1342,33 @@ Dimensioni in mm",
                             "Riporto",
                         ],
                         data,
-                    );
+                        solution
+                            .candidates
+                            .iter()
+                            .position(|c| Some(c.format_id) == self.geometry_format),
+                    ) {
+                        let id = solution.candidates[index].format_id;
+                        self.geometry_format = Some(id);
+                        if open {
+                            self.detail_popup = Some((result.id, id));
+                        }
+                    }
+                    ui.horizontal_wrapped(|ui| {
+                        ui.label(
+                            RichText::new("Doppio clic su un formato per quote e disegno.")
+                                .small()
+                                .color(MUTED),
+                        );
+                        if ui.button("Apri dettaglio…").clicked() {
+                            let id = self
+                                .geometry_format
+                                .filter(|id| solution.candidates.iter().any(|c| c.format_id == *id))
+                                .or_else(|| solution.candidates.first().map(|c| c.format_id));
+                            if let Some(id) = id {
+                                self.detail_popup = Some((result.id, id));
+                            }
+                        }
+                    });
                 }
                 DetailView::Pockets => {
                     let data = solution
@@ -1275,6 +1412,7 @@ Dimensioni in mm",
                             "Formati",
                         ],
                         data,
+                        None,
                     );
                 }
                 DetailView::Heads => {
@@ -1308,6 +1446,7 @@ Dimensioni in mm",
                         "head_details",
                         &["Tipo", "Gruppo", "Passo MT (mm)", "Larg. (mm)", "Formati"],
                         data,
+                        None,
                     );
                 }
             }
@@ -1361,7 +1500,7 @@ Dimensioni in mm",
             ui.set_max_width(400.0);
             ui.strong("Conferma modifica");
             ui.label(text);
-            ui.horizontal(|ui| {
+            ui.horizontal_wrapped(|ui| {
                 if !matches!(action, PendingAction::RemoveStick(_))
                     && self.dirty
                     && ui.button("Salva e continua").clicked()
@@ -1418,7 +1557,14 @@ impl eframe::App for PrototypeApp {
     }
 }
 
-fn detail_table(ui: &mut egui::Ui, id: &str, headers: &[&str], data: Vec<Vec<String>>) {
+fn detail_table(
+    ui: &mut egui::Ui,
+    id: &str,
+    headers: &[&str],
+    data: Vec<Vec<String>>,
+    selected: Option<usize>,
+) -> Option<(usize, bool)> {
+    let mut clicked = None;
     let width = ui
         .available_width()
         .max(165.0 + (headers.len() - 1) as f32 * 111.0);
@@ -1427,25 +1573,63 @@ fn detail_table(ui: &mut egui::Ui, id: &str, headers: &[&str], data: Vec<Vec<Str
         TableBuilder::new(ui)
             .id_salt(id)
             .striped(true)
+            .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+            .sense(egui::Sense::click())
             .column(Column::remainder().at_least(165.0).clip(true))
             .columns(Column::exact(105.0).clip(true), headers.len() - 1)
             .max_scroll_height(260.0)
-            .header(28.0, |mut row| {
+            .header(26.0, |mut row| {
                 for label in headers {
                     row.col(|ui| {
-                        ui.strong(*label);
+                        table_text(
+                            ui,
+                            label,
+                            !matches!(*label, "Formato" | "Stick" | "Tipo" | "Formati" | "Riporto"),
+                            false,
+                            true,
+                        );
                     });
                 }
             })
             .body(|body| {
-                body.rows(30.0, data.len(), |mut row| {
+                body.rows(24.0, data.len(), |mut row| {
+                    let is_selected = selected == Some(row.index());
+                    row.set_selected(is_selected);
                     for value in &data[row.index()] {
                         row.col(|ui| {
-                            ui.label(value);
+                            table_text(
+                                ui,
+                                value,
+                                value.replace(',', ".").parse::<f64>().is_ok(),
+                                is_selected,
+                                false,
+                            );
                         });
+                    }
+                    let response = row.response();
+                    if response.clicked() {
+                        clicked = Some((row.index(), response.double_clicked()));
                     }
                 });
             });
+    });
+    clicked
+}
+
+fn table_text(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, strong: bool) {
+    let layout = if right {
+        egui::Layout::right_to_left(egui::Align::Center)
+    } else {
+        egui::Layout::left_to_right(egui::Align::Center)
+    };
+    ui.with_layout(layout, |ui| {
+        let mut text = RichText::new(value).color(if selected { Color32::WHITE } else { MUTED });
+        if strong {
+            text = text.strong();
+        }
+        // Row clicks belong to the table, not to text selection inside a label.
+        ui.add(egui::Label::new(text).truncate().selectable(false))
+            .on_hover_text(value);
     });
 }
 
@@ -1461,13 +1645,13 @@ fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::T
 
 fn cell(ui: &mut egui::Ui, id: impl egui::AsId, value: &mut String) -> bool {
     ui.add_sized(
-        [ui.available_width(), 26.0],
+        [ui.available_width(), 22.0],
         TextEdit::singleline(value).id(Id::new(id)),
     )
     .changed()
 }
 
-fn format_number(value: f64) -> String {
+pub(crate) fn format_number(value: f64) -> String {
     format!("{value:.6}")
         .trim_end_matches('0')
         .trim_end_matches('.')
@@ -1477,6 +1661,234 @@ fn format_number(value: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn text_position(output: &egui::FullOutput, label: &str, minimum_x: f32) -> egui::Pos2 {
+        output
+            .shapes
+            .iter()
+            .find_map(|shape| {
+                if let egui::epaint::Shape::Text(text) = &shape.shape
+                    && text.galley.job.text == label
+                    && text.pos.x > minimum_x
+                {
+                    Some(text.pos + text.galley.size() / 2.0)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| panic!("Missing visible text: {label}"))
+    }
+
+    fn click_at(ctx: &egui::Context, app: &mut PrototypeApp, pos: egui::Pos2) {
+        for pressed in [true, false] {
+            draw_frame(
+                ctx,
+                app,
+                vec![
+                    egui::Event::PointerMoved(pos),
+                    egui::Event::PointerButton {
+                        pos,
+                        button: egui::PointerButton::Primary,
+                        pressed,
+                        modifiers: egui::Modifiers::NONE,
+                    },
+                ],
+            );
+        }
+    }
+
+    fn key_event(key: egui::Key, modifiers: egui::Modifiers) -> egui::Event {
+        egui::Event::Key {
+            key,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers,
+        }
+    }
+
+    #[test]
+    fn double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        calculate(&mut app);
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let name = app.results[0].solution.candidates[1].format_name.clone();
+        let id = app.results[0].solution.candidates[1].format_id;
+        let pos = text_position(&output, &name, 400.0);
+        click_at(&ctx, &mut app, pos);
+        assert_eq!(app.geometry_format, Some(id));
+        assert!(app.detail_popup.is_none());
+        click_at(&ctx, &mut app, pos);
+        assert_eq!(app.detail_popup, Some((1, id)));
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        for text in [
+            "Sezione schematica · quote in mm · contorno alto B astuccio",
+            "Impilamento",
+            "Passo astucciatrice",
+            "Chiudi",
+        ] {
+            text_position(&output, text, 0.0);
+        }
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
+        assert!(app.detail_popup.is_none());
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let pos = text_position(&output, "Apri dettaglio…", 400.0);
+        click_at(&ctx, &mut app, pos);
+        assert_eq!(app.detail_popup, Some((1, id)));
+        app.study.sticks[0].width = "27".into();
+        app.invalidate_results();
+        assert!(app.detail_popup.is_none());
+    }
+
+    #[test]
+    fn parameter_dialog_cancels_without_losing_results_and_validates_before_applying() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        calculate(&mut app);
+        let before = app.study.parameters.clone();
+        app.dirty = false;
+        app.parameters_open = true;
+        draw_frame(&ctx, &mut app, vec![]);
+        app.parameters_draft.as_mut().unwrap().offset = "15".into();
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters, before);
+        assert_eq!(app.results.len(), 16);
+        assert!(!app.dirty);
+
+        app.parameters_open = true;
+        draw_frame(&ctx, &mut app, vec![]);
+        app.parameters_draft.as_mut().unwrap().pitch_step = "0".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+        assert!(app.parameters_open && app.parameters_error.is_some());
+        assert_eq!(app.study.parameters, before);
+        assert_eq!(app.results.len(), 16);
+
+        app.parameters_draft.as_mut().unwrap().pitch_step = "2,5".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters.pitch_step, "2,5");
+        assert!(app.results.is_empty() && app.dirty);
+    }
+
+    #[test]
+    fn explicit_remove_distinguishes_a_format_from_its_parent_stick() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let id = app.study.formats[1].id;
+        app.selected_input = Some(InputSelection::Format(id));
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Rimuovi", 0.0));
+        assert_eq!(app.study.sticks.len(), 2);
+        assert_eq!(app.study.formats.len(), 2);
+        assert!(!app.study.formats.iter().any(|f| f.id == id));
+        app.selected_input = Some(InputSelection::Stick(app.study.sticks[0].id));
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Rimuovi", 0.0));
+        assert!(matches!(app.pending, Some(PendingAction::RemoveStick(_))));
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Annulla", 0.0));
+        assert_eq!(app.study.sticks.len(), 2);
+        assert_eq!(app.study.formats.len(), 2);
+    }
+
+    #[test]
+    fn file_shortcuts_respect_unsaved_changes_and_open_dialogs() {
+        for (key, modifiers, action) in [
+            (egui::Key::S, egui::Modifiers::CTRL, FileAction::Save),
+            (
+                egui::Key::S,
+                egui::Modifiers::CTRL | egui::Modifiers::SHIFT,
+                FileAction::SaveAs,
+            ),
+            (egui::Key::O, egui::Modifiers::CTRL, FileAction::Open),
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::default();
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    events: vec![key_event(key, modifiers)],
+                    ..Default::default()
+                },
+                |ui| app.shortcuts(ui.ctx()),
+            );
+            output.textures_delta.clear();
+            assert_eq!(
+                std::mem::discriminant(&app.file_action.unwrap()),
+                std::mem::discriminant(&action)
+            );
+        }
+        for blocked in [false, true] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp {
+                dirty: true,
+                parameters_open: blocked,
+                ..Default::default()
+            };
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    events: vec![key_event(egui::Key::O, egui::Modifiers::CTRL)],
+                    ..Default::default()
+                },
+                |ui| app.shortcuts(ui.ctx()),
+            );
+            output.textures_delta.clear();
+            assert_eq!(app.pending.is_some(), !blocked);
+            assert!(app.file_action.is_none());
+        }
+    }
+
+    #[test]
+    fn clicking_result_text_selects_the_row_and_renaming_keeps_its_calculation() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        calculate(&mut app);
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(
+            &ctx,
+            &mut app,
+            text_position(&output, "Soluzione 02", 400.0),
+        );
+        assert_eq!(app.selected, Some(2));
+        app.dirty = false;
+        ctx.memory_mut(|m| m.request_focus(Id::new("study_name")));
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![
+                key_event(
+                    egui::Key::A,
+                    egui::Modifiers {
+                        ctrl: true,
+                        command: true,
+                        ..egui::Modifiers::NONE
+                    },
+                ),
+                egui::Event::Text("Studio rinominato".into()),
+            ],
+        );
+        assert_eq!(app.study.name, "Studio rinominato");
+        assert_eq!(app.results.len(), 16);
+        assert_eq!(app.selected, Some(2));
+        assert!(app.dirty);
+    }
 
     #[test]
     fn native_close_request_requires_a_decision_only_for_unsaved_changes() {
@@ -1800,7 +2212,7 @@ mod tests {
                 "Dati MT",
                 "Formati",
                 "Migliori Soluzioni",
-                "Dettagli Soluzione Selezionata",
+                "Soluzione 01 · dettagli",
             ] {
                 assert!(
                     output.shapes.iter().any(|shape| matches!(&shape.shape,
@@ -1821,9 +2233,7 @@ mod tests {
                     .expect("heading already checked")
             };
             assert!(position("Migliori Soluzioni").x > position("Formati").x + 300.0);
-            assert!(
-                position("Dettagli Soluzione Selezionata").y > position("Migliori Soluzioni").y
-            );
+            assert!(position("Soluzione 01 · dettagli").y > position("Migliori Soluzioni").y);
             app.parameters_open = true;
             assert!(
                 !draw_frame_at(&ctx, &mut app, egui::vec2(760.0, 620.0), vec![])

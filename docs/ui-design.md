@@ -13,7 +13,9 @@ generica che consentiva una riprogettazione dell'interfaccia.
   riepilogo della soluzione selezionata e dettagli sotto la tabella risultati.
 - I dettagli mantengono Panoramica formati, Tipi cassetti usati e Tipi teste
   robot usate. Il passo 4 popola le tabelle con metriche reali del core;
-  la fase 5 aggiunge Vista geometrica, sempre sotto la classifica.
+  il doppio clic su un formato apre il dettaglio completo con la sezione
+  geometrica nello stesso popup, come nel riferimento Python. La grafica non
+  occupa una scheda separata. Il pulsante Apri dettaglio offre la stessa azione.
 - Menu File per cambiare, aprire/salvare studi ed esportare CSV; Modifica per
   la finestra dei parametri e i predefiniti. Filtri apre gli intervalli per
   le cinque colonne senza sostituire input o output.
@@ -44,3 +46,41 @@ selezioni e azione principale; bordi sottili e arrotondamenti contenuti.
 
 Le ulteriori modifiche di disposizione richiedono un'indicazione esplicita
 dell'utente; non sono una conseguenza automatica del cambio di tecnologia.
+
+## Rifiniture delle interazioni
+
+Le righe dei risultati e dei dettagli sono alte 24 punti logici, quelle degli
+input 26, con intestazioni di 26. Testo centrato verticalmente, numeri a destra
+e nomi a sinistra; intestazioni e valori troncati mantengono il testo completo
+nel tooltip. I testi delle celle di output non intercettano clic e doppio clic
+per la selezione del testo: il gesto seleziona la riga. Nel popup, invece,
+il testo resta copiabile. Scorrimento e virtualizzazione restano disponibili.
+
+I parametri vengono modificati in una bozza locale. Applica valida prima di
+sostituire lo studio; Annulla, Esc e la X scartano la bozza, senza perdere
+risultati. I canali MT rimangono nella sidebar. La rinomina dello studio
+segnala modifiche da salvare ma non richiede di ripetere il calcolo.
+Il popup del formato identifica la soluzione di origine e viene chiuso quando
+si modificano i dati di calcolo, evitando dettagli obsoleti. Contenuti lunghi
+scorrono separatamente dal pulsante Chiudi; la sezione adatta la propria altezza
+alle proporzioni del disegno. File mostra le scorciatoie e raggruppa i CSV.
+
+## Confronto funzionale con Python
+
+| Flusso | Stato Rust |
+| --- | --- |
+| Stick e formati gerarchici, aggiunta/rimozione | Presente; rimozione esplicita e menu contestuale |
+| Parametri MT, astucciatrice, otto pesi, numero risultati e A/B | Presenti; editor unico con Applica/Annulla |
+| Calcolo, Pareto, ordine e filtro una testa | Presenti, risultati reali e annullamento del worker |
+| Dettagli formati, cassetti e teste | Presenti; grouping 1 escluso dal conteggio teste |
+| Popup formato con quote e disegno | Ripristinato; anche riporto, stabilità e penalità |
+| Studio, preferenze e CSV | Presenti con i nuovi formati; nessuna compatibilità legacy richiesta |
+| Filtri risultati | Intervalli inclusivi su cinque colonne e filtro una testa; non replica la lista Python di valori distinti con checkbox |
+| Dettagli del punteggio | Penalità aggregate espandibili e penalità del candidato nel popup; non replica il toggle delle colonne Python |
+
+Restano il collaudo fisico completo su Windows, più monitor/DPI e la preparazione
+di installer/release. Salva richiede input completi e validi; le bozze incomplete
+non vengono serializzate. La grafica rappresenta una sezione statica, non simula
+il ciclo di riporto e usa B astuccio come riferimento verticale: non introduce
+un'altezza fisica del cassetto assente dal modello. Benchmark e nuovi requisiti
+fisici richiedono un'attività separata; questa rifinitura non ne modifica le formule.
