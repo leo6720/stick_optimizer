@@ -1,12 +1,12 @@
 param(
     [switch]$SkipBuild,
-    [string[]]$Modes = @('inputs', 'parameters', 'results', 'pockets', 'heads', 'no-candidates', 'no-common', 'compact', 'scaled', 'many')
+    [string[]]$Modes = @('inputs', 'parameters', 'results', 'pockets', 'heads', 'geometry', 'geometry-detail', 'filters', 'reopened', 'unsaved', 'file-error', 'no-candidates', 'no-common', 'compact', 'scaled', 'many')
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $cargoPath = Join-Path $env:USERPROFILE '.cargo/bin/cargo.exe'
-$previewDirectory = Join-Path $repoRoot 'work/phase4'
+$previewDirectory = Join-Path $repoRoot 'work/phase5'
 $binaryPath = Join-Path $repoRoot 'target/debug/stick-optimizer-desktop.exe'
 
 Push-Location $repoRoot

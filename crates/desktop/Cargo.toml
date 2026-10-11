@@ -11,6 +11,7 @@ stick-optimizer-io.workspace = true
 eframe.workspace = true
 egui_extras.workspace = true
 image = { version = "=0.25.10", default-features = false, features = ["jpeg"] }
+rfd = "=0.15.4"
 
 [features]
 # Native viewport screenshots, enabled only for local visual QA.

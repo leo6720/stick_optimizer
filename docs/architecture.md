@@ -9,7 +9,7 @@ desktop -> io -> core
 desktop ------> core
 ```
 
-`core` contiene dominio e calcolo, `io` ospiterà i formati e `desktop` interfaccia e
+`core` contiene dominio e calcolo, `io` contiene i formati e `desktop` interfaccia e
 gestione dei lavori. Il passo 3 aggiunge una GUI egui/eframe in `desktop`:
 `draft.rs` mantiene bozze editabili e controlli sintattici (non fattibilità
 meccanica), `app.rs` gestisce la sidebar e l'area di output simultanee.
@@ -35,7 +35,15 @@ attendere il worker. Ogni modifica incrementa la revisione, cancella i
 risultati e annulla il lavoro; esiti di revisioni vecchie vengono scartati.
 Chiusura e cambio studio annullano il worker. I tre dettagli mostrano
 candidati, tipi cassetto e tipi testa prodotti dal core, senza ricalcolare formule.
-La persistenza resta assente; lo schema di progetto rimane una proposta.
+La fase 5 implementa persistenza e CSV in IO con DTO serializzabili;
+il core resta senza dipendenze da serde o formati di file. Gli studi `.stic`
+conservano input e stato della vista, rigenerando in background eventuali
+risultati alla riapertura. La sostituzione dello studio avviene solo dopo la
+validazione completa del file. Le preferenze vengono scritte esplicitamente
+nella cartella locale dell'utente, mai nei dati Python. `core/geometry.rs`
+produce le primitive in mm della sezione statica: la GUI le disegna senza
+ricalcolare vincoli o metriche. I filtri della vista non modificano il motore.
+Schema, CSV, rappresentazione del riporto e limiti in `rust-files.md`.
 
 Le sezioni seguenti descrivono le formule del riferimento Python conservato nel
 tag `python-beta-reference`, ora tradotte nel motore Rust. Le note sui file e

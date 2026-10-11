@@ -13,8 +13,10 @@ generica che consentiva una riprogettazione dell'interfaccia.
   riepilogo della soluzione selezionata e dettagli sotto la tabella risultati.
 - I dettagli mantengono Panoramica formati, Tipi cassetti usati e Tipi teste
   robot usate. Il passo 4 popola le tabelle con metriche reali del core;
-  il disegno geometrico grafico rimane una funzione futura.
-- Menu File per cambiare studio, Modifica per la finestra dei parametri.
+  la fase 5 aggiunge Vista geometrica, sempre sotto la classifica.
+- Menu File per cambiare, aprire/salvare studi ed esportare CSV; Modifica per
+  la finestra dei parametri e i predefiniti. Filtri apre gli intervalli per
+  le cinque colonne senza sostituire input o output.
   L'apertura dei parametri e la visualizzazione dei risultati conservano il
   contesto della sidebar. Gli input non diventano una scheda alternativa.
 - Scorrimento dei contenuti e delle tabelle, senza trasformare la finestra

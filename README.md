@@ -8,7 +8,8 @@ componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
 stick e formati modificabili, geometria, pesi, ricerca in background,
 risultati Pareto, ordinamento, filtro e dettagli. La disposizione conserva la versione Python: input
 nella sidebar sinistra, risultati e dettagli nell'area principale destra.
-Salvataggi, CSV e viste geometriche grafiche restano per la beta completa.
+La fase 5 aggiunge studi `.stic`, preferenze, CSV, filtri per colonna e una
+vista geometrica per formato, mantenendo la stessa area di lavoro.
 
 La versione Python di riferimento, comprese le modifiche locali presenti prima
 della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
@@ -33,7 +34,18 @@ due canali. Dal menu **Modifica** sono disponibili geometria, giochi e gli otto
 pesi del punteggio. **Annulla calcolo** interrompe il lavoro senza mostrare risultati
 parziali. La selezione di una soluzione popola i dettagli per formato, tipi di
 cassetto e tipi di testa robot. Ogni modifica agli input cancella i risultati
-e scarta il calcolo precedente. Le modifiche restano soltanto nella sessione.
+e scarta il calcolo precedente.
+
+Da **File** puoi aprire e salvare studi `.stic` con input, parametri e filtri.
+Se erano presenti risultati, Apri li ricalcola in background e ripristina la
+selezione. Salva richiede input completi e validi. La chiusura segnala le
+modifiche non salvate. **File → Esporta** scrive le soluzioni visibili o il
+dettaglio selezionato in CSV. **Filtri…** permette di limitare passo, cassetti,
+teste, strati e punteggio; **Vista geometrica** mostra la sezione del formato
+scelto sotto i risultati. Da **Modifica** puoi salvare i parametri predefiniti
+per i nuovi studi. I vecchi `.sop` e `user_defaults.json` non sono usati dalla
+versione Rust. Formati e limiti sono descritti in
+[docs/rust-files.md](docs/rust-files.md).
 
 L'esempio incorporato esplora 40 combinazioni e produce 16 soluzioni Pareto.
 La ricerca esatta ha limiti operativi espliciti: oltre un milione di combinazioni

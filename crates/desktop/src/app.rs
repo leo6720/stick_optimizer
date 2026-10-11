@@ -8,6 +8,9 @@ use stick_optimizer_core::{
 };
 
 use crate::draft::{StudyDraft, parse_decimal};
+mod files;
+use files::FileAction;
+use stick_optimizer_io::{Range, ViewState};
 
 const ACCENT: Color32 = Color32::from_rgb(181, 31, 32);
 const MUTED: Color32 = Color32::from_rgb(80, 85, 85);
@@ -17,6 +20,7 @@ enum DetailView {
     Formats,
     Pockets,
     Heads,
+    Geometry,
 }
 
 #[derive(Clone, Copy)]
@@ -30,6 +34,8 @@ enum PendingAction {
     EmptyStudy,
     ExampleStudy,
     RemoveStick(u64),
+    OpenStudy,
+    CloseWindow,
 }
 
 #[derive(Clone, Debug)]
@@ -72,6 +78,15 @@ pub struct PrototypeApp {
     revision: u64,
     job: Option<SearchJob>,
     diagnostic: Option<String>,
+    current_path: Option<std::path::PathBuf>,
+    dirty: bool,
+    allow_close: bool,
+    file_action: Option<FileAction>,
+    defaults: Option<crate::draft::Parameters>,
+    ranges: [Range; 5],
+    filter_editor: crate::beta::FilterEditor,
+    restore_view: Option<(u64, ViewState)>,
+    geometry_format: Option<u64>,
 }
 
 impl Default for PrototypeApp {
@@ -93,6 +108,15 @@ impl Default for PrototypeApp {
             revision: 0,
             job: None,
             diagnostic: None,
+            current_path: None,
+            dirty: false,
+            allow_close: false,
+            file_action: None,
+            defaults: None,
+            ranges: [Range::default(); 5],
+            filter_editor: crate::beta::FilterEditor::default(),
+            restore_view: None,
+            geometry_format: None,
         }
     }
 }
@@ -138,6 +162,9 @@ impl PrototypeApp {
             ),
             ..Self::default()
         };
+        if !cfg!(test) && std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_none() {
+            app.read_defaults();
+        }
         #[cfg(feature = "ui-preview")]
         match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
             Ok("results" | "compact") => {
@@ -150,6 +177,37 @@ impl PrototypeApp {
             Ok("heads") => {
                 app.detail_view = DetailView::Heads;
                 app.start_search();
+            }
+            Ok("geometry" | "geometry-detail") => {
+                app.detail_view = DetailView::Geometry;
+                app.start_search();
+            }
+            Ok("filters") => {
+                app.filter_editor.edit(app.ranges);
+                app.start_search();
+            }
+            Ok("reopened") => {
+                let folder = std::path::Path::new("work/phase5");
+                let path = folder.join("qa-roundtrip.stic");
+                let outcome = (|| -> Result<(), stick_optimizer_io::Error> {
+                    std::fs::create_dir_all(folder)?;
+                    let study = app.study.to_study().map_err(|e| e.join("; "))?;
+                    let report =
+                        optimize(&study, &SearchControl::default(), SearchLimits::default())?;
+                    app.install_report(report);
+                    app.save_to(&path)?;
+                    app.open_from(&path)
+                })();
+                if let Err(error) = outcome {
+                    app.diagnostic = Some(error.to_string());
+                }
+            }
+            Ok("unsaved") => {
+                app.dirty = true;
+                app.pending = Some(PendingAction::CloseWindow);
+            }
+            Ok("file-error") => {
+                app.diagnostic = Some("Impossibile aprire lo studio: versione non supportata. Lo studio corrente è stato conservato.".into());
             }
             Ok("no-candidates") => {
                 app.study.formats[2].quantity = "50".into();
@@ -179,6 +237,9 @@ impl PrototypeApp {
     }
 
     fn invalidate_results(&mut self) {
+        self.dirty = true;
+        self.restore_view = None;
+        self.geometry_format = None;
         self.results.clear();
         self.selected = None;
         self.diagnostic = None;
@@ -267,6 +328,7 @@ impl PrototypeApp {
     }
 
     fn install_report(&mut self, report: SearchReport) {
+        let edited_view = self.restore_view.is_some().then(|| self.view_state());
         self.status = format!(
             "Ricerca completata: {} combinazioni, {} soluzioni Pareto, {} mostrate.",
             report.examined,
@@ -290,22 +352,47 @@ impl PrototypeApp {
         self.selected = self.results.first().map(|r| r.id);
         self.one_head_only = false;
         self.order_by_pitch = false;
+        self.ranges = [Range::default(); 5];
+        if let Some((revision, view)) = self.restore_view.take()
+            && revision == self.revision
+        {
+            if self.dirty {
+                self.apply_view(edited_view.expect("restoring view"));
+            } else {
+                self.apply_view(view);
+            }
+        }
     }
 
     fn apply_pending(&mut self, action: PendingAction) {
         match action {
             PendingAction::EmptyStudy => {
                 self.study = StudyDraft::default();
+                if let Some(parameters) = &self.defaults {
+                    self.study.parameters = parameters.clone();
+                }
+                self.current_path = None;
                 self.collapsed.clear();
                 self.selected_stick = None;
             }
             PendingAction::ExampleStudy => {
                 self.study = StudyDraft::example();
+                self.current_path = None;
                 self.collapsed.clear();
                 self.selected_stick = None;
             }
             PendingAction::RemoveStick(id) => {
                 self.study.remove_stick(id);
+            }
+            PendingAction::OpenStudy => {
+                self.file_action = Some(FileAction::Open);
+                self.pending = None;
+                return;
+            }
+            PendingAction::CloseWindow => {
+                self.allow_close = true;
+                self.pending = None;
+                return;
             }
         }
         self.pending = None;
@@ -317,6 +404,18 @@ impl PrototypeApp {
             .results
             .iter()
             .filter(|row| !self.one_head_only || row.heads == 1)
+            .filter(|row| {
+                self.ranges
+                    .into_iter()
+                    .zip([
+                        row.pitch,
+                        row.pockets as f64,
+                        row.heads as f64,
+                        f64::from(row.layers),
+                        row.score,
+                    ])
+                    .all(|(range, value)| range.contains(value))
+            })
             .cloned()
             .collect();
         rows.sort_by(|a, b| {
@@ -332,6 +431,10 @@ impl PrototypeApp {
 
     fn render(&mut self, ui: &mut egui::Ui) {
         self.poll_search();
+        self.handle_file_action();
+        if self.allow_close {
+            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+        }
         if self.job.is_some() {
             ui.ctx()
                 .request_repaint_after(std::time::Duration::from_millis(50));
@@ -341,6 +444,35 @@ impl PrototypeApp {
             .show(ui, |ui| {
                 egui::MenuBar::new().ui(ui, |ui| {
                     ui.menu_button("File", |ui| {
+                        if ui
+                            .add_enabled(self.job.is_none(), egui::Button::new("Apri studio…"))
+                            .clicked()
+                        {
+                            if self.dirty {
+                                self.pending = Some(PendingAction::OpenStudy);
+                            } else {
+                                self.file_action = Some(FileAction::Open);
+                            }
+                            ui.close();
+                        }
+                        if ui
+                            .add_enabled(self.job.is_none(), egui::Button::new("Salva studio"))
+                            .clicked()
+                        {
+                            self.file_action = Some(FileAction::Save);
+                            ui.close();
+                        }
+                        if ui
+                            .add_enabled(
+                                self.job.is_none(),
+                                egui::Button::new("Salva studio con nome…"),
+                            )
+                            .clicked()
+                        {
+                            self.file_action = Some(FileAction::SaveAs);
+                            ui.close();
+                        }
+                        ui.separator();
                         if ui.button("Nuovo studio").clicked() {
                             self.pending = Some(PendingAction::EmptyStudy);
                             ui.close();
@@ -349,10 +481,40 @@ impl PrototypeApp {
                             self.pending = Some(PendingAction::ExampleStudy);
                             ui.close();
                         }
+                        ui.separator();
+                        if ui
+                            .add_enabled(
+                                !self.visible_results().is_empty(),
+                                egui::Button::new("Esporta soluzioni visibili (CSV)…"),
+                            )
+                            .clicked()
+                        {
+                            self.file_action = Some(FileAction::Summary);
+                            ui.close();
+                        }
+                        if ui
+                            .add_enabled(
+                                self.selected.is_some(),
+                                egui::Button::new("Esporta dettaglio selezionato (CSV)…"),
+                            )
+                            .clicked()
+                        {
+                            self.file_action = Some(FileAction::Details);
+                            ui.close();
+                        }
                     });
                     ui.menu_button("Modifica", |ui| {
                         if ui.button("Parametri astucciatrice e ricerca…").clicked() {
                             self.parameters_open = true;
+                            ui.close();
+                        }
+                        if ui.button("Salva parametri come predefiniti").clicked() {
+                            self.file_action = Some(FileAction::Preferences);
+                            ui.close();
+                        }
+                        if ui.button("Ripristina parametri incorporati").clicked() {
+                            self.study.parameters = crate::draft::Parameters::default();
+                            self.invalidate_results();
                             ui.close();
                         }
                     });
@@ -369,6 +531,9 @@ impl PrototypeApp {
                         self.invalidate_results();
                     }
                     ui.label(RichText::new("Beta Rust").small().color(MUTED));
+                    if self.dirty {
+                        ui.label(RichText::new("• Da salvare").small().color(ACCENT));
+                    }
                 });
             });
         egui::Panel::bottom("status")
@@ -454,9 +619,17 @@ Dimensioni in mm",
                             }
                         }
                         ui.label(
-                            RichText::new("Modifiche conservate solo nella sessione.")
-                                .small()
-                                .color(MUTED),
+                            RichText::new(
+                                self.current_path
+                                    .as_ref()
+                                    .map(|p| format!("Studio: {}", p.display()))
+                                    .unwrap_or_else(|| {
+                                        "Dal menu File salva lo studio per conservare i dati."
+                                            .into()
+                                    }),
+                            )
+                            .small()
+                            .color(MUTED),
                         );
                     });
             });
@@ -497,6 +670,10 @@ Dimensioni in mm",
                     });
             });
         self.parameters_window(ui.ctx());
+        if let Some(ranges) = self.filter_editor.show(ui.ctx()) {
+            self.ranges = ranges;
+            self.dirty = true;
+        }
         self.confirm_action(ui.ctx());
     }
 
@@ -814,8 +991,13 @@ Dimensioni in mm",
         }
         ui.add_space(12.0);
         ui.horizontal_wrapped(|ui| {
-            ui.checkbox(&mut self.one_head_only, "Una sola testa")
-                .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio");
+            if ui.checkbox(&mut self.one_head_only, "Una sola testa")
+                .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio").changed() {self.dirty = true;}
+            if ui.button("Filtri…").clicked() {self.filter_editor.edit(self.ranges);}
+            if ui.button("Azzera filtri").clicked() {self.ranges = [Range::default();5];self.one_head_only = false;self.dirty = true;}
+        });
+        ui.horizontal(|ui| {
+            ui.label("Ordina per:");
             egui::ComboBox::from_id_salt("result_order")
                 .width(140.0)
                 .selected_text(if self.order_by_pitch {
@@ -824,8 +1006,12 @@ Dimensioni in mm",
                     "Punteggio"
                 })
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio");
-                    ui.selectable_value(&mut self.order_by_pitch, true, "Ordina per passo");
+                    self.dirty |= ui
+                        .selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio")
+                        .changed();
+                    self.dirty |= ui
+                        .selectable_value(&mut self.order_by_pitch, true, "Ordina per passo")
+                        .changed();
                 });
         });
         let rows = self.visible_results();
@@ -886,6 +1072,7 @@ Dimensioni in mm",
                             }
                             if row.response().clicked() {
                                 self.selected = Some(result.id);
+                                self.dirty = true;
                             }
                         });
                     });
@@ -930,6 +1117,7 @@ Dimensioni in mm",
                 (DetailView::Formats, "Panoramica formati"),
                 (DetailView::Pockets, "Tipi cassetti usati"),
                 (DetailView::Heads, "Tipi teste robot usate"),
+                (DetailView::Geometry, "Vista geometrica"),
             ] {
                 ui.selectable_value(&mut self.detail_view, view, label);
             }
@@ -938,6 +1126,64 @@ Dimensioni in mm",
         if let Some(result) = rows.iter().find(|r| Some(r.id) == self.selected) {
             let solution = &result.solution;
             match self.detail_view {
+                DetailView::Geometry => {
+                    if !solution
+                        .candidates
+                        .iter()
+                        .any(|c| Some(c.format_id) == self.geometry_format)
+                    {
+                        self.geometry_format = solution.candidates.first().map(|c| c.format_id);
+                    }
+                    egui::ComboBox::from_id_salt("geometry_format")
+                        .selected_text(
+                            solution
+                                .candidates
+                                .iter()
+                                .find(|c| Some(c.format_id) == self.geometry_format)
+                                .map(|c| c.format_name.as_str())
+                                .unwrap_or("Formato"),
+                        )
+                        .show_ui(ui, |ui| {
+                            for c in &solution.candidates {
+                                ui.selectable_value(
+                                    &mut self.geometry_format,
+                                    Some(c.format_id),
+                                    &c.format_name,
+                                );
+                            }
+                        });
+                    if let Some(c) = solution
+                        .candidates
+                        .iter()
+                        .find(|c| Some(c.format_id) == self.geometry_format)
+                    {
+                        ui.label(format!(
+                            "A {} mm · B {} mm · pila {} mm · {} strati · {} divisori",
+                            format_number(c.carton_a),
+                            format_number(c.carton_b),
+                            format_number(c.stack_height),
+                            c.layers,
+                            c.dividers
+                        ));
+                        if c.carryover_required {
+                            ui.label(format!(
+                                "Riporto · ciclo {}. L'ultimo strato è rappresentato parziale.",
+                                c.carryover_cycle
+                            ));
+                        }
+                        if let Ok(study) = self.study.to_study()
+                            && let Some(g) = stick_optimizer_core::schematic(&study, c)
+                        {
+                            crate::beta::draw_geometry(ui, &g);
+                            #[cfg(feature = "ui-preview")]
+                            if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref()
+                                == Ok("geometry-detail")
+                            {
+                                ui.scroll_to_cursor(Some(egui::Align::BOTTOM));
+                            }
+                        }
+                    }
+                }
                 DetailView::Formats => {
                     let data = solution
                         .candidates
@@ -1103,6 +1349,12 @@ Dimensioni in mm",
                     .count();
                 format!("Rimuovere questo stick e i {count} formati associati?")
             }
+            PendingAction::OpenStudy => {
+                "Aprire un altro studio? Le modifiche non salvate verranno perse.".into()
+            }
+            PendingAction::CloseWindow => {
+                "Chiudere l'app? Le modifiche non salvate verranno perse.".into()
+            }
         };
         let mut confirm = false;
         let response = egui::Modal::new(Id::new("confirm_action")).show(ctx, |ui| {
@@ -1110,11 +1362,29 @@ Dimensioni in mm",
             ui.strong("Conferma modifica");
             ui.label(text);
             ui.horizontal(|ui| {
-                confirm = ui.button("Conferma").clicked();
+                if !matches!(action, PendingAction::RemoveStick(_))
+                    && self.dirty
+                    && ui.button("Salva e continua").clicked()
+                    && self.save_current(false)
+                {
+                    confirm = true;
+                }
+                confirm |= ui
+                    .button(
+                        if self.dirty && !matches!(action, PendingAction::RemoveStick(_)) {
+                            "Continua senza salvare"
+                        } else {
+                            "Conferma"
+                        },
+                    )
+                    .clicked();
                 if ui.button("Annulla").clicked() {
                     self.pending = None;
                 }
             });
+            if let Some(error) = &self.diagnostic {
+                ui.colored_label(ACCENT, error);
+            }
         });
         if confirm {
             self.apply_pending(action);
@@ -1122,10 +1392,24 @@ Dimensioni in mm",
             self.pending = None;
         }
     }
+
+    fn check_close_request(&mut self, ctx: &egui::Context) {
+        let preview =
+            cfg!(feature = "ui-preview") && std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_some();
+        if self.dirty
+            && !self.allow_close
+            && !preview
+            && ctx.input(|i| i.viewport().close_requested())
+        {
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+            self.pending = Some(PendingAction::CloseWindow);
+        }
+    }
 }
 
 impl eframe::App for PrototypeApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.check_close_request(ui.ctx());
         self.render(ui);
         #[cfg(feature = "ui-preview")]
         if self.job.is_none() {
@@ -1193,6 +1477,45 @@ fn format_number(value: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn native_close_request_requires_a_decision_only_for_unsaved_changes() {
+        for (dirty, allow_close, should_cancel) in [
+            (true, false, true),
+            (false, false, false),
+            (true, true, false),
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp {
+                dirty,
+                allow_close,
+                ..Default::default()
+            };
+            let mut input = egui::RawInput::default();
+            input
+                .viewports
+                .get_mut(&egui::ViewportId::ROOT)
+                .unwrap()
+                .events
+                .push(egui::ViewportEvent::Close);
+            let mut output = ctx.run_ui(input, |ui| app.check_close_request(ui.ctx()));
+            output.textures_delta.clear();
+            assert_eq!(
+                output
+                    .viewport_output
+                    .get(&egui::ViewportId::ROOT)
+                    .unwrap()
+                    .commands
+                    .iter()
+                    .any(|cmd| matches!(cmd, egui::ViewportCommand::CancelClose)),
+                should_cancel
+            );
+            assert_eq!(
+                matches!(app.pending, Some(PendingAction::CloseWindow)),
+                should_cancel
+            );
+        }
+    }
 
     fn calculate(app: &mut PrototypeApp) {
         let report = optimize(

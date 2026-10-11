@@ -2,7 +2,8 @@
 
 Il core è indipendente dalla GUI e dai file. `models.rs` definisce gli input
 posseduti, candidati e soluzioni; `validation.rs` verifica gli input;
-`search.rs` esegue ricerca e filtro Pareto. IO non è ancora implementato.
+`search.rs` esegue ricerca e filtro Pareto. La fase 5 aggiunge IO e
+`geometry.rs` per le coordinate dei disegni, senza dipendenze file nel core.
 Le formule e gli otto pesi incorporati sono quelli del riferimento Python.
 
 ## Precisione e differenze intenzionali
@@ -60,5 +61,6 @@ revisioni e il click Calcola tramite eventi sintetici.
 
 Le catture native mostrano i flussi e la disposizione. Non sostituiscono una
 prova manuale completa con mouse e tastiera fisici né verifiche su più monitor.
-Non sono ancora presenti persistenza, CSV, disegno geometrico, benchmark o
-simulazione dinamica. Le soluzioni richiedono verifica meccanica e di processo.
+Persistenza, CSV e disegno schematico sono aggiunti nella fase 5, descritta in
+`rust-files.md`. Benchmark e simulazione dinamica restano assenti. Le soluzioni
+richiedono verifica meccanica e di processo.

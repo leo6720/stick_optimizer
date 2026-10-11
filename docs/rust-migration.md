@@ -90,11 +90,11 @@ Glow. La fase 3 prova editing, parametri, risultati simulati, tastiera,
 ridimensionamento e zoom. La libreria è adottata per proseguire la migrazione;
 restano da raccogliere feedback d'uso e prove su altri monitor/DPI Windows.
 
-Nuovo formato proposto: JSON con identificatore del formato e versione dello
-schema. Input, preferenze e risultati sono distinti; eventuali risultati salvati
-includono versione del motore e input del calcolo. Scrittura tramite file
-temporaneo e sostituzione sicura. Estensione e campi finali saranno definiti
-durante la fase salvataggi, senza obbligo di ereditare `.sop`.
+Formato implementato nella fase 5: JSON `.stic` con schema/versione/unità,
+input, parametri, filtri e contratto del motore. Gli eventuali risultati sono
+rigenerati in background alla riapertura, evitando cache importate incoerenti.
+Preferenze separate nella cartella locale dell'utente; scritture tramite file
+temporaneo e sostituzione. Campi e limiti in `rust-files.md`; nessuna eredità `.sop`.
 
 ## Sequenza di lavoro
 
@@ -267,3 +267,32 @@ Il click Calcola e la tastiera sono verificati con eventi egui sintetici; le
 catture usano il viewport nativo e richiedono il completamento del worker.
 Resta una prova manuale completa con dispositivi fisici e monitor multipli.
 Non sono stati effettuati benchmark su studi grandi o verifiche produttive.
+
+## Funzioni della fase 5 (11 ottobre 2026)
+
+Ramo `codex/phase-5-beta`, basato sul motore della PR #13. La PR ha base
+`rust-rewrite` e dipende dalle PR #12 e #13, ancora da integrare; non viene
+eseguito alcun merge automatico.
+
+- Apertura e salvataggio di studi JSON `.stic`, schema 1 e unità mm. Salva
+  richiede input completi e validi; non è richiesta una soluzione fattibile.
+- Alla riapertura, eventuali risultati vengono ricalcolati con il motore
+  corrente e vengono ripristinati filtri, ordine e selezione. Le modifiche
+  durante il caricamento rendono obsoleto il worker precedente.
+- Preferenze esplicite in LocalAppData, CSV delle soluzioni visibili e dettaglio
+  selezionato, intervalli su cinque colonne e conferma modifiche non salvate.
+- Sezioni schematiche prodotte dal core e disegnate sotto i risultati, con
+  scelta del formato, divisori, strati e quote. Riporto indicato senza simularlo;
+  B è quota dell'astuccio, non un'altezza fisica del cassetto assunta.
+- Formule, pesi incorporati, vincoli e disposizione sinistra/destra conservati.
+
+Verifica: 40 test (10 core, 24 desktop, 6 IO); controlli fmt, check, clippy senza
+warning e build release. Sedici viste native acquisite; test di round trip
+richiedono risultati reali e classifica identica, verificano precisione f64,
+CSV multilinea, errori e sovrascritture senza perdita del file precedente.
+
+Restano prove manuali dei selettori file Windows, tastiera/mouse fisici,
+chiusura e più monitor/DPI. Per questo la PR rimane draft. Studi vuoti o
+bozze numeriche incomplete non vengono salvati. Nessun benchmark, installer,
+release pubblicata, migrazione Python o modifica dei dati utente. Non si
+avvia automaticamente la fase 6; occorre un perimetro autorizzato o una issue pronta.

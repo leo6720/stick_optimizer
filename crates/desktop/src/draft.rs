@@ -81,6 +81,43 @@ impl Default for StudyDraft {
 }
 
 impl StudyDraft {
+    pub fn from_study(name: String, study: stick_optimizer_core::Study) -> Self {
+        let next_id = study
+            .sticks
+            .iter()
+            .map(|s| s.id)
+            .chain(study.formats.iter().map(|f| f.id))
+            .max()
+            .unwrap_or(0)
+            .saturating_add(1);
+        Self {
+            name,
+            sticks: study
+                .sticks
+                .into_iter()
+                .map(|s| StickDraft {
+                    id: s.id,
+                    name: s.name,
+                    length: s.length.to_string(),
+                    width: s.width.to_string(),
+                    thickness: s.thickness.to_string(),
+                    fin: s.fin.to_string(),
+                })
+                .collect(),
+            formats: study
+                .formats
+                .into_iter()
+                .map(|f| FormatDraft {
+                    id: f.id,
+                    name: f.name,
+                    stick_id: Some(f.stick_id),
+                    quantity: f.quantity.to_string(),
+                })
+                .collect(),
+            parameters: Parameters::from_core(study.settings, study.weights),
+            next_id,
+        }
+    }
     pub fn example() -> Self {
         let mut study = Self {
             name: "Studio di esempio".into(),
@@ -108,9 +145,16 @@ impl StudyDraft {
     }
 
     fn allocate_id(&mut self) -> u64 {
-        let id = self.next_id;
-        self.next_id += 1;
-        id
+        loop {
+            if self.next_id >= u64::MAX - 1 {
+                self.next_id = 1;
+            }
+            let id = self.next_id;
+            self.next_id = self.next_id.checked_add(1).unwrap_or(1);
+            if !self.sticks.iter().any(|s| s.id == id) && !self.formats.iter().any(|f| f.id == id) {
+                return id;
+            }
+        }
     }
 
     pub fn add_stick(&mut self) {
@@ -183,11 +227,9 @@ impl StudyDraft {
             validate_integer(&format.quantity, &format!("{label}, quantità"), &mut errors);
         }
         let p = &self.parameters;
-        for (label, value) in [
-            ("Canali MT", &p.channels),
-            ("Numero risultati", &p.result_count),
-        ] {
-            validate_integer(value, label, &mut errors);
+        validate_integer(&p.channels, "Canali MT", &mut errors);
+        if !matches!(p.result_count.trim().parse::<usize>(),Ok(n) if n > 0) {
+            errors.push("Numero risultati: serve un intero positivo.".into());
         }
         if !p.max_layers.trim().is_empty() {
             validate_integer(&p.max_layers, "Limite strati", &mut errors);
@@ -258,7 +300,7 @@ impl StudyDraft {
                     Some(integer(&p.max_layers))
                 },
                 ab_target: decimal(&p.ab_target),
-                result_count: integer(&p.result_count) as usize,
+                result_count: p.result_count.trim().parse().expect("syntax validated"),
                 divider_width: decimal(&p.divider_width),
                 wall_width: decimal(&p.wall_width),
                 adjacent_clearance: decimal(&p.adjacent_clearance),
@@ -281,6 +323,26 @@ impl StudyDraft {
             Ok(study)
         } else {
             Err(errors)
+        }
+    }
+}
+
+impl Parameters {
+    pub fn from_core(p: stick_optimizer_core::Settings, w: stick_optimizer_core::Weights) -> Self {
+        Self {
+            channels: p.channels.to_string(),
+            offset: p.max_shift.to_string(),
+            max_pitch: p.max_pitch.to_string(),
+            pitch_step: p.pitch_step.to_string(),
+            max_layers: p.max_layers.map(|v| v.to_string()).unwrap_or_default(),
+            ab_target: p.ab_target.to_string(),
+            result_count: p.result_count.to_string(),
+            divider_width: p.divider_width.to_string(),
+            wall_width: p.wall_width.to_string(),
+            adjacent_clearance: p.adjacent_clearance.to_string(),
+            wall_clearance: p.wall_clearance.to_string(),
+            carton_b_extra: p.carton_b_extra.to_string(),
+            weights: w.values().map(|v| v.to_string()),
         }
     }
 }
@@ -336,6 +398,17 @@ fn validate_name<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn restored_ids_can_be_extended_without_overflow_or_collision() {
+        let mut core = StudyDraft::example().to_study().unwrap();
+        core.sticks[1].id = u64::MAX - 2;
+        core.formats[2].stick_id = u64::MAX - 2;
+        let mut draft = StudyDraft::from_study("High IDs".into(), core);
+        draft.add_stick();
+        draft.add_format();
+        assert!(draft.to_study().is_ok());
+        assert!(draft.sticks.last().unwrap().id < u64::MAX - 1);
+    }
 
     #[test]
     fn italian_decimals_and_invalid_numbers() {

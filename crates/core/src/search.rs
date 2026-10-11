@@ -94,7 +94,7 @@ fn pitch(value: f64) -> Result<Pitch, SearchError> {
     Ok(Pitch(ticks as i64))
 }
 
-fn layout(group: u32, dividers: u32) -> &'static [u32] {
+pub(crate) fn layout(group: u32, dividers: u32) -> &'static [u32] {
     match (group, dividers) {
         (1, 0) => &[1],
         (2, 0) => &[2],

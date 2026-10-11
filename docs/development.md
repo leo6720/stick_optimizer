@@ -22,19 +22,24 @@ cargo build --workspace --release --locked
 cargo run -p stick-optimizer-desktop --release --locked
 ```
 
-Nella fase 4 il core contiene il motore esatto; IO resta predisposto. I test
+Nella fase 4 il core contiene il motore esatto; la fase 5 implementa IO. I test
 core confrontano campi e classifiche con fixture Python su casi piccoli,
 verificano vincoli, arrotondamenti e Pareto contro un prodotto cartesiano
 materializzato indipendente. I test desktop verificano snapshot, worker,
 annullamento, risultati obsoleti, click su Calcola tramite eventi egui,
 filtri, Ctrl+A/Tab, dimensioni ridotte e virtualizzazione.
+La fase 5 verifica anche la riapertura con risultati, filtri e selezione,
+ID ricaricati, errori senza perdita dello studio corrente, modifiche durante
+la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
+temporanee isolate per studi, preferenze e CSV; non usano dati utente.
+Schema e limiti di persistenza in [rust-files.md](rust-files.md).
 
 Per rigenerare le fixture del riferimento: `python scripts/python-reference.py`.
 Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
 risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
 incorporati e non richiede Python durante i test o nell'eseguibile.
 
-Per verificare anche la funzione di anteprima e acquisire dieci schermate native:
+Per verificare anche la funzione di anteprima e acquisire sedici schermate native:
 
 ```powershell
 cargo check --workspace --all-targets --all-features --locked
@@ -45,16 +50,22 @@ cargo test --workspace --all-features --locked
 
 Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 `ui-preview`, avvia e chiude il prototipo per ciascuna vista e salva PNG in
-`work/phase4` (non versionata). Controllare visivamente input e
+`work/phase5` (non versionata). Controllare visivamente input e
 risultati reali nella stessa area di lavoro, parametri, tipi cassetto, tipi testa,
 diagnostica senza candidati/senza passo comune, finestra compatta, zoom UI 150%
-e molte righe. Per ripetere soltanto una vista:
+e molte righe. Le nuove viste coprono filtri, geometria (anche dopo lo
+scorrimento), studio salvato e riaperto, conferma modifiche non salvate e
+messaggio di errore file. L'anteprima `reopened` scrive solo
+`work/phase5/qa-roundtrip.stic`; le altre non salvano preferenze.
+Per ripetere soltanto una vista:
 `.\scripts\preview-gui.ps1 -SkipBuild -Modes results`. Controllare che la sidebar resti visibile accanto
 all'output anche dopo aver mostrato i risultati. Lo zoom UI è una prova
 di layout, non una verifica di ogni configurazione DPI Windows. La build
 release normale non abilita questa funzione. Completare le prove con editing,
 selezione, scorrimento e conferme manuali; gli eventi sintetici non sostituiscono
 la verifica fisica di tastiera e monitor.
+Le catture non interagiscono con i selettori file Windows. Completare a mano
+apertura, annullamento, sovrascrittura, preferenze e chiusura con modifiche.
 
 Le nuove istruzioni Rust prevalgono sui percorsi Python soltanto per i componenti Rust. Nessuna
 compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento
