@@ -1,0 +1,57 @@
+# Architettura e modello di calcolo
+
+## Scopo e confini
+
+L'app aiuta a scegliere una configurazione statica di trasferimento degli stick tra macchina stickpack (MT) e astucciatrice per più formati commerciali. Ogni `Format` indica un tipo di stick e quanti stick entrano in un cassetto. `GlobalSettings` descrive la macchina e i limiti geometrici. `Weights` controlla l'ordinamento delle soluzioni. Tutte le lunghezze sono in millimetri.
+
+Il risultato è un'ipotesi geometricamente e logicamente compatibile con i vincoli codificati. Il software non simula cinematica, velocità, collisioni, deformazioni, flusso, buffer o prestazioni produttive.
+
+## Flusso dei dati
+
+```text
+GUI o chiamante Python
+  -> GlobalSettings, StickType[], Format[], Weights
+  -> validation.validate_all
+  -> optimizer.generate_candidates_for_format (per formato)
+  -> optimizer.build_multi_format_solutions (passo comune)
+  -> scoring.build_solution (metriche aggregate e score)
+  -> pareto.pareto_filter
+  -> ordinamento per score e taglio a number_of_results_to_show
+  -> GUI / CSV / file .sop
+```
+
+`optimize()` restituisce `(solutions, candidates_by_format)`. Un elenco `solutions` vuoto può significare un formato senza candidati oppure l'assenza di un passo astucciatrice comune; `candidates_by_format` serve a distinguere i due casi.
+
+## Candidato di un formato
+
+- Raggruppamenti ammessi: 1, 2, 3, 4, purché `sticks_per_beat % grouping == 0`.
+- Numero cassetti per passo: 1 oppure 2.
+- Divisori ammessi: 0 per gruppo 1; 0/1 per 2; 0/2 per 3; 0/1 per 4. La disposizione dei compartimenti è in `defaults.COMPARTMENT_LAYOUT`.
+- Passo nominale stick: `2 * stick_width_mm + 2 * fin_length_mm`.
+- Semifinestra di ricerca effettiva: `ceil(max_pitch_shift_mm * 2 / (sticks_per_beat - 1))`. I passi candidati sono multipli di `pitch_step_mm` entro quella finestra attorno al passo nominale. Questo **non** equivale a usare direttamente `max_pitch_shift_mm` come tolleranza del singolo passo.
+- `pocket_pitch = grouping * adjusted_input_pitch`; `cartoner_pitch = pockets_per_pitch * pocket_pitch`. Il passo astucciatrice deve essere entro il massimo e multiplo di `pitch_step_mm`.
+- La larghezza cassetto somma larghezze degli stick, divisori, giochi tra stick nello stesso compartimento e due giochi parete/divisore per compartimento; il valore è arrotondato a intero con `round()`.
+- Ingombro: `pockets_per_pitch * (pocket_width + 2 * pocket_wall_width_mm)`. Un candidato è scartato se supera `cartoner_pitch`.
+- Strati: `ceil(sticks_per_pocket / grouping)`. Altezza pila: strati per spessore stick. Se `max_allowed_layers` non è `None`, il superamento è un vincolo rigido.
+- Quota A astuccio: larghezza cassetto. Quota B: altezza pila più `carton_B_extra_mm`. Il rapporto A/B contribuisce alla penalità.
+- `pocket_type = (pocket_width, pocket_length, dividers, pockets_per_pitch)`; `robot_head_type = (grouping, adjusted_input_pitch)`. La larghezza testa calcolata è `adjusted_input_pitch * sticks_per_beat`.
+
+## Penalità e selezione
+
+Le penalità in `scoring.py` sono:
+
+- Strati sopra la soglia di comfort: `max(0, layers - threshold)^2`, con soglia 7 senza divisori e 9 con divisori.
+- Riporto: richiesto se `sticks_per_pocket % grouping != 0`; ciclo `grouping / gcd(sticks_per_pocket, grouping)` e penalità `2 + ciclo`.
+- Raggruppamento: 0, 1, 2, 2 rispettivamente per 1, 2, 3, 4.
+- Stabilità: 0 fino a `effective_unsupported_width / stick_length_mm <= 0.8`, poi `((ratio - 0.8) / 0.1)^2`.
+- Rapporto A/B: `((carton_AB_ratio - carton_AB_target) / carton_AB_target)^2`.
+
+Una soluzione contiene un candidato per ogni formato e tutti condividono esattamente lo stesso `cartoner_pitch`. Aggrega i tipi di cassetto distinti, i tipi di testa distinti **escludendo i candidati con grouping 1**, il massimo numero di strati e la somma delle penalità. Lo score somma i conteggi e le penalità moltiplicati per i rispettivi pesi, più `cartoner_pitch_weight * cartoner_pitch`.
+
+Il filtro Pareto confronta sette metriche da minimizzare: numero tipi cassetto, numero tipi testa, penalità strati, riporto, raggruppamento, stabilità e A/B. Il passo astucciatrice non partecipa al confronto Pareto, ma entra nello score e nel criterio finale di spareggio. I pesi **non** sono una priorità lessicografica garantita: cambiandoli si possono invertire le preferenze tra metriche.
+
+## Complessità e punti di attenzione
+
+`build_multi_format_solutions()` raggruppa i candidati per passo comune e genera il prodotto cartesiano per ogni passo. Tutte le soluzioni così ottenute vengono mantenute prima del filtro Pareto; con molti formati il tempo e la memoria possono crescere rapidamente. `number_of_results_to_show` limita solo l'output finale, non la ricerca. Non esiste un limite preventivo delle combinazioni.
+
+`project_io.py` salva input, risultati, filtri e selezione in JSON `.sop`. L'interfaccia salva e apre questo stato; non è un formato versionato o dotato di migrazioni. I CSV sono scritti in UTF-8 con BOM (`utf-8-sig`). Il riepilogo esporta tutte le soluzioni mostrate, il dettaglio una soluzione selezionata.
