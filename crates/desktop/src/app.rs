@@ -1,16 +1,23 @@
 use eframe::egui::{self, Color32, Id, RichText, TextEdit};
 use egui_extras::{Column, TableBuilder};
+use std::collections::HashSet;
 
 use crate::draft::{StudyDraft, parse_decimal};
 
-const ACCENT: Color32 = Color32::from_rgb(24, 103, 99);
-const MUTED: Color32 = Color32::from_rgb(91, 106, 118);
+const ACCENT: Color32 = Color32::from_rgb(181, 31, 32);
+const MUTED: Color32 = Color32::from_rgb(80, 85, 85);
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum Screen {
-    Inputs,
-    Parameters,
-    Results,
+enum DetailView {
+    Formats,
+    Pockets,
+    Heads,
+}
+
+#[derive(Clone, Copy)]
+enum InputRow {
+    Stick(usize),
+    Format(usize),
 }
 
 #[derive(Clone, Copy)]
@@ -32,7 +39,12 @@ struct DemoResult {
 
 pub struct PrototypeApp {
     study: StudyDraft,
-    screen: Screen,
+    parameters_open: bool,
+    detail_view: DetailView,
+    collapsed: HashSet<u64>,
+    selected_stick: Option<u64>,
+    mt_image: Option<egui::TextureHandle>,
+    stick_image: Option<egui::TextureHandle>,
     results: Vec<DemoResult>,
     selected: Option<u8>,
     one_head_only: bool,
@@ -45,7 +57,12 @@ impl Default for PrototypeApp {
     fn default() -> Self {
         Self {
             study: StudyDraft::example(),
-            screen: Screen::Inputs,
+            parameters_open: false,
+            detail_view: DetailView::Formats,
+            collapsed: HashSet::new(),
+            selected_stick: None,
+            mt_image: None,
+            stick_image: None,
             results: Vec::new(),
             selected: None,
             one_head_only: false,
@@ -60,29 +77,50 @@ impl PrototypeApp {
     pub fn new(ctx: &egui::Context) -> Self {
         ctx.set_visuals(egui::Visuals::light());
         ctx.global_style_mut(|style| {
-            style.spacing.item_spacing = egui::vec2(10.0, 9.0);
-            style.spacing.button_padding = egui::vec2(12.0, 7.0);
+            style.spacing.item_spacing = egui::vec2(6.0, 6.0);
+            style.spacing.button_padding = egui::vec2(10.0, 5.0);
             style.visuals.selection.bg_fill = ACCENT;
             style.visuals.selection.stroke.color = Color32::WHITE;
+            style.visuals.widgets.active.bg_fill = ACCENT;
+            style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(248, 233, 233);
+            style.visuals.widgets.noninteractive.fg_stroke.color = MUTED;
+            style.visuals.widgets.inactive.bg_fill = Color32::WHITE;
+            style.visuals.widgets.inactive.bg_stroke.color = Color32::from_rgb(210, 212, 212);
+            style.visuals.widgets.noninteractive.corner_radius = egui::CornerRadius::same(2);
+            style.visuals.widgets.inactive.corner_radius = egui::CornerRadius::same(2);
+            style.visuals.widgets.hovered.corner_radius = egui::CornerRadius::same(2);
+            style.visuals.widgets.active.corner_radius = egui::CornerRadius::same(2);
             style
                 .text_styles
-                .insert(egui::TextStyle::Body, egui::FontId::proportional(15.0));
+                .insert(egui::TextStyle::Body, egui::FontId::proportional(14.0));
             style
                 .text_styles
-                .insert(egui::TextStyle::Button, egui::FontId::proportional(15.0));
+                .insert(egui::TextStyle::Button, egui::FontId::proportional(14.0));
             style
                 .text_styles
-                .insert(egui::TextStyle::Heading, egui::FontId::proportional(25.0));
+                .insert(egui::TextStyle::Heading, egui::FontId::proportional(21.0));
         });
-        #[allow(unused_mut)]
-        let mut app = Self::default();
+        #[allow(unused_mut)] // Preview modes mutate the initial state only in QA builds.
+        let mut app = Self {
+            mt_image: load_diagram(
+                ctx,
+                "mt_diagram",
+                include_bytes!("../../../img/dati_mt.jpg"),
+            ),
+            stick_image: load_diagram(
+                ctx,
+                "stick_diagram",
+                include_bytes!("../../../img/stick_dim.jpg"),
+            ),
+            ..Self::default()
+        };
         #[cfg(feature = "ui-preview")]
         match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
             Ok("results") => {
                 app.show_demo();
             }
             Ok("parameters") => {
-                app.screen = Screen::Parameters;
+                app.parameters_open = true;
             }
             Ok("scaled") => {
                 ctx.set_zoom_factor(1.5);
@@ -139,7 +177,6 @@ impl PrototypeApp {
         self.selected = Some(1);
         self.one_head_only = false;
         self.order_by_pitch = false;
-        self.screen = Screen::Results;
         self.status =
             "Tre risultati dimostrativi disponibili. Nessuna ricerca è stata eseguita.".into();
         true
@@ -149,11 +186,13 @@ impl PrototypeApp {
         match action {
             PendingAction::EmptyStudy => {
                 self.study = StudyDraft::default();
-                self.screen = Screen::Inputs;
+                self.collapsed.clear();
+                self.selected_stick = None;
             }
             PendingAction::ExampleStudy => {
                 self.study = StudyDraft::example();
-                self.screen = Screen::Inputs;
+                self.collapsed.clear();
+                self.selected_stick = None;
             }
             PendingAction::RemoveStick(id) => {
                 self.study.remove_stick(id);
@@ -182,230 +221,363 @@ impl PrototypeApp {
     }
 
     fn render(&mut self, ui: &mut egui::Ui) {
-        egui::Panel::top("heading")
-            .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(18))
+        egui::Panel::top("menu_bar")
+            .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(10))
             .show(ui, |ui| {
-                ui.horizontal_wrapped(|ui| {
-                    ui.heading(RichText::new("Stick Optimizer").color(ACCENT));
-                    ui.label(RichText::new("ANTEPRIMA").small().strong().color(MUTED));
+                egui::MenuBar::new().ui(ui, |ui| {
+                    ui.menu_button("File", |ui| {
+                        if ui.button("Nuovo studio").clicked() {
+                            self.pending = Some(PendingAction::EmptyStudy);
+                            ui.close();
+                        }
+                        if ui.button("Carica esempio").clicked() {
+                            self.pending = Some(PendingAction::ExampleStudy);
+                            ui.close();
+                        }
+                    });
+                    ui.menu_button("Modifica", |ui| {
+                        if ui.button("Parametri astucciatrice e ricerca…").clicked() {
+                            self.parameters_open = true;
+                            ui.close();
+                        }
+                    });
+                    ui.separator();
+                    ui.label(RichText::new("Stick Optimizer").strong().color(ACCENT));
+                    if ui
+                        .add(
+                            TextEdit::singleline(&mut self.study.name)
+                                .id(Id::new("study_name"))
+                                .desired_width(240.0),
+                        )
+                        .changed()
+                    {
+                        self.invalidate_results();
+                    }
+                    ui.label(RichText::new("Anteprima Rust").small().color(MUTED));
                 });
-                ui.label(
-                    RichText::new(
-                        "Studio del trasferimento stick · dalla macchina MT all'astucciatrice",
-                    )
-                    .color(MUTED),
-                );
             });
         egui::Panel::bottom("status")
             .frame(
                 egui::Frame::new()
-                    .fill(Color32::from_rgb(235, 242, 241))
-                    .inner_margin(12),
+                    .fill(Color32::from_rgb(242, 242, 242))
+                    .inner_margin(8),
             )
             .show(ui, |ui| {
                 ui.label(&self.status);
             });
-        egui::CentralPanel::default()
-            .frame(egui::Frame::new().fill(Color32::from_rgb(248, 250, 251)).inner_margin(20))
+
+        let maximum_sidebar = (ui.available_width() * 0.5).max(300.0);
+        egui::Panel::left("input_sidebar")
+            .default_size(430.0)
+            .size_range(300.0..=maximum_sidebar)
+            .resizable(true)
+            .frame(
+                egui::Frame::new()
+                    .fill(Color32::from_rgb(244, 244, 244))
+                    .inner_margin(14),
+            )
             .show(ui, |ui| {
-                ui.horizontal_wrapped(|ui| {
-                    if ui.button("Nuovo studio").clicked() { self.pending = Some(PendingAction::EmptyStudy); }
-                    if ui.button("Carica esempio").clicked() { self.pending = Some(PendingAction::ExampleStudy); }
-                    ui.label(RichText::new("Le modifiche restano solo in questa sessione.").small().color(MUTED));
-                });
-                ui.add_space(5.0);
-                ui.horizontal(|ui| {
-                    let label = ui.label("Studio");
-                    if ui.add(TextEdit::singleline(&mut self.study.name).id(Id::new("study_name"))
-                        .desired_width(350.0)).labelled_by(label.id).changed() {
-                        self.invalidate_results();
-                    }
-                });
-                ui.separator();
-                ui.horizontal_wrapped(|ui| {
-                    for (screen, text) in [(Screen::Inputs, "1  Stick e formati"),
-                        (Screen::Parameters, "2  Parametri"), (Screen::Results, "3  Risultati")] {
-                        ui.selectable_value(&mut self.screen, screen, text);
-                    }
-                });
-                ui.add_space(10.0);
-                egui::ScrollArea::vertical().id_salt("main_content").show(ui, |ui| {
-                    let changed = match self.screen {
-                        Screen::Inputs => self.inputs(ui),
-                        Screen::Parameters => self.parameters(ui),
-                        Screen::Results => { self.results_ui(ui); false }
-                    };
-                    if changed { self.invalidate_results(); }
-                    if self.screen != Screen::Results {
-                        ui.add_space(12.0);
-                        let errors = self.study.input_errors();
-                        if !errors.is_empty() {
-                            egui::Frame::group(ui.style()).show(ui, |ui| {
-                                ui.label(RichText::new("Completa o correggi questi dati").strong().color(Color32::from_rgb(150, 64, 30)));
-                                for error in errors.iter().take(8) { ui.label(error); }
-                                if errors.len() > 8 { ui.label(format!("Altri {} campi da correggere.", errors.len() - 8)); }
-                            });
+                egui::ScrollArea::vertical()
+                    .id_salt("sidebar_scroll")
+                    .show(ui, |ui| {
+                        ui.heading(RichText::new("Dati MT").color(ACCENT));
+                        if let Some(image) = &self.mt_image {
+                            ui.add(
+                                egui::Image::new(image).fit_to_exact_size(egui::vec2(210.0, 136.6)),
+                            );
+                        }
+                        ui.horizontal(|ui| {
+                            let label = ui.label("Np · Canali MT");
+                            if ui
+                                .add(
+                                    TextEdit::singleline(&mut self.study.parameters.channels)
+                                        .id(Id::new(("param", "Canali MT")))
+                                        .desired_width(70.0),
+                                )
+                                .labelled_by(label.id)
+                                .changed()
+                            {
+                                self.invalidate_results();
+                            }
+                        });
+                        ui.separator();
+                        ui.heading(RichText::new("Formati").color(ACCENT));
+                        ui.horizontal(|ui| {
+                            if let Some(image) = &self.stick_image {
+                                ui.add(
+                                    egui::Image::new(image)
+                                        .fit_to_exact_size(egui::vec2(92.0, 106.0)),
+                                );
+                            }
+                            ui.label(
+                                RichText::new(
+                                    "Hs · Lunghezza stick
+As · Larghezza stick
+Ss · Spessore stick
+Bs · Lunghezza pinna
+Dimensioni in mm",
+                                )
+                                .small()
+                                .color(MUTED),
+                            );
+                        });
+                        if self.inputs(ui) {
+                            self.invalidate_results();
                         }
                         ui.add_space(8.0);
-                        if ui.add_enabled(errors.is_empty(), egui::Button::new(
-                            RichText::new("Mostra risultati di esempio").color(Color32::WHITE)).fill(ACCENT)).clicked() {
-                            self.show_demo();
+                        let errors = self.study.input_errors();
+                        if !errors.is_empty() {
+                            ui.label(RichText::new("Dati da correggere").strong().color(ACCENT));
+                            for error in errors.iter().take(5) {
+                                ui.label(error);
+                            }
+                            if errors.len() > 5 {
+                                ui.label(format!(
+                                    "Altri {} campi da correggere.",
+                                    errors.len() - 5
+                                ));
+                            }
                         }
-                        ui.label(RichText::new("I risultati sono illustrativi: il motore di calcolo verrà collegato nel prossimo passo.")
-                            .small().color(MUTED));
+                        ui.label(
+                            RichText::new("Modifiche conservate solo nella sessione.")
+                                .small()
+                                .color(MUTED),
+                        );
+                    });
+            });
+        egui::CentralPanel::default()
+            .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(18))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    if ui.add_enabled(self.study.input_errors().is_empty(),
+                        egui::Button::new(RichText::new("Calcola · esempio").color(Color32::WHITE)).fill(ACCENT)).clicked() {
+                        self.show_demo();
                     }
                 });
+                });
+                ui.label(RichText::new("Anteprima: risultati fissi illustrativi. Il motore non è ancora collegato.").small().color(MUTED));
+                ui.separator();
+                egui::ScrollArea::vertical().id_salt("output_scroll").show(ui, |ui| {
+                    self.results_ui(ui);
+                });
             });
+        self.parameters_window(ui.ctx());
         self.confirm_action(ui.ctx());
+    }
+
+    fn input_rows(&self) -> Vec<InputRow> {
+        let mut children = std::collections::HashMap::<u64, Vec<usize>>::new();
+        for (index, format) in self.study.formats.iter().enumerate() {
+            if let Some(parent) = format.stick_id {
+                children.entry(parent).or_default().push(index);
+            }
+        }
+        let mut rows = Vec::new();
+        for (index, stick) in self.study.sticks.iter().enumerate() {
+            rows.push(InputRow::Stick(index));
+            if !self.collapsed.contains(&stick.id) {
+                for &index in children.get(&stick.id).into_iter().flatten() {
+                    rows.push(InputRow::Format(index));
+                }
+            }
+        }
+        rows
     }
 
     fn inputs(&mut self, ui: &mut egui::Ui) -> bool {
         let mut changed = false;
-        ui.horizontal(|ui| {
-            ui.strong(format!("Tipi di stick · {}", self.study.sticks.len()));
-            if ui.button("+ Stick").clicked() {
+        let mut remove_format = None;
+        let rows = self.input_rows();
+        let width = ui.available_width().max(380.0);
+        egui::ScrollArea::horizontal()
+            .id_salt("input_horizontal")
+            .show(ui, |ui| {
+                ui.set_width(width);
+                TableBuilder::new(ui)
+                    .id_salt("hierarchical_inputs")
+                    .striped(true)
+                    .column(Column::remainder().at_least(130.0).clip(true))
+                    .column(Column::exact(40.0))
+                    .columns(Column::exact(43.0), 4)
+                    .max_scroll_height(240.0)
+                    .sense(egui::Sense::CLICK)
+                    .header(26.0, |mut header| {
+                        for label in ["Stick / Formato", "Qtà", "Hs", "As", "Ss", "Bs"] {
+                            header.col(|ui| {
+                                ui.strong(label);
+                            });
+                        }
+                    })
+                    .body(|body| {
+                        body.rows(30.0, rows.len(), |mut row| match rows[row.index()] {
+                            InputRow::Stick(index) => {
+                                let stick = &mut self.study.sticks[index];
+                                let id = stick.id;
+                                row.set_selected(self.selected_stick == Some(id));
+                                row.col(|ui| {
+                                    ui.horizontal(|ui| {
+                                        let closed = self.collapsed.contains(&id);
+                                        if ui
+                                            .add_sized(
+                                                [18.0, 22.0],
+                                                egui::Button::new(if closed { "+" } else { "−" }),
+                                            )
+                                            .on_hover_text("Espandi o comprimi i formati")
+                                            .clicked()
+                                        {
+                                            if closed {
+                                                self.collapsed.remove(&id);
+                                            } else {
+                                                self.collapsed.insert(id);
+                                            }
+                                        }
+                                        changed |= cell(ui, ("stick_name", id), &mut stick.name);
+                                        if ui.memory(|memory| memory.focused())
+                                            == Some(Id::new(("stick_name", id)))
+                                        {
+                                            self.selected_stick = Some(id);
+                                        }
+                                    });
+                                });
+                                row.col(|ui| {
+                                    ui.label("—");
+                                });
+                                for (key, value) in [
+                                    ("length", &mut stick.length),
+                                    ("width", &mut stick.width),
+                                    ("thickness", &mut stick.thickness),
+                                    ("fin", &mut stick.fin),
+                                ] {
+                                    row.col(|ui| {
+                                        changed |= cell(ui, (key, id), value);
+                                        if ui.memory(|memory| memory.focused())
+                                            == Some(Id::new((key, id)))
+                                        {
+                                            self.selected_stick = Some(id);
+                                        }
+                                    });
+                                }
+                                let response = row.response();
+                                if response.clicked() {
+                                    self.selected_stick = Some(id);
+                                }
+                                response.context_menu(|ui| {
+                                    if ui.button("Rimuovi stick e formati associati").clicked() {
+                                        self.pending = Some(PendingAction::RemoveStick(id));
+                                        ui.close();
+                                    }
+                                });
+                            }
+                            InputRow::Format(index) => {
+                                let format = &mut self.study.formats[index];
+                                let id = format.id;
+                                let parent = format.stick_id;
+                                row.col(|ui| {
+                                    ui.horizontal(|ui| {
+                                        ui.add_space(24.0);
+                                        changed |= cell(ui, ("format_name", id), &mut format.name);
+                                        if ui.memory(|memory| memory.focused())
+                                            == Some(Id::new(("format_name", id)))
+                                        {
+                                            self.selected_stick = parent;
+                                        }
+                                    });
+                                });
+                                row.col(|ui| {
+                                    changed |= cell(ui, ("quantity", id), &mut format.quantity);
+                                    if ui.memory(|memory| memory.focused())
+                                        == Some(Id::new(("quantity", id)))
+                                    {
+                                        self.selected_stick = parent;
+                                    }
+                                });
+                                for _ in 0..4 {
+                                    row.col(|_ui| {});
+                                }
+                                let response = row.response();
+                                if response.clicked() {
+                                    self.selected_stick = parent;
+                                }
+                                response.context_menu(|ui| {
+                                    if ui.button("Rimuovi formato").clicked() {
+                                        remove_format = Some(id);
+                                        ui.close();
+                                    }
+                                });
+                            }
+                        });
+                    });
+            });
+        if let Some(id) = remove_format {
+            self.study.formats.retain(|format| format.id != id);
+            changed = true;
+        }
+        ui.horizontal_wrapped(|ui| {
+            if ui.button("Agg. Stick").clicked() {
                 self.study.add_stick();
+                self.selected_stick = self.study.sticks.last().map(|stick| stick.id);
+                changed = true;
+            }
+            if ui
+                .add_enabled(
+                    !self.study.sticks.is_empty(),
+                    egui::Button::new("Agg. Formato"),
+                )
+                .on_hover_text("Aggiunge un formato allo stick selezionato, o al primo stick")
+                .clicked()
+            {
+                self.study.add_format();
+                if let Some(parent) = self
+                    .selected_stick
+                    .filter(|id| self.study.sticks.iter().any(|stick| stick.id == *id))
+                {
+                    self.study
+                        .formats
+                        .last_mut()
+                        .expect("just inserted")
+                        .stick_id = Some(parent);
+                    self.collapsed.remove(&parent);
+                }
                 changed = true;
             }
         });
         ui.label(
-            RichText::new("Dimensioni in millimetri. Usa virgola o punto per i decimali.")
+            RichText::new("Punto o virgola per i decimali · clic destro per rimuovere")
                 .small()
                 .color(MUTED),
         );
-        let table_width = ui.available_width().max(630.0);
-        egui::ScrollArea::horizontal()
-            .id_salt("stick_horizontal")
-            .show(ui, |ui| {
-                ui.set_width(table_width);
-                TableBuilder::new(ui)
-                    .id_salt("sticks")
-                    .striped(true)
-                    .column(Column::remainder().at_least(130.0).clip(true))
-                    .columns(Column::exact(85.0), 4)
-                    .column(Column::exact(78.0))
-                    .max_scroll_height(180.0)
-                    .header(28.0, |mut header| {
-                        for label in ["Nome", "Lunghezza", "Larghezza", "Spessore", "Pinna", ""] {
-                            header.col(|ui| {
-                                ui.strong(label);
-                            });
-                        }
-                    })
-                    .body(|body| {
-                        body.rows(34.0, self.study.sticks.len(), |mut row| {
-                            let stick = &mut self.study.sticks[row.index()];
-                            let id = stick.id;
-                            row.col(|ui| {
-                                changed |= cell(ui, ("stick_name", id), &mut stick.name);
-                            });
-                            for (key, value) in [
-                                ("length", &mut stick.length),
-                                ("width", &mut stick.width),
-                                ("thickness", &mut stick.thickness),
-                                ("fin", &mut stick.fin),
-                            ] {
-                                row.col(|ui| {
-                                    changed |= cell(ui, (key, id), value);
-                                });
-                            }
-                            row.col(|ui| {
-                                if ui.small_button("Rimuovi").clicked() {
-                                    self.pending = Some(PendingAction::RemoveStick(id));
-                                }
-                            });
-                        });
-                    });
-            });
-        ui.add_space(14.0);
-        ui.horizontal(|ui| {
-            ui.strong(format!("Formati · {}", self.study.formats.len()));
-            if ui
-                .add_enabled(
-                    !self.study.sticks.is_empty(),
-                    egui::Button::new("+ Formato"),
-                )
-                .clicked()
-            {
-                self.study.add_format();
-                changed = true;
-            }
-        });
-        let sticks: Vec<_> = self
-            .study
-            .sticks
-            .iter()
-            .map(|stick| (stick.id, stick.name.clone()))
-            .collect();
-        let mut remove = None;
-        let table_width = ui.available_width().max(560.0);
-        egui::ScrollArea::horizontal()
-            .id_salt("format_horizontal")
-            .show(ui, |ui| {
-                ui.set_width(table_width);
-                TableBuilder::new(ui)
-                    .id_salt("formats")
-                    .striped(true)
-                    .column(Column::remainder().at_least(130.0).clip(true))
-                    .column(Column::initial(170.0).at_least(100.0))
-                    .column(Column::exact(120.0))
-                    .column(Column::exact(78.0))
-                    .max_scroll_height(180.0)
-                    .header(28.0, |mut header| {
-                        for label in ["Nome formato", "Tipo di stick", "Stick per cassetto", ""] {
-                            header.col(|ui| {
-                                ui.strong(label);
-                            });
-                        }
-                    })
-                    .body(|body| {
-                        body.rows(34.0, self.study.formats.len(), |mut row| {
-                            let format = &mut self.study.formats[row.index()];
-                            let id = format.id;
-                            row.col(|ui| {
-                                changed |= cell(ui, ("format_name", id), &mut format.name);
-                            });
-                            row.col(|ui| {
-                                let selected = sticks
-                                    .iter()
-                                    .find(|(id, _)| Some(*id) == format.stick_id)
-                                    .map_or("Seleziona stick", |(_, name)| name.as_str());
-                                egui::ComboBox::from_id_salt(("stick_choice", id))
-                                    .selected_text(selected)
-                                    .width(140.0)
-                                    .show_ui(ui, |ui| {
-                                        for (id, name) in &sticks {
-                                            changed |= ui
-                                                .selectable_value(
-                                                    &mut format.stick_id,
-                                                    Some(*id),
-                                                    name,
-                                                )
-                                                .changed();
-                                        }
-                                    });
-                            });
-                            row.col(|ui| {
-                                changed |= cell(ui, ("quantity", id), &mut format.quantity);
-                            });
-                            row.col(|ui| {
-                                if ui.small_button("Rimuovi").clicked() {
-                                    remove = Some(id);
-                                }
-                            });
-                        });
-                    });
-            });
-        if let Some(id) = remove {
-            self.study.formats.retain(|format| format.id != id);
-            changed = true;
-        }
         changed
+    }
+
+    fn parameters_window(&mut self, ctx: &egui::Context) {
+        if !self.parameters_open {
+            return;
+        }
+        let mut open = true;
+        let mut done = false;
+        let mut changed = false;
+        egui::Window::new("Parametri astucciatrice e ricerca")
+            .id(Id::new("parameters_window"))
+            .open(&mut open)
+            .default_width(580.0)
+            .show(ctx, |ui| {
+                egui::ScrollArea::both().max_height(420.0).show(ui, |ui| {
+                    changed = self.parameters(ui);
+                });
+                if ui.button("Chiudi").clicked() {
+                    done = true;
+                }
+            });
+        self.parameters_open = open && !done;
+        if changed {
+            self.invalidate_results();
+        }
     }
 
     fn parameters(&mut self, ui: &mut egui::Ui) -> bool {
         let mut changed = false;
-        ui.heading("Parametri dello studio");
+        ui.heading(RichText::new("Parametri dello studio").color(ACCENT));
         ui.label(
             RichText::new("Prima prova dei campi macchina e delle preferenze di ricerca.")
                 .color(MUTED),
@@ -422,7 +594,6 @@ impl PrototypeApp {
                     .show(ui, |ui| {
                         let p = &mut self.study.parameters;
                         for (label, value, unit) in [
-                            ("Canali MT", &mut p.channels, "canali"),
                             ("Offset massimo stick", &mut p.offset, "mm"),
                             ("Passo massimo astucciatrice", &mut p.max_pitch, "mm"),
                             ("Incremento del passo", &mut p.pitch_step, "mm"),
@@ -462,27 +633,24 @@ impl PrototypeApp {
     }
 
     fn results_ui(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Risultati di esempio");
-        egui::Frame::group(ui.style()).fill(Color32::from_rgb(255, 246, 226)).show(ui, |ui| {
+        ui.heading(RichText::new("Migliori Soluzioni").color(ACCENT));
+        egui::Frame::group(ui.style()).fill(Color32::from_rgb(249, 240, 240)).show(ui, |ui| {
             ui.label("Valori dimostrativi, indipendenti dai parametri. Non sono configurazioni calcolate o verificate.");
         });
         if self.results.is_empty() {
-            ui.add_space(25.0);
-            ui.strong("Nessun risultato da mostrare");
-            ui.label("Completa i dati e premi «Mostra risultati di esempio» nella scheda Stick e formati.");
-            if ui.button("Vai ai dati dello studio").clicked() {
-                self.screen = Screen::Inputs;
-            }
-            return;
+            ui.add_space(12.0);
+            ui.label("Inserisci i dati nella sidebar e premi «Calcola · esempio».");
         }
         ui.add_space(12.0);
         ui.horizontal_wrapped(|ui| {
-            ui.checkbox(&mut self.one_head_only, "Mostra solo esempi con una testa");
+            ui.checkbox(&mut self.one_head_only, "Una sola testa")
+                .on_hover_text("Mostra solo gli esempi con un tipo di testa robot");
             egui::ComboBox::from_id_salt("result_order")
+                .width(140.0)
                 .selected_text(if self.order_by_pitch {
-                    "Ordina per passo"
+                    "Passo"
                 } else {
-                    "Ordina per punteggio"
+                    "Punteggio"
                 })
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio");
@@ -501,7 +669,7 @@ impl PrototypeApp {
             .small()
             .color(MUTED),
         );
-        let table_width = ui.available_width().max(630.0);
+        let table_width = ui.available_width().max(690.0);
         egui::ScrollArea::horizontal()
             .id_salt("results_horizontal")
             .show(ui, |ui| {
@@ -510,14 +678,15 @@ impl PrototypeApp {
                     .id_salt("results")
                     .striped(true)
                     .column(Column::remainder().clip(true))
-                    .columns(Column::exact(92.0), 5)
+                    .columns(Column::exact(105.0), 5)
+                    .max_scroll_height(175.0)
                     .sense(egui::Sense::click())
                     .header(28.0, |mut header| {
                         for label in [
-                            "Esempio",
+                            "Posizione",
                             "Passo (mm)",
-                            "Tipi cassetto",
-                            "Tipi testa",
+                            "Formati cassetto",
+                            "Teste robot",
                             "Strati max",
                             "Punteggio",
                         ] {
@@ -553,7 +722,8 @@ impl PrototypeApp {
         if let Some(result) = rows.iter().find(|row| Some(row.id) == self.selected) {
             ui.add_space(18.0);
             egui::Frame::group(ui.style()).fill(Color32::WHITE).inner_margin(16).show(ui, |ui| {
-                ui.strong(format!("Dettaglio · Esempio {:02}", result.id));
+                ui.heading(RichText::new("Dettagli Soluzione Selezionata").color(ACCENT));
+                ui.label(format!("Esempio {:02}", result.id));
                 ui.horizontal_wrapped(|ui| {
                     ui.label(format!("Passo: {} mm", format_number(result.pitch)));
                     ui.separator();
@@ -563,7 +733,27 @@ impl PrototypeApp {
                 });
                 ui.label(RichText::new("Scheda illustrativa. Le metriche reali arriveranno con il motore Rust.").small().color(MUTED));
             });
+        } else {
+            ui.add_space(18.0);
+            ui.heading(RichText::new("Dettagli Soluzione Selezionata").color(ACCENT));
+            ui.label("Seleziona una soluzione per visualizzare il riepilogo.");
         }
+        ui.add_space(12.0);
+        ui.horizontal_wrapped(|ui| {
+            for (view, label) in [
+                (DetailView::Formats, "Panoramica formati"),
+                (DetailView::Pockets, "Tipi cassetti usati"),
+                (DetailView::Heads, "Tipi teste robot usate"),
+            ] {
+                ui.selectable_value(&mut self.detail_view, view, label);
+            }
+        });
+        ui.separator();
+        ui.label(
+            RichText::new("Il dettaglio geometrico sarà popolato dal motore Rust.")
+                .small()
+                .color(MUTED),
+        );
     }
 
     fn confirm_action(&mut self, ctx: &egui::Context) {
@@ -614,6 +804,16 @@ impl eframe::App for PrototypeApp {
         #[cfg(feature = "ui-preview")]
         crate::preview::capture(ui.ctx());
     }
+}
+
+fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::TextureHandle> {
+    let image = image::load_from_memory(bytes).ok()?.to_rgba8();
+    let size = [image.width() as usize, image.height() as usize];
+    Some(ctx.load_texture(
+        name,
+        egui::ColorImage::from_rgba_unmultiplied(size, image.as_raw()),
+        egui::TextureOptions::LINEAR,
+    ))
 }
 
 fn cell(ui: &mut egui::Ui, id: impl egui::AsId, value: &mut String) -> bool {
@@ -677,7 +877,7 @@ mod tests {
         app.apply_pending(PendingAction::EmptyStudy);
         assert!(app.study.sticks.is_empty());
         assert!(app.results.is_empty());
-        assert_eq!(app.screen as u8, Screen::Inputs as u8);
+        assert!(app.collapsed.is_empty());
         assert!(!app.show_demo());
     }
 
@@ -764,7 +964,7 @@ mod tests {
         for _ in 0..6 {
             output = draw_frame_at(&ctx, &mut app, size, vec![]);
         }
-        for label in ["Lunghezza", "Larghezza", "Spessore", "Pinna"] {
+        for label in ["Hs", "As", "Ss", "Bs"] {
             assert!(
                 output.shapes.iter().any(|shape| {
                     if let egui::epaint::Shape::Text(text) = &shape.shape {
@@ -783,27 +983,69 @@ mod tests {
     }
 
     #[test]
-    fn all_screens_render_at_compact_size_and_increased_scale() {
+    fn hierarchy_groups_children_and_collapse_keeps_the_other_stick_visible() {
+        let mut app = PrototypeApp::default();
+        assert!(matches!(
+            app.input_rows().as_slice(),
+            [
+                InputRow::Stick(0),
+                InputRow::Format(0),
+                InputRow::Format(1),
+                InputRow::Stick(1),
+                InputRow::Format(2)
+            ]
+        ));
+        app.collapsed.insert(app.study.sticks[0].id);
+        assert!(matches!(
+            app.input_rows().as_slice(),
+            [InputRow::Stick(0), InputRow::Stick(1), InputRow::Format(2)]
+        ));
+        assert_eq!(app.study.formats.len(), 3);
+    }
+
+    #[test]
+    fn sidebar_and_output_render_together_at_compact_size_and_increased_scale() {
         for scale in [1.0, 1.5] {
             let ctx = egui::Context::default();
             let mut app = PrototypeApp::new(&ctx);
             ctx.set_zoom_factor(scale);
             app.show_demo();
-            for screen in [Screen::Inputs, Screen::Parameters, Screen::Results] {
-                app.screen = screen;
-                let mut output = ctx.run_ui(
-                    egui::RawInput {
-                        screen_rect: Some(egui::Rect::from_min_size(
-                            egui::Pos2::ZERO,
-                            egui::vec2(760.0, 620.0),
-                        )),
-                        ..Default::default()
-                    },
-                    |ui| app.render(ui),
+            draw_frame_at(&ctx, &mut app, egui::vec2(760.0, 620.0), vec![]);
+            let output = draw_frame_at(&ctx, &mut app, egui::vec2(760.0, 620.0), vec![]);
+            for label in [
+                "Dati MT",
+                "Formati",
+                "Migliori Soluzioni",
+                "Dettagli Soluzione Selezionata",
+            ] {
+                assert!(
+                    output.shapes.iter().any(|shape| matches!(&shape.shape,
+                    egui::epaint::Shape::Text(text) if text.galley.job.text == label)),
+                    "{label} missing"
                 );
-                output.textures_delta.clear();
-                assert!(!output.shapes.is_empty());
             }
+            let position = |label: &str| {
+                output
+                    .shapes
+                    .iter()
+                    .find_map(|shape| match &shape.shape {
+                        egui::epaint::Shape::Text(text) if text.galley.job.text == label => {
+                            Some(text.pos)
+                        }
+                        _ => None,
+                    })
+                    .expect("heading already checked")
+            };
+            assert!(position("Migliori Soluzioni").x > position("Formati").x + 300.0);
+            assert!(
+                position("Dettagli Soluzione Selezionata").y > position("Migliori Soluzioni").y
+            );
+            app.parameters_open = true;
+            assert!(
+                !draw_frame_at(&ctx, &mut app, egui::vec2(760.0, 620.0), vec![])
+                    .shapes
+                    .is_empty()
+            );
         }
     }
 

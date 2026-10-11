@@ -10,10 +10,10 @@ fn main() -> eframe::Result {
     let window_size = if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("compact") {
         [760.0, 620.0]
     } else {
-        [1180.0, 800.0]
+        [1450.0, 900.0]
     };
     #[cfg(not(feature = "ui-preview"))]
-    let window_size = [1180.0, 800.0];
+    let window_size = [1450.0, 900.0];
     let options = eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder::default()
             .with_inner_size(window_size)

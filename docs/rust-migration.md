@@ -8,11 +8,14 @@ Data: 11 ottobre 2026.
 
 Realizzare una nuova applicazione desktop Windows interamente in Rust, con
 motore di ricerca separato dall'interfaccia. La versione Python è un riferimento
-funzionale e tecnico, non un vincolo di struttura o di compatibilità.
+funzionale, tecnico e di disposizione dell'interfaccia. La struttura interna
+del codice e la compatibilità dei file possono cambiare.
 
 - Conservare il repository `stick_optimizer` e usare un branch di migrazione.
 - Nessuna compatibilità richiesta con vecchi file `.sop`, preferenze o CSV.
-- Interfaccia e formato di studio possono essere riprogettati.
+- Conservare sidebar input e area principale di output della GUI Python.
+  Lo stile usa il sito Marchesini Group come riferimento; il formato di studio
+  può essere riprogettato.
 - Conservare inizialmente significato delle formule, unità e vincoli; eventuali
   correzioni devono essere motivate e verificate separatamente.
 - Preservare lo stato Python nella cronologia prima della sostituzione finale.
@@ -185,8 +188,10 @@ durante la preparazione Rust. Il prossimo passo è la prova GUI della fase 3.
 ## Prototipo della fase 3
 
 - Branch di lavoro: `codex/phase-3-gui`, base PR `rust-rewrite`.
-- Finestra Windows nativa egui/eframe 0.36.2 con tre schede: stick/formati,
-  parametri e risultati. Avvio da dati incorporati o creazione di studio vuoto.
+- Finestra Windows nativa egui/eframe 0.36.2 con sidebar input a sinistra e
+  risultati/dettagli a destra, come la versione Python. Parametri dal menu
+  Modifica; studio vuoto o esempio dal menu File. Lo stile riprende il sito
+  Marchesini Group; riferimenti e colori in `ui-design.md`.
 - Tabelle editabili, associazioni tramite ID stabili, aggiunta e rimozione.
   La rimozione di stick e il cambio di studio richiedono conferma modale.
 - Input numerici con virgola o punto, interi positivi per conteggi e quantità,
@@ -207,7 +212,7 @@ durante la preparazione Rust. Il prossimo passo è la prova GUI della fase 3.
 | `cargo fmt --all -- --check` | Superato |
 | `cargo check --workspace --all-targets --all-features --locked` | Superato |
 | `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings` | Superato senza warning |
-| `cargo test --workspace --all-features --locked` | 10 test desktop superati; core e IO senza test perché ancora assenti |
+| `cargo test --workspace --all-features --locked` | 11 test desktop superati; core e IO senza test perché ancora assenti |
 | `.\scripts\preview-gui.ps1` | Sei PNG nativi acquisiti e controllati: input, parametri, risultati, 760×620, zoom 150%, 120 stick e 121 formati |
 | `cargo build --workspace --release --locked` | Eseguibile Windows ottimizzato generato |
 | Avvio di `target/release/stick-optimizer-desktop.exe` | Finestra nativa aperta sul desktop |
@@ -218,6 +223,9 @@ del testo con Ctrl+A, inserimento del decimale e passaggio alla cella seguente
 con Tab. La prova di virtualizzazione usa 1000 stick e 1001 formati. Un test
 di regressione verifica che le colonne numeriche restino visibili dopo il
 passaggio dalle dimensioni provvisorie di avvio a quelle effettive con zoom.
+La regressione di disposizione verifica input a sinistra, risultati a destra
+e dettagli sotto anche nella finestra compatta; la gerarchia mantiene i formati
+sotto il loro stick e conserva i dati quando si comprimono le righe.
 Le catture usano l'API pubblica del viewport dopo che il layout si è stabilizzato;
 la funzione `ui-preview` e la scrittura PNG sono escluse dalla build normale.
 

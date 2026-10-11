@@ -6,7 +6,9 @@ La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
 (`crates/desktop`). Il passo 3 introduce una GUI di prova in egui/eframe:
 stick e formati modificabili, parametri, risultati dimostrativi selezionabili,
-ordinamento e filtro. Il motore e i salvataggi non sono ancora implementati.
+ordinamento e filtro. La disposizione conserva la versione Python: input
+nella sidebar sinistra, risultati e dettagli nell'area principale destra.
+Il motore e i salvataggi non sono ancora implementati.
 
 La versione Python di riferimento, comprese le modifiche locali presenti prima
 della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
@@ -21,15 +23,19 @@ cargo run -p stick-optimizer-desktop --locked
 ```
 
 Il secondo comando apre la finestra «Stick Optimizer — Anteprima Rust».
-Inizia con dati di esempio: modifica le celle, controlla i parametri e premi
-**Mostra risultati di esempio**. Il punto e la virgola sono accettati come
+Inizia con dati di esempio: modifica gli stick e i formati nella tabella
+gerarchica a sinistra, controlla i parametri da **Modifica** e premi
+**Calcola · esempio** a destra. **File** permette di creare uno studio vuoto
+o ricaricare l'esempio. Clic destro sulle righe per rimuoverle; **Agg. Formato**
+aggiunge un formato allo stick selezionato. Il punto e la virgola sono accettati come
 separatori decimali; quantità e conteggi richiedono interi positivi. I risultati
 sono valori fissi illustrativi, indipendenti dagli input: non sono soluzioni
 calcolate. Ogni modifica agli input li rimuove. Le modifiche allo studio restano
 solo nella sessione; salvataggi, CSV e ricerca reale arriveranno dopo.
 
 Vedere [il piano](docs/rust-migration.md) e
-[le istruzioni di sviluppo](docs/development.md) per fasi e verifiche.
+[le istruzioni di sviluppo](docs/development.md) per fasi e verifiche,
+[il riferimento UI](docs/ui-design.md) per disposizione e stile.
 
 ## Versione Python di riferimento
 

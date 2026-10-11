@@ -21,9 +21,9 @@ try {
         $env:STICK_OPTIMIZER_SCREENSHOT_TO = $screenshotPath
         $startedAt = Get-Date
         $process = Start-Process -FilePath $binaryPath -WorkingDirectory $repoRoot -WindowStyle Hidden -PassThru
-        if (-not $process.WaitForExit(30000)) {
+        if (-not $process.WaitForExit(60000)) {
             $process.Kill()
-            throw "La prova $mode non è terminata entro 30 secondi."
+            throw "La prova $mode non è terminata entro 60 secondi."
         }
         # Refresh the exit code before checking the freshly generated image.
         $process.Refresh()

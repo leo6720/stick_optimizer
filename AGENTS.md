@@ -11,6 +11,13 @@ implementati. Le bozze GUI in `crates/desktop/src/draft.rs` hanno soltanto
 validazione sintattica e non sostituiscono il dominio futuro in `core`.
 I risultati del prototipo sono fissi.
 
+- Conservare la disposizione Python: sidebar sinistra con Dati MT e tabella
+  gerarchica stick/formati; area principale destra con risultati e dettagli
+  sotto. I parametri si aprono da Modifica, senza sostituire l'area di lavoro.
+  Non introdurre una navigazione per pagine tra input e output senza richiesta.
+- Per lo stile seguire `docs/ui-design.md`: riferimento Marchesini Group,
+  rosso/bianco/grigi, mantenendo la gerarchia funzionale Python e i suoi schemi.
+
 - Le PR della migrazione hanno base `rust-rewrite`, mai `main` automaticamente.
 - Il core non dipende dalla GUI o dai formati di file; la GUI non ricalcola
   formule, metriche o vincoli fisici.

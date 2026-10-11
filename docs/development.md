@@ -40,8 +40,10 @@ cargo test --workspace --all-features --locked
 
 Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 `ui-preview`, avvia e chiude il prototipo per ciascuna vista e salva PNG in
-`work/phase3` (non versionata). Controllare visivamente input, parametri,
-risultati, finestra compatta, zoom UI 150% e molte righe. Lo zoom UI è una prova
+`work/phase3` (non versionata). Controllare visivamente input e
+risultati nella stessa area di lavoro, finestra parametri, finestra compatta,
+zoom UI 150% e molte righe. Controllare che la sidebar resti visibile accanto
+all'output anche dopo aver mostrato i risultati. Lo zoom UI è una prova
 di layout, non una verifica di ogni configurazione DPI Windows. La build
 release normale non abilita questa funzione. Completare le prove con editing,
 selezione, scorrimento e conferme manuali; gli eventi sintetici non sostituiscono
