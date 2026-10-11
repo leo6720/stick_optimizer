@@ -1,5 +1,4 @@
-//! Editable GUI drafts, deliberately separate from the future calculation core.
-//! These checks validate input syntax only, not mechanical feasibility.
+//! Editable GUI drafts and conversion to a validated core snapshot.
 
 use std::collections::HashSet;
 
@@ -30,6 +29,12 @@ pub struct Parameters {
     pub max_layers: String,
     pub ab_target: String,
     pub result_count: String,
+    pub divider_width: String,
+    pub wall_width: String,
+    pub adjacent_clearance: String,
+    pub wall_clearance: String,
+    pub carton_b_extra: String,
+    pub weights: [String; 8],
 }
 
 impl Default for Parameters {
@@ -42,6 +47,14 @@ impl Default for Parameters {
             max_layers: "12".into(),
             ab_target: "1,5".into(),
             result_count: "20".into(),
+            divider_width: "2".into(),
+            wall_width: "3".into(),
+            adjacent_clearance: "1".into(),
+            wall_clearance: "2".into(),
+            carton_b_extra: "5".into(),
+            weights: stick_optimizer_core::Weights::default()
+                .values()
+                .map(|v| v.to_string()),
         }
     }
 }
@@ -184,10 +197,91 @@ impl StudyDraft {
             ("Passo massimo", &p.max_pitch, false),
             ("Incremento passo", &p.pitch_step, false),
             ("Obiettivo A/B", &p.ab_target, false),
+            ("Spessore divisore", &p.divider_width, true),
+            ("Spessore parete", &p.wall_width, true),
+            ("Gioco tra stick", &p.adjacent_clearance, true),
+            ("Gioco parete/divisore", &p.wall_clearance, true),
+            ("Extra B", &p.carton_b_extra, true),
         ] {
             validate_decimal(value, label, zero_allowed, &mut errors);
         }
+        for (index, weight) in p.weights.iter().enumerate() {
+            validate_decimal(weight, &format!("Peso {}", index + 1), true, &mut errors);
+        }
+        if matches!(p.channels.trim().parse::<u32>(), Ok(1)) {
+            errors.push("Canali MT: servono almeno 2 canali per definire l'offset.".into());
+        }
         errors
+    }
+
+    pub fn to_study(&self) -> Result<stick_optimizer_core::Study, Vec<String>> {
+        use stick_optimizer_core::{Format, Settings, Stick, Study, Weights};
+        let errors = self.input_errors();
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+        let p = &self.parameters;
+        let decimal = |v: &str| parse_decimal(v).expect("syntax validated");
+        let integer = |v: &str| v.trim().parse::<u32>().expect("syntax validated");
+        let w = p.weights.each_ref().map(|v| decimal(v));
+        let study = Study {
+            sticks: self
+                .sticks
+                .iter()
+                .map(|s| Stick {
+                    id: s.id,
+                    name: s.name.trim().into(),
+                    length: decimal(&s.length),
+                    width: decimal(&s.width),
+                    thickness: decimal(&s.thickness),
+                    fin: decimal(&s.fin),
+                })
+                .collect(),
+            formats: self
+                .formats
+                .iter()
+                .map(|f| Format {
+                    id: f.id,
+                    name: f.name.trim().into(),
+                    stick_id: f.stick_id.expect("reference validated"),
+                    quantity: integer(&f.quantity),
+                })
+                .collect(),
+            settings: Settings {
+                channels: integer(&p.channels),
+                max_shift: decimal(&p.offset),
+                max_pitch: decimal(&p.max_pitch),
+                pitch_step: decimal(&p.pitch_step),
+                max_layers: if p.max_layers.trim().is_empty() {
+                    None
+                } else {
+                    Some(integer(&p.max_layers))
+                },
+                ab_target: decimal(&p.ab_target),
+                result_count: integer(&p.result_count) as usize,
+                divider_width: decimal(&p.divider_width),
+                wall_width: decimal(&p.wall_width),
+                adjacent_clearance: decimal(&p.adjacent_clearance),
+                wall_clearance: decimal(&p.wall_clearance),
+                carton_b_extra: decimal(&p.carton_b_extra),
+            },
+            weights: Weights {
+                pockets: w[0],
+                heads: w[1],
+                layers: w[2],
+                carryover: w[3],
+                grouping: w[4],
+                stability: w[5],
+                pitch: w[6],
+                ab: w[7],
+            },
+        };
+        let errors = stick_optimizer_core::validate(&study);
+        if errors.is_empty() {
+            Ok(study)
+        } else {
+            Err(errors)
+        }
     }
 }
 
@@ -278,5 +372,20 @@ mod tests {
         assert_eq!(study.input_errors().len(), 4);
         study.parameters.max_layers.clear();
         assert_eq!(study.input_errors().len(), 4);
+    }
+
+    #[test]
+    fn snapshot_includes_all_geometry_and_weights_and_owns_its_inputs() {
+        let mut draft = StudyDraft::example();
+        draft.parameters.wall_width = "4,5".into();
+        draft.parameters.weights[7] = "700".into();
+        let snapshot = draft.to_study().unwrap();
+        assert_eq!(snapshot.settings.wall_width, 4.5);
+        assert_eq!(snapshot.weights.ab, 700.0);
+        assert_eq!(snapshot.formats[0].stick_id, snapshot.sticks[0].id);
+        draft.sticks[0].width = "99".into();
+        assert_eq!(snapshot.sticks[0].width, 25.0);
+        draft.parameters.pitch_step = "0,0000001".into();
+        assert!(draft.to_study().is_err());
     }
 }

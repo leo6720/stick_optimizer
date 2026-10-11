@@ -4,11 +4,11 @@
 
 La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
-(`crates/desktop`). Il passo 3 introduce una GUI di prova in egui/eframe:
-stick e formati modificabili, parametri, risultati dimostrativi selezionabili,
-ordinamento e filtro. La disposizione conserva la versione Python: input
+(`crates/desktop`). Il passo 4 implementa il motore e il primo flusso reale:
+stick e formati modificabili, geometria, pesi, ricerca in background,
+risultati Pareto, ordinamento, filtro e dettagli. La disposizione conserva la versione Python: input
 nella sidebar sinistra, risultati e dettagli nell'area principale destra.
-Il motore e i salvataggi non sono ancora implementati.
+Salvataggi, CSV e viste geometriche grafiche restano per la beta completa.
 
 La versione Python di riferimento, comprese le modifiche locali presenti prima
 della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
@@ -22,16 +22,24 @@ cargo build --workspace --locked
 cargo run -p stick-optimizer-desktop --locked
 ```
 
-Il secondo comando apre la finestra «Stick Optimizer — Anteprima Rust».
+Il secondo comando apre la finestra «Stick Optimizer — Beta Rust».
 Inizia con dati di esempio: modifica gli stick e i formati nella tabella
 gerarchica a sinistra, controlla i parametri da **Modifica** e premi
-**Calcola · esempio** a destra. **File** permette di creare uno studio vuoto
+**Calcola** a destra. **File** permette di creare uno studio vuoto
 o ricaricare l'esempio. Clic destro sulle righe per rimuoverle; **Agg. Formato**
 aggiunge un formato allo stick selezionato. Il punto e la virgola sono accettati come
-separatori decimali; quantità e conteggi richiedono interi positivi. I risultati
-sono valori fissi illustrativi, indipendenti dagli input: non sono soluzioni
-calcolate. Ogni modifica agli input li rimuove. Le modifiche allo studio restano
-solo nella sessione; salvataggi, CSV e ricerca reale arriveranno dopo.
+separatori decimali; quantità e conteggi richiedono interi positivi e MT almeno
+due canali. Dal menu **Modifica** sono disponibili geometria, giochi e gli otto
+pesi del punteggio. **Annulla calcolo** interrompe il lavoro senza mostrare risultati
+parziali. La selezione di una soluzione popola i dettagli per formato, tipi di
+cassetto e tipi di testa robot. Ogni modifica agli input cancella i risultati
+e scarta il calcolo precedente. Le modifiche restano soltanto nella sessione.
+
+L'esempio incorporato esplora 40 combinazioni e produce 16 soluzioni Pareto.
+La ricerca esatta ha limiti operativi espliciti: oltre un milione di combinazioni
+o 10.000 soluzioni in frontiera interrompe la ricerca e segnala il limite,
+senza presentare un risultato incompleto. Precisione e limiti sono descritti in
+[docs/rust-engine.md](docs/rust-engine.md).
 
 Vedere [il piano](docs/rust-migration.md) e
 [le istruzioni di sviluppo](docs/development.md) per fasi e verifiche,

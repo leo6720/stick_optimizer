@@ -12,7 +12,8 @@ generica che consentiva una riprogettazione dell'interfaccia.
 - Area principale destra: pulsante di calcolo in alto, Migliori Soluzioni,
   riepilogo della soluzione selezionata e dettagli sotto la tabella risultati.
 - I dettagli mantengono Panoramica formati, Tipi cassetti usati e Tipi teste
-  robot usate. Nel prototipo le metriche geometriche sono ancora assenti.
+  robot usate. Il passo 4 popola le tabelle con metriche reali del core;
+  il disegno geometrico grafico rimane una funzione futura.
 - Menu File per cambiare studio, Modifica per la finestra dei parametri.
   L'apertura dei parametri e la visualizzazione dei risultati conservano il
   contesto della sidebar. Gli input non diventano una scheda alternativa.

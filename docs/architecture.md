@@ -9,7 +9,7 @@ desktop -> io -> core
 desktop ------> core
 ```
 
-`core` ospiterà dominio e calcolo, `io` i formati e `desktop` interfaccia e
+`core` contiene dominio e calcolo, `io` ospiterà i formati e `desktop` interfaccia e
 gestione dei lavori. Il passo 3 aggiunge una GUI egui/eframe in `desktop`:
 `draft.rs` mantiene bozze editabili e controlli sintattici (non fattibilità
 meccanica), `app.rs` gestisce la sidebar e l'area di output simultanee.
@@ -22,13 +22,24 @@ Gli ID di stick e formati sono indipendenti dai nomi modificabili. La rimozione
 di uno stick elimina i formati associati dopo conferma; la modifica degli input
 invalida sempre i risultati mostrati. Le tabelle rendono soltanto le righe visibili.
 
-Il motore e la persistenza non sono implementati. Le tre righe di risultato
-sono fixture fisse, etichettate come esempi e indipendenti dagli input. Non
-esiste ancora alcun percorso GUI verso un ottimizzatore Rust. La scelta del
-nuovo schema di progetto resta proposta in `rust-migration.md`.
+Il passo 4 aggiunge il percorso `draft.to_study -> core.validate -> optimize`.
+La ricerca genera candidati, interseca passi comuni, enumera combinazioni e
+mantiene una frontiera Pareto esatta, conservando le metriche equivalenti.
+I risultati vengono ordinati prima del taglio al numero richiesto. Le formule
+e i pesi del riferimento Python descritti sotto sono conservati nel core Rust;
+precisione e differenze intenzionali sono descritte in `rust-engine.md`.
 
-Le sezioni seguenti descrivono il riferimento Python conservato nel tag
-`python-beta-reference`, non funzioni Rust già disponibili.
+La GUI avvia un solo worker su uno snapshot posseduto degli input. Progresso e
+annullamento usano atomiche; il thread UI controlla il completamento senza
+attendere il worker. Ogni modifica incrementa la revisione, cancella i
+risultati e annulla il lavoro; esiti di revisioni vecchie vengono scartati.
+Chiusura e cambio studio annullano il worker. I tre dettagli mostrano
+candidati, tipi cassetto e tipi testa prodotti dal core, senza ricalcolare formule.
+La persistenza resta assente; lo schema di progetto rimane una proposta.
+
+Le sezioni seguenti descrivono le formule del riferimento Python conservato nel
+tag `python-beta-reference`, ora tradotte nel motore Rust. Le note sui file e
+sulla materializzazione del prodotto cartesiano riguardano ancora Python.
 
 ## Scopo e confini
 

@@ -22,7 +22,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "Stick Optimizer — Anteprima Rust",
+        "Stick Optimizer — Beta Rust",
         options,
         Box::new(|cc| Ok(Box::new(app::PrototypeApp::new(&cc.egui_ctx)))),
     )

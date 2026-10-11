@@ -22,14 +22,19 @@ cargo build --workspace --release --locked
 cargo run -p stick-optimizer-desktop --release --locked
 ```
 
-Nella fase 3 le librerie core e IO contengono soltanto documentazione; desktop
-apre una finestra nativa. I test desktop verificano parsing, riferimenti tra
-righe, invalidazione dei risultati, filtri, editing con Ctrl+A e Tab tramite
-eventi egui sintetici, rendering a dimensioni ridotte e virtualizzazione.
-I risultati sono fixture indipendenti dagli input. Queste prove non certificano
-un motore di ricerca, ancora assente.
+Nella fase 4 il core contiene il motore esatto; IO resta predisposto. I test
+core confrontano campi e classifiche con fixture Python su casi piccoli,
+verificano vincoli, arrotondamenti e Pareto contro un prodotto cartesiano
+materializzato indipendente. I test desktop verificano snapshot, worker,
+annullamento, risultati obsoleti, click su Calcola tramite eventi egui,
+filtri, Ctrl+A/Tab, dimensioni ridotte e virtualizzazione.
 
-Per verificare anche la funzione di anteprima e acquisire sei schermate native:
+Per rigenerare le fixture del riferimento: `python scripts/python-reference.py`.
+Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
+risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
+incorporati e non richiede Python durante i test o nell'eseguibile.
+
+Per verificare anche la funzione di anteprima e acquisire dieci schermate native:
 
 ```powershell
 cargo check --workspace --all-targets --all-features --locked
@@ -40,9 +45,11 @@ cargo test --workspace --all-features --locked
 
 Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 `ui-preview`, avvia e chiude il prototipo per ciascuna vista e salva PNG in
-`work/phase3` (non versionata). Controllare visivamente input e
-risultati nella stessa area di lavoro, finestra parametri, finestra compatta,
-zoom UI 150% e molte righe. Controllare che la sidebar resti visibile accanto
+`work/phase4` (non versionata). Controllare visivamente input e
+risultati reali nella stessa area di lavoro, parametri, tipi cassetto, tipi testa,
+diagnostica senza candidati/senza passo comune, finestra compatta, zoom UI 150%
+e molte righe. Per ripetere soltanto una vista:
+`.\scripts\preview-gui.ps1 -SkipBuild -Modes results`. Controllare che la sidebar resti visibile accanto
 all'output anche dopo aver mostrato i risultati. Lo zoom UI è una prova
 di layout, non una verifica di ogni configurazione DPI Windows. La build
 release normale non abilita questa funzione. Completare le prove con editing,

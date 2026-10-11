@@ -1,9 +1,12 @@
-param([switch]$SkipBuild)
+param(
+    [switch]$SkipBuild,
+    [string[]]$Modes = @('inputs', 'parameters', 'results', 'pockets', 'heads', 'no-candidates', 'no-common', 'compact', 'scaled', 'many')
+)
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $cargoPath = Join-Path $env:USERPROFILE '.cargo/bin/cargo.exe'
-$previewDirectory = Join-Path $repoRoot 'work/phase3'
+$previewDirectory = Join-Path $repoRoot 'work/phase4'
 $binaryPath = Join-Path $repoRoot 'target/debug/stick-optimizer-desktop.exe'
 
 Push-Location $repoRoot
@@ -15,7 +18,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Build della GUI di prova non riuscita.' }
     }
     New-Item -ItemType Directory -Path $previewDirectory -Force | Out-Null
-    foreach ($mode in @('inputs', 'parameters', 'results', 'compact', 'scaled', 'many')) {
+    foreach ($mode in $Modes) {
         $screenshotPath = Join-Path $previewDirectory "$mode.png"
         $env:STICK_OPTIMIZER_PREVIEW = $mode
         $env:STICK_OPTIMIZER_SCREENSHOT_TO = $screenshotPath

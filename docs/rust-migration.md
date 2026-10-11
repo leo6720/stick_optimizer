@@ -1,7 +1,7 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
-Stato: specifica e preparazione completate; prototipo GUI della fase 3
-implementato. Motore e salvataggi non sono ancora implementati.
+Stato: fasi 1–4 implementate, con motore e primo calcolo reale dalla GUI.
+Salvataggi, CSV e disegni geometrici grafici restano per la beta completa.
 Data: 11 ottobre 2026.
 
 ## Obiettivo e decisioni concordate
@@ -104,8 +104,8 @@ durante la fase salvataggi, senza obbligo di ereditare `.sop`.
 | 2. Preparazione | Stato Python preservato, branch dedicato, workspace Rust minimo e istruzioni aggiornate | Build minima locale; modifiche preesistenti dell'utente preservate e identificate |
 | 3. Prova GUI | Tabella input e risultati simulati | Prova desktop di editing, tastiera, scaling e scelta della libreria |
 | 4. Motore | Modelli, validazione, candidati, score e ricerca esatta di riferimento | Casi deterministici, casi limite e confronto con Python dove la semantica è conservata |
-| 5. Prestazioni | Benchmark e ricerca ottimizzata con annullamento | Stessi risultati del riferimento su casi piccoli e misure su casi rappresentativi |
-| 6. Beta completa | GUI collegata, nuovo formato, preferenze, CSV e vista geometrica | Flussi funzionali e round trip verificati; limitazioni dichiarate |
+| 5. Funzioni della beta | Recupero delle funzioni Python, nuovo formato, preferenze, CSV e vista geometrica | Flussi funzionali e round trip verificati; limitazioni dichiarate |
+| 6. Prestazioni e rifiniture | Benchmark, ricerca ottimizzata e rifinitura grafica | Stessi risultati del riferimento su casi piccoli e misure su casi rappresentativi |
 | 7. Distribuzione | Eseguibile Windows ottimizzato e documentazione utente | Prova senza Python, rapporto di verifica e passaggio intenzionale di Rust sul branch principale |
 
 Primo traguardo utilizzabile dopo la fase 4: inserire un piccolo studio nella
@@ -233,4 +233,37 @@ La resa nativa è stata verificata sul PC corrente. Non è stata eseguita una
 prova manuale completa con tastiera/mouse fisici, né il passaggio tra monitor
 con DPI differenti. Il prototipo serve a raccogliere questo feedback prima
 di stabilizzare la GUI; non certifica correttezza meccanica o prestazioni.
-Il passo successivo previsto è la fase 4, motore Rust di riferimento.
+Questo era lo stato al completamento della fase 3.
+
+## Fase 4: motore e primo flusso reale
+
+- Branch `codex/phase-4-engine`, dipendente dalla GUI della PR #12, base PR
+  `rust-rewrite`. Nessun merge delle PR è stato eseguito automaticamente.
+- Modelli, validazione, generazione candidati, aggregazione, score, Pareto e
+  classifiche esatte; precisione e limiti in `rust-engine.md`.
+- Worker GUI con progresso e annullamento, snapshot degli input e scarto di
+  revisioni obsolete. Geometria e pesi modificabili da Modifica; dettagli
+  reali per formato, cassetti e teste, nella disposizione Python concordata.
+- Quattro casi Python stimati prima dell'esecuzione: 40, 2, 10 e 10
+  combinazioni; rispettivamente 16, 2, 4 e 4 soluzioni Pareto.
+- La successiva priorità concordata è completare le funzioni della UI originale
+  (file, preferenze, CSV, filtri e vista geometrica), poi benchmark e rifiniture.
+  Il nuovo flusso minimo non equivale ancora alla beta completa.
+
+### Verifica locale della fase 4 (11 ottobre 2026)
+
+| Comando | Esito |
+| --- | --- |
+| `python scripts/python-reference.py` | Quattro casi limitati, stima preventiva e risultati non vuoti |
+| `cargo fmt --all -- --check` | Superato |
+| `cargo check --workspace --all-targets --all-features --locked` | Superato |
+| `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings` | Superato |
+| `cargo test --workspace --all-features --locked` | 24 test: 9 core, 15 desktop; IO ancora senza implementazione |
+| `cargo build --workspace --release --locked` | Eseguibile ottimizzato senza funzione di cattura |
+| `.\scripts\preview-gui.ps1` | Dieci viste native, inclusi risultati reali, dettagli e diagnosi |
+| `git diff --check` | Nessun errore di whitespace |
+
+Il click Calcola e la tastiera sono verificati con eventi egui sintetici; le
+catture usano il viewport nativo e richiedono il completamento del worker.
+Resta una prova manuale completa con dispositivi fisici e monitor multipli.
+Non sono stati effettuati benchmark su studi grandi o verifiche produttive.

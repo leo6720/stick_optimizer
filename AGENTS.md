@@ -5,11 +5,11 @@
 La riscrittura è sul branch `rust-rewrite`; `python-beta-reference` conserva
 lo stato Python iniziale. Leggere anche `docs/rust-migration.md` prima di
 lavorare. Il workspace Rust ha tre componenti: `crates/core` (dominio e ricerca),
-`crates/io` (file e preferenze) e `crates/desktop` (GUI). Il passo 3 aggiunge una
-GUI dimostrativa in egui/eframe; non presumere che calcolo o salvataggi siano
-implementati. Le bozze GUI in `crates/desktop/src/draft.rs` hanno soltanto
-validazione sintattica e non sostituiscono il dominio futuro in `core`.
-I risultati del prototipo sono fissi.
+`crates/io` (file e preferenze) e `crates/desktop` (GUI). Il passo 4 implementa
+dominio, validazione e ricerca esatta in `core`, collegati alla GUI egui/eframe.
+Le bozze in `draft.rs` si convertono in uno snapshot validato dal core. I
+risultati sono reali; salvataggi e CSV non sono implementati. Leggere anche
+`docs/rust-engine.md` per precisione, limiti e controlli di correttezza.
 
 - Conservare la disposizione Python: sidebar sinistra con Dati MT e tabella
   gerarchica stick/formati; area principale destra con risultati e dettagli
