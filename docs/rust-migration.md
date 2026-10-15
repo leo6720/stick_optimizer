@@ -1,9 +1,11 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
 Stato: fasi 1–5 implementate, con motore reale, studi, preferenze, CSV e sezioni
-geometriche. Rifinitura delle interazioni GUI in corso sul branch
-`codex/ui-refinements`, basato sulla beta della PR #14. Le PR restano da integrare.
-Data: 11 ottobre 2026.
+geometriche. La PR cumulativa #17 (`codex/leo-12-rust-main-validation`)
+prepara il passaggio a main e include le PR #12–#16. Controlli Windows completi
+superati; beta accettata dall'utente con prove manuali residue esplicitamente
+accettate. Le PR restano da integrare; nessun merge automatico.
+Data: 15 ottobre 2026. Esiti: [verbale beta](rust-beta-validation.md).
 
 ## Obiettivo e decisioni concordate
 

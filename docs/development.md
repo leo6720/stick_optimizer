@@ -1,10 +1,12 @@
 # Sviluppo e verifica
 
-Per chiudere la beta prima del passaggio a main seguire
-[la checklist di collaudo](rust-beta-validation.md): esiti cloud separati
-dalle prove native Windows, istruzioni per un profilo isolato e formato del resoconto.
+Il 15 ottobre 2026 sono stati superati i controlli completi Windows e l'utente
+ha accettato la beta, incluse le prove manuali residue. Il
+[verbale di collaudo](rust-beta-validation.md) distingue test eseguiti,
+prove non eseguite e accettazione. Le istruzioni per un profilo isolato e la
+checklist restano disponibili per ripetere le prove e verificare futuri bug.
 
-## Workspace Rust sul branch di migrazione
+## Workspace e avvio Rust
 
 Il workspace contiene `stick-optimizer-core`, `stick-optimizer-io` e
 `stick-optimizer-desktop`. Il motore non dipende da IO o GUI; IO dipende dal
@@ -91,9 +93,12 @@ Le nuove istruzioni Rust prevalgono sui percorsi Python soltanto per i component
 compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento
 tecnico leggere anche `docs/architecture.md` e `docs/rust-migration.md`.
 
-Le PR della migrazione devono avere base `rust-rewrite`, non `main`. Le attività
-successive devono rispettare dipendenze e traguardi del piano; il merge resta
-una decisione umana. Non eseguire aggiornamenti dal vecchio launcher.
+Le PR intermedie della migrazione usano base `rust-rewrite`. La PR cumulativa
+#17 già aperta prepara invece il passaggio intenzionale a `main`; non cambiare
+automaticamente la base delle PR precedenti. Dopo l'integrazione, verificare
+le istruzioni di branch rispetto al nuovo stato del repository prima di iniziare
+altro lavoro. Le attività successive rispettano dipendenze e traguardi del piano;
+il merge resta una decisione umana. Non usare il vecchio launcher.
 
 ## Sviluppo della versione Python di riferimento
 

@@ -1,9 +1,11 @@
 # Stick Optimizer
 
-## Migrazione Rust in corso
+## Beta Rust
 
-Il passaggio a main è in preparazione. Stato delle verifiche e istruzioni
-per il collaudo Windows: [checklist della beta](docs/rust-beta-validation.md).
+L'applicazione da usare è la beta desktop Rust. Il passaggio a `main` è
+preparato dalla PR #17; il 15 ottobre 2026 l'utente ha accettato la beta dopo
+le verifiche locali Windows, accettando anche le prove manuali residue.
+Esiti effettivi e limiti: [verbale della beta](docs/rust-beta-validation.md).
 
 La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
@@ -15,18 +17,19 @@ La fase 5 aggiunge studi `.stic`, preferenze, CSV, filtri per colonna e una
 vista geometrica per formato, mantenendo la stessa area di lavoro.
 
 La versione Python di riferimento, comprese le modifiche locali presenti prima
-della migrazione, è conservata nel tag `python-beta-reference`. Il branch `main`
-non viene sostituito durante questa preparazione. I file Python restano
-utilizzabili nel branch di migrazione.
+della migrazione, è conservata nel tag `python-beta-reference`. I file Python
+restano nel repository come riferimento; l'avvio della beta usa Rust.
 
 Da una shell con Rust e gli strumenti C++ Windows disponibili:
 
 ```powershell
-cargo build --workspace --locked
-cargo run -p stick-optimizer-desktop --locked
+cargo build --workspace --release --locked
+.\target\release\stick-optimizer-desktop.exe
 ```
 
 Il secondo comando apre la finestra «Stick Optimizer — Beta Rust».
+L'eseguibile incorpora le risorse e non richiede Python. In sviluppo è disponibile
+anche `cargo run -p stick-optimizer-desktop --release --locked`.
 Inizia con dati di esempio: modifica gli stick e i formati nella tabella
 gerarchica a sinistra, controlla i parametri da **Modifica** e premi
 **Calcola** a destra. **File** permette di creare uno studio vuoto
@@ -84,7 +87,7 @@ Applicazione desktop di supporto alla progettazione del trasferimento degli stic
 
 Il programma **non** valida la fattibilità produttiva: non modella cinematica, tempi ciclo, collisioni, dinamica del prodotto o capacità effettiva della macchina. Ogni soluzione richiede verifica ingegneristica.
 
-## Avvio rapido
+## Avvio Python di riferimento
 
 Richiede Python 3.10 o superiore, Tkinter disponibile nella distribuzione Python e [Pillow](https://pillow.readthedocs.io/) per le immagini della GUI.
 
