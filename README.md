@@ -2,6 +2,9 @@
 
 ## Migrazione Rust in corso
 
+Il passaggio a main è in preparazione. Stato delle verifiche e istruzioni
+per il collaudo Windows: [checklist della beta](docs/rust-beta-validation.md).
+
 La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
 (`crates/desktop`). Il passo 4 implementa il motore e il primo flusso reale:

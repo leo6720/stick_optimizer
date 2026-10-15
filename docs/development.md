@@ -1,5 +1,9 @@
 # Sviluppo e verifica
 
+Per chiudere la beta prima del passaggio a main seguire
+[la checklist di collaudo](rust-beta-validation.md): esiti cloud separati
+dalle prove native Windows, istruzioni per un profilo isolato e formato del resoconto.
+
 ## Workspace Rust sul branch di migrazione
 
 Il workspace contiene `stick-optimizer-core`, `stick-optimizer-io` e
