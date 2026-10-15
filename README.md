@@ -32,7 +32,11 @@ clic destro; eliminare uno stick richiede conferma per i formati associati. **Ag
 aggiunge un formato allo stick selezionato. Il punto e la virgola sono accettati come
 separatori decimali; quantità e conteggi richiedono interi positivi e MT almeno
 due canali. Dal menu **Modifica** sono disponibili geometria, giochi e gli otto
-pesi del punteggio. Il dialogo usa **Applica** e **Annulla**: i risultati vengono
+pesi del punteggio. Come in Python, **Modifica** apre cinque popup separati:
+**Pesi di calcolo**, **Numero di risultati**, **Obiettivo A/B astuccio**,
+**Dati astucciatrice** e **Dati aggiuntivi MT**. Gli ultimi due includono gli
+schemi originali; i canali MT restano nella sidebar. Ogni popup permette di
+ripristinare i propri valori predefiniti e usa **Applica** e **Annulla**: i risultati vengono
 invalidati solo dopo l'applicazione di parametri validi e diversi.
 **Annulla calcolo** interrompe il lavoro senza mostrare risultati
 parziali. La selezione di una soluzione popola i dettagli per formato, tipi di

@@ -320,3 +320,25 @@ scorrimento delle quote e riporto. La cattura del viewport verifica il layout,
 non sostituisce i test fisici dei selettori Windows o di più monitor/DPI.
 Le limitazioni residue di salvataggio e rappresentazione geometrica sono
 documentate in `rust-files.md`; schema e motore non vengono modificati.
+
+## Popup parametri separati (15 ottobre 2026)
+
+Il menu Modifica ripristina le cinque voci Python: Pesi di calcolo, Numero di
+risultati, Obiettivo A/B astuccio, Dati astucciatrice e Dati aggiuntivi MT.
+Ogni voce apre una finestra dedicata con i soli campi pertinenti. Astucciatrice
+e MT incorporano i rispettivi schemi originali. Applica usa la validazione
+esistente e invalida i risultati solo se i parametri cambiano; Annulla, Esc e
+la X scartano la bozza. Il ripristino del gruppo usa i predefiniti caricati,
+oppure quelli incorporati. Salvare preferenze rimane un'azione esplicita da
+Modifica. Nessun cambiamento a formule, motore o schema dei file.
+
+Verifica locale: `cargo fmt --all -- --check`, `cargo check --workspace
+--all-targets --all-features --locked`, `cargo clippy --workspace --all-targets
+--all-features --locked -- -D warnings`, `cargo test --workspace --all-features
+--locked` (47 test: 10 core, 31 desktop, 6 IO) e `cargo build --workspace
+--release --locked` superati. Incremental disabilitato per i permessi della
+cache locale; TEMP/TMP diretti a `work/test-temp` per isolare le prove dei file.
+Otto catture native controllate: cinque popup, menu Modifica, astucciatrice
+compatta e con zoom 150%. Gli eventi egui verificano apertura dal menu,
+validazione, applicazione e annullamento; restano le prove fisiche complete
+di mouse/tastiera e su più monitor/DPI.

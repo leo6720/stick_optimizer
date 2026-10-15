@@ -1,6 +1,6 @@
 param(
     [switch]$SkipBuild,
-    [string[]]$Modes = @('inputs', 'parameters', 'results', 'pockets', 'heads', 'detail', 'detail-compact', 'detail-scaled', 'detail-bottom', 'detail-carry', 'file-menu', 'edit-menu', 'filters', 'reopened', 'unsaved', 'file-error', 'no-candidates', 'no-common', 'compact', 'scaled', 'many')
+    [string[]]$Modes = @('inputs', 'parameters', 'parameters-weights', 'parameters-results', 'parameters-ab', 'parameters-mt', 'parameters-compact', 'parameters-scaled', 'results', 'pockets', 'heads', 'detail', 'detail-compact', 'detail-scaled', 'detail-bottom', 'detail-carry', 'file-menu', 'edit-menu', 'filters', 'reopened', 'unsaved', 'file-error', 'no-candidates', 'no-common', 'compact', 'scaled', 'many')
 )
 
 $ErrorActionPreference = 'Stop'

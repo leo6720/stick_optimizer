@@ -32,6 +32,11 @@ verificano clic sul testo di una soluzione, doppio clic sul formato corrisponden
 apertura esplicita ed Esc del popup, invalidazione dei dettagli obsoleti,
 Applica/Annulla con risultati esistenti, validazione prima di applicare,
 rimozione distinta di stick/formato, scorciatoie e rinomina senza ricalcolo.
+I cinque editor da Modifica sono testati tramite apertura dal menu, rifiuto di
+valori invalidi, Applica e Annulla; ogni applicazione conserva i campi estranei
+al popup. Il ripristino usa le preferenze caricate, oppure i valori incorporati,
+e modifica solo la bozza del gruppo. Il salvataggio dei predefiniti resta
+esplicito nel menu Modifica.
 La fase 5 verifica anche la riapertura con risultati, filtri e selezione,
 ID ricaricati, errori senza perdita dello studio corrente, modifiche durante
 la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
@@ -43,7 +48,7 @@ Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
 risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
 incorporati e non richiede Python durante i test o nell'eseguibile.
 
-Per verificare anche la funzione di anteprima e acquisire ventuno schermate native:
+Per verificare anche la funzione di anteprima e acquisire ventisette schermate native:
 
 ```powershell
 cargo check --workspace --all-targets --all-features --locked
@@ -71,6 +76,12 @@ selezione, scorrimento e conferme manuali; gli eventi sintetici non sostituiscon
 la verifica fisica di tastiera e monitor.
 Le catture non interagiscono con i selettori file Windows. Completare a mano
 apertura, annullamento, sovrascrittura, preferenze e chiusura con modifiche.
+
+Le viste `parameters`, `parameters-weights`, `parameters-results`,
+`parameters-ab` e `parameters-mt` mostrano i cinque popup separati;
+`parameters-compact` e `parameters-scaled` verificano quello astucciatrice
+in finestra compatta e con zoom al 150%. Le immagini incorporate vengono
+adattate al limite delle texture del dispositivo prima del caricamento.
 
 Le nuove istruzioni Rust prevalgono sui percorsi Python soltanto per i componenti Rust. Nessuna
 compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento

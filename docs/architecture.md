@@ -14,8 +14,11 @@ gestione dei lavori. Il passo 3 aggiunge una GUI egui/eframe in `desktop`:
 `draft.rs` mantiene bozze editabili e controlli sintattici (non fattibilità
 meccanica), `app.rs` gestisce la sidebar e l'area di output simultanee.
 La disposizione riprende `gui/app.py`: Dati MT e input gerarchici a sinistra;
-Migliori Soluzioni e Dettagli Soluzione Selezionata a destra; parametri in una
-finestra da Modifica. Le immagini originali MT e dimensioni stick sono incorporate
+Migliori Soluzioni e Dettagli Soluzione Selezionata a destra; parametri in
+cinque finestre separate da Modifica (pesi, numero risultati, obiettivo A/B,
+astucciatrice e dati aggiuntivi MT). `app/parameters.rs` presenta solo i campi
+del gruppo scelto e applica quel gruppo ai parametri correnti dopo la validazione
+del core, preservando gli altri campi. Le immagini originali MT e dimensioni stick sono incorporate
 nell'eseguibile e decodificate una sola volta all'avvio. Colori e gerarchia
 visiva seguono `ui-design.md`; non ci sono pagine separate per input/output.
 Gli ID di stick e formati sono indipendenti dai nomi modificabili. La rimozione

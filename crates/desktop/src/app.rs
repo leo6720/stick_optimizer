@@ -7,10 +7,12 @@ use stick_optimizer_core::{
     SearchControl, SearchError, SearchLimits, SearchReport, Solution, optimize,
 };
 
-use crate::draft::{StudyDraft, parse_decimal};
+use crate::draft::StudyDraft;
 mod details;
 mod files;
+mod parameters;
 use files::FileAction;
+use parameters::ParameterEditor;
 use stick_optimizer_io::{Range, ViewState};
 
 const ACCENT: Color32 = Color32::from_rgb(181, 31, 32);
@@ -70,6 +72,7 @@ impl Drop for SearchJob {
 pub struct PrototypeApp {
     study: StudyDraft,
     parameters_open: bool,
+    parameter_editor: ParameterEditor,
     parameters_draft: Option<crate::draft::Parameters>,
     parameters_error: Option<String>,
     detail_popup: Option<(usize, u64)>,
@@ -78,6 +81,8 @@ pub struct PrototypeApp {
     selected_stick: Option<u64>,
     selected_input: Option<InputSelection>,
     mt_image: Option<egui::TextureHandle>,
+    mt_extra_image: Option<egui::TextureHandle>,
+    cartoner_image: Option<egui::TextureHandle>,
     stick_image: Option<egui::TextureHandle>,
     results: Vec<ResultRow>,
     selected: Option<usize>,
@@ -104,6 +109,7 @@ impl Default for PrototypeApp {
         Self {
             study: StudyDraft::example(),
             parameters_open: false,
+            parameter_editor: ParameterEditor::default(),
             parameters_draft: None,
             parameters_error: None,
             detail_popup: None,
@@ -112,6 +118,8 @@ impl Default for PrototypeApp {
             selected_stick: None,
             selected_input: None,
             mt_image: None,
+            mt_extra_image: None,
+            cartoner_image: None,
             stick_image: None,
             results: Vec::new(),
             selected: None,
@@ -174,6 +182,16 @@ impl PrototypeApp {
                 ctx,
                 "mt_diagram",
                 include_bytes!("../../../img/dati_mt.jpg"),
+            ),
+            mt_extra_image: load_diagram(
+                ctx,
+                "mt_extra_diagram",
+                include_bytes!("../../../img/dati_mt_menu.jpg"),
+            ),
+            cartoner_image: load_diagram(
+                ctx,
+                "cartoner_diagram",
+                include_bytes!("../../../img/dati_astucciatrice.jpg"),
             ),
             stick_image: load_diagram(
                 ctx,
@@ -243,8 +261,21 @@ impl PrototypeApp {
                 app.study.sticks[1].width = "52,5".into();
                 app.start_search();
             }
-            Ok("parameters") => {
-                app.parameters_open = true;
+            Ok(
+                mode @ ("parameters" | "parameters-weights" | "parameters-results"
+                | "parameters-ab" | "parameters-mt" | "parameters-compact"
+                | "parameters-scaled"),
+            ) => {
+                if mode == "parameters-scaled" {
+                    ctx.set_zoom_factor(1.5);
+                }
+                app.open_parameter_editor(match mode {
+                    "parameters-weights" => ParameterEditor::Weights,
+                    "parameters-results" => ParameterEditor::ResultCount,
+                    "parameters-ab" => ParameterEditor::AbTarget,
+                    "parameters-mt" => ParameterEditor::Mt,
+                    _ => ParameterEditor::Cartoner,
+                });
             }
             Ok("scaled") => {
                 ctx.set_zoom_factor(1.5);
@@ -554,10 +585,13 @@ impl PrototypeApp {
                         );
                     }
                     let _edit_menu = ui.menu_button("Modifica", |ui| {
-                        if ui.button("Parametri astucciatrice e ricerca…").clicked() {
-                            self.parameters_open = true;
-                            ui.close();
+                        for editor in ParameterEditor::ALL {
+                            if ui.button(editor.title()).clicked() {
+                                self.open_parameter_editor(editor);
+                                ui.close();
+                            }
                         }
+                        ui.separator();
                         if ui.button("Salva parametri come predefiniti").clicked() {
                             self.file_action = Some(FileAction::Preferences);
                             ui.close();
@@ -952,173 +986,6 @@ Dimensioni in mm",
                 .small()
                 .color(MUTED),
         );
-        changed
-    }
-
-    fn parameters_window(&mut self, ctx: &egui::Context) {
-        if !self.parameters_open {
-            self.parameters_draft = None;
-            self.parameters_error = None;
-            return;
-        }
-        let mut draft = self
-            .parameters_draft
-            .take()
-            .unwrap_or_else(|| self.study.parameters.clone());
-        let mut open = true;
-        let mut apply = false;
-        let mut cancel = false;
-        egui::Window::new("Parametri astucciatrice e ricerca")
-            .id(Id::new("parameters_window"))
-            .open(&mut open)
-            .default_width(540.0)
-            .default_height((ctx.content_rect().height() - 120.0).clamp(280.0, 660.0))
-            .min_size(egui::vec2(300.0, 240.0))
-            .default_pos(ctx.content_rect().center() - egui::vec2(280.0, 260.0))
-            .collapsible(false)
-            .show(ctx, |ui| {
-                egui::ScrollArea::both()
-                    .max_height(
-                        (ui.available_height()
-                            - if self.parameters_error.is_some() {
-                                110.0
-                            } else {
-                                50.0
-                            })
-                        .clamp(100.0, 480.0),
-                    )
-                    .show(ui, |ui| {
-                        Self::parameters(ui, &mut draft);
-                    });
-                if let Some(error) = &self.parameters_error {
-                    ui.colored_label(ACCENT, error);
-                }
-                ui.separator();
-                ui.horizontal(|ui| {
-                    cancel = ui.button("Annulla").clicked();
-                    apply = ui
-                        .add(
-                            egui::Button::new(RichText::new("Applica").color(Color32::WHITE))
-                                .fill(ACCENT),
-                        )
-                        .clicked();
-                });
-                cancel |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
-            });
-        // Channels are edited in the sidebar, not in this dialog.
-        draft.channels.clone_from(&self.study.parameters.channels);
-        if apply && self.apply_parameters(&draft) {
-            open = false;
-        }
-        self.parameters_open = open && !cancel;
-        if self.parameters_open {
-            self.parameters_draft = Some(draft);
-        } else {
-            self.parameters_error = None;
-        }
-    }
-
-    fn apply_parameters(&mut self, draft: &crate::draft::Parameters) -> bool {
-        let mut check = StudyDraft::example();
-        check.parameters = draft.clone();
-        if let Err(errors) = check.to_study() {
-            self.parameters_error = Some(errors.join("; "));
-            return false;
-        }
-        if self.study.parameters != *draft {
-            self.study.parameters = draft.clone();
-            self.invalidate_results();
-        }
-        true
-    }
-
-    fn parameters(ui: &mut egui::Ui, parameters: &mut crate::draft::Parameters) -> bool {
-        let mut changed = false;
-        ui.heading(RichText::new("Parametri dello studio").color(ACCENT));
-        ui.label(RichText::new("Geometria e vincoli applicati alla ricerca.").color(MUTED));
-        ui.add_space(8.0);
-        let grid_width = ui.available_width().max(460.0);
-        egui::ScrollArea::horizontal()
-            .id_salt("parameters_horizontal")
-            .show(ui, |ui| {
-                ui.set_width(grid_width);
-                egui::Grid::new("parameters")
-                    .num_columns(3)
-                    .spacing([16.0, 6.0])
-                    .show(ui, |ui| {
-                        let p = &mut *parameters;
-                        for (label, value, unit) in [
-                            ("Offset massimo stick", &mut p.offset, "mm"),
-                            ("Passo massimo astucciatrice", &mut p.max_pitch, "mm"),
-                            ("Incremento del passo", &mut p.pitch_step, "mm"),
-                            (
-                                "Limite massimo di strati",
-                                &mut p.max_layers,
-                                "vuoto = nessun limite",
-                            ),
-                            ("Rapporto A/B desiderato", &mut p.ab_target, "rapporto"),
-                            ("Numero di risultati", &mut p.result_count, "risultati"),
-                            ("Spessore divisore", &mut p.divider_width, "mm"),
-                            ("Spessore parete cassetto", &mut p.wall_width, "mm"),
-                            ("Gioco tra stick", &mut p.adjacent_clearance, "mm"),
-                            ("Gioco parete/divisore", &mut p.wall_clearance, "mm"),
-                            ("Extra quota B", &mut p.carton_b_extra, "mm"),
-                        ] {
-                            let label_response = ui.label(label);
-                            changed |= ui
-                                .add(
-                                    TextEdit::singleline(value)
-                                        .id(Id::new(("param", label)))
-                                        .desired_width(100.0),
-                                )
-                                .labelled_by(label_response.id)
-                                .changed();
-                            ui.label(RichText::new(unit).small().color(MUTED));
-                            ui.end_row();
-                        }
-                    });
-            });
-        ui.add_space(10.0);
-        ui.heading(RichText::new("Pesi del punteggio").color(ACCENT));
-        ui.label("Valori non negativi. Il filtro Pareto mantiene le sue sette metriche; i pesi ordinano le soluzioni.");
-        egui::Grid::new("weights").show(ui, |ui| {
-            for (label, value) in [
-                "Tipi cassetto",
-                "Tipi testa robot",
-                "Strati",
-                "Riporto",
-                "Raggruppamento",
-                "Stabilità",
-                "Passo astucciatrice",
-                "Rapporto A/B",
-            ]
-            .into_iter()
-            .zip(&mut parameters.weights)
-            {
-                ui.label(label);
-                changed |= ui
-                    .add(
-                        TextEdit::singleline(value)
-                            .id(Id::new(("weight", label)))
-                            .desired_width(100.0),
-                    )
-                    .changed();
-                ui.end_row();
-            }
-        });
-        if ui.button("Ripristina pesi incorporati").clicked() {
-            parameters.weights = stick_optimizer_core::Weights::default()
-                .values()
-                .map(|v| v.to_string());
-            changed = true;
-        }
-        if let Ok(ratio) = parse_decimal(&parameters.ab_target) {
-            ui.label(
-                RichText::new(format!("Rapporto A/B inserito: {}", format_number(ratio)))
-                    .small()
-                    .color(MUTED),
-            );
-        }
         changed
     }
 
@@ -1634,7 +1501,14 @@ fn table_text(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, stron
 }
 
 fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::TextureHandle> {
-    let image = image::load_from_memory(bytes).ok()?.to_rgba8();
+    let decoded = image::load_from_memory(bytes).ok()?;
+    let limit = ctx.input(|i| i.max_texture_side) as u32;
+    let image = if decoded.width() > limit || decoded.height() > limit {
+        decoded.thumbnail(limit, limit)
+    } else {
+        decoded
+    }
+    .to_rgba8();
     let size = [image.width() as usize, image.height() as usize];
     Some(ctx.load_texture(
         name,
@@ -1746,6 +1620,78 @@ mod tests {
         app.study.sticks[0].width = "27".into();
         app.invalidate_results();
         assert!(app.detail_popup.is_none());
+    }
+
+    #[test]
+    fn separate_parameter_editors_validate_apply_and_cancel() {
+        for editor in ParameterEditor::ALL {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            calculate(&mut app);
+            let before = app.study.parameters.clone();
+            app.open_parameter_editor(editor);
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            text_position(&output, editor.title(), 0.0);
+            let set_value = |p: &mut crate::draft::Parameters, value: &str| match editor {
+                ParameterEditor::Weights => p.weights[0] = value.into(),
+                ParameterEditor::ResultCount => p.result_count = value.into(),
+                ParameterEditor::AbTarget => p.ab_target = value.into(),
+                ParameterEditor::Cartoner => p.pitch_step = value.into(),
+                ParameterEditor::Mt => p.offset = value.into(),
+            };
+            set_value(app.parameters_draft.as_mut().unwrap(), "-1");
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+            assert!(
+                app.parameters_open && app.parameters_error.is_some(),
+                "{editor:?}: open={}, error={:?}",
+                app.parameters_open,
+                app.parameters_error
+            );
+            assert_eq!(app.study.parameters, before);
+            assert_eq!(app.results.len(), 16);
+
+            let value = if editor == ParameterEditor::ResultCount {
+                "7"
+            } else {
+                "2,5"
+            };
+            set_value(app.parameters_draft.as_mut().unwrap(), value);
+            // A popup must not overwrite changes to unrelated fields in the workspace.
+            app.study.parameters.channels = "10".into();
+            let mut expected = before.clone();
+            expected.channels = "10".into();
+            set_value(&mut expected, value);
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+            assert!(!app.parameters_open, "{editor:?}");
+            assert_eq!(app.study.parameters, expected);
+            assert!(app.results.is_empty() && app.dirty);
+
+            app.open_parameter_editor(editor);
+            set_value(app.parameters_draft.as_mut().unwrap(), "99");
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Annulla", 0.0));
+            assert!(!app.parameters_open);
+            assert_eq!(app.study.parameters, expected);
+        }
+    }
+
+    #[test]
+    fn edit_menu_opens_each_python_parameter_popup() {
+        for editor in ParameterEditor::ALL {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Modifica", 0.0));
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, editor.title(), 0.0));
+            assert!(app.parameters_open);
+            assert_eq!(app.parameter_editor, editor);
+        }
     }
 
     #[test]

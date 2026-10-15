@@ -17,7 +17,7 @@ generica che consentiva una riprogettazione dell'interfaccia.
   geometrica nello stesso popup, come nel riferimento Python. La grafica non
   occupa una scheda separata. Il pulsante Apri dettaglio offre la stessa azione.
 - Menu File per cambiare, aprire/salvare studi ed esportare CSV; Modifica per
-  la finestra dei parametri e i predefiniti. Filtri apre gli intervalli per
+  i cinque popup dei parametri e i predefiniti. Filtri apre gli intervalli per
   le cinque colonne senza sostituire input o output.
   L'apertura dei parametri e la visualizzazione dei risultati conservano il
   contesto della sidebar. Gli input non diventano una scheda alternativa.
@@ -70,7 +70,7 @@ alle proporzioni del disegno. File mostra le scorciatoie e raggruppa i CSV.
 | Flusso | Stato Rust |
 | --- | --- |
 | Stick e formati gerarchici, aggiunta/rimozione | Presente; rimozione esplicita e menu contestuale |
-| Parametri MT, astucciatrice, otto pesi, numero risultati e A/B | Presenti; editor unico con Applica/Annulla |
+| Parametri MT, astucciatrice, otto pesi, numero risultati e A/B | Cinque popup separati da Modifica come in Python, con Applica/Annulla e ripristino del gruppo |
 | Calcolo, Pareto, ordine e filtro una testa | Presenti, risultati reali e annullamento del worker |
 | Dettagli formati, cassetti e teste | Presenti; grouping 1 escluso dal conteggio teste |
 | Popup formato con quote e disegno | Ripristinato; anche riporto, stabilità e penalità |
