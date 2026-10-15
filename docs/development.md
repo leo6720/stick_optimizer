@@ -156,3 +156,10 @@ Questo controllo è uno smoke test del percorso principale, non una copertura co
 3. Cercare tutti gli usi del campo in `gui/`, `project_io.py`, `export.py` e nei dati di esempio.
 4. Eseguire uno smoke test con soluzione presente e casi mirati per la modifica; per la GUI, provare manualmente il flusso interessato.
 5. Aggiornare README e documentazione tecnica con comportamento e limiti reali. Riportare verifiche non eseguite.
+
+## Workflow con Linear
+
+Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
+Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
+Per vedere i controlli Rust: `python scripts/check.py --plan`.
+Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.

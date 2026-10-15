@@ -83,3 +83,15 @@ Prima di modificare il codice, leggere `README.md`, `docs/architecture.md` e la 
 ## Documentazione
 
 Aggiornare `README.md` per installazione e uso; `docs/architecture.md` per flusso, formule e limiti; `docs/development.md` per workflow, verifica e formati dei file. Documentare il comportamento implementato, segnalando separatamente idee o correzioni future.
+
+## Agent skills
+
+Workflow cloud e PC: [docs/agents/workflow.md](docs/agents/workflow.md).
+Le skill locali sono in `.agents/skills/<nome>/SKILL.md`; se il client non le
+rileva, leggere il file su richiesta. Non presumere disponibilità di slash command.
+Tracker: Linear, workspace leochist, team Leochist (LEO), progetto Stick Optimizer.
+Leggere [issue-tracker.md](docs/agents/issue-tracker.md) prima di usare Linear e
+[triage-labels.md](docs/agents/triage-labels.md) per le etichette.
+Dominio: [GLOSSARY.md](GLOSSARY.md) e [domain.md](docs/agents/domain.md).
+In revisione leggere anche [CODING_STANDARDS.md](CODING_STANDARDS.md).
+Verifiche: `python scripts/check.py --plan`; istruzioni e limiti nel workflow.

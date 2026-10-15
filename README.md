@@ -69,6 +69,12 @@ Vedere [il piano](docs/rust-migration.md) e
 [le istruzioni di sviluppo](docs/development.md) per fasi e verifiche,
 [il riferimento UI](docs/ui-design.md) per disposizione e stile.
 
+## Workflow di sviluppo
+
+Attività su [Linear — Stick Optimizer](https://linear.app/leochist/project/stick-optimizer-196bf9721c91),
+codice e PR su GitHub. [Workflow e skill locali](docs/agents/workflow.md)
+descrivono uso cloud/PC, specifiche, ticket, test e revisione.
+
 ## Versione Python di riferimento
 
 Applicazione desktop di supporto alla progettazione del trasferimento degli stick dalla macchina stickpack (MT) all'astucciatrice. Cerca configurazioni geometricamente ammissibili per più formati commerciali e preferisce quelle che condividono cassetti e teste robot, riducendo penalità di strati, riporto, raggruppamento, stabilità e rapporto A/B dell'astuccio.
