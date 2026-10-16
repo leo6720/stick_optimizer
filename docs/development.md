@@ -93,12 +93,11 @@ Le nuove istruzioni Rust prevalgono sui percorsi Python soltanto per i component
 compatibilità con vecchi `.sop` è richiesta. Per preservare il comportamento
 tecnico leggere anche `docs/architecture.md` e `docs/rust-migration.md`.
 
-Le PR intermedie della migrazione usano base `rust-rewrite`. La PR cumulativa
-#17 già aperta prepara invece il passaggio intenzionale a `main`; non cambiare
-automaticamente la base delle PR precedenti. Dopo l'integrazione, verificare
-le istruzioni di branch rispetto al nuovo stato del repository prima di iniziare
-altro lavoro. Le attività successive rispettano dipendenze e traguardi del piano;
-il merge resta una decisione umana. Non usare il vecchio launcher.
+La PR cumulativa #17 porta la beta Rust su `main`, includendo le PR #12–#16.
+Le nuove attività partono da `main` aggiornato, con branch dedicati e PR verso
+`main`; `rust-rewrite` resta storico. Le attività successive rispettano
+criteri e dipendenze dei ticket Linear. Il merge richiede una richiesta
+esplicita dell'utente; non usare il vecchio launcher.
 
 ## Sviluppo della versione Python di riferimento
 

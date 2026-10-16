@@ -2,12 +2,12 @@
 
 ## Beta Rust
 
-L'applicazione da usare è la beta desktop Rust. Il passaggio a `main` è
-preparato dalla PR #17; il 15 ottobre 2026 l'utente ha accettato la beta dopo
-le verifiche locali Windows, accettando anche le prove manuali residue.
+L'applicazione da usare è la beta desktop Rust su `main`, integrata tramite
+PR #17. L'utente ha accettato la beta dopo le verifiche locali Windows e ha
+confermato di procedere con le prove manuali residue rinviate.
 Esiti effettivi e limiti: [verbale della beta](docs/rust-beta-validation.md).
 
-La migrazione ha base sul branch `rust-rewrite` e contiene un workspace con tre
+La migrazione è stata sviluppata su `rust-rewrite`; `main` contiene ora il workspace con tre
 componenti: motore (`crates/core`), salvataggi (`crates/io`) e applicazione
 (`crates/desktop`). Il passo 4 implementa il motore e il primo flusso reale:
 stick e formati modificabili, geometria, pesi, ricerca in background,

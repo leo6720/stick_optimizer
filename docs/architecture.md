@@ -2,7 +2,7 @@
 
 ## Struttura Rust e prova GUI
 
-Il branch `rust-rewrite` contiene un workspace Cargo con tre componenti:
+La beta Rust su `main` contiene un workspace Cargo con tre componenti:
 
 ```text
 desktop -> io -> core

@@ -1,11 +1,11 @@
 # Stick Optimizer: piano e specifica della beta Rust
 
-Stato: fasi 1–5 implementate, con motore reale, studi, preferenze, CSV e sezioni
-geometriche. La PR cumulativa #17 (`codex/leo-12-rust-main-validation`)
-prepara il passaggio a main e include le PR #12–#16. Controlli Windows completi
-superati; beta accettata dall'utente con prove manuali residue esplicitamente
-accettate. Le PR restano da integrare; nessun merge automatico.
-Data: 15 ottobre 2026. Esiti: [verbale beta](rust-beta-validation.md).
+Stato: beta Rust su `main` tramite PR cumulativa #17, che include le PR #12–#16.
+Motore, GUI, studi, preferenze, CSV e sezioni geometriche sono implementati.
+Controlli Windows completi superati; l'utente accetta le prove manuali residue
+non eseguite e dispone di proseguire, gestendo eventuali bug in seguito.
+Le nuove attività e PR hanno base `main`.
+Data: 16 ottobre 2026. Esiti: [verbale beta](rust-beta-validation.md).
 
 ## Obiettivo e decisioni concordate
 
@@ -134,16 +134,16 @@ avanzate arrivano dopo questo percorso completo minimo.
 
 ## Git, PR e automazione
 
-Il branch di migrazione è `rust-rewrite`. AGENTS.md e il prompt
-dell'automazione sono stati adattati alle verifiche Rust e alle PR verso quel
-branch nella fase 2. L'automazione mantiene la cadenza di 3 ore e rispetta
-dipendenze e criteri di accettazione delle issue pronte.
+Il lavoro di migrazione è stato sviluppato su `rust-rewrite`; la PR cumulativa
+#17 ne porta i commit su `main` per decisione dell'utente. Per le nuove attività
+usare branch dedicati da main e PR verso main, con ticket Linear e criteri
+verificabili. Le sezioni successive conservano il resoconto storico delle fasi.
 
-Preparare issue piccole con dipendenze e criteri di accettazione; una PR per
-attività coerente verso il branch di migrazione. L'automazione non decide da
-sola nuove formule fisiche e non esegue merge o deploy. Il branch principale
-diventa Rust solo dopo la verifica della beta; evitare una PR unica per tutta
-la riscrittura.
+Le eventuali automazioni configurate durante la migrazione sono separate dalle
+istruzioni del repo: questa integrazione non cambia job, cadenze o prompt esterni.
+Prima di riutilizzarle verificare il target effettivo; non presumere che siano
+state aggiornate a main. Nessun merge o deploy è autorizzato dal solo stato
+ready-for-agent di un ticket.
 
 ## Stato operativo della fase 1
 

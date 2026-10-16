@@ -2,7 +2,9 @@
 
 Attività: LEO-12. Data: 15 ottobre 2026.
 Stato: controlli Windows completati; beta accettata dall'utente il 15 ottobre
-2026 con accettazione esplicita delle prove manuali residue. Merge non eseguito.
+2026 con accettazione esplicita delle prove manuali residue. Il 16 ottobre
+l'utente conferma di procedere senza le prove mancanti; passaggio a main tramite
+PR #17. Le prove non eseguite restano tali, non diventano PASS.
 
 ## Esiti locali Windows e accettazione
 
@@ -229,5 +231,6 @@ di questa beta e non vanno implementate per chiudere il collaudo.
 Prima del merge verificare che head e main non siano cambiati; aggiornare
 istruzioni e README al passaggio effettivo a Rust e indicare l'avvio predefinito.
 Il vecchio Python resta preservato nella cronologia e nel tag di riferimento.
-Le PR #12–#16 non sono state integrate o chiuse da questa attività; il pacchetto
-di collaudo ne contiene i commit e documenta il successivo passaggio cumulativo.
+La PR cumulativa #17 include i commit delle PR #12–#16. Dopo il merge,
+verificare l'inclusione delle rispettive head e chiudere le proposte precedenti
+come integrate tramite #17, senza un secondo merge o cancellazione dei branch.

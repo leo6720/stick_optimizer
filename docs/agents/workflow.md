@@ -56,7 +56,8 @@ Le prove native Windows restano quelle di docs/development.md; non dichiararle
 superate da un cloud privo di desktop. Non cambiare toolchain per aggirare
 problemi di rete o dipendenze: registrarli come blocchi.
 
-Le PR mantengono base rust-rewrite. LEO-5 parte dalla baseline
+Dopo il passaggio della beta con PR #17, le nuove attività e PR usano main
+come base. rust-rewrite resta storico. LEO-5 parte dalla baseline
 codex/ui-refinements a3d62ef: il diff della sola configurazione va revisionato
 contro quello SHA, distinto dal diff complessivo della migrazione.
 L'integrazione GitHub–Linear e gli eventuali job ogni tre ore già documentati

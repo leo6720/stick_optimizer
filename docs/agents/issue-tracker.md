@@ -5,7 +5,8 @@
 - Team: Leochist, chiave LEO, UUID e93e7bef-869c-49c7-b8ea-c4d34fd34992.
 - Progetto: [Stick Optimizer](https://linear.app/leochist/project/stick-optimizer-196bf9721c91).
 - Progetto UUID: 28c4112e-b260-4ccd-9480-77da5dd48eb2.
-- Repository: leo6720/stick_optimizer. Base delle PR Rust: rust-rewrite.
+- Repository: leo6720/stick_optimizer. Base delle nuove PR: main.
+- La migrazione Rust è integrata tramite PR #17; rust-rewrite è storico.
 - Configurazione introdotta con LEO-5.
 
 ## Selezione e accesso

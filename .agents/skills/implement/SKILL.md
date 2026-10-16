@@ -9,8 +9,8 @@ Adattamento locale per Stick Optimizer. Riferimento: docs/agents/workflow.md.
 
 Leggere AGENTS.md, il ticket completo e docs/agents/issue-tracker.md.
 Dichiarare titolo, criteri, dipendenze e baseline Git verificata prima di editare.
-Non lavorare per errore su main Python; preservare modifiche dell'utente.
-Usare un branch dedicato con ID LEO e mantenere base PR rust-rewrite.
+Partire da main aggiornato (beta Rust); preservare modifiche dell'utente.
+Usare un branch dedicato con ID LEO e base PR main.
 Portare il ticket In Progress. Applicare tdd per comportamento e bug.
 Usare controlli proporzionati per documentazione o modifiche cosmetiche.
 Eseguire prove mirate durante il lavoro e controlli pertinenti alla consegna.

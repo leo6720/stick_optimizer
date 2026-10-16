@@ -2,8 +2,9 @@
 
 ## Migrazione Rust: istruzioni prevalenti per il nuovo codice
 
-La riscrittura è sul branch `rust-rewrite`; `python-beta-reference` conserva
-lo stato Python iniziale. Leggere anche `docs/rust-migration.md` prima di
+La versione di sviluppo è la beta Rust su `main`, integrata tramite PR #17.
+`rust-rewrite` conserva il percorso storico della migrazione;
+`python-beta-reference` conserva lo stato Python iniziale. Leggere anche `docs/rust-migration.md` prima di
 lavorare. Il workspace Rust ha tre componenti: `crates/core` (dominio e ricerca),
 `crates/io` (file e preferenze) e `crates/desktop` (GUI). Il passo 4 implementa
 dominio, validazione e ricerca esatta in `core`, collegati alla GUI egui/eframe.
@@ -19,7 +20,8 @@ CSV, filtri e sezioni geometriche. Leggere anche `docs/rust-engine.md` e
 - Per lo stile seguire `docs/ui-design.md`: riferimento Marchesini Group,
   rosso/bianco/grigi, mantenendo la gerarchia funzionale Python e i suoi schemi.
 
-- Le PR della migrazione hanno base `rust-rewrite`, mai `main` automaticamente.
+- Le nuove attività partono da `main` aggiornato e aprono PR verso `main`.
+  Usare branch dedicati con ID Linear; i vecchi branch della migrazione sono storici.
 - Il core non dipende dalla GUI o dai formati di file; la GUI non ricalcola
   formule, metriche o vincoli fisici.
 - Nessuna compatibilità richiesta con vecchi `.sop`, CSV o preferenze. Per
@@ -45,11 +47,11 @@ nuova app Rust, secondo l'indicazione esplicita dell'utente.
 
 ## Contesto
 
-Questo repository contiene un'app desktop Tkinter per confrontare configurazioni geometriche di trasferimento degli stick dalla macchina stickpack all'astucciatrice. Il codice produce candidati per ciascun formato, combina quelli con lo stesso passo astucciatrice, applica un filtro Pareto e ordina le soluzioni con un punteggio pesato. È uno strumento di supporto alla progettazione: una soluzione calcolata richiede comunque verifica meccanica e di processo.
+Questo repository contiene un'app desktop Rust per confrontare configurazioni geometriche di trasferimento degli stick dalla macchina stickpack all'astucciatrice. Il codice Python/Tkinter resta come riferimento storico. Il codice produce candidati per ciascun formato, combina quelli con lo stesso passo astucciatrice, applica un filtro Pareto e ordina le soluzioni con un punteggio pesato. È uno strumento di supporto alla progettazione: una soluzione calcolata richiede comunque verifica meccanica e di processo.
 
 Prima di modificare il codice, leggere `README.md`, `docs/architecture.md` e la sezione pertinente di `docs/development.md`. Le istruzioni valgono per l'intero repository. Le istruzioni esplicite dell'utente prevalgono.
 
-## Mappa del codice
+## Mappa del codice Python di riferimento
 
 - `models.py`: dataclass di input, candidati e soluzioni.
 - `defaults.py`: costanti, configurazioni ammesse e dati dimostrativi incorporati.
