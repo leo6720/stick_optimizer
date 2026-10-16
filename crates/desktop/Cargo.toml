@@ -1,0 +1,21 @@
+[package]
+name = "stick-optimizer-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+stick-optimizer-core.workspace = true
+stick-optimizer-io.workspace = true
+eframe.workspace = true
+egui_extras.workspace = true
+image = { version = "=0.25.10", default-features = false, features = ["jpeg"] }
+rfd = "=0.15.4"
+
+[features]
+# Native viewport screenshots, enabled only for local visual QA.
+ui-preview = ["image/png"]
+
+[lints]
+workspace = true
