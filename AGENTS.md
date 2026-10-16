@@ -89,6 +89,9 @@ Aggiornare `README.md` per installazione e uso; `docs/architecture.md` per fluss
 ## Agent skills
 
 Workflow cloud e PC: [docs/agents/workflow.md](docs/agents/workflow.md).
+Per le issue accettate e pronte è autorizzato il flusso asincrono descritto in
+[async-workflow.md](docs/agents/async-workflow.md): un ticket alla volta,
+implementazione, test e revisori separati, senza merge o deploy.
 Le skill locali sono in `.agents/skills/<nome>/SKILL.md`; se il client non le
 rileva, leggere il file su richiesta. Non presumere disponibilità di slash command.
 Tracker: Linear, workspace leochist, team Leochist (LEO), progetto Stick Optimizer.

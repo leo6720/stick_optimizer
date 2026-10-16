@@ -28,7 +28,9 @@ template in docs/agents/templates/ticket.md. Prima di crearli cercare duplicati.
 Usare relazioni native blockedBy e parentId, dopo aver risolto gli UUID reali;
 non dedurre UUID da identificativi LEO-N e non modificare i blocchi già presenti
 senza averli letti. Un ticket può partire solo se i suoi blocchi sono risolti.
-L'etichetta ready-for-agent da sola non basta.
+L'etichetta ready-for-agent da sola non basta: per la presa asincrona servono
+stato Todo, sezione Definizione accettata e dipendenze risolte.
+Seguire docs/agents/async-workflow.md per presa, checkpoint e revisione.
 
 Gli stati attuali sono Backlog, Todo, In Progress, In Review, Done, Canceled
 e Duplicate. Rileggerli prima delle scritture: i nomi possono cambiare.
