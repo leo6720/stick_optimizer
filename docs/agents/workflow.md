@@ -5,6 +5,13 @@ non l'installazione integrale delle skill di Matt Pocock né una trascrizione
 del video. Riferimento consultato:
 https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb035946536778336
 
+## Avvio asincrono
+
+Dopo il grill e l'accettazione della definizione, Todo + ready-for-agent
+avviano sviluppo e revisione autonoma tramite il runner orario.
+Protocollo, ruoli, checkpoint e limiti in [async-workflow.md](async-workflow.md).
+Il merge resta manuale; nessuna issue viene resa pronta automaticamente.
+
 ## Uso quotidiano
 
 Aggiungi in Linear un'idea, un bug o un esempio nel progetto Stick Optimizer.
