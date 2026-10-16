@@ -37,4 +37,4 @@ implicita del merge.>
 ## Esecuzione asincrona Stick Optimizer
 
 <Compilato dal runner alla presa: fase, baseline SHA, branch, head, PR,
-test eseguiti, rilievi aperti e prossima azione.>
+test eseguiti, rilievi aperti, numero dei cicli di revisione e prossima azione.>

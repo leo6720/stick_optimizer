@@ -50,9 +50,13 @@ Ordine: priorità Linear, poi anzianità tra le issue eseguibili.
 Prima della presa rileggere stato e relazioni, cercare branch/PR con l'ID e
 portare In Progress. Usare il branch deterministico codex/leo-N-async e una
 sezione del ticket **Esecuzione asincrona Stick Optimizer** contenente:
-fase, baseline SHA, branch, head, PR, test realmente eseguiti, revisioni e
-prossima azione. Non prendere attività di altri processi e non sovrascrivere
+fase, baseline SHA, branch, head, PR, test realmente eseguiti, revisioni,
+numero dei cicli di revisione e prossima azione. Non prendere attività di altri processi e non sovrascrivere
 una presa concorrente o ambigua: segnalarla.
+Controllare anche issue In Progress prive del checkpoint completo: un'interruzione
+può avvenire tra il cambio di stato e la scrittura. Ricostruire il checkpoint
+solo se branch, PR ed evidenze identificano la presa di questo runner; altrimenti
+segnalare l'anomalia senza appropriarsi del lavoro di altri processi.
 Il solo cambio di stato non è un lock atomico: non promettere garanzia exactly-once.
 Rilettura e controllo di branch/PR riducono i duplicati, senza sostituire un lock.
 
@@ -70,8 +74,9 @@ Test-first dove pertinente, controlli proporzionati per documentazione e UI.
 Dopo l'implementazione fissare baseline e head e passare il diff a due revisori
 separati: specifica e standard. Correggere autonomamente difetti concreti,
 rieseguire i controlli interessati e ripetere la revisione sul nuovo head.
-Dopo tre cicli senza risoluzione, o se serve cambiare il contratto, registrare
-il blocco con evidenze. Non modificare la specifica per far passare il codice.
+Conservare il numero dei cicli nel checkpoint e ricostruirlo dai resoconti se
+incompleto, senza azzerarlo a ogni esecuzione oraria. Dopo tre cicli senza
+risoluzione, o se serve cambiare il contratto, registrare il blocco con evidenze. Non modificare la specifica per far passare il codice.
 
 Una sola PR verso main per attività, aggiornata alle successive esecuzioni.
 Con verifiche e revisioni concluse passare In Review, togliere ready-for-agent
