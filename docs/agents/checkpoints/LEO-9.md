@@ -1,48 +1,70 @@
 # Esecuzione asincrona Stick Optimizer — LEO-9
 
-Ticket e definizione accettata il 16 ottobre 2026:
+Definizione accettata con l’utente il 16 ottobre 2026:
 https://linear.app/leochist/issue/LEO-9/mostrare-una-barra-di-avanzamento-durante-il-calcolo-delle-soluzioni
 
 - Runner: Codex cloud, 17 ottobre 2026.
 - Baseline main: `05f6f1e58d8d21a9de49dbb2b95f7774a6584470`.
-- Branch: `codex/leo-9-async`; PR verso `main`, da pubblicare.
-- Fase: implementazione e regressioni completate; controlli finali e revisione.
-- Head: commit contenente questo checkpoint, da risolvere con `git rev-parse HEAD`.
-- Cicli di revisione: 0 completati; prima coppia di revisioni da eseguire.
-- Rilievi aperti: nessuno già identificato; non dichiarata revisione superata.
+- Branch: `codex/leo-9-async`.
+- PR: https://github.com/leo6720/stick_optimizer/pull/19, verso `main`, draft.
+- Head: commit contenente questo checkpoint (`git rev-parse HEAD`); SHA esatto
+  e resoconti delle revisioni persistiti anche nel ticket e nella PR.
+- Fase: controlli automatici completati; seconda revisione del fix e attesa
+  collaudo fisico Windows. Non effettuare merge o deploy.
+- Cicli revisione: 1 completato, ciclo 2 sul commit contenente il fix.
+- Rilievi del primo ciclo: unico difetto P2 nell’harness del nuovo test di
+  chiusura (TexturesDelta non scartato); corretto, test mirato e suite verdi.
+  Nessun difetto di prodotto rilevato dai due revisori separati.
+- Rilievi del secondo ciclo: consultare resoconti sullo SHA esatto in PR/Linear.
 
-## Verifiche
+## Verifiche eseguite
 
-Test-first: riprodotto il bypass di Ctrl+N (test rosso); corretto e verificato
-verde. Un secondo test ha riprodotto la scrittura nel campo già a fuoco sotto
-il popup: corretto preservando il focus dei pulsanti modali da tastiera.
+Rust 1.99.0, Cargo.lock invariato. Test-first: riprodotti Ctrl+N che apriva
+Nuovo studio durante la ricerca e input già a fuoco che riceveva testo sotto
+il popup. Correzioni verificate senza impedire la tastiera nei comandi modali.
 
-Eseguiti con Rust 1.99.0 e Cargo.lock invariato:
-
-- Suite workspace Linux con `--features eframe/x11,ui-preview --locked`:
-  passaggio precedente verde; esecuzione finale con test aggiuntivo di chiusura
-  nativa in corso al primo checkpoint.
-- `cargo fmt --all -- --check`, Clippy host con tutte le feature workspace e
-  `eframe/x11`, `-D warnings`: superati.
-- Check e Clippy Windows MSVC con `--all-targets --all-features --locked`:
+- `cargo fmt --all -- --check`: superato.
+- `cargo check --workspace --all-targets --features eframe/x11,ui-preview --locked`:
+  superato su Linux.
+- `cargo clippy --workspace --all-targets --features eframe/x11,ui-preview --locked -- -D warnings`:
+  superato su Linux, ripetuto dopo il fix del test.
+- `cargo test --workspace --features eframe/x11,ui-preview --locked`:
+  55 test superati (11 core, 38 desktop egui, 6 IO), zero fallimenti.
+- `cargo check` e `cargo clippy` workspace con `--all-targets --all-features
+  --target x86_64-pc-windows-msvc --locked` (Clippy con `-D warnings`):
   superati come cross-check; nessun test Windows eseguito.
-- Build debug e avvio desktop Linux/Xvfb: superati. Sei catture locali del
-  popup (ricerca, preparazione, finalizzazione, annullamento, compatta, zoom
-  150%) da fixture visive esplicitamente separate dal motore di produzione.
-- Build release host: in corso al primo checkpoint.
+- Build debug con `eframe/x11,ui-preview`, avvio e sei catture Linux/Xvfb:
+  ricerca, preparazione, finalizzazione, annullamento, 760×620 e zoom 150%.
+  Ispezionate; sono fixture visive congelate, non misure del motore reale.
+- `cargo build --workspace --release --features eframe/x11,ui-preview --locked`:
+  superato su Linux (3 minuti e 41 secondi; non è un eseguibile Windows).
+- `git diff --check`: superato.
 
-La suite osserva eventi egui, contatori reali del caso di riferimento (40
+I test osservano eventi egui, contatori reali del caso di riferimento (40
 combinazioni/16 Pareto), blocco input già a fuoco, menu/scorciatoie, singolo
 worker, Annulla/X, tastiera del popup, chiusura nativa sintetica, scarto di
-risultati dopo annullamento, errori e limiti. Le fixture di avanzamento congelate
-non sono una misura di velocità né una prova dei tempi del motore.
+risultati dopo annullamento, successo, errori e limiti. Nessun cambiamento a
+formule, ranking, limiti del motore, schemi dei file o automazioni.
 
-## Prossima azione e limiti
+## Blocco umano e prossima azione
 
-Completare controlli e due revisioni separate su baseline/head fissi; registrare
-esiti e relativo head nel ticket e nella PR. Non effettuare merge o deploy.
-Il collaudo fisico Windows (interazioni, più monitor/DPI e calcolo abbastanza
-lungo da osservare il popup reale) non è disponibile su questo host Linux.
-Per riprenderlo usare `docs/development.md`, senza riprendere automaticamente
-un ticket marcato ready-for-human. Nessuna modifica a formule, ranking,
-limiti, schemi dei file o automazioni.
+Questo host Linux non può certificare interazioni e DPI nativi Windows.
+Mantenere la PR draft e il ticket in attesa umana con ready-for-human dopo le
+revisioni; rimuovere ready-for-agent. Non riprendere automaticamente il ticket.
+
+Sul PC Windows, dal branch della PR:
+
+1. Eseguire i controlli workspace Windows di `docs/development.md`, inclusi
+   test nativi e build release.
+2. Avviare un calcolo abbastanza lungo: verificare popup reale e repaint,
+   input/menu/Ctrl+N/O/S bloccati, Annulla e X, nessuna classifica parziale,
+   ripristino dell’interazione dopo il termine effettivo del worker.
+3. Ridimensionare l’app, provare zoom e monitor/DPI; testo e pulsanti devono
+   restare accessibili. La X principale annulla la ricerca lasciando l’app
+   aperta; una successiva chiusura segue le normali conferme.
+4. Registrare gli esiti sulla PR e decidere il merge separatamente.
+
+Le anteprime sono ripetibili con le modalità `progress*` documentate in
+`docs/development.md`. La documentazione di questo checkpoint resta sul branch;
+PR e Linear conservano gli esiti finali dei revisori e l’head esatto senza
+dipendere dai file temporanei della macchina cloud.

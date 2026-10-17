@@ -2112,7 +2112,8 @@ mod tests {
             .unwrap()
             .events
             .push(egui::ViewportEvent::Close);
-        let output = ctx.run_ui(input, |ui| app.check_close_request(ui.ctx()));
+        let mut output = ctx.run_ui(input, |ui| app.check_close_request(ui.ctx()));
+        output.textures_delta.clear();
         assert!(
             output.viewport_output[&egui::ViewportId::ROOT]
                 .commands
