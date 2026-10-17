@@ -40,7 +40,12 @@ La GUI avvia un solo worker su uno snapshot posseduto degli input. Progresso e
 annullamento usano atomiche; il thread UI controlla il completamento senza
 attendere il worker. Ogni modifica incrementa la revisione, cancella i
 risultati e annulla il lavoro; esiti di revisioni vecchie vengono scartati.
-Chiusura e cambio studio annullano il worker. I tre dettagli mostrano
+Il popup del calcolo blocca input, menu e scorciatoie fino al termine del
+worker. La X della finestra principale richiede l’annullamento e rinvia la
+chiusura; il cambio studio resta bloccato. La GUI legge il totale esatto e le
+combinazioni completate dopo Pareto; una fase atomica distingue la preparazione
+del report dall’enumerazione. Il popup si chiude solo dopo il join e
+l’installazione del report o la gestione dell’errore/annullamento. I tre dettagli mostrano
 candidati, tipi cassetto e tipi testa prodotti dal core, senza ricalcolare formule.
 La fase 5 implementa persistenza e CSV in IO con DTO serializzabili;
 il core resta senza dipendenze da serde o formati di file. Gli studi `.stic`

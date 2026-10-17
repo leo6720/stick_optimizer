@@ -171,3 +171,24 @@ Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
 Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
 Per vedere i controlli Rust: `python scripts/check.py --plan`.
 Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.
+
+## Verifica del popup di calcolo (LEO-9)
+
+Le anteprime `progress`, `progress-preparing`, `progress-finalizing`,
+`progress-cancelling`, `progress-compact` e `progress-scaled` mostrano fixture
+congelate del popup: servono al controllo visivo, non misurano un calcolo reale.
+Su Windows: `.\scripts\preview-gui.ps1 -Modes progress,progress-preparing,progress-finalizing,progress-cancelling,progress-compact,progress-scaled`.
+
+In cloud Linux si possono eseguire test egui e anteprime abilitando il backend
+host solo da riga di comando, senza cambiare manifest o lockfile:
+`cargo test --workspace --features eframe/x11,ui-preview --locked`.
+Per le catture serve un display X11 (anche Xvfb) e OpenGL. Questi controlli non
+sono esecuzioni Windows. Il cross-check usa
+`cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked`.
+
+Prova nativa residua: avviare un calcolo più lungo dell’esempio; verificare
+aggiornamento e repaint, input/menu/Ctrl+N/O/S bloccati, Annulla e X,
+“Annullamento…” fino all’arresto, nessun risultato parziale e riutilizzo dopo
+successo/errore. Ridimensionare l’app e provare zoom/DPI diversi: testo e pulsanti
+devono restare accessibili. La X principale durante la ricerca annulla il
+lavoro e lascia l’app aperta; la chiusura successiva segue le normali conferme.

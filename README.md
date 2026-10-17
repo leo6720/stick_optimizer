@@ -44,8 +44,11 @@ pesi del punteggio. Come in Python, **Modifica** apre cinque popup separati:
 schemi originali; i canali MT restano nella sidebar. Ogni popup permette di
 ripristinare i propri valori predefiniti e usa **Applica** e **Annulla**: i risultati vengono
 invalidati solo dopo l'applicazione di parametri validi e diversi.
-**Annulla calcolo** interrompe il lavoro senza mostrare risultati
-parziali. La selezione di una soluzione popola i dettagli per formato, tipi di
+Durante il calcolo un popup blocca input e comandi della finestra principale.
+Mostra “Generazione candidati…”, poi percentuale e combinazioni realmente
+esaminate (incluso Pareto), infine “Preparazione risultati…”. Non stima il tempo
+residuo. **Annulla** e la X richiedono l’arresto senza mostrare risultati
+parziali; “Annullamento…” rimane visibile fino al termine del worker. La selezione di una soluzione popola i dettagli per formato, tipi di
 cassetto e tipi di testa robot. Ogni modifica agli input cancella i risultati
 e scarta il calcolo precedente.
 

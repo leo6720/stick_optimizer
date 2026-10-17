@@ -84,3 +84,13 @@ non vengono serializzate. La grafica rappresenta una sezione statica, non simula
 il ciclo di riporto e usa B astuccio come riferimento verticale: non introduce
 un'altezza fisica del cassetto assente dal modello. Benchmark e nuovi requisiti
 fisici richiedono un'attività separata; questa rifinitura non ne modifica le formule.
+
+## Avanzamento del calcolo (LEO-9)
+
+Popup modale centrato, senza ridimensionamento, bianco con leggero oscuramento
+dello studio. Titolo “Calcolo in corso”, X per annullare, percentuale grande,
+barra rossa e conteggio delle combinazioni sotto; Annulla in basso a destra.
+Preparazione e arresto hanno testo dedicato e indicatore indeterminato, senza
+percentuali simulate. Input, menu e scorciatoie dello studio sono bloccati;
+la tastiera rimane utilizzabile per i comandi del popup. Esc e clic esterni
+non lo nascondono. Il blocco termina soltanto quando il worker è terminato.

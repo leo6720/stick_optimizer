@@ -47,7 +47,11 @@ prestazioni su studi grandi; Pareto può richiedere tempo quadratico.
 
 Gli esiti separano input invalidi, formati senza candidati, assenza di passo
 comune, annullamento, limiti operativi ed errori numerici. La GUI conserva un
-solo worker e controlla le atomiche di progresso. Ogni modifica annulla lo
+solo worker e controlla le atomiche di progresso. `estimated` è il numero esatto
+di combinazioni sui passi comuni, disponibile dopo la generazione candidati;
+`examined` cresce dopo la combinazione e l’aggiornamento Pareto. `finalizing`
+segnala l’ordinamento e la preparazione del report. La percentuale riguarda
+l’enumerazione completata, non il tempo o il completamento del report. Ogni modifica annulla lo
 snapshot precedente; risultati di revisioni obsolete non vengono installati.
 
 ## Verifica e limiti della fase

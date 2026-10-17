@@ -272,3 +272,29 @@ fn output_limit_is_applied_only_after_full_search_and_pareto() {
     assert_eq!(limited.examined, full.examined);
     assert_eq!(limited.pareto_count, full.pareto_count);
 }
+
+#[test]
+fn progress_reports_completed_combinations_before_final_preparation() {
+    let control = SearchControl::default();
+    assert_eq!(control.estimated.load(Ordering::Relaxed), 0);
+    assert!(!control.finalizing.load(Ordering::Acquire));
+    let report = optimize(&example(), &control, SearchLimits::default()).unwrap();
+    // The reference study has exactly 40 combinations, not an estimate of time.
+    assert_eq!(control.examined.load(Ordering::Relaxed), 40);
+    assert_eq!(control.estimated.load(Ordering::Relaxed), 40);
+    assert_eq!(report.examined, 40);
+    assert_eq!(report.pareto_count, 16);
+    assert!(control.finalizing.load(Ordering::Acquire));
+
+    let control = SearchControl::default();
+    let limits = SearchLimits {
+        combinations: 1,
+        ..SearchLimits::default()
+    };
+    assert!(matches!(
+        optimize(&example(), &control, limits),
+        Err(SearchError::LimitExceeded(_))
+    ));
+    assert_eq!(control.examined.load(Ordering::Relaxed), 0);
+    assert!(!control.finalizing.load(Ordering::Acquire));
+}
