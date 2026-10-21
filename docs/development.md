@@ -171,3 +171,17 @@ Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
 Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
 Per vedere i controlli Rust: `python scripts/check.py --plan`.
 Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.
+
+## Verifiche LEO-17
+
+`crates/core/tests/head_geometry.rs` osserva l'API pubblica delle coordinate:
+esempi approvati, raggruppamenti/divisori, canali fissi e ripetizioni, insiemi
+congiunti e non transitività, limiti esatti/oltre e input invalidi.
+I test IO verificano schema 2, migrazione Rust 1 senza scritture o perdita di
+campi, parametri personalizzati e versioni invalide; il desktop verifica
+anche il round trip delle bozze. Le fixture Python conservano esplicitamente
+il proprio divisore storico di 2 mm, indipendentemente dal nuovo predefinito.
+Su Linux il manifest Windows non abilita un backend finestra: per verificare
+il workspace senza cambiarlo, aggiungere `--features eframe/x11` ai comandi
+Cargo pertinenti. Un `cargo check --target x86_64-pc-windows-msvc` resta
+un controllo di compilazione, distinto da build/esecuzione native Windows.

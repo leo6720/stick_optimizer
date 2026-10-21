@@ -51,6 +51,10 @@ nella cartella locale dell'utente, mai nei dati Python. `core/geometry.rs`
 produce le primitive in mm della sezione statica: la GUI le disegna senza
 ricalcolare vincoli o metriche. I filtri della vista non modificano il motore.
 Schema, CSV, rappresentazione del riporto e limiti in `rust-files.md`.
+LEO-17 aggiunge `core/head.rs`, API pubblica preparatoria per coordinate finali
+e compatibilità dell’intera assegnazione. Il contratto è in
+[ADR 0001](adr/0001-final-head-geometry.md). Ricerca e aggregazione esistenti
+restano invariate fino a LEO-18; nessun editor inerte viene aggiunto.
 
 Le sezioni seguenti descrivono le formule del riferimento Python conservato nel
 tag `python-beta-reference`, ora tradotte nel motore Rust. Le note sui file e

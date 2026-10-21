@@ -64,6 +64,10 @@ conserva i risultati già calcolati. Da **Modifica** puoi salvare i parametri pr
 per i nuovi studi. I vecchi `.sop` e `user_defaults.json` non sono usati dalla
 versione Rust. Formati e limiti sono descritti in
 [docs/rust-files.md](docs/rust-files.md).
+I nuovi studi/preferenze usano lo schema 2; lo schema Rust 1 viene letto
+senza riscriverlo, conservando i parametri salvati. I predefiniti incorporati
+usano divisore 7,5 mm e interasse aggiuntivo massimo 5 mm. Quest’ultimo è
+conservato nei file; ricerca ed editor saranno collegati in LEO-18/LEO-19.
 
 L'esempio incorporato esplora 40 combinazioni e produce 16 soluzioni Pareto.
 La ricerca esatta ha limiti operativi espliciti: oltre un milione di combinazioni

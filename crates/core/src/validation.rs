@@ -16,6 +16,7 @@ pub fn validate(study: &Study) -> Vec<String> {
     for (label, value, positive) in [
         ("Offset massimo", p.max_shift, false),
         ("Spessore divisore", p.divider_width, false),
+        ("Interasse aggiuntivo massimo", p.max_extra_spacing, false),
         ("Spessore parete", p.wall_width, false),
         ("Gioco tra stick", p.adjacent_clearance, false),
         ("Gioco parete/divisore", p.wall_clearance, false),

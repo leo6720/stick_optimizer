@@ -21,6 +21,9 @@ pub struct Settings {
     pub channels: u32,
     pub max_shift: f64,
     pub divider_width: f64,
+    /// Maximum excess over each assigned format's minimum moving-gap spacing, mm.
+    /// Used by final_head_geometry; search integration is deferred to LEO-18.
+    pub max_extra_spacing: f64,
     pub wall_width: f64,
     pub adjacent_clearance: f64,
     pub wall_clearance: f64,
@@ -37,7 +40,8 @@ impl Default for Settings {
         Self {
             channels: 12,
             max_shift: 20.0,
-            divider_width: 2.0,
+            divider_width: 7.5,
+            max_extra_spacing: 5.0,
             wall_width: 3.0,
             adjacent_clearance: 1.0,
             wall_clearance: 2.0,

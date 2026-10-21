@@ -3,9 +3,9 @@
 Gli studi Rust usano l'estensione `.stic` e contengono JSON UTF-8. Non sono i
 vecchi `.sop` Python. Non si migrano automaticamente file o preferenze legacy.
 
-## Studio, schema 1
+## Studio, schema 2
 
-- `schema`: `stick-optimizer-study`; `version`: `1`; `units`: `mm`.
+- `schema`: `stick-optimizer-study`; `version`: `2`; `units`: `mm`.
 - `name`, `sticks`, `formats`, `settings`, `weights`: nome e input completi.
   Gli ID sono univoci nello studio, i formati riferiscono gli stick tramite ID.
 - `engine`: `rust-geometry-v1`, contratto di calcolo che ha creato lo studio.
@@ -40,13 +40,37 @@ segnalate e la chiusura/cambio studio offre salvataggio, abbandono o annullament
 ## Preferenze
 
 **Modifica → Salva parametri come predefiniti** scrive, solo su richiesta,
-`%LOCALAPPDATA%/StickOptimizer/preferences-v1.json`: schema interno versione 1
+`%LOCALAPPDATA%/StickOptimizer/preferences-v1.json`: schema interno versione 2
 con geometria, canali, limiti, numero risultati e pesi. Le preferenze sono
 validate indipendentemente dalle bozze stick/formati. Si applicano al prossimo
 avvio e agli studi nuovi; Apri usa sempre i parametri dello studio.
 **Ripristina parametri incorporati** modifica lo studio corrente; per conservarli
 anche come nuovi predefiniti occorre salvarli esplicitamente. L'esempio caricato
 dal menu File resta quello incorporato. `user_defaults.json` non viene usato.
+
+## Migrazione Rust dello schema 1 (LEO-17)
+
+Studi e preferenze nuovi scrivono la versione 2: `settings.max_extra_spacing`
+conserva l'interasse aggiuntivo massimo, finito e non negativo, in mm.
+Il valore incorporato è 5 mm; il divisore incorporato è ora 7,5 mm.
+Il parametro attraversa DTO e bozze senza arrotondamenti, ma non ha ancora
+un editor GUI: l'integrazione della ricerca è LEO-18 e l'editor è LEO-19.
+
+La lettura di un file Rust versione 1 migra **solo in memoria**: aggiunge
+`max_extra_spacing: 5.0` e aggiorna la versione interna a 2. Tutti gli altri
+campi, incluso un divisore salvato a 2 mm o personalizzato, restano quelli
+salvati. Aprire lo studio o avviare l'app non riscrive il file sorgente;
+solo un successivo salvataggio esplicito scrive lo schema 2. Le preferenze
+continuano a usare il percorso `preferences-v1.json` per ritrovare i dati
+esistenti: il suffisso del percorso non indica la versione del contenuto.
+La migrazione non legge dati Python né `user_defaults.json`.
+
+Versioni diverse da 1/2, campi sconosciuti, parametri non validi, un campo
+nuovo presente nello schema 1 o assente nello schema 2 sono errori espliciti.
+Un errore di lettura non sostituisce lo studio corrente e non riscrive le
+preferenze. Non si applicano predefiniti al posto di campi esistenti invalidi.
+Il contratto motore resta `rust-geometry-v1`: LEO-17 prepara una API separata,
+non sostituisce ricerca, metriche, conteggi teste o formati CSV.
 
 ## CSV
 
