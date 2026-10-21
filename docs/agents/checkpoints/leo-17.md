@@ -3,7 +3,7 @@
 - Data: 21 ottobre 2026.
 - Ticket: https://linear.app/leochist/issue/LEO-17.
 - Parent accettato: https://linear.app/leochist/issue/LEO-16.
-- Fase: corretto il rilievo standards del ciclo 1; verifiche passate, attesa revisione ciclo 2.
+- Fase: revisioni indipendenti completate; pronta per la decisione dell’utente.
 - Proprietario implementazione: `/root/leo17_implementer`.
 - Isolamento effettivo: `spawn_agent(fork_turns: "none")`, contesto nuovo per il solo LEO-17.
 - Claim Linear eseguito dal coordinatore; In Progress, nessuna chiusura da questo agente.
@@ -14,8 +14,9 @@
 - PR draft: https://github.com/leo6720/stick_optimizer/pull/21.
 - Questo checkpoint è il commit successivo, solo documentale; risolvere la head
   del branch per la revisione completa, senza limitarsi al commit di implementazione.
-- Cicli di revisione indipendente conclusi: **1**, con un rilievo standards P2; correzione da riesaminare nel ciclo 2.
-- Rilievi aperti: P2 precisione coordinate corretto, in attesa di conferma indipendente.
+- Cicli di revisione indipendente conclusi: **2**. Ciclo 1: un P2 standards corretto; ciclo 2: entrambi PASS.
+- Head revisionata nel ciclo 2: `c93abdf1afcfd929abb1b3123e8808b6107bdafc`.
+- Rilievi aperti: **nessuno**; P2 precisione risolto e confermato indipendentemente.
 
 ## Contratto e perimetro
 
@@ -122,6 +123,38 @@ passato. Log locali: `/workspace/scratch/leo17-precision-red.log` e
 La suite desktop e le anteprime precedenti non sono state ripetute: questa
 correzione riguarda solo l'API preparatoria, non ancora usata dalla ricerca/GUI.
 
-Attesa di conferma dei revisori sul nuovo head del branch per il ciclo 2.
-Non dichiarare entrambi PASS finché i nuovi esiti non sono disponibili.
-Il coordinatore conserva responsabilità di PR e stato Linear; nessun merge.
+Il ciclo 2 sulla correzione è concluso con gli esiti indipendenti riportati
+sotto. Il coordinatore conserva responsabilità di PR e stato Linear; nessun merge.
+
+## Esito finale delle revisioni — ciclo 2
+
+Baseline fissa: `05f6f1e58d8d21a9de49dbb2b95f7774a6584470`.
+Head esaminata da entrambi: `c93abdf1afcfd929abb1b3123e8808b6107bdafc`.
+Revisori indipendenti avviati dal coordinatore in contesti nuovi
+`fork_turns: "none"`, distinti dall'implementatore:
+
+- `/root/leo17_spec_review`: **PASS**, nessun rilievo sulla specifica.
+- `/root/leo17_standards_review`: **PASS**, P2 del ciclo 1 risolto;
+  eseguiti indipendentemente tutti gli 8 test pubblici dell'API e verificati
+  i casi ordinari di tutti i raggruppamenti/divisori. Nessun nuovo rilievo.
+
+Gli esiti sono stati comunicati al coordinatore, che li ha trasmessi
+all'implementatore per questa registrazione. L'implementatore non si attribuisce
+le revisioni indipendenti. Il ciclo 1 e la relativa correzione restano registrati:
+il contatore non è stato azzerato. Nessun rilievo aperto al termine del ciclo 2.
+
+Verifiche di riferimento: ultimi **26 test core/IO** passati sulla correzione,
+precedente suite completa workspace **57 test** passata; fmt/check/Clippy,
+release e cross-check MSVC ripetuti sulla correzione e passati. Nessuna sorgente
+prodotto è cambiata dopo la head revisionata. Questo aggiornamento modifica
+**solo il checkpoint**; nessun test ripetuto per il solo testo documentale.
+
+PR draft: https://github.com/leo6720/stick_optimizer/pull/21.
+Nessuno dei revisori richiede un gate umano nativo per il perimetro preparatorio.
+Resta il limite documentato: cross-check MSVC non equivale a build/esecuzione
+native Windows né a prove fisiche GUI/monitor/DPI.
+
+Prossimo passo del coordinatore: confermare il diff solo documentale sulla
+head finale con i revisori, aggiornare Linear a In Review e presentare la PR
+all'utente per la decisione di merge. Nessun merge, deploy, mutazione PR o
+stato finale Linear effettuato dall'implementatore.
