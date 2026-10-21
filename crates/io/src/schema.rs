@@ -17,7 +17,7 @@ macro_rules! mirror {
 mirror!(StickData, Stick, {id:u64, name:String, length:f64, width:f64, thickness:f64, fin:f64});
 mirror!(FormatData, Format, {id:u64, name:String, stick_id:u64, quantity:u32});
 mirror!(SettingsData, Settings, {
-    channels:u32, max_shift:f64, divider_width:f64, wall_width:f64,
+    channels:u32, max_shift:f64, divider_width:f64, max_extra_spacing:f64, wall_width:f64,
     adjacent_clearance:f64, wall_clearance:f64, carton_b_extra:f64,
     max_pitch:f64, pitch_step:f64, result_count:usize, max_layers:Option<u32>, ab_target:f64
 });
@@ -126,7 +126,7 @@ pub fn encode(document: &Document) -> Result<Vec<u8>, Error> {
     let s = document.study.clone();
     Ok(serde_json::to_vec_pretty(&Envelope {
         schema: "stick-optimizer-study".into(),
-        version: 1,
+        version: 2,
         units: "mm".into(),
         engine: document.engine.clone(),
         name: document.name.clone(),
@@ -142,8 +142,10 @@ pub fn decode(bytes: &[u8]) -> Result<Document, Error> {
     if bytes.len() > crate::MAX_FILE_BYTES {
         return Err("Il file supera il limite di 8 MiB.".into());
     }
-    let e: Envelope = serde_json::from_slice(bytes)?;
-    if e.schema != "stick-optimizer-study" || e.version != 1 || e.units != "mm" {
+    let mut value: serde_json::Value = serde_json::from_slice(bytes)?;
+    upgrade_settings(&mut value)?;
+    let e: Envelope = serde_json::from_value(value)?;
+    if e.schema != "stick-optimizer-study" || e.version != 2 || e.units != "mm" {
         return Err("Formato, versione o unità dello studio non supportati.".into());
     }
     let document = Document {
@@ -161,8 +163,7 @@ pub fn decode(bytes: &[u8]) -> Result<Document, Error> {
     document.validate()?;
     Ok(document)
 }
-#[derive(Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Serialize)]
 pub struct Preferences {
     version: u32,
     settings: SettingsData,
@@ -171,7 +172,7 @@ pub struct Preferences {
 impl Preferences {
     pub fn new(settings: Settings, weights: Weights) -> Self {
         Self {
-            version: 1,
+            version: 2,
             settings: settings.into(),
             weights: weights.into(),
         }
@@ -180,7 +181,7 @@ impl Preferences {
         (self.settings.clone().into(), self.weights.clone().into())
     }
     pub fn validate(&self) -> Result<(), Error> {
-        if self.version != 1 {
+        if self.version != 2 {
             return Err("Versione delle preferenze non supportata.".into());
         }
         let (settings, weights) = self.parameters();
@@ -208,5 +209,46 @@ impl Preferences {
         } else {
             Err(errors.join("; ").into())
         }
+    }
+}
+
+// Upgrade only the documented missing v1 parameter. Never replace stored values
+// or write a source file. Unknown fields remain rejected by the strict DTOs.
+fn upgrade_settings(value: &mut serde_json::Value) -> Result<(), Error> {
+    match value.get("version").and_then(serde_json::Value::as_u64) {
+        Some(2) => Ok(()),
+        Some(1) => {
+            let settings = value
+                .get_mut("settings")
+                .and_then(serde_json::Value::as_object_mut)
+                .ok_or("Impostazioni mancanti o non valide nello schema 1.")?;
+            if settings.contains_key("max_extra_spacing") {
+                return Err("Schema 1 non valido: interasse aggiuntivo inatteso.".into());
+            }
+            settings.insert("max_extra_spacing".into(), serde_json::json!(5.0));
+            value["version"] = serde_json::json!(2);
+            Ok(())
+        }
+        _ => Err("Versione del file non supportata; dati conservati.".into()),
+    }
+}
+
+impl<'de> Deserialize<'de> for Preferences {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Wire {
+            version: u32,
+            settings: SettingsData,
+            weights: WeightsData,
+        }
+        let mut value = serde_json::Value::deserialize(deserializer)?;
+        upgrade_settings(&mut value).map_err(serde::de::Error::custom)?;
+        let wire: Wire = serde_json::from_value(value).map_err(serde::de::Error::custom)?;
+        Ok(Self {
+            version: wire.version,
+            settings: wire.settings,
+            weights: wire.weights,
+        })
     }
 }

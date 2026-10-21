@@ -457,6 +457,8 @@ mod tests {
             }],
             settings: Settings {
                 result_count: 10000,
+                // Original Python-reference fixture input (before LEO-17 defaults).
+                divider_width: 2.0,
                 ..Settings::default()
             },
             weights: Weights::default(),

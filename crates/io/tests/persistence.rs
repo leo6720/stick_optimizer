@@ -90,7 +90,7 @@ fn malformed_versions_references_ranges_units_and_numbers_are_rejected() {
     let encoded = encode(&example()).unwrap();
     let value: serde_json::Value = serde_json::from_slice(&encoded).unwrap();
     for (pointer, replacement) in [
-        ("/version", serde_json::json!(2)),
+        ("/version", serde_json::json!(3)),
         ("/units", serde_json::json!("in")),
         ("/formats/0/stick_id", serde_json::json!(999)),
         ("/sticks/0/id", serde_json::json!(u64::MAX)),
@@ -172,7 +172,7 @@ fn preferences_are_versioned_validated_and_independent_of_user_data() {
     assert!(save_preferences(&path, &invalid).is_err());
     assert_eq!(std::fs::read(&path).unwrap(), original);
     let mut value: serde_json::Value = serde_json::from_slice(&original).unwrap();
-    value["version"] = serde_json::json!(2);
+    value["version"] = serde_json::json!(3);
     std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
     assert!(load_preferences(&path).is_err());
 }
@@ -254,4 +254,85 @@ fn filter_intervals_are_inclusive_and_zero_heads_are_preserved() {
         .validate()
         .is_err()
     );
+}
+
+#[test]
+fn legacy_study_and_preferences_migrate_in_memory_without_rewriting_files() {
+    let temp = Temp::new();
+    let mut legacy: serde_json::Value =
+        serde_json::from_slice(&encode(&example()).unwrap()).unwrap();
+    legacy["version"] = serde_json::json!(1);
+    legacy["settings"]
+        .as_object_mut()
+        .unwrap()
+        .remove("max_extra_spacing");
+    legacy["settings"]["divider_width"] = serde_json::json!(2.125);
+    let path = temp.0.join("legacy.stic");
+    let bytes = serde_json::to_vec(&legacy).unwrap();
+    std::fs::write(&path, &bytes).unwrap();
+    let loaded = load(&path).unwrap();
+    assert_eq!(loaded.study.settings.divider_width, 2.125);
+    assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    let current: serde_json::Value = serde_json::from_slice(&encode(&loaded).unwrap()).unwrap();
+    assert_eq!(current["version"], 2);
+    assert_eq!(current["settings"]["max_extra_spacing"], 5.0);
+    let mut expected = legacy.clone();
+    expected["version"] = serde_json::json!(2);
+    expected["settings"]["max_extra_spacing"] = serde_json::json!(5.0);
+    assert_eq!(current, expected);
+    let prefs_path = temp.0.join("preferences-v1.json");
+    let prefs =
+        serde_json::json!({"version":1,"settings":legacy["settings"],"weights":legacy["weights"]});
+    let prefs_bytes = serde_json::to_vec(&prefs).unwrap();
+    std::fs::write(&prefs_path, &prefs_bytes).unwrap();
+    let preferences = load_preferences(&prefs_path).unwrap();
+    assert_eq!(preferences.parameters().0.divider_width, 2.125);
+    assert_eq!(std::fs::read(&prefs_path).unwrap(), prefs_bytes);
+    let saved = serde_json::to_value(preferences).unwrap();
+    assert_eq!(saved["version"], 2);
+    assert_eq!(saved["settings"]["max_extra_spacing"], 5.0);
+}
+
+#[test]
+fn current_schema_requires_parameter_and_preserves_custom_values() {
+    let temp = Temp::new();
+    let mut doc = example();
+    doc.study.settings.max_extra_spacing = 3.123456789012345;
+    doc.study.settings.divider_width = 9.125;
+    let bytes = encode(&doc).unwrap();
+    let loaded = decode(&bytes).unwrap();
+    assert_eq!(
+        loaded.study.settings.max_extra_spacing.to_bits(),
+        doc.study.settings.max_extra_spacing.to_bits()
+    );
+    assert_eq!(loaded.study.settings.divider_width, 9.125);
+    let prefs = Preferences::new(loaded.study.settings, loaded.study.weights);
+    let path = temp.0.join("preferences.json");
+    save_preferences(&path, &prefs).unwrap();
+    assert_eq!(
+        load_preferences(&path)
+            .unwrap()
+            .parameters()
+            .0
+            .max_extra_spacing,
+        doc.study.settings.max_extra_spacing
+    );
+    let current: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    for version in [1, 2, 3] {
+        let mut value = current.clone();
+        value["version"] = serde_json::json!(version);
+        if version == 2 {
+            value["settings"]
+                .as_object_mut()
+                .unwrap()
+                .remove("max_extra_spacing");
+        }
+        // v1 cannot contain the new field; v2 cannot omit it; v3 is unknown.
+        assert!(decode(&serde_json::to_vec(&value).unwrap()).is_err());
+        let prefs = serde_json::json!({"version":version,"settings":value["settings"],"weights":value["weights"]});
+        std::fs::write(&path, serde_json::to_vec(&prefs).unwrap()).unwrap();
+        let before = std::fs::read(&path).unwrap();
+        assert!(load_preferences(&path).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+    }
 }

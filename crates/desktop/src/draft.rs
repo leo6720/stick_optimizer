@@ -30,6 +30,7 @@ pub struct Parameters {
     pub ab_target: String,
     pub result_count: String,
     pub divider_width: String,
+    pub max_extra_spacing: String,
     pub wall_width: String,
     pub adjacent_clearance: String,
     pub wall_clearance: String,
@@ -47,7 +48,8 @@ impl Default for Parameters {
             max_layers: "12".into(),
             ab_target: "1,5".into(),
             result_count: "20".into(),
-            divider_width: "2".into(),
+            divider_width: "7,5".into(),
+            max_extra_spacing: "5".into(),
             wall_width: "3".into(),
             adjacent_clearance: "1".into(),
             wall_clearance: "2".into(),
@@ -240,6 +242,7 @@ impl StudyDraft {
             ("Incremento passo", &p.pitch_step, false),
             ("Obiettivo A/B", &p.ab_target, false),
             ("Spessore divisore", &p.divider_width, true),
+            ("Interasse aggiuntivo massimo", &p.max_extra_spacing, true),
             ("Spessore parete", &p.wall_width, true),
             ("Gioco tra stick", &p.adjacent_clearance, true),
             ("Gioco parete/divisore", &p.wall_clearance, true),
@@ -302,6 +305,7 @@ impl StudyDraft {
                 ab_target: decimal(&p.ab_target),
                 result_count: p.result_count.trim().parse().expect("syntax validated"),
                 divider_width: decimal(&p.divider_width),
+                max_extra_spacing: decimal(&p.max_extra_spacing),
                 wall_width: decimal(&p.wall_width),
                 adjacent_clearance: decimal(&p.adjacent_clearance),
                 wall_clearance: decimal(&p.wall_clearance),
@@ -338,6 +342,7 @@ impl Parameters {
             ab_target: p.ab_target.to_string(),
             result_count: p.result_count.to_string(),
             divider_width: p.divider_width.to_string(),
+            max_extra_spacing: p.max_extra_spacing.to_string(),
             wall_width: p.wall_width.to_string(),
             adjacent_clearance: p.adjacent_clearance.to_string(),
             wall_clearance: p.wall_clearance.to_string(),
@@ -398,6 +403,42 @@ fn validate_name<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn persisted_head_parameters_survive_draft_preferences_and_study_roundtrips() {
+        let mut draft = StudyDraft::example();
+        let defaults = draft.to_study().unwrap().settings;
+        assert_eq!(defaults.divider_width, 7.5);
+        assert_eq!(defaults.max_extra_spacing, 5.0);
+        draft.parameters.max_extra_spacing = "3,123456789012345".into();
+        draft.parameters.divider_width = "2,125".into();
+        let core = draft.to_study().unwrap();
+        let expected = core.settings.max_extra_spacing;
+        let preferences =
+            stick_optimizer_io::Preferences::new(core.settings.clone(), core.weights.clone());
+        let (settings, weights) = preferences.parameters();
+        draft.parameters = Parameters::from_core(settings, weights);
+        let document = stick_optimizer_io::Document::new(
+            "Roundtrip".into(),
+            draft.to_study().unwrap(),
+            false,
+            Default::default(),
+        );
+        let loaded =
+            stick_optimizer_io::decode(&stick_optimizer_io::encode(&document).unwrap()).unwrap();
+        let restored = StudyDraft::from_study(loaded.name, loaded.study)
+            .to_study()
+            .unwrap();
+        assert_eq!(
+            restored.settings.max_extra_spacing.to_bits(),
+            expected.to_bits()
+        );
+        assert_eq!(restored.settings.divider_width, 2.125);
+        for invalid in ["-1", "NaN", "inf"] {
+            draft.parameters.max_extra_spacing = invalid.into();
+            assert!(draft.to_study().is_err());
+        }
+    }
+
     #[test]
     fn restored_ids_can_be_extended_without_overflow_or_collision() {
         let mut core = StudyDraft::example().to_study().unwrap();

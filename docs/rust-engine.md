@@ -64,3 +64,29 @@ prova manuale completa con mouse e tastiera fisici né verifiche su più monitor
 Persistenza, CSV e disegno schematico sono aggiunti nella fase 5, descritta in
 `rust-files.md`. Benchmark e simulazione dinamica restano assenti. Le soluzioni
 richiedono verifica meccanica e di processo.
+
+## API preparatoria delle posizioni finali (LEO-17)
+
+`final_head_geometry(&Settings, &[HeadFormat])` è una API pubblica separata
+dalla ricerca. Ogni formato specifica ID, larghezza, raggruppamento, divisori
+e passo di prelievo `Pitch`. Restituisce coordinate dei centri per tutti i
+canali MT, identità di canale/gruppo a partire da zero, interasse comune e ID
+formati ordinati. Il primo canale al prelievo ha x=0; tutti gli altri hanno
+x=canale×passo. Stesso input, anche permutato, produce la stessa geometria.
+Il chiamante fornisce l'intero insieme di formati assegnati; ID duplicati,
+insieme vuoto e raggruppamento 1 sono rifiutati. Le teste di gruppo 1 restano
+escluse dal conteggio, come prima.
+
+Il contratto di coordinate, divisori, precisione e assegnazioni è in
+[ADR 0001](adr/0001-final-head-geometry.md). L'API verifica congiuntamente i
+minimi e il limite aggiuntivo di ogni formato, il passo/raggruppamento comune,
+la divisibilità dei canali e gli spazi fissi. Non enumera assegnazioni, non
+verifica ancora dimensioni dei cassetti e non modifica la classifica esistente.
+La condivisione attuale basata su `(raggruppamento, passo)` rimane da correggere
+in LEO-18; la presenza di questa API non certifica quella classifica.
+
+L'API controlla anche gli intervalli nelle coordinate f64 effettivamente
+restituite, inclusi i gruppi ripetuti. Se un passo/origine molto grande fa
+perdere più di 1e-9 mm a un gap mobile o fisso, oppure viola i limiti del
+formato, restituisce errore esplicito di precisione invece di una geometria
+incoerente. Il solo valore astratto dell'interasse comune non basta.
