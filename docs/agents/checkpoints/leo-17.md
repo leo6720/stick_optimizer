@@ -3,17 +3,19 @@
 - Data: 21 ottobre 2026.
 - Ticket: https://linear.app/leochist/issue/LEO-17.
 - Parent accettato: https://linear.app/leochist/issue/LEO-16.
-- Fase: implementazione e verifiche completate; attesa di due revisioni indipendenti.
+- Fase: corretto il rilievo standards del ciclo 1; verifiche passate, attesa revisione ciclo 2.
 - Proprietario implementazione: `/root/leo17_implementer`.
 - Isolamento effettivo: `spawn_agent(fork_turns: "none")`, contesto nuovo per il solo LEO-17.
 - Claim Linear eseguito dal coordinatore; In Progress, nessuna chiusura da questo agente.
 - Baseline main verificata live e aggiornata: `05f6f1e58d8d21a9de49dbb2b95f7774a6584470`.
 - Branch: `codex/leo-17-async`; worktree: `/workspace/stick-leo-17`.
-- Head implementazione verificata: `692ca9a4542840778eb1e5074970365946e5a93a`.
+- Head implementazione iniziale: `692ca9a4542840778eb1e5074970365946e5a93a`.
+- Head correzione precisione verificata: `500fdd0b108a402d588898d4d0dce838ec43f369`.
+- PR draft: https://github.com/leo6720/stick_optimizer/pull/21.
 - Questo checkpoint è il commit successivo, solo documentale; risolvere la head
   del branch per la revisione completa, senza limitarsi al commit di implementazione.
-- Cicli di revisione indipendente consumati: **0**. Nessuna certificazione indipendente dell'implementatore.
-- Rilievi aperti di implementazione: nessuno noto; revisori indipendenti ancora da eseguire.
+- Cicli di revisione indipendente conclusi: **1**, con un rilievo standards P2; correzione da riesaminare nel ciclo 2.
+- Rilievi aperti: P2 precisione coordinate corretto, in attesa di conferma indipendente.
 
 ## Contratto e perimetro
 
@@ -88,3 +90,38 @@ La GUI Linux non sostituisce quelle prove. Nessun benchmark o simulazione.
 Il coordinatore deve avviare due nuovi revisori su baseline/head fisse,
 registrare gli esiti e l'eventuale contatore cicli (massimo 3 irrisolti), quindi
 gestire PR e stato Linear. Nessun merge/deploy autorizzato dal checkpoint.
+
+## Revisione indipendente ciclo 1 e correzione
+
+Diff esaminato: baseline `05f6f1e58d8d21a9de49dbb2b95f7774a6584470` →
+head `b9dedbdcf6a774945e85d56e2160bcf7b071eb2e`.
+Revisori creati dal coordinatore come nuovi contesti `fork_turns: "none"`:
+`/root/leo17_spec_review` (PASS) e `/root/leo17_standards_review`
+(un solo rilievo P2). Non si tratta di autorevisione.
+
+Il rilievo standards dimostra che, con P=`Pitch((1_i64 << 53)-1)`, larghezza
+25.12346 mm e limite extra zero, il common astratto 26.12346 mm produceva
+un gap emesso di 26.123458862305 mm nei gruppi lontani dall'origine.
+Con larghezza 25.123456789 il gap emesso superava invece il common di circa
+2.073e-6 mm. Entrambi violavano la tolleranza promessa di 1e-9 mm.
+
+La regressione pubblica sui due input è fallita realmente (RED), poi è
+passata (GREEN) dopo aver verificato le coordinate f64 effettivamente emesse:
+gap mobili contro common e minimo/extra di ogni formato, gap centrale g4
+contro P e minimo strutturale, canali fissi contro prelievo, gap fra gruppi
+contro minimi. Se la rappresentazione non basta, errore esplicito
+`InvalidInput` per precisione insufficiente, nessuna geometria parziale.
+Nessuna modifica a tolleranza o limiti fisici, ricerca, IO, GUI o dati utente.
+
+Verifiche ripetute sulla correzione `500fdd0b108a402d588898d4d0dce838ec43f369`:
+fmt, workspace check/Clippy all-targets/all-features, core+IO **26 test**
+(compresi 8 test API pubblica), workspace release build e MSVC cross-check,
+con gli stessi comandi/toolchain sopra. Tutto passato; `git diff --check`
+passato. Log locali: `/workspace/scratch/leo17-precision-red.log` e
+`/workspace/scratch/leo17-cycle1-{check,clippy,core-io,msvc,release}.log`.
+La suite desktop e le anteprime precedenti non sono state ripetute: questa
+correzione riguarda solo l'API preparatoria, non ancora usata dalla ricerca/GUI.
+
+Attesa di conferma dei revisori sul nuovo head del branch per il ciclo 2.
+Non dichiarare entrambi PASS finché i nuovi esiti non sono disponibili.
+Il coordinatore conserva responsabilità di PR e stato Linear; nessun merge.
