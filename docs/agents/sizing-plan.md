@@ -46,3 +46,14 @@ attività ha organizzato il lavoro, senza avviare implementazioni di prodotto.
 Il prompt eseguibile del runner è versionato in runner-prompt.md; aggiornare
 solo quel prompt nell’automazione esistente, preservando cadenza e abilitazione.
 Esito di pubblicazione/revisione e head finale sono registrati in LEO-15/PR #18.
+
+## Autorizzazione alla prosecuzione — 21 ottobre 2026
+
+Fonte esplicita dell'utente: «il protocollo così non va bene, se faccio il merge
+lui poi deve andare da solo». Per il solo piano accettato LEO-16 sono autorizzati
+LEO-17, LEO-18 e LEO-19 nelle definizioni e stime sopra (120.000/140.000/130.000;
+T 390.000, N 3). L'autorizzazione consente ready automatico al risveglio esistente
+solo dopo merge raggiungibile su main e verifica dell'accettazione di tutte le
+dipendenze, con gli altri gate invariati. Non autorizza nuove funzioni o figli.
+Snapshot, fonte e limiti: [checkpoint](checkpoints/dependency-continuation.md).
+LEO-7 conserva il proprio ready accettato e aspetta l'intero LEO-16 verificato.

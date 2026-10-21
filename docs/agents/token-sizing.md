@@ -59,6 +59,16 @@ se manca una decisione funzionale dell’utente. Non inventare accettazioni.
 La fase di definizione può produrre lo split e propagare ai figli la definizione
 accettata nel perimetro già autorizzato. Il runner esecutivo non inventa un piano
 o rende pronti ticket per riempire la coda; segnala il blocco alla fase di definizione.
+Fa eccezione solo la prosecuzione già autorizzata e persistita: parent/figli
+registrano **Autorizzazione alla prosecuzione**, fonte, ID figli espliciti e
+revisioni di definizione e sizing. Il runner riconcilia quei figli al risveglio
+esistente dopo merge e verifica delle dipendenze su main secondo
+[async-workflow.md](async-workflow.md); non serve una nuova approvazione ready.
+Il grill/to-tickets persiste l'autorizzazione allo sviluppo già concessa per
+il piano e identifica i figli dello split nel medesimo perimetro, senza chiedere
+un consenso ridondante. Nuovi ID/revisioni vanno esplicitati prima della presa;
+una modifica sostanziale del contratto richiede una nuova decisione. La sola
+accettazione funzionale di una macro non autorizza da sé lo sviluppo.
 Non rifare issue In Review in attesa umana solo per applicare retroattivamente
 questa regola: segnalarne l’assenza storica senza inventare stime già eseguite.
 
@@ -66,12 +76,16 @@ questa regola: segnalarne l’assenza storica senza inventare stime già eseguit
 
 Ogni ticket esecutivo ha branch, PR, test, revisione e checkpoint propri.
 L’implementazione parte in una sessione o sub-agente nuovo senza ereditare la
-chat completa; riceve ticket, specifica, istruzioni e checkpoint indispensabili.
-Una chat coordinatrice può selezionare il lavoro e raccogliere gli esiti.
+chat completa (`spawn_agent(fork_turns: "none")`); riceve ticket, specifica,
+istruzioni e checkpoint indispensabili.
+Anche alla ripresa creare un implementatore nuovo, senza riutilizzare quello
+del ticket precedente né usare `fork_turns: "all"`. Registrare identità e
+isolamento effettivo nel checkpoint. La chat coordinatrice seleziona il lavoro
+e raccoglie gli esiti, senza implementare prodotto nel proprio contesto.
 Se il runtime non permette il contesto separato, registrare il blocco; non
 presentare un semplice messaggio “riparti da zero” come isolamento effettivo.
-I revisori restano separati dall’implementatore. Le dipendenze continuano a
-valere: esecuzioni separate non significa tutte contemporanee o indipendenti.
+Ciascun revisore usa a sua volta `fork_turns: "none"` e resta separato
+dall’implementatore. Le dipendenze continuano a valere: esecuzioni separate non significa tutte contemporanee o indipendenti.
 
 Se durante lo sviluppo emerge lavoro eccedente la stima, salvare checkpoint,
 ristimare il residuo e aggiornare il piano; non espandere silenziosamente il

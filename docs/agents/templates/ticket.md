@@ -46,3 +46,11 @@ data/revisione della specifica. Se parent: T totale, target, formula/N, tabella
 figli/stime/dipendenze e riconciliazione della somma. Se figlio: riferimento
 al piano parent e confine coperto. Con N=1 spiegare perché non serve split.
 Sessione/sub-agente di implementazione nuovo; branch/PR/checkpoint propri.>
+
+## Autorizzazione alla prosecuzione
+
+<Compilare solo su autorizzazione dell'utente: data/fonte persistente, parent,
+ID espliciti di tutti i figli autorizzati, revisioni/snapshot di Definizione
+accettata e Dimensionamento, perimetro e pause/revoche. Non dedurre dal parent.
+Il runner registra per ogni abilitazione fonte, PR dipendenze, merge SHA,
+main SHA e prove dell'accettazione, seguendo async-workflow.md.>
