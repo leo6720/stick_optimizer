@@ -29,7 +29,9 @@ Usare relazioni native blockedBy e parentId, dopo aver risolto gli UUID reali;
 non dedurre UUID da identificativi LEO-N e non modificare i blocchi già presenti
 senza averli letti. Un ticket può partire solo se i suoi blocchi sono risolti.
 L'etichetta ready-for-agent da sola non basta: per la presa asincrona servono
-stato Todo, sezione Definizione accettata e dipendenze risolte.
+stato Todo, sezioni Definizione accettata e Dimensionamento, dipendenze risolte.
+Seguire [token-sizing.md](token-sizing.md): circa 150.000 token per ticket,
+parent non esecutivo quando suddiviso, stima/criteri/verifiche per ogni figlio.
 Seguire docs/agents/async-workflow.md per presa, checkpoint e revisione.
 
 Gli stati attuali sono Backlog, Todo, In Progress, In Review, Done, Canceled

@@ -18,3 +18,6 @@ Consegnare una sintesi utilizzabile da to-spec. Dopo l'accettazione dell'utente
 registrare nel ticket Definizione accettata con decisioni e criteri; su sua
 indicazione impostare Todo + ready-for-agent secondo docs/agents/async-workflow.md.
 Non iniziare l'implementazione durante il grill o marcare pronto senza consenso.
+
+La sintesi del grill non rende la macro pronta: passare a to-spec e poi
+to-tickets per stima e divisione a circa 150.000 token per ticket.

@@ -38,3 +38,11 @@ implicita del merge.>
 
 <Compilato dal runner alla presa: fase, baseline SHA, branch, head, PR,
 test eseguiti, rilievi aperti, numero dei cicli di revisione e prossima azione.>
+
+## Dimensionamento
+
+<Stima di questo ticket in token (circa <=150.000), motivazione e incertezza,
+data/revisione della specifica. Se parent: T totale, target, formula/N, tabella
+figli/stime/dipendenze e riconciliazione della somma. Se figlio: riferimento
+al piano parent e confine coperto. Con N=1 spiegare perché non serve split.
+Sessione/sub-agente di implementazione nuovo; branch/PR/checkpoint propri.>

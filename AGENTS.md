@@ -94,6 +94,9 @@ Per le issue accettate e pronte è autorizzato il flusso asincrono descritto in
 implementazione, test e revisori separati, senza merge o deploy.
 Le skill locali sono in `.agents/skills/<nome>/SKILL.md`; se il client non le
 rileva, leggere il file su richiesta. Non presumere disponibilità di slash command.
+Dopo il grill, prima di ready o sviluppo, stimare e scomporre secondo
+[dimensionamento in token](docs/agents/token-sizing.md): circa 150.000 token
+per ticket, N = ceil(stima totale / 150.000), contesti esecutivi separati.
 Tracker: Linear, workspace leochist, team Leochist (LEO), progetto Stick Optimizer.
 Leggere [issue-tracker.md](docs/agents/issue-tracker.md) prima di usare Linear e
 [triage-labels.md](docs/agents/triage-labels.md) per le etichette.

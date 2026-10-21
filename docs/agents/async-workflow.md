@@ -2,7 +2,7 @@
 
 Richiesta dell'utente del 16 ottobre 2026, LEO-15.
 Il runner cloud «Sviluppa Stick Optimizer» è stato registrato e attivato con
-scansione oraria, fuso Europe/Rome. Non è un webhook istantaneo di Linear.
+cadenza esterna configurata, fuso Europe/Rome. Non è un webhook istantaneo di Linear.
 La registrazione non certifica ancora un'esecuzione completa su un ticket reale.
 
 ## Chi fa cosa
@@ -29,11 +29,15 @@ chiede solo decisioni mancanti. Scrive una definizione con:
 - confini e comandi di verifica, incluse prove Windows;
 - dipendenze reali e decisioni ancora aperte.
 
+Dopo l’accettazione applicare obbligatoriamente [token-sizing.md](token-sizing.md):
+stima totale, N = max(1, ceil(T / 150000)), split e stime dei figli.
+Un parent con più figli non è esecutivo; non basta aver concluso il grill.
+
 Quando l'utente accetta, l'agente registra nel ticket una sezione
 **Definizione accettata**, con data/riferimento alla decisione e revisione della
 specifica. Non inventare l'accettazione e non applicare ready a macro task vaghe.
 Se l'utente dispone di avviare il lavoro, impostare **Todo** ed etichetta
-**ready-for-agent**, rimuovendo needs-triage/needs-info pertinenti.
+**ready-for-agent** soltanto sui ticket esecutivi con Dimensionamento valido, rimuovendo needs-triage/needs-info pertinenti.
 Sono questi due valori a rappresentare ready nel setup attuale.
 Il grill può svolgersi qui; la definizione deve finire nel ticket, non solo in chat.
 
@@ -45,6 +49,8 @@ revisioni separate e correzioni nel perimetro. Non autorizza merge o deploy.
 Il runner è singolo e lavora un ticket alla volta. Prima riprende le proprie
 issue In Progress con checkpoint; poi cerca Todo + ready-for-agent, senza
 needs-info, needs-triage, ready-for-human o wontfix e con dipendenze risolte.
+Prima della presa verificare anche Dimensionamento, piano parent e target
+150.000 token; applicare i blocchi di token-sizing.md se mancano.
 Ordine: priorità Linear, poi anzianità tra le issue eseguibili.
 
 Prima della presa rileggere stato e relazioni, cercare branch/PR con l'ID e
@@ -67,7 +73,9 @@ sullo stesso progetto senza un meccanismo di coordinamento dedicato.
 
 ## Implementazione e revisione autonoma
 
-Usare la toolchain fissata e un checkout isolato da main. Verificare prima
+Delegare il singolo ticket a una sessione/sub-agente nuovo senza ereditare
+la chat completa, con i soli riferimenti necessari. Se non disponibile,
+registrare il blocco di isolamento. Usare la toolchain fissata e un checkout isolato da main. Verificare prima
 che l'ambiente disponibile possa eseguire il lavoro e i controlli necessari.
 Test-first dove pertinente, controlli proporzionati per documentazione e UI.
 
@@ -75,7 +83,7 @@ Dopo l'implementazione fissare baseline e head e passare il diff a due revisori
 separati: specifica e standard. Correggere autonomamente difetti concreti,
 rieseguire i controlli interessati e ripetere la revisione sul nuovo head.
 Conservare il numero dei cicli nel checkpoint e ricostruirlo dai resoconti se
-incompleto, senza azzerarlo a ogni esecuzione oraria. Dopo tre cicli senza
+incompleto, senza azzerarlo a ogni esecuzione. Dopo tre cicli senza
 risoluzione, o se serve cambiare il contratto, registrare il blocco con evidenze. Non modificare la specifica per far passare il codice.
 
 Una sola PR verso main per attività, aggiornata alle successive esecuzioni.
@@ -109,3 +117,14 @@ Le altre automazioni dell'account non sono state modificate.
 Al setup nessuna issue di prodotto è ready: non sono stati avviati LEO-6–LEO-14.
 Accessi GitHub e Linear verificati. Restano da osservare la prima esecuzione
 schedulata e il primo ciclo completo sviluppo → revisione → PR su issue accettata.
+
+## Dimensionamento aggiunto il 21 ottobre 2026
+
+La prima configurazione non implementava la stima /150.000. La regola è ora in
+[token-sizing.md](token-sizing.md), il piano applicato in
+[sizing-plan.md](sizing-plan.md) e il prompt da allineare all’automazione esistente
+in [runner-prompt.md](runner-prompt.md). Il numero dei ticket è una stima prima
+dello sviluppo, non un contatore del consumo della chat. Gli esiti reali delle
+PR di prodotto restano nei loro ticket; non vengono inventate stime retroattive.
+La cadenza effettiva è quella registrata nel servizio esterno e non viene
+modificata da questa revisione. Non dedurla dalle note storiche del setup.
