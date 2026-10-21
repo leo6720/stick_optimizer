@@ -84,3 +84,12 @@ non vengono serializzate. La grafica rappresenta una sezione statica, non simula
 il ciclo di riporto e usa B astuccio come riferimento verticale: non introduce
 un'altezza fisica del cassetto assente dal modello. Benchmark e nuovi requisiti
 fisici richiedono un'attività separata; questa rifinitura non ne modifica le formule.
+
+## Strato completo nel popup formato (LEO-8)
+
+La sezione mostra un solo strato orizzontale completo in ogni cassetto, con tutti
+gli stick del raggruppamento; se ci sono due cassetti li conserva entrambi.
+Contorni, divisori, B astuccio e passo mantengono i valori precedenti; lo spazio
+sopra lo strato resta vuoto. L’etichetta della vista dichiara la semplificazione.
+Strati reali, altezza pila e riporto restano nei dettagli, anche con ultimo
+strato parziale o più di 32 strati. Nessuna nuova navigazione o scelta di strato.

@@ -171,3 +171,25 @@ Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
 Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
 Per vedere i controlli Rust: `python scripts/check.py --plan`.
 Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.
+
+## Verifica LEO-8: singolo strato nel dettaglio formato
+
+Il test pubblico `core/tests/schematic.rs` usa soluzioni reali e verifica uno/due
+cassetti, gruppo 1 e gruppi multipli, con/senza divisori, riporto e più di 32
+strati: `schematic` mantiene i dati del candidato e produce un solo strato completo.
+Il test desktop cambia formato nel popup tramite eventi egui e controlla quote,
+numero di stick disegnati e conservazione dei risultati.
+
+In cloud Linux si eseguono test e anteprime con backend host abilitato soltanto
+sulla riga di comando, senza modificare manifest o lockfile:
+`cargo test --workspace --features eframe/x11,ui-preview --locked`.
+Per le catture servono un display X11 (anche Xvfb) e OpenGL; build con
+`cargo build -p stick-optimizer-desktop --features eframe/x11,ui-preview --locked`.
+Le modalità di anteprima esistenti `detail`, `detail-carry`, `detail-compact` e
+`detail-scaled` coprono la sezione normale, con riporto, compatta e zoomata.
+Queste prove Linux non eseguono Windows né certificano monitor/DPI fisici.
+
+Sul PC Windows ripetere i controlli workspace e aprire il dettaglio di formati
+con due cassetti/divisori e riporto: verificare una sola fila completa, spazio
+vuoto fino a B, quote e valori reali invariati. Cambiare formato, ridimensionare
+e provare zoom/DPI. Registrare separatamente ciò che non viene eseguito.
