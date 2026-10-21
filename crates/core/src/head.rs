@@ -90,6 +90,7 @@ pub fn final_head_geometry(
     let mut ids = BTreeSet::new();
     let mut minima = Vec::with_capacity(formats.len());
     let mut common: f64 = 0.0;
+    let mut central_minimum: f64 = 0.0;
     let pitch = first.pickup_pitch.mm();
     for format in formats {
         if !ids.insert(format.format_id)
@@ -129,6 +130,13 @@ pub fn final_head_geometry(
         {
             return Err(Incompatible("gioco fra i centrali fissi insufficiente"));
         }
+        if format.grouping == 4 {
+            central_minimum = central_minimum.max(if format.dividers > 0 {
+                divided
+            } else {
+                adjacent
+            });
+        }
         common = common.max(minimum);
         minima.push(minimum);
     }
@@ -167,6 +175,41 @@ pub fn final_head_geometry(
             pickup_x: f64::from(channel) * pitch,
             final_x: origin + final_local,
         });
+    }
+    // Absolute coordinates can lose small gaps at large origins. Validate the
+    // emitted f64 geometry, not only the spacing used to construct it.
+    let precision_error = InvalidInput("precisione f64 insufficiente per le coordinate finali");
+    for pair in positions.windows(2) {
+        let left = &pair[0];
+        let right = &pair[1];
+        let gap = right.final_x - left.final_x;
+        if left.group != right.group {
+            if minima.iter().any(|minimum| gap + EPS < *minimum) {
+                return Err(precision_error);
+            }
+        } else if first.grouping == 4 && left.channel % 4 == 1 {
+            if (gap - pitch).abs() > EPS || gap + EPS < central_minimum {
+                return Err(precision_error);
+            }
+        } else if (gap - common).abs() > EPS
+            || minima.iter().any(|minimum| {
+                gap + EPS < *minimum || gap - minimum > settings.max_extra_spacing + EPS
+            })
+        {
+            return Err(precision_error);
+        }
+    }
+    for position in &positions {
+        let local = position.channel % first.grouping;
+        let fixed = match first.grouping {
+            2 => local == 0,
+            3 => local == 1,
+            4 => local == 1 || local == 2,
+            _ => unreachable!("validated grouping"),
+        };
+        if fixed && (position.final_x - position.pickup_x).abs() > EPS {
+            return Err(precision_error);
+        }
     }
     Ok(HeadGeometry {
         pickup_pitch: first.pickup_pitch,

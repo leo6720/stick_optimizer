@@ -209,3 +209,19 @@ fn settings_validate_default_and_nonnegative_extra_spacing() {
         );
     }
 }
+
+#[test]
+fn unrepresentable_final_gaps_at_large_pitch_are_explicit_errors() {
+    let settings = Settings {
+        max_extra_spacing: 0.0,
+        ..Settings::default()
+    };
+    for width in [25.12346, 25.123456789] {
+        let mut format = assigned(1, width, 2, 0);
+        format.pickup_pitch = Pitch((1_i64 << 53) - 1);
+        assert!(matches!(
+            final_head_geometry(&settings, &[format]),
+            Err(HeadGeometryError::InvalidInput(_))
+        ));
+    }
+}

@@ -84,3 +84,9 @@ la divisibilità dei canali e gli spazi fissi. Non enumera assegnazioni, non
 verifica ancora dimensioni dei cassetti e non modifica la classifica esistente.
 La condivisione attuale basata su `(raggruppamento, passo)` rimane da correggere
 in LEO-18; la presenza di questa API non certifica quella classifica.
+
+L'API controlla anche gli intervalli nelle coordinate f64 effettivamente
+restituite, inclusi i gruppi ripetuti. Se un passo/origine molto grande fa
+perdere più di 1e-9 mm a un gap mobile o fisso, oppure viola i limiti del
+formato, restituisce errore esplicito di precisione invece di una geometria
+incoerente. Il solo valore astratto dell'interasse comune non basta.

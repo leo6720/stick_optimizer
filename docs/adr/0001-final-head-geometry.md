@@ -45,6 +45,14 @@ Con gruppi 2/3 divisi valgono quindi gli esempi 25/26→37,5 mm; senza divisori
 25/26→27 mm anche con il divisore centrale. Fra i centrali richiedere
 P≥minimo pertinente, senza applicare il limite aggiuntivo a P−minimo.
 Gli spazi fra gruppi restano almeno P e rispettano così i minimi già verificati.
+Anche gli intervalli effettivamente emessi vengono verificati: a origini molto
+grandi la somma f64 può perdere un piccolo interasse. Ogni gap mobile deve
+corrispondere a d entro 1e-9 mm e rispettare minimo/extra di ogni formato;
+i gap centrali g4 devono rispettare P e il minimo strutturale. I canali fissi
+devono coincidere con le proprie coordinate di prelievo e i gap fra gruppi
+non possono scendere sotto i minimi. Se le coordinate non rappresentano
+queste condizioni entro tolleranza, l’API restituisce errore esplicito
+`InvalidInput` per precisione f64 insufficiente, senza geometria parziale.
 Cassetti, pareti esterne e assegnazioni separate/condivise saranno dimensionati
 e verificati da LEO-18 usando le coordinate effettive.
 
