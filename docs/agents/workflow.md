@@ -5,6 +5,13 @@ non l'installazione integrale delle skill di Matt Pocock né una trascrizione
 del video. Riferimento consultato:
 https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb035946536778336
 
+## Avvio asincrono
+
+Dopo grill, accettazione e dimensionamento in ticket, Todo + ready-for-agent
+avviano sviluppo e revisione autonoma tramite il runner configurato.
+Protocollo, ruoli, checkpoint e limiti in [async-workflow.md](async-workflow.md).
+Il merge resta manuale; nessuna issue viene resa pronta automaticamente.
+
 ## Uso quotidiano
 
 Aggiungi in Linear un'idea, un bug o un esempio nel progetto Stick Optimizer.
@@ -27,9 +34,11 @@ file: la presenza nel repo non garantisce registrazione o comandi slash.
 1. Chiarire solo le decisioni mancanti che cambiano comportamento o perimetro.
    Prima leggere codice, glossario e documentazione; non chiedere fatti reperibili.
 2. Scrivere la specifica con criteri osservabili e confini di test.
-3. Scomporre in ticket verticali e dipendenze native Linear; non creare backlog
-   di nuove funzioni non richieste. Segnare pronte solo attività definite.
-4. Lavorare una modifica alla volta; test-first per comportamento e bug,
+3. Stimare i token della specifica e calcolare N = ceil(totale / 150.000),
+   minimo uno. Scomporre e stimare i ticket secondo [token-sizing.md](token-sizing.md),
+   con criteri e dipendenze native Linear. Pronti solo i ticket esecutivi dimensionati.
+4. Ogni ticket si sviluppa in un contesto nuovo, con branch e PR propri.
+   Lavorare una modifica alla volta; test-first per comportamento e bug,
    controlli proporzionati per documentazione e cambi cosmetici.
 5. Rivedere il diff rispetto a uno SHA fisso su due assi: specifica e standard.
    Un'autorevisione va dichiarata e non sostituisce un revisore indipendente.
