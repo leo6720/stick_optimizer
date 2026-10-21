@@ -17,7 +17,7 @@ DTO e CSV IO, draft e consumatori GUI. Il contratto fisico resta quello del pare
 
 | Ticket | Confine | Stima token | Dipendenza |
 | --- | --- | --- | --- |
-+| [LEO-17](https://linear.app/leochist/issue/LEO-17/leo-16-definire-geometria-finale-delle-teste-e-parametri-persistiti) | Geometria/compatibilità e parametri persistiti | 120.000 | nessuno |
+| [LEO-17](https://linear.app/leochist/issue/LEO-17/leo-16-definire-geometria-finale-delle-teste-e-parametri-persistiti) | Geometria/compatibilità e parametri persistiti | 120.000 | nessuno |
 | [LEO-18](https://linear.app/leochist/issue/LEO-18/leo-16-enumerare-teste-separate-e-condivise-con-dimensioni-effettive) | Ricerca esatta separate/condivise | 140.000 | LEO-17 |
 | [LEO-19](https://linear.app/leochist/issue/LEO-19/leo-16-completare-editor-dettagli-e-csv-delle-configurazioni-testa) | Editor, dettagli, CSV e flusso completo | 130.000 | LEO-18 |
 
