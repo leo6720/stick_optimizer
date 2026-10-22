@@ -336,3 +336,57 @@ fn current_schema_requires_parameter_and_preserves_custom_values() {
         assert_eq!(std::fs::read(&path).unwrap(), before);
     }
 }
+
+#[test]
+fn shared_and_separate_head_assignments_reconstruct_after_reopening() {
+    let mut doc = example();
+    doc.study.settings = Settings {
+        channels: 2,
+        max_shift: 0.0,
+        max_layers: Some(1),
+        max_pitch: 120.0,
+        result_count: 10000,
+        ..Settings::default()
+    };
+    doc.study.formats[0].quantity = 2;
+    let mut stick = doc.study.sticks[0].clone();
+    stick.id = 3;
+    stick.name = "Altro".into();
+    stick.width = 26.0;
+    stick.fin = 4.0;
+    doc.study.sticks.push(stick);
+    doc.study.formats.push(Format {
+        id: 4,
+        name: "Altro formato".into(),
+        stick_id: 3,
+        quantity: 2,
+    });
+    assert_eq!(doc.engine, ENGINE_ID);
+    let expected = optimize(
+        &doc.study,
+        &SearchControl::default(),
+        SearchLimits::default(),
+    )
+    .unwrap();
+    assert!(expected.solutions.iter().any(|s| s.head_types.len() == 1));
+    assert!(expected.solutions.iter().any(|s| s.head_types.len() == 2));
+    doc.engine = "rust-geometry-v1".into();
+    let bytes = encode(&doc).unwrap();
+    let reopened = decode(&bytes).unwrap();
+    assert_eq!(reopened.engine, "rust-geometry-v1"); // original contract never mislabelled.
+    assert!(reopened.recalculate);
+    assert_eq!(
+        optimize(
+            &reopened.study,
+            &SearchControl::default(),
+            SearchLimits::default()
+        )
+        .unwrap()
+        .solutions,
+        expected.solutions
+    );
+    assert_eq!(
+        Document::new(reopened.name, reopened.study, true, reopened.view).engine,
+        ENGINE_ID
+    );
+}

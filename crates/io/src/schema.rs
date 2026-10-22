@@ -85,7 +85,7 @@ impl Document {
             study,
             recalculate,
             view,
-            engine: "rust-geometry-v1".into(),
+            engine: crate::ENGINE_ID.into(),
         }
     }
     pub fn validate(&self) -> Result<(), Error> {

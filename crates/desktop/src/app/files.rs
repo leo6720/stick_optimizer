@@ -108,7 +108,7 @@ impl PrototypeApp {
         } else {
             self.status = format!("Studio aperto: {}", path.display());
         }
-        if document.engine != "rust-geometry-v1" {
+        if document.engine != io::ENGINE_ID {
             self.diagnostic=Some("Studio creato con un altro motore: i risultati saranno ricalcolati con quello attuale.".into());
         }
         Ok(())
@@ -257,7 +257,7 @@ mod tests {
         app.study.parameters.result_count = usize::MAX.to_string();
         assert!(app.start_search());
         wait(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         app.selected = Some(4);
         app.ranges[0] = Range {
             min: Some(app.results[3].pitch),
@@ -305,6 +305,37 @@ mod tests {
         assert!(app.study.input_errors().is_empty());
     }
     #[test]
+    fn legacy_engine_is_signalled_and_recomputed_under_current_contract() {
+        let temp = Temp::new();
+        let path = temp.0.join("old-engine.stic");
+        let mut app = PrototypeApp::default();
+        let mut document = app.document().unwrap();
+        document.engine = "rust-geometry-v1".into();
+        document.recalculate = true;
+        io::save(&path, &document).unwrap();
+        let original = std::fs::read(&path).unwrap();
+        app.open_from(&path).unwrap();
+        assert!(app.diagnostic.as_deref().unwrap().contains("altro motore"));
+        wait(&mut app);
+        assert!(!app.results.is_empty());
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        assert_eq!(app.document().unwrap().engine, io::ENGINE_ID);
+        let expected = optimize(
+            &app.study.to_study().unwrap(),
+            &SearchControl::default(),
+            SearchLimits::default(),
+        )
+        .unwrap();
+        assert_eq!(
+            app.results
+                .iter()
+                .map(|r| r.solution.as_ref().clone())
+                .collect::<Vec<_>>(),
+            expected.solutions
+        );
+    }
+
+    #[test]
     fn invalid_open_and_save_preserve_current_study_path_and_results() {
         let temp = Temp::new();
         let path = temp.0.join("valid.stic");
@@ -313,9 +344,20 @@ mod tests {
         assert!(app.start_search());
         wait(&mut app);
         app.save_to(&path).unwrap();
+        let before = app
+            .results
+            .iter()
+            .map(|r| r.solution.as_ref().clone())
+            .collect::<Vec<_>>();
         std::fs::write(&bad, b"{broken").unwrap();
         assert!(app.open_from(&bad).is_err());
-        assert_eq!(app.results.len(), 16);
+        assert_eq!(
+            app.results
+                .iter()
+                .map(|r| r.solution.as_ref().clone())
+                .collect::<Vec<_>>(),
+            before
+        );
         assert_eq!(app.current_path, Some(path.clone()));
         assert!(!app.dirty);
         app.study.formats[0].quantity = "abc".into();

@@ -11,3 +11,5 @@ pub use geometry::{Geometry, GeometryRect, schematic};
 
 mod head;
 pub use head::{HeadFormat, HeadGeometry, HeadGeometryError, HeadPosition, final_head_geometry};
+
+mod assignments;
