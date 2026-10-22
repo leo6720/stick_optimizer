@@ -8,7 +8,7 @@ vecchi `.sop` Python. Non si migrano automaticamente file o preferenze legacy.
 - `schema`: `stick-optimizer-study`; `version`: `2`; `units`: `mm`.
 - `name`, `sticks`, `formats`, `settings`, `weights`: nome e input completi.
   Gli ID sono univoci nello studio, i formati riferiscono gli stick tramite ID.
-- `engine`: `rust-geometry-v1`, contratto di calcolo che ha creato lo studio.
+- `engine`: `rust-final-heads-v2`, contratto di calcolo che ha creato lo studio.
 - `recalculate`: vero quando lo studio salvato aveva risultati reali.
 - `view`: cinque intervalli inclusivi (passo, tipi cassetto, tipi testa,
   strati massimi, punteggio), filtro una testa, ordinamento e posizione selezionata.
@@ -69,8 +69,8 @@ Versioni diverse da 1/2, campi sconosciuti, parametri non validi, un campo
 nuovo presente nello schema 1 o assente nello schema 2 sono errori espliciti.
 Un errore di lettura non sostituisce lo studio corrente e non riscrive le
 preferenze. Non si applicano predefiniti al posto di campi esistenti invalidi.
-Il contratto motore resta `rust-geometry-v1`: LEO-17 prepara una API separata,
-non sostituisce ricerca, metriche, conteggi teste o formati CSV.
+Durante LEO-17 il contratto rimaneva `rust-geometry-v1`; LEO-18 usa
+`rust-final-heads-v2`, senza ulteriore modifica dello schema.
 
 ## CSV
 
@@ -103,8 +103,8 @@ compartimenti, divisori e strati. Il contorno verticale usa B astuccio come
 riferimento, non un'altezza fisica del cassetto non definita dal modello.
 L'ultimo strato è parziale quando la quantità non è divisibile per il gruppo;
 il ciclo di riporto è indicato, non simulato. Si disegnano al massimo 32 strati
-con avviso, mantenendo quote e risultati completi. Arrotondamento della
-larghezza cassetto e formule del motore restano invariati.
+con avviso, mantenendo quote e risultati completi. Le formule delle penalità restano quelle esistenti; LEO-18 usa larghezze
+effettive arrotondate per eccesso per conservare i giochi fisici.
 
 ## Verifiche residue
 
@@ -114,3 +114,14 @@ multilinea. Le catture native verificano disposizione e nuovi pannelli.
 Restano le prove fisiche dei selettori file Windows (apertura, annullamento,
 sovrascrittura), tastiera/mouse, chiusura della finestra e più monitor/DPI.
 Non sono ancora stati svolti benchmark o preparati installer e release.
+
+## Cambio motore LEO-18
+
+Schema2 invariato. Il nuovo contratto `rust-final-heads-v2` enumera teste
+separate/condivise e usa dimensioni effettive. Lettura di studi con
+`rust-geometry-v1` conserva il marcatore originale e non riscrive il file;
+la GUI segnala il cambio e ricalcola tutti i risultati dagli input. Un nuovo
+salvataggio esplicito usa il contratto corrente. Posizioni/identità vengono
+ricostruite deterministicamente, senza cache ambigue della vecchia ricerca.
+CSV conserva le colonne correnti con dimensioni/metriche aggiornate; la
+presentazione completa di assegnazioni e l’editor sono per LEO-19.

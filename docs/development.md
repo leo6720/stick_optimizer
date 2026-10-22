@@ -185,3 +185,13 @@ Su Linux il manifest Windows non abilita un backend finestra: per verificare
 il workspace senza cambiarlo, aggiungere `--features eframe/x11` ai comandi
 Cargo pertinenti. Un `cargo check --target x86_64-pc-windows-msvc` resta
 un controllo di compilazione, distinto da build/esecuzione native Windows.
+
+## Verifiche LEO-18
+
+`crates/core/tests/head_search.rs` confronta la ricerca pubblica con un
+riferimento indipendente che enumera tutte le mappe di etichette e calcola
+Pareto materializzato. Attesi fisici espliciti per gruppo4/limiti/frazioni;
+non rigenerare le fixture storiche Python dalla nuova implementazione.
+I campi invariati restano confrontati con la fixture originale. Test IO/desktop
+verificano ricostruzione di teste separate/condivise, cambio contratto motore,
+conservazione file e righe testa distinte pur con uguale chiave di prelievo.

@@ -1,5 +1,5 @@
-//! Preparatory geometry for a complete assignment to one fixed-final-position head.
-//! Search and ranking do not consume this API yet.
+//! Geometry for a complete assignment to one fixed-final-position head.
+//! Exact search verifies each separate/shared assignment through this public API.
 use crate::{Pitch, Settings};
 use std::{collections::BTreeSet, fmt};
 

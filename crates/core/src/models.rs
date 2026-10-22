@@ -135,9 +135,13 @@ pub struct PocketType {
 }
 impl Candidate {
     pub fn pocket_type(&self) -> PocketType {
-        PocketType { width: self.pocket_width, length: self.pocket_length,
-            dividers: self.dividers, pockets_per_pitch: self.pockets_per_pitch,
-            divider_lefts: self.geometry.divider_lefts.clone() }
+        PocketType {
+            width: self.pocket_width,
+            length: self.pocket_length,
+            dividers: self.dividers,
+            pockets_per_pitch: self.pockets_per_pitch,
+            divider_lefts: self.geometry.divider_lefts.clone(),
+        }
     }
 }
 
@@ -211,7 +215,11 @@ impl Solution {
         a.iter().zip(b).all(|(&x, y)| x <= y) && a.iter().zip(b).any(|(&x, y)| x < y)
     }
 
-    pub(crate) fn aggregate(candidates: Vec<Candidate>, head_types: Vec<HeadAssignment>, weights: &Weights) -> Self {
+    pub(crate) fn aggregate(
+        candidates: Vec<Candidate>,
+        head_types: Vec<HeadAssignment>,
+        weights: &Weights,
+    ) -> Self {
         let mut pocket_types = Vec::new();
         let mut penalties = [0.0; 5];
         let mut max_layers = 0;

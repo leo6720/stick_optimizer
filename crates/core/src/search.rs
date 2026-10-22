@@ -1,4 +1,7 @@
-use crate::{Candidate, Format, Pitch, Settings, Solution, Stick, Study, validate, HeadFormat, HeadGeometry, HeadGeometryError, PocketGeometry, final_head_geometry};
+use crate::{
+    Candidate, Format, HeadFormat, HeadGeometry, HeadGeometryError, Pitch, PocketGeometry,
+    Settings, Solution, Stick, Study, final_head_geometry, validate,
+};
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
@@ -94,7 +97,6 @@ fn pitch(value: f64) -> Result<Pitch, SearchError> {
     Ok(Pitch(ticks as i64))
 }
 
-
 fn gcd(mut a: u32, mut b: u32) -> u32 {
     while b != 0 {
         (a, b) = (b, a % b);
@@ -111,30 +113,59 @@ fn compute(
     dividers: u32,
     pockets_per_pitch: u32,
 ) -> Result<Option<Candidate>, SearchError> {
-    compute_with_head(f, s, p, input, grouping, dividers, pockets_per_pitch, None, None)
+    compute_with_head(
+        f,
+        s,
+        p,
+        input,
+        grouping,
+        dividers,
+        pockets_per_pitch,
+        None,
+        None,
+    )
 }
 
 #[allow(clippy::too_many_arguments)]
 fn compute_with_head(
-    f: &Format, s: &Stick, p: &Settings, input: Pitch, grouping: u32,
-    dividers: u32, pockets_per_pitch: u32, assigned: Option<&HeadGeometry>,
+    f: &Format,
+    s: &Stick,
+    p: &Settings,
+    input: Pitch,
+    grouping: u32,
+    dividers: u32,
+    pockets_per_pitch: u32,
+    assigned: Option<&HeadGeometry>,
     head_id: Option<usize>,
 ) -> Result<Option<Candidate>, SearchError> {
     let owned;
     let centres = if grouping == 1 {
         vec![0.0]
     } else {
-        let head = if let Some(head) = assigned { head } else {
-            owned = match final_head_geometry(p, &[HeadFormat {
-                format_id: f.id, stick_width: s.width, pickup_pitch: input, grouping, dividers,
-            }]) {
+        let head = if let Some(head) = assigned {
+            head
+        } else {
+            owned = match final_head_geometry(
+                p,
+                &[HeadFormat {
+                    format_id: f.id,
+                    stick_width: s.width,
+                    pickup_pitch: input,
+                    grouping,
+                    dividers,
+                }],
+            ) {
                 Ok(head) => head,
                 Err(HeadGeometryError::Incompatible(_)) => return Ok(None),
                 Err(HeadGeometryError::InvalidInput(_)) => return Err(SearchError::NumericalRange),
             };
             &owned
         };
-        head.positions.iter().take(grouping as usize).map(|pos| pos.final_x).collect()
+        head.positions
+            .iter()
+            .take(grouping as usize)
+            .map(|pos| pos.final_x)
+            .collect()
     };
     let span = centres[grouping as usize - 1] - centres[0];
     let raw_width = span + s.width + 2.0 * p.wall_clearance;
@@ -149,12 +180,21 @@ fn compute_with_head(
     let stick_centres: Vec<_> = centres.iter().map(|x| x - centres[0] + offset).collect();
     let mut divider_lefts = Vec::new();
     if dividers > 0 {
-        let gaps: &[usize] = match grouping { 2 => &[0], 3 => &[0, 1], 4 => &[1], _ => unreachable!() };
+        let gaps: &[usize] = match grouping {
+            2 => &[0],
+            3 => &[0, 1],
+            4 => &[1],
+            _ => unreachable!(),
+        };
         for &gap in gaps {
-            divider_lefts.push((stick_centres[gap] + stick_centres[gap + 1]) / 2.0 - p.divider_width / 2.0);
+            divider_lefts
+                .push((stick_centres[gap] + stick_centres[gap + 1]) / 2.0 - p.divider_width / 2.0);
         }
     }
-    let geometry = PocketGeometry { stick_centres, divider_lefts };
+    let geometry = PocketGeometry {
+        stick_centres,
+        divider_lefts,
+    };
     let pocket_pitch = grouping as f64 * input.mm();
     let cartoner = pockets_per_pitch as f64 * pocket_pitch;
     let ratio = cartoner / p.pitch_step;
@@ -371,12 +411,19 @@ pub fn optimize(
     // This is the exact amount of complete-assignment work, not a claim about
     // the number of feasible solutions. Bound the candidate Cartesian product
     // before the estimation pass as well.
-    let base_count = common.iter().try_fold(0u64, |sum, pitch| {
-        by_format.iter().try_fold(1u64, |n, map| n.checked_mul(map[pitch].len() as u64))
-            .and_then(|n| sum.checked_add(n))
-    }).ok_or_else(|| SearchError::LimitExceeded("stima combinazioni oltre u64".into()))?;
+    let base_count = common
+        .iter()
+        .try_fold(0u64, |sum, pitch| {
+            by_format
+                .iter()
+                .try_fold(1u64, |n, map| n.checked_mul(map[pitch].len() as u64))
+                .and_then(|n| sum.checked_add(n))
+        })
+        .ok_or_else(|| SearchError::LimitExceeded("stima combinazioni oltre u64".into()))?;
     if base_count > limits.combinations {
-        return Err(SearchError::LimitExceeded("combinazioni di candidati oltre il limite".into()));
+        return Err(SearchError::LimitExceeded(
+            "combinazioni di candidati oltre il limite".into(),
+        ));
     }
     let mut estimated = 0u64;
     for common_pitch in &common {
@@ -384,13 +431,24 @@ pub fn optimize(
         let mut indices = vec![0usize; lists.len()];
         loop {
             checkpoint(control)?;
-            let candidates: Vec<_> = lists.iter().zip(&indices).map(|(list, &i)| list[i].clone()).collect();
-            let count = crate::assignments::Partitions::new(&candidates).count(limits.combinations)?;
-            estimated = estimated.checked_add(count).ok_or_else(|| SearchError::LimitExceeded("stima oltre u64".into()))?;
+            let candidates: Vec<_> = lists
+                .iter()
+                .zip(&indices)
+                .map(|(list, &i)| list[i].clone())
+                .collect();
+            let count =
+                crate::assignments::Partitions::new(&candidates).count(limits.combinations)?;
+            estimated = estimated
+                .checked_add(count)
+                .ok_or_else(|| SearchError::LimitExceeded("stima oltre u64".into()))?;
             if estimated > limits.combinations {
-                return Err(SearchError::LimitExceeded("combinazioni e partizioni oltre il limite".into()));
+                return Err(SearchError::LimitExceeded(
+                    "combinazioni e partizioni oltre il limite".into(),
+                ));
             }
-            if !advance_indices(&mut indices, &lists) { break; }
+            if !advance_indices(&mut indices, &lists) {
+                break;
+            }
         }
     }
     control.estimated.store(estimated, Ordering::Relaxed);
@@ -400,32 +458,50 @@ pub fn optimize(
         let lists: Vec<_> = by_format.iter().map(|map| &map[common_pitch]).collect();
         let mut indices = vec![0usize; lists.len()];
         loop {
-            let candidates: Vec<_> = lists.iter().zip(&indices).map(|(list, &i)| list[i].clone()).collect();
+            let candidates: Vec<_> = lists
+                .iter()
+                .zip(&indices)
+                .map(|(list, &i)| list[i].clone())
+                .collect();
             let mut partitions = crate::assignments::Partitions::new(&candidates);
             loop {
                 checkpoint(control)?;
-                if let Some(solution) = assign_heads(study, &candidates, partitions.groups(), control)? {
-                    if !solution.score.is_finite() || solution.penalties.iter().any(|v| !v.is_finite()) {
+                if let Some(solution) =
+                    assign_heads(study, &candidates, partitions.groups(), control)?
+                {
+                    if !solution.score.is_finite()
+                        || solution.penalties.iter().any(|v| !v.is_finite())
+                    {
                         return Err(SearchError::NumericalRange);
                     }
                     let mut dominated = false;
                     for existing in &frontier {
                         checkpoint(control)?;
-                        if existing.dominates(&solution) { dominated = true; break; }
+                        if existing.dominates(&solution) {
+                            dominated = true;
+                            break;
+                        }
                     }
                     if !dominated {
                         frontier.retain(|existing| !solution.dominates(existing));
                         frontier.push(solution);
                         if frontier.len() > limits.frontier {
-                            return Err(SearchError::LimitExceeded(format!("frontiera Pareto oltre {} soluzioni", limits.frontier)));
+                            return Err(SearchError::LimitExceeded(format!(
+                                "frontiera Pareto oltre {} soluzioni",
+                                limits.frontier
+                            )));
                         }
                     }
                 }
                 examined += 1;
                 control.examined.store(examined, Ordering::Relaxed);
-                if !partitions.advance() { break; }
+                if !partitions.advance() {
+                    break;
+                }
             }
-            if !advance_indices(&mut indices, &lists) { break; }
+            if !advance_indices(&mut indices, &lists) {
+                break;
+            }
         }
     }
     // Stable sort: Python's metric/pitch tie order, then enumeration order.
@@ -454,24 +530,44 @@ pub fn optimize(
 fn advance_indices(indices: &mut [usize], lists: &[&Vec<Candidate>]) -> bool {
     for position in (0..indices.len()).rev() {
         indices[position] += 1;
-        if indices[position] < lists[position].len() { return true; }
+        if indices[position] < lists[position].len() {
+            return true;
+        }
         indices[position] = 0;
     }
     false
 }
 
-fn assign_heads(study: &Study, base: &[Candidate], mut groups: Vec<Vec<usize>>, control: &SearchControl) -> Result<Option<Solution>, SearchError> {
+fn assign_heads(
+    study: &Study,
+    base: &[Candidate],
+    mut groups: Vec<Vec<usize>>,
+    control: &SearchControl,
+) -> Result<Option<Solution>, SearchError> {
     let mut candidates = base.to_vec();
     let mut heads = Vec::new();
     // IDs are canonical within a solution, even when input order differs.
     groups.sort_by_key(|group| group.iter().map(|&i| base[i].format_id).min().unwrap());
     for (id, indices) in groups.into_iter().enumerate() {
         checkpoint(control)?;
-        let formats: Vec<_> = indices.iter().map(|&i| {
-            let c = &base[i];
-            let stick = study.sticks.iter().find(|s| s.id == c.stick_id).expect("validated stick");
-            HeadFormat { format_id: c.format_id, stick_width: stick.width, pickup_pitch: c.input_pitch, grouping: c.grouping, dividers: c.dividers }
-        }).collect();
+        let formats: Vec<_> = indices
+            .iter()
+            .map(|&i| {
+                let c = &base[i];
+                let stick = study
+                    .sticks
+                    .iter()
+                    .find(|s| s.id == c.stick_id)
+                    .expect("validated stick");
+                HeadFormat {
+                    format_id: c.format_id,
+                    stick_width: stick.width,
+                    pickup_pitch: c.input_pitch,
+                    grouping: c.grouping,
+                    dividers: c.dividers,
+                }
+            })
+            .collect();
         let geometry = match final_head_geometry(&study.settings, &formats) {
             Ok(g) => g,
             Err(HeadGeometryError::Incompatible(_)) => return Ok(None),
@@ -480,9 +576,30 @@ fn assign_heads(study: &Study, base: &[Candidate], mut groups: Vec<Vec<usize>>, 
         for i in indices {
             checkpoint(control)?;
             let c = &base[i];
-            let format = study.formats.iter().find(|f| f.id == c.format_id).expect("validated format");
-            let stick = study.sticks.iter().find(|s| s.id == c.stick_id).expect("validated stick");
-            let Some(rebuilt) = compute_with_head(format, stick, &study.settings, c.input_pitch, c.grouping, c.dividers, c.pockets_per_pitch, Some(&geometry), Some(id))? else { return Ok(None); };
+            let format = study
+                .formats
+                .iter()
+                .find(|f| f.id == c.format_id)
+                .expect("validated format");
+            let stick = study
+                .sticks
+                .iter()
+                .find(|s| s.id == c.stick_id)
+                .expect("validated stick");
+            let Some(rebuilt) = compute_with_head(
+                format,
+                stick,
+                &study.settings,
+                c.input_pitch,
+                c.grouping,
+                c.dividers,
+                c.pockets_per_pitch,
+                Some(&geometry),
+                Some(id),
+            )?
+            else {
+                return Ok(None);
+            };
             candidates[i] = rebuilt;
         }
         heads.push(crate::HeadAssignment { id, geometry });
@@ -552,5 +669,4 @@ mod tests {
         assert_eq!(four.penalties[1], 6.0);
         assert_eq!(four.penalties[3], 0.0);
     }
-
 }

@@ -12,7 +12,10 @@ impl Partitions {
         let mut buckets = BTreeMap::<(u32, Pitch), Vec<usize>>::new();
         for (i, c) in candidates.iter().enumerate() {
             if c.grouping != 1 {
-                buckets.entry((c.grouping, c.input_pitch)).or_default().push(i);
+                buckets
+                    .entry((c.grouping, c.input_pitch))
+                    .or_default()
+                    .push(i);
             }
         }
         let buckets: Vec<_> = buckets.into_values().collect();
@@ -29,18 +32,30 @@ impl Partitions {
             for _ in 0..bucket.len() {
                 let mut next = vec![0u64; row.len() + 1];
                 for k in 1..next.len() {
-                    next[k] = row[k - 1].checked_add(
-                        row.get(k).copied().unwrap_or(0).checked_mul(k as u64)
-                            .ok_or_else(too_many)?
-                    ).ok_or_else(too_many)?;
+                    next[k] = row[k - 1]
+                        .checked_add(
+                            row.get(k)
+                                .copied()
+                                .unwrap_or(0)
+                                .checked_mul(k as u64)
+                                .ok_or_else(too_many)?,
+                        )
+                        .ok_or_else(too_many)?;
                 }
-                let sum = next.iter().try_fold(0u64, |a, b| a.checked_add(*b)).ok_or_else(too_many)?;
-                if sum > limit { return Err(too_many()); }
+                let sum = next
+                    .iter()
+                    .try_fold(0u64, |a, b| a.checked_add(*b))
+                    .ok_or_else(too_many)?;
+                if sum > limit {
+                    return Err(too_many());
+                }
                 row = next;
             }
             let bell: u64 = row.iter().sum();
             count = count.checked_mul(bell).ok_or_else(too_many)?;
-            if count > limit { return Err(too_many()); }
+            if count > limit {
+                return Err(too_many());
+            }
         }
         Ok(count)
     }
@@ -50,7 +65,9 @@ impl Partitions {
         for (bucket, labels) in self.buckets.iter().zip(&self.labels) {
             let start = groups.len();
             for (&index, &label) in bucket.iter().zip(labels) {
-                if groups.len() == start + label { groups.push(Vec::new()); }
+                if groups.len() == start + label {
+                    groups.push(Vec::new());
+                }
                 groups[start + label].push(index);
             }
         }

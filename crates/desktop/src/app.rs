@@ -1243,7 +1243,12 @@ Dimensioni in mm",
                         .iter()
                         .enumerate()
                         .map(|(i, pocket)| {
-                            let (width, length, dividers, pockets) = (pocket.width, pocket.length, pocket.dividers, pocket.pockets_per_pitch);
+                            let (width, length, dividers, pockets) = (
+                                pocket.width,
+                                pocket.length,
+                                pocket.dividers,
+                                pocket.pockets_per_pitch,
+                            );
                             let formats = solution
                                 .candidates
                                 .iter()
@@ -1888,6 +1893,71 @@ mod tests {
                 "worker did not finish"
             );
             std::thread::yield_now();
+        }
+    }
+
+    #[test]
+    fn head_table_preserves_separate_heads_with_the_same_pickup_key() {
+        use stick_optimizer_core::{Format, Settings, Stick, Study, Weights};
+        let study = Study {
+            sticks: [25.0, 26.0]
+                .iter()
+                .enumerate()
+                .map(|(i, &width)| Stick {
+                    id: i as u64,
+                    name: format!("S{i}"),
+                    length: 110.0,
+                    width,
+                    thickness: 6.0,
+                    fin: 30.0 - width,
+                })
+                .collect(),
+            formats: (0..2)
+                .map(|i| Format {
+                    id: i,
+                    name: format!("F{i}"),
+                    stick_id: i,
+                    quantity: 2,
+                })
+                .collect(),
+            settings: Settings {
+                channels: 2,
+                max_shift: 0.0,
+                max_layers: Some(1),
+                max_pitch: 120.0,
+                result_count: 10000,
+                ..Settings::default()
+            },
+            weights: Weights::default(),
+        };
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        app.study = StudyDraft::from_study("Identità teste".into(), study);
+        calculate(&mut app);
+        let row = app
+            .results
+            .iter()
+            .find(|r| {
+                r.solution.head_types.len() == 2
+                    && r.solution.candidates.iter().all(|c| c.dividers == 0)
+            })
+            .unwrap();
+        let identity = row.id;
+        app.selected = Some(identity);
+        app.detail_view = DetailView::Heads;
+        for _ in 0..2 {
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let texts: Vec<_> = output
+                .shapes
+                .iter()
+                .filter_map(|s| match &s.shape {
+                    egui::epaint::Shape::Text(t) => Some(t.galley.job.text.as_str()),
+                    _ => None,
+                })
+                .collect();
+            assert!(texts.contains(&"Testa 1") && texts.contains(&"Testa 2"));
+            assert!(!texts.contains(&"F0, F1"));
+            assert_eq!(app.selected, Some(identity));
         }
     }
 

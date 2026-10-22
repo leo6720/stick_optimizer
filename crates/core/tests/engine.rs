@@ -114,18 +114,28 @@ fn unchanged_candidate_fields_keep_the_historical_python_reference() {
                 // final-heads-v2. Keep the fixture unchanged and compare only
                 // fields whose physical definition did not change.
                 for (column, actual) in [
-                    (3,c.input_pitch.mm()), (4,c.grouping as f64),
-                    (5,c.dividers as f64), (6,c.pockets_per_pitch as f64),
-                    (8,c.pocket_length), (9,c.pocket_pitch), (10,c.cartoner_pitch.mm()),
-                    (13,c.layers as f64), (14,c.stack_height), (16,c.carton_b),
-                    (18,u8::from(c.carryover_required) as f64), (19,c.carryover_cycle as f64),
-                    (22,c.deposits as f64), (23,c.head_width), (24,c.penalties[0]),
-                    (25,c.penalties[1]), (26,c.penalties[2]),
-                ] { near(actual, row[column].parse().unwrap()); }
-
+                    (3, c.input_pitch.mm()),
+                    (4, c.grouping as f64),
+                    (5, c.dividers as f64),
+                    (6, c.pockets_per_pitch as f64),
+                    (8, c.pocket_length),
+                    (9, c.pocket_pitch),
+                    (10, c.cartoner_pitch.mm()),
+                    (13, c.layers as f64),
+                    (14, c.stack_height),
+                    (16, c.carton_b),
+                    (18, u8::from(c.carryover_required) as f64),
+                    (19, c.carryover_cycle as f64),
+                    (22, c.deposits as f64),
+                    (23, c.head_width),
+                    (24, c.penalties[0]),
+                    (25, c.penalties[1]),
+                    (26, c.penalties[2]),
+                ] {
+                    near(actual, row[column].parse().unwrap());
+                }
             }
         }
-
     }
 }
 

@@ -53,15 +53,22 @@ pub fn schematic(study: &Study, c: &Candidate) -> Option<Geometry> {
             height: c.carton_b,
         });
         for &x in &c.geometry.divider_lefts {
-            g.dividers.push(GeometryRect { x: left + x, y: 0.0, width: p.divider_width, height: c.carton_b });
+            g.dividers.push(GeometryRect {
+                x: left + x,
+                y: 0.0,
+                width: p.divider_width,
+                height: c.carton_b,
+            });
         }
         for (slot, &centre) in c.geometry.stick_centres.iter().enumerate() {
             for layer in 0..c.layers.min(32) {
-                if u64::from(layer) * u64::from(c.grouping) + (slot as u64) < u64::from(f.quantity) {
+                if u64::from(layer) * u64::from(c.grouping) + (slot as u64) < u64::from(f.quantity)
+                {
                     g.sticks.push(GeometryRect {
                         x: left + centre - s.width / 2.0,
                         y: f64::from(layer) * s.thickness,
-                        width: s.width, height: s.thickness,
+                        width: s.width,
+                        height: s.thickness,
                     });
                 }
             }

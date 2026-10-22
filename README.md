@@ -67,9 +67,12 @@ versione Rust. Formati e limiti sono descritti in
 I nuovi studi/preferenze usano lo schema 2; lo schema Rust 1 viene letto
 senza riscriverlo, conservando i parametri salvati. I predefiniti incorporati
 usano divisore 7,5 mm e interasse aggiuntivo massimo 5 mm. Quest’ultimo è
-conservato nei file; ricerca ed editor saranno collegati in LEO-18/LEO-19.
+conservato nei file; la ricerca lo applica alle assegnazioni complete; l’editor sarà collegato in LEO-19.
 
-L'esempio incorporato esplora 40 combinazioni e produce 16 soluzioni Pareto.
+La ricerca enumera anche le alternative separate/condivise delle teste,
+verificando posizioni finali e cassetti effettivi (LEO-18).
+L’esempio incorporato verifica128assegnazioni strutturali e produce10soluzioni
+Pareto, conservando anche alternative con teste separate.
 La ricerca esatta ha limiti operativi espliciti: oltre un milione di combinazioni
 o 10.000 soluzioni in frontiera interrompe la ricerca e segnala il limite,
 senza presentare un risultato incompleto. Precisione e limiti sono descritti in
