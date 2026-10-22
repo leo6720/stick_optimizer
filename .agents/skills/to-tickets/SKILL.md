@@ -21,6 +21,14 @@ il lavoro parte solo quando i blocchi sono risolti. Non chiudere il parent.
 Applicare obbligatoriamente docs/agents/token-sizing.md: stima totale motivata,
 N = max(1, ceil(T / 150000)), stima per figlio entro circa 150.000, criteri propri.
 Registrare piano parent e dipendenze; con N=1 documentare perché non serve split.
-Con più figli togliere ready al parent. Solo la fase di definizione può rendere
-pronti figli che ereditano il perimetro già accettato; niente nuove funzioni.
-Ogni ticket si esegue in un contesto nuovo con branch/PR/checkpoint propri.
+Con più figli togliere ready al parent. La fase di definizione rende pronti i
+figli nel perimetro accettato e registra, se autorizzata dall'utente,
+**Autorizzazione alla prosecuzione** nel parent/figli: fonte, ID figli espliciti,
+revisioni accettate di definizione e sizing. Se l'esecuzione del piano è già
+autorizzata, persisterla e identificare i figli dello split nello stesso perimetro
+senza chiedere un nuovo consenso ridondante; la sola accettazione funzionale di
+una macro non basta. Il runner può poi aggiungere ready
+a quei soli figli dopo merge e verifica delle dipendenze su main, senza nuova
+approvazione per ogni figlio, secondo async-workflow.md. Non estendere ad altri
+ticket o funzioni non coperti dal piano autorizzato; conservare relazioni e blocchi umani.
+Ogni ticket si esegue con `spawn_agent(fork_turns: "none")` in un contesto nuovo con branch/PR/checkpoint propri.

@@ -10,7 +10,10 @@ https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb0359465367783
 Dopo grill, accettazione e dimensionamento in ticket, Todo + ready-for-agent
 avviano sviluppo e revisione autonoma tramite il runner configurato.
 Protocollo, ruoli, checkpoint e limiti in [async-workflow.md](async-workflow.md).
-Il merge resta manuale; nessuna issue viene resa pronta automaticamente.
+Il merge resta manuale. I figli esplicitamente autorizzati di uno split accettato
+diventano pronti al risveglio esistente dopo integrazione e verifica delle
+dipendenze su main, secondo il registro e i gate di async-workflow.md.
+Senza tale autorizzazione persistita il runner non inventa ready.
 
 ## Uso quotidiano
 

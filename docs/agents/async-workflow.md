@@ -16,7 +16,14 @@ La registrazione non certifica ancora un'esecuzione completa su un ticket reale.
 | Revisore degli standard | Correttezza, architettura e regole del repository |
 | Utente | Decisioni bloccanti, prove native necessarie e merge |
 
-I revisori operano come agenti separati dal contesto di implementazione.
+Implementatore e ciascun revisore devono essere creati con
+`spawn_agent(fork_turns: "none")`, senza cronologia della chat coordinatrice.
+Anche alla ripresa creare un implementatore nuovo: non usare `fork_turns: "all"`,
+non riutilizzare quello del ticket precedente e non implementare prodotto nella
+chat coordinatrice. Passare solo ID/URL, definizione/spec, istruzioni,
+baseline/branch/PR e checkpoint; registrare identità e isolamento effettivo.
+I revisori operano come agenti separati dal contesto di implementazione e dalla
+cronologia della coordinatrice.
 Se il runtime non li supporta, segnalare il limite senza chiamare indipendente
 un'autorevisione. Il runner non sostituisce l'utente nelle decisioni di prodotto.
 
@@ -44,10 +51,65 @@ Il grill può svolgersi qui; la definizione deve finire nel ticket, non solo in 
 La marcatura ready dopo il grill autorizza implementazione, test, push, PR,
 revisioni separate e correzioni nel perimetro. Non autorizza merge o deploy.
 
+## Autorizzazione alla prosecuzione dopo le dipendenze
+
+Per uno split già accettato, grilled e dimensionato l'utente può autorizzare
+l'intera sequenza senza dover approvare nuovamente ready per ciascun figlio.
+Registrare nel parent e in ciascun figlio la sezione **Autorizzazione alla
+prosecuzione**: data e fonte della richiesta, ID parent, elenco esplicito degli
+ID figli autorizzati, revisione della Definizione accettata e del Dimensionamento
+(con riferimenti persistenti o snapshot), perimetro, eventuali pause/revoche.
+Il checkpoint versionato può conservare la fonte e gli snapshot; non basta una
+memoria di chat. Accettazione del parent, parentId o esistenza di un figlio non
+costituiscono da soli questa autorizzazione. Se l'utente ha già autorizzato
+l'esecuzione del piano accettato, la fase grill/to-tickets deve persistere questa
+autorizzazione e i figli identificati senza chiedere un consenso ridondante.
+Una macro accettata solo funzionalmente, senza autorizzazione allo sviluppo,
+non basta. Figli individuati nello split del piano autorizzato, entro lo stesso
+perimetro, vanno esplicitati nel registro con le revisioni correnti; una modifica
+sostanziale del contratto richiede una nuova decisione sulla parte cambiata.
+
+A ogni risveglio della pianificazione esistente, dopo aver gestito le riprese e
+prima della normale selezione Todo + ready-for-agent, riconciliare i soli figli
+esplicitamente autorizzati ancora privi di ready. Per ognuno:
+
+1. Rileggere descrizione, commenti, stato, etichette, relazioni native e registro
+   di autorizzazione del parent/figlio. Verificare che sia ancora Todo, esecutivo,
+   con definizione e dimensionamento nelle revisioni autorizzate, senza nuove
+   decisioni, pause o revoche dell'utente. Escludere needs-info, needs-triage,
+   ready-for-human e wontfix; non cancellare questi blocchi per proseguire.
+2. Verificare ogni dipendenza nativa richiesta su main: la PR pertinente è
+   realmente merged nel repository/base corretti, il commit di merge è
+   raggiungibile dal main corrente aggiornato e vi sono evidenze di verifica
+   dei criteri di accettazione della dipendenza, valide sul main corrente.
+   Registrare PR, merge SHA, main SHA e riferimenti/esiti delle verifiche.
+   PR aperta, push, branch esistente o solo stato Linear Done non bastano.
+   Se manca evidenza o la corrispondenza è ambigua, non abilitare il figlio.
+3. Rileggere subito prima della scrittura stato, commenti, blocchi e branch/PR
+   per evitare una presa concorrente. Se i controlli passano, aggiungere
+   ready-for-agent come esecuzione dell'autorizzazione persistita, registrando
+   fonte/revisioni e prove delle dipendenze nel checkpoint. Non rimuovere le
+   relazioni native né modificare il contratto; non sovrascrivere claim altrui.
+
+Questa è l'unica eccezione al divieto di inventare ready per riempire la coda:
+senza autorizzazione persistita non aggiungere ready. La riconciliazione non è
+una nuova approvazione, un webhook o una nuova pianificazione. Proseguire con la
+normale selezione e presa di **un solo ticket alla volta**, con tutti i gate
+sottostanti. Non riprendere automaticamente un ticket fermato per una persona.
+
+Esempio autorizzato il 21 ottobre 2026: LEO-16 ha i soli figli LEO-17, LEO-18 e
+LEO-19 del piano accettato. Merge e verifica di LEO-17 su main consentono di
+abilitare LEO-18 al prossimo risveglio; merge e verifica di LEO-18 consentono
+LEO-19. LEO-7 conserva la propria definizione/ready accettata e dipende dal
+**LEO-16 completo**, integrato e verificato: un singolo figlio merged non basta.
+La richiesta non autorizza figli sconosciuti o altri ticket. Fonte e snapshot
+sono in [dependency-continuation.md](checkpoints/dependency-continuation.md).
+
 ## Presa, ripresa e duplicati
 
 Il runner è singolo e lavora un ticket alla volta. Prima riprende le proprie
-issue In Progress con checkpoint; poi cerca Todo + ready-for-agent, senza
+issue In Progress con checkpoint; poi riconcilia le prosecuzioni esplicitamente
+autorizzate come sopra e cerca Todo + ready-for-agent, senza
 needs-info, needs-triage, ready-for-human o wontfix e con dipendenze risolte.
 Prima della presa verificare anche Dimensionamento, piano parent e target
 150.000 token; applicare i blocchi di token-sizing.md se mancano.
@@ -74,8 +136,9 @@ sullo stesso progetto senza un meccanismo di coordinamento dedicato.
 ## Implementazione e revisione autonoma
 
 Delegare il singolo ticket a una sessione/sub-agente nuovo senza ereditare
-la chat completa, con i soli riferimenti necessari. Se non disponibile,
-registrare il blocco di isolamento. Usare la toolchain fissata e un checkout isolato da main. Verificare prima
+la chat completa (`fork_turns: "none"`), con i soli riferimenti necessari.
+Se non disponibile, registrare il blocco di isolamento. Usare la toolchain
+fissata e un checkout isolato da main. Verificare prima
 che l'ambiente disponibile possa eseguire il lavoro e i controlli necessari.
 Test-first dove pertinente, controlli proporzionati per documentazione e UI.
 

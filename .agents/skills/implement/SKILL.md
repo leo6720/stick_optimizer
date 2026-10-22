@@ -25,5 +25,9 @@ Non iniziare altre funzioni perché appaiono nel piano futuro.
 Prima della presa verificare Dimensionamento secondo docs/agents/token-sizing.md:
 non implementare macro da scomporre, ticket senza stima o oltre circa 150.000 token.
 Controllare il piano parent e non sostituire la fase di definizione. Implementare
-il ticket in una sessione/sub-agente nuovo senza cronologia completa ereditata;
-se impossibile registrare il blocco di isolamento.
+il ticket in una sessione/sub-agente nuovo senza cronologia completa ereditata,
+con `spawn_agent(fork_turns: "none")`; ciascun revisore usa a sua volta
+`fork_turns: "none"`. Se impossibile registrare il blocco di isolamento.
+Il runner può abilitare un figlio solo tramite l'Autorizzazione alla prosecuzione
+persistita e i gate dipendenze/main di async-workflow.md; l'implementatore non
+inventa ready né rimuove blocchi umani o relazioni native.

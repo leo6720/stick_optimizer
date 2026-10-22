@@ -32,7 +32,12 @@ L'etichetta ready-for-agent da sola non basta: per la presa asincrona servono
 stato Todo, sezioni Definizione accettata e Dimensionamento, dipendenze risolte.
 Seguire [token-sizing.md](token-sizing.md): circa 150.000 token per ticket,
 parent non esecutivo quando suddiviso, stima/criteri/verifiche per ogni figlio.
-Seguire docs/agents/async-workflow.md per presa, checkpoint e revisione.
+Seguire [async-workflow.md](async-workflow.md) per presa, checkpoint e revisione.
+Per i figli autorizzati di uno split registrare **Autorizzazione alla
+prosecuzione** nel parent/figli con fonte, ID espliciti e revisioni accettate.
+Il runner può aggiungere ready solo secondo quella autorizzazione e dopo prova
+di merge raggiungibile su main e verifica dell'accettazione per ogni dipendenza;
+Done da solo non la risolve. Conservare relazioni e blocchi umani.
 
 Gli stati attuali sono Backlog, Todo, In Progress, In Review, Done, Canceled
 e Duplicate. Rileggerli prima delle scritture: i nomi possono cambiare.
