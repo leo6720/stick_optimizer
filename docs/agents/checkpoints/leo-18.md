@@ -6,9 +6,9 @@
 - Ownership: only LEO-18, isolated `/workspace/stick-leo-18`, `codex/leo-18-async`.
 - Baseline: `f2956653e5f6bb80d638fdbd28eab8cef50ef087` (merged prerequisite PR21).
 - Initial reviewed head: `4b36c382a2929335b02ef1a53e313397c56f2d76`.
-- Corrected product head: `7aca80b4627bcb99bd16a966b8c2cbeafba6ac92` (following checkpoint commit changes no product).
-- Phase: cycle1 finding corrected and verified; awaiting cycle2 independent review on the final pushed head.
-- Review cycles: **1 completed**, cycle2 pending coordinator handoff. One cycle1 standards P2 corrected; no unresolved finding known, correction not yet independently approved.
+- Current product head: `170b5348b6b8fced04df6c6875aa8773e380f8a6` (following checkpoint commit changes no product).
+- Phase: cycle2 remaining P2 corrected at geometry source and verified; awaiting cycle3 independent review on the final pushed head.
+- Review cycles: **2 completed**, cycle3 pending coordinator handoff. The same standards P2 survived the first fix at half-grid boundaries; the new correction is not yet independently approved. Cycle3 is the final allowed cycle before an unresolved-finding block.
 - Accepted scope: LEO16 definition 20 October, sizing 21 October, 140k child of 390k/3.
 - No LEO19/7, merge, deployment, new automation or Linear state change by implementer.
 - PR: draft https://github.com/leo6720/stick_optimizer/pull/23 (single PR, main base).
@@ -133,9 +133,66 @@ keyboard/mouse, Windows file pickers and multiple-monitor DPI remain unexecuted.
 MSVC cross-check does not certify native Windows behavior. No new functional
 decision or necessary human test gate was identified by cycle1 reviewers.
 
+## Cycle2 review and root-cause correction
+
+On fixed head `a1dc9d4eb4ec74f508a6c16ad90083340b416aba`, independent standards
+review reproduced the same P2 at a grid half-tick. Widths20.01/20.02,
+divider7.499999999, other original g2 parameters and A/B56/11 yielded divider
+coordinates24.250000000500002/24.250000000499995. Deterministic grid equality
+was transitive but correctly put these differing raw values into different bins;
+the underlying width-dependent cancellation had not been removed. No PASS is
+claimed for that standards review or for the first correction's completeness.
+
+Fresh clean-head and live Linear ownership checks preceded the new edits.
+The expanded public regression was observed RED on precisely that raw-coordinate
+pair. The bounded correction computes the centered head offset as
+`(rounded_width - head_span)/2`, and divider coordinates directly from the
+centered physical drawer: g2/g4 single central divider; g3 symmetric pair
+separated by half the head span. This is algebraically the same physical model,
+but removes stick width and intermediate stick-coordinate averaging from divider
+placement. No grid movement, tolerance loosening, pairwise epsilon equality,
+penalty/weight change or new physical constraint. The canonical identity equality
+remains as documented precision handling, with distinct-location/large-range tests.
+
+The new public test covers63 valid cases: groups2/3/4, three pairs of nearby stick
+widths, seven divider thicknesses around grid half-ticks. It requires exact raw
+divider-coordinate agreement for physically identical shared drawers, one drawer
+type, expected metrics/score, and elimination of the equivalent separate-head
+arrangement. All prior physical oracle and clearance regressions remain passing.
+
+## Current verification (product head170b534)
+
+All Cargo commands use the same pinned toolchain/cache/target paths and
+`--locked --offline`; Linux workspace commands enable `eframe/x11`.
+
+| Check | Actual result |
+| --- | --- |
+| Half-grid public regression before correction | RED, exact reviewer coordinate pair reproduced |
+| `cargo test -p stick-optimizer-core --test head_search --locked --offline` | PASS11/11, includes63-case boundary sweep |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo test --workspace --all-features --features eframe/x11 --locked --offline` | PASS70 tests:27core+34desktop+9IO |
+| `cargo check --workspace --all-targets --all-features --features eframe/x11 --locked --offline` | PASS |
+| `cargo clippy --workspace --all-targets --all-features --features eframe/x11 --locked --offline -- -D warnings` | PASS |
+| `cargo build --workspace --release --features eframe/x11 --locked --offline` | PASS |
+| `cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked --offline` | PASS, compilation only |
+| Debug build `ui-preview,eframe/x11` | PASS |
+| Fresh Linux Xvfb launch/capture/visual inspection | PASS pockets and detail |
+| `git diff --check` | PASS |
+
+Fresh captures show input/results together, completed128 structural combinations
+and10 Pareto results, drawer rows56/141/57mm and the group2 schematic centered
+within its56mm drawer. Initial preview attempt failed Xvfb socket creation in
+the default network sandbox; repeating the same local-only display command with
+network-enabled sandbox permission captured both views successfully. No product
+error was observed. Windows native and physical-device/DPI limits remain unchanged.
+Logs `/tmp/leo18-cycle3-{workspace,check,clippy,release,msvc,preview-build}.log`,
+captures `/tmp/leo18-cycle3-gui/` are session-local; tests/ADR/checkpoint durable.
+
 ## Next action and review boundary
 
 Push the checkpoint head and hand exact baseline/final head to the coordinator
-for cycle2 spec and standards review. Do not claim correction independently
-approved until both reports complete. No product mutation during fixed-head
-review. Coordinator owns PR/Linear status and handoff. No merge/deploy authorized.
+for cycle3 spec and standards review, including the independent half-grid repro.
+Do not claim correction independently approved until both reports complete.
+Preserve the counter; after cycle3 unresolved findings require a documented block,
+not another reset/retry. No product mutation during fixed-head review.
+Coordinator owns PR/Linear status and handoff. No merge/deploy authorized.
