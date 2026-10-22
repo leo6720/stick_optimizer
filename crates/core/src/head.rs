@@ -52,6 +52,19 @@ impl fmt::Display for HeadGeometryError {
 }
 impl std::error::Error for HeadGeometryError {}
 
+pub(crate) fn minimum_approach_spacing(
+    settings: &Settings,
+    width: f64,
+    grouping: u32,
+    dividers: u32,
+) -> f64 {
+    if dividers > 0 && grouping != 4 {
+        width + settings.divider_width + 2.0 * settings.wall_clearance
+    } else {
+        width + settings.adjacent_clearance
+    }
+}
+
 /// Resolve ALL formats jointly; pairwise compatibility must not be chained.
 /// Pickup pitch uses the core's exact millionth-mm key. Other lengths remain
 /// unrounded f64 mm, with the core geometric tolerance of 1e-9 mm.
@@ -113,11 +126,12 @@ pub fn final_head_geometry(
         if !adjacent.is_finite() || !divided.is_finite() {
             return Err(InvalidInput("interasse minimo fuori intervallo"));
         }
-        let minimum = if format.dividers > 0 && format.grouping != 4 {
-            divided
-        } else {
-            adjacent
-        };
+        let minimum = minimum_approach_spacing(
+            settings,
+            format.stick_width,
+            format.grouping,
+            format.dividers,
+        );
         // The two g4 central channels stay one pickup pitch apart. Their
         // clearance must fit, but this structural spacing has no extra limit.
         if format.grouping == 4

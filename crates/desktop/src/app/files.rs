@@ -42,28 +42,39 @@ impl PrototypeApp {
             .or_else(|| rows.first().map(|r| r.id));
     }
     pub(super) fn read_defaults(&mut self) {
-        let result = (|| -> Result<(), io::Error> {
-            let path = preferences_path()?;
-            match io::load_preferences(&path) {
-                Ok(p) => {
-                    let (s, w) = p.parameters();
-                    let parameters = crate::draft::Parameters::from_core(s, w);
-                    self.study.parameters = parameters.clone();
-                    self.defaults = Some(parameters);
-                    Ok(())
-                }
-                Err(e)
-                    if e.downcast_ref::<std::io::Error>()
-                        .is_some_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
-                {
-                    Ok(())
-                }
-                Err(e) => Err(e),
-            }
-        })();
+        let result = preferences_path().and_then(|path| self.read_defaults_from(&path));
         if let Err(e) = result {
             self.diagnostic = Some(format!("Preferenze non caricate: {e}"));
         }
+    }
+    pub(super) fn read_defaults_from(&mut self, path: &Path) -> Result<(), io::Error> {
+        match io::load_preferences(path) {
+            Ok(p) => {
+                let (s, w) = p.parameters();
+                let parameters = crate::draft::Parameters::from_core(s, w);
+                self.study.parameters = parameters.clone();
+                self.defaults = Some(parameters);
+                Ok(())
+            }
+            Err(e)
+                if e.downcast_ref::<std::io::Error>()
+                    .is_some_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
+            {
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
+    pub(super) fn save_defaults_to(&mut self, path: &Path) -> Result<(), io::Error> {
+        // Validate parameters independently of incomplete input drafts.
+        let mut sample = StudyDraft::example();
+        sample.parameters = self.study.parameters.clone();
+        let study = sample.to_study().map_err(|errors| errors.join("; "))?;
+        std::fs::create_dir_all(path.parent().ok_or("Cartella preferenze mancante.")?)?;
+        io::save_preferences(path, &Preferences::new(study.settings, study.weights))?;
+        self.defaults = Some(self.study.parameters.clone());
+        self.status = "Parametri predefiniti salvati per i nuovi studi e il prossimo avvio.".into();
+        Ok(())
     }
     pub(super) fn document(&self) -> Result<Document, io::Error> {
         let study = self.study.to_study().map_err(|errors| errors.join("; "))?;
@@ -166,32 +177,29 @@ impl PrototypeApp {
                 self.save_current(matches!(action, FileAction::SaveAs));
                 Ok(())
             }
-            FileAction::Preferences => (|| -> Result<(), io::Error> {
-                // Validate parameters independently of incomplete input drafts.
-                let mut sample = StudyDraft::example();
-                sample.parameters = self.study.parameters.clone();
-                let study = sample.to_study().map_err(|errors| errors.join("; "))?;
-                let path = preferences_path()?;
-                std::fs::create_dir_all(path.parent().expect("preferences directory"))?;
-                io::save_preferences(&path, &Preferences::new(study.settings, study.weights))?;
-                self.defaults = Some(self.study.parameters.clone());
-                self.status =
-                    "Parametri predefiniti salvati per i nuovi studi e il prossimo avvio.".into();
-                Ok(())
-            })(),
+            FileAction::Preferences => {
+                preferences_path().and_then(|path| self.save_defaults_to(&path))
+            }
             FileAction::Summary | FileAction::Details => (|| -> Result<(), io::Error> {
                 let rows = self.visible_results();
                 let bytes = if matches!(action, FileAction::Summary) {
                     if rows.is_empty() {
                         return Err("Nessuna soluzione visibile da esportare.".into());
                     }
-                    io::summary_csv(rows.iter().map(|r| (r.id, r.solution.as_ref())))
+                    io::summary_csv(
+                        &self.study.to_study().map_err(|e| e.join("; "))?,
+                        rows.iter().map(|r| (r.id, r.solution.as_ref())),
+                    )?
                 } else {
                     let selected = rows
                         .iter()
                         .find(|r| Some(r.id) == self.selected)
                         .ok_or("Seleziona una soluzione visibile.")?;
-                    io::details_csv(&selected.solution)
+                    io::details_csv(
+                        &self.study.to_study().map_err(|e| e.join("; "))?,
+                        selected.id,
+                        &selected.solution,
+                    )?
                 };
                 let filename = if matches!(action, FileAction::Summary) {
                     "soluzioni.csv"

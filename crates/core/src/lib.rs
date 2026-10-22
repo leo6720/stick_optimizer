@@ -13,3 +13,6 @@ mod head;
 pub use head::{HeadFormat, HeadGeometry, HeadGeometryError, HeadPosition, final_head_geometry};
 
 mod assignments;
+
+mod dimensions;
+pub use dimensions::{CandidateDimensions, PocketGap, candidate_dimensions};
