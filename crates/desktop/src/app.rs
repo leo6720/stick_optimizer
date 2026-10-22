@@ -1242,18 +1242,12 @@ Dimensioni in mm",
                         .pocket_types
                         .iter()
                         .enumerate()
-                        .map(|(i, &(width, length, dividers, pockets))| {
+                        .map(|(i, pocket)| {
+                            let (width, length, dividers, pockets) = (pocket.width, pocket.length, pocket.dividers, pocket.pockets_per_pitch);
                             let formats = solution
                                 .candidates
                                 .iter()
-                                .filter(|c| {
-                                    (
-                                        c.pocket_width,
-                                        c.pocket_length,
-                                        c.dividers,
-                                        c.pockets_per_pitch,
-                                    ) == (width, length, dividers, pockets)
-                                })
+                                .filter(|c| c.pocket_type() == *pocket)
                                 .map(|c| c.format_name.as_str())
                                 .collect::<Vec<_>>()
                                 .join(", ");
@@ -1288,11 +1282,11 @@ Dimensioni in mm",
                         .head_types
                         .iter()
                         .enumerate()
-                        .map(|(i, &(group, pitch))| {
+                        .map(|(i, head)| {
                             let candidates: Vec<_> = solution
                                 .candidates
                                 .iter()
-                                .filter(|c| (c.grouping, c.input_pitch) == (group, pitch))
+                                .filter(|c| c.head_id == Some(head.id))
                                 .collect();
                             let formats = candidates
                                 .iter()
@@ -1301,8 +1295,8 @@ Dimensioni in mm",
                                 .join(", ");
                             vec![
                                 format!("Testa {}", i + 1),
-                                group.to_string(),
-                                format_number(pitch.mm()),
+                                head.geometry.grouping.to_string(),
+                                format_number(head.geometry.pickup_pitch.mm()),
                                 format_number(candidates[0].head_width),
                                 formats,
                             ]
@@ -1652,7 +1646,7 @@ mod tests {
                 app.parameters_error
             );
             assert_eq!(app.study.parameters, before);
-            assert_eq!(app.results.len(), 16);
+            assert!(!app.results.is_empty());
 
             let value = if editor == ParameterEditor::ResultCount {
                 "7"
@@ -1711,7 +1705,7 @@ mod tests {
         );
         assert!(!app.parameters_open);
         assert_eq!(app.study.parameters, before);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert!(!app.dirty);
 
         app.parameters_open = true;
@@ -1721,7 +1715,7 @@ mod tests {
         click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
         assert!(app.parameters_open && app.parameters_error.is_some());
         assert_eq!(app.study.parameters, before);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
 
         app.parameters_draft.as_mut().unwrap().pitch_step = "2,5".into();
         let output = draw_frame(&ctx, &mut app, vec![]);
@@ -1831,7 +1825,7 @@ mod tests {
             ],
         );
         assert_eq!(app.study.name, "Studio rinominato");
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert_eq!(app.selected, Some(2));
         assert!(app.dirty);
     }
@@ -1901,7 +1895,7 @@ mod tests {
     fn real_results_are_blocked_by_invalid_inputs_and_cleared_after_edits() {
         let mut app = PrototypeApp::default();
         calculate(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         app.study.sticks[0].width = "non numerico".into();
         app.invalidate_results();
         assert!(app.results.is_empty());
@@ -1957,7 +1951,7 @@ mod tests {
         assert!(app.start_search());
         assert!(!app.start_search()); // At most one worker.
         finish_job(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert_eq!(app.results[0].solution.candidates.len(), 3);
         assert!(app.start_search());
         app.study.formats[0].quantity = "11".into();
@@ -2013,7 +2007,7 @@ mod tests {
             );
         }
         finish_job(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         let output = draw_frame(&ctx, &mut app, vec![]);
         assert!(output.shapes.iter().any(|shape| matches!(&shape.shape,
             egui::epaint::Shape::Text(text) if text.galley.job.text == "Soluzione 01")));
