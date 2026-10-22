@@ -217,8 +217,14 @@ impl PrototypeApp {
                 app.start_search();
             }
             Ok(
-                "geometry" | "geometry-detail" | "detail" | "detail-compact" | "detail-scaled"
-                | "detail-bottom" | "detail-carry",
+                "geometry"
+                | "geometry-detail"
+                | "detail"
+                | "detail-compact"
+                | "detail-scaled"
+                | "detail-bottom"
+                | "detail-carry"
+                | "detail-carry-bottom",
             ) => {
                 if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-scaled") {
                     ctx.set_zoom_factor(1.5);
@@ -1849,6 +1855,28 @@ mod tests {
                     dimensions.extra_spacing,
                     Some(if shared { 1.0 } else { 0.0 })
                 );
+                if shared {
+                    let quote_ctx = egui::Context::default();
+                    let mut output = quote_ctx.run_ui(
+                        egui::RawInput {
+                            screen_rect: Some(egui::Rect::from_min_size(
+                                egui::Pos2::ZERO,
+                                egui::vec2(1180.0, 4000.0),
+                            )),
+                            ..Default::default()
+                        },
+                        |ui| {
+                            egui::Frame::NONE.inner_margin(8.0).show(ui, |ui| {
+                                details::configuration_values(ui, &core, &row.solution, c)
+                            });
+                        },
+                    );
+                    output.textures_delta.clear();
+                    text_position(&output, "Configurazione effettiva e giochi", 0.0);
+                    text_position(&output, "Interasse aggiuntivo del formato", 0.0);
+                    text_position(&output, if group == 4 { "27 mm" } else { "37,5 mm" }, 0.0);
+                    text_position(&output, "1 mm", 0.0);
+                }
                 app.detail_popup = Some((row.id, c.format_id));
                 draw_frame(&ctx, &mut app, vec![]);
                 let output = draw_frame(&ctx, &mut app, vec![]);

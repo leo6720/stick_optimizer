@@ -45,11 +45,15 @@ impl PrototypeApp {
                     | "detail-compact"
                     | "detail-scaled"
                     | "detail-bottom"
-                    | "detail-carry")
+                    | "detail-carry"
+                    | "detail-carry-bottom")
             )
             && let Some(result) = self.results.first()
             && let Some(c) = result.solution.candidates.get(
-                if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-carry") {
+                if matches!(
+                    std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(),
+                    Ok("detail-carry" | "detail-carry-bottom")
+                ) {
                     1
                 } else {
                     0
@@ -107,7 +111,7 @@ impl PrototypeApp {
                                 configuration_values(ui,&study,&solution,c);
                             }
                             #[cfg(feature = "ui-preview")]
-                            if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-bottom") {
+                            if matches!(std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(), Ok("detail-bottom" | "detail-carry-bottom")) {
                                 ui.scroll_to_cursor(Some(egui::Align::BOTTOM));
                             }
                         }
@@ -195,7 +199,7 @@ fn candidate_values(ui: &mut egui::Ui, c: &Candidate) {
         });
 }
 
-fn configuration_values(
+pub(super) fn configuration_values(
     ui: &mut egui::Ui,
     study: &stick_optimizer_core::Study,
     solution: &stick_optimizer_core::Solution,

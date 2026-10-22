@@ -49,6 +49,14 @@ la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
 temporanee isolate per studi, preferenze e CSV; non usano dati utente.
 Schema e limiti di persistenza in [rust-files.md](rust-files.md).
 
+LEO-19 aggiunge prove pubbliche di quote effettive e CSV per gruppi2/3/4,
+con25/26mm, divisori e centrale strutturale; sei scelte separate/condivise
+attraversano editor→Applica→Calcola→dettagli→CSV→salva/riapri tramite eventi
+egui e IO pubblico. Si confrontano configurazione scelta completa e byte CSV,
+non soltanto rango o numero risultati. Le preferenze sono verificate in cartelle
+temporanee: lettura e Applica non scrivono; solo salvataggio esplicito modifica
+il file; errori di lettura conservano studio e sorgente.
+
 Per rigenerare le fixture del riferimento: `python scripts/python-reference.py`.
 Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
 risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
@@ -69,7 +77,8 @@ Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 risultati reali nella stessa area di lavoro, parametri, tipi cassetto, tipi testa,
 diagnostica senza candidati/senza passo comune, finestra compatta, zoom UI 150%
 e molte righe. Le nuove viste coprono filtri, menu File/Modifica, popup del formato
-normale/compatto/zoomato, quote dopo lo scorrimento e formato con riporto,
+normale/compatto/zoomato, quote dopo lo scorrimento e formato con riporto (`detail-carry-bottom` include
+le nuove quote del gruppo4 dopo scorrimento),
 studio salvato e riaperto, conferma modifiche non salvate e
 messaggio di errore file. L'anteprima `reopened` scrive solo
 `work/phase5/qa-roundtrip.stic`; le altre non salvano preferenze.

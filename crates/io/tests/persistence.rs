@@ -529,3 +529,44 @@ fn chosen_configuration_csv_and_public_file_roundtrip_agree_for_mixed_width_head
         }
     }
 }
+
+#[test]
+fn group_one_csv_has_explicit_empty_head_fields_and_join_errors_are_reported() {
+    let mut doc = example();
+    doc.study.formats[0].quantity = 1;
+    doc.study.settings.max_shift = 0.0;
+    let report = optimize(
+        &doc.study,
+        &SearchControl::default(),
+        SearchLimits::default(),
+    )
+    .unwrap();
+    let s = report
+        .solutions
+        .iter()
+        .find(|s| s.candidates[0].grouping == 1)
+        .unwrap();
+    let rows = records(&details_csv(&doc.study, 1, s).unwrap());
+    let cell = |name: &str| rows[1][rows[0].iter().position(|h| h == name).unwrap()].as_str();
+    for field in [
+        "head_id",
+        "head_shared",
+        "approach_spacing_mm",
+        "minimum_approach_spacing_mm",
+        "extra_spacing_mm",
+    ] {
+        assert_eq!(cell(field), "");
+    }
+    for field in [
+        "head_format_ids",
+        "head_final_centres_mm",
+        "gap_centre_spacings_mm",
+        "gap_structural",
+    ] {
+        assert_eq!(cell(field), "[]");
+    }
+    assert_eq!(cell("head_width_mm"), "720");
+    let mut wrong = doc.study.clone();
+    wrong.sticks.clear();
+    assert!(details_csv(&wrong, 1, s).is_err());
+}
