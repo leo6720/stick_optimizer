@@ -176,21 +176,25 @@ fn compute_with_head(
         return Err(SearchError::NumericalRange);
     }
     let pocket_width = rounded as u64;
-    let offset = p.wall_clearance + s.width / 2.0 + (rounded - raw_width) / 2.0;
+    // Centre the approved head span directly. Expanding this into stick width,
+    // wall clearance and rounding surplus introduces width-dependent roundoff
+    // even when the resulting physical drawer and head geometry are identical.
+    let offset = (rounded - span) / 2.0;
     let stick_centres: Vec<_> = centres.iter().map(|x| x - centres[0] + offset).collect();
-    let mut divider_lefts = Vec::new();
-    if dividers > 0 {
-        let gaps: &[usize] = match grouping {
-            2 => &[0],
-            3 => &[0, 1],
-            4 => &[1],
+    let divider_lefts = if dividers > 0 {
+        // G2/G4 have one central divider; G3 has two symmetric dividers
+        // separated by half the head span. Use the physical drawer centre,
+        // never averaged stick coordinates, so equivalent shapes cannot land
+        // on opposite identity-grid sides through cancellation.
+        let central_left = (rounded - p.divider_width) / 2.0;
+        match grouping {
+            2 | 4 => vec![central_left],
+            3 => vec![central_left - span / 4.0, central_left + span / 4.0],
             _ => unreachable!(),
-        };
-        for &gap in gaps {
-            divider_lefts
-                .push((stick_centres[gap] + stick_centres[gap + 1]) / 2.0 - p.divider_width / 2.0);
         }
-    }
+    } else {
+        Vec::new()
+    };
     let geometry = PocketGeometry {
         stick_centres,
         divider_lefts,

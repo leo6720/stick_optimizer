@@ -59,6 +59,13 @@ unrounded for clearance checks and drawing. If scaled ticks are not finite or
 exceed exact f64 integer precision, identity retains the original coordinate
 instead of saturating or merging distinct large positions. This adds no physical
 constraint and changes no penalty formula or weight.
+The drawer translation is computed directly as `(rounded_width - head_span)/2`.
+Divider left edges are derived from the centred drawer and its divider thickness:
+the single g2/g4 divider is central; g3 dividers are symmetric, separated by half
+the approved head span. These algebraically equivalent forms avoid introducing
+stick-width-dependent cancellation into an identical drawer shape. Canonical
+identity alone cannot repair raw coordinates straddling a grid half-tick; the
+geometry construction must first be independent of the assigned stick width.
 
 Pitch keys/tolerances and public head-API precision rejection remain ADR0001.
 Drawers move as a local translation of the approved fixed head positions; no

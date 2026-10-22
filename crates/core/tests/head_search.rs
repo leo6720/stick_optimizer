@@ -89,6 +89,61 @@ fn drawer_identity_is_transitive_and_keeps_distinct_divider_positions() {
 }
 
 #[test]
+fn shared_drawer_coordinates_ignore_stick_width_at_identity_grid_boundaries() {
+    for group in [2, 3, 4] {
+        let drawer_width = match group {
+            2 => 56,
+            3 => 88,
+            4 => 127,
+            _ => unreachable!(),
+        };
+        for widths in [[20.01, 20.02], [20.06, 20.07], [20.11, 20.12]] {
+            for step in -3..=3 {
+                let mut study = one_group(&widths, group);
+                study.settings.divider_width = 7.5 + f64::from(step) * 1e-9;
+                study.settings.ab_target = f64::from(drawer_width) / 11.0;
+                let report =
+                    optimize(&study, &SearchControl::default(), SearchLimits::default()).unwrap();
+                let shared = report
+                    .solutions
+                    .iter()
+                    .find(|s| {
+                        s.head_types.len() == 1 && s.candidates.iter().all(|c| c.dividers > 0)
+                    })
+                    .expect("shared divided geometry must survive at its exact A/B target");
+                assert!(
+                    shared
+                        .candidates
+                        .iter()
+                        .all(|c| c.pocket_width == drawer_width as u64)
+                );
+                assert_eq!(
+                    shared.candidates[0].geometry.divider_lefts,
+                    shared.candidates[1].geometry.divider_lefts,
+                    "identical physical drawers must have identical coordinates: group{group}, widths{widths:?}, step{step}"
+                );
+                assert_eq!(shared.pocket_types.len(), 1);
+                let grouping_penalty = if group == 2 { 2.0 } else { 4.0 };
+                assert_eq!(
+                    shared.metrics(),
+                    [1.0, 1.0, 0.0, 0.0, grouping_penalty, 0.0, 0.0]
+                );
+                assert_eq!(
+                    shared.score,
+                    500.0 + 10.0 * grouping_penalty + 30.0 * f64::from(group)
+                );
+                assert!(!report.solutions.iter().any(|s| {
+                    s.head_types.len() == 2
+                        && s.candidates
+                            .iter()
+                            .all(|c| c.dividers > 0 && c.pocket_width == drawer_width as u64)
+                }));
+            }
+        }
+    }
+}
+
+#[test]
 fn group_four_drawer_contains_two_pairs_at_the_fixed_pickup_pitch() {
     let study = one_group(&[25.0], 4);
     let report = optimize(&study, &SearchControl::default(), SearchLimits::default()).unwrap();
