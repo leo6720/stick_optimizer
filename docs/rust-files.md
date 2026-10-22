@@ -53,8 +53,8 @@ dal menu File resta quello incorporato. `user_defaults.json` non viene usato.
 Studi e preferenze nuovi scrivono la versione 2: `settings.max_extra_spacing`
 conserva l'interasse aggiuntivo massimo, finito e non negativo, in mm.
 Il valore incorporato è 5 mm; il divisore incorporato è ora 7,5 mm.
-Il parametro attraversa DTO e bozze senza arrotondamenti, ma non ha ancora
-un editor GUI: l'integrazione della ricerca è LEO-18 e l'editor è LEO-19.
+Il parametro attraversa DTO e bozze senza arrotondamenti. La ricerca lo usa
+dal LEO-18; LEO-19 lo rende modificabile in Dati astucciatrice con Applica/Annulla.
 
 La lettura di un file Rust versione 1 migra **solo in memoria**: aggiunge
 `max_extra_spacing: 5.0` e aggiorna la versione interna a 2. Tutti gli altri
@@ -75,17 +75,57 @@ Durante LEO-17 il contratto rimaneva `rust-geometry-v1`; LEO-18 usa
 ## CSV
 
 **File → Esporta soluzioni visibili** esporta le righe dopo i filtri, nell'ordine
-visibile, conservando la posizione originaria della classifica. Il CSV ha 11
+visibile, conservando la posizione originaria della classifica. Il CSVv2 conserva le prime11
 colonne: posizione, score, passo, conteggi cassetti/teste, strati e cinque penalità.
-**Esporta dettaglio selezionato** esporta 28 colonne per candidato: nomi, passi,
-raggruppamento/divisori, cassetti per passo, dimensioni/ingombri, pila, A/B,
-riporto/ciclo, stabilità, depositi, larghezza testa e cinque penalità.
+**Esporta dettaglio selezionato** conserva le prime28 colonne per candidato:
+nomi, passi, raggruppamento/divisori, cassetti per passo, dimensioni/ingombri,
+pila, A/B, riporto/ciclo, stabilità, depositi, larghezza testa e cinque penalità.
+`head_width_mm` resta passo MT × numero canali, non distanza primo–ultimo centro.
+
+Entrambi appendono otto colonne comuni:
+
+| Colonna | Significato |
+| --- | --- |
+| `csv_version`, `engine` | `2`, `rust-final-heads-v2` |
+| `channels` | Numero canali MT |
+| `max_extra_spacing_mm` | Limite aggiuntivo su ogni distanza mobile |
+| `divider_width_mm`, `wall_width_mm` | Spessori divisore e parete |
+| `wall_clearance_min_mm`, `stick_clearance_min_mm` | Giochi minimi impostati |
+
+Il riepilogo ha20colonne: l'ultima, `configuration`, contiene JSON con `heads`
+(ID, ID formati assegnati, centri al prelievo/finali per canale) e `formats`
+(ID formato/stick/testa, gruppo, divisori, cassetti per passo, passo MT,
+larghezza cassetto, centri locali e bordi sinistri divisori). Così alternative
+con stesse metriche restano identificabili senza affidarsi ai nomi.
+
+Il dettaglio ha56colonne; dopo le otto comuni aggiunge:
+
+| Colonne | Significato |
+| --- | --- |
+| `rank` | Rango originale1-based della soluzione scelta, indipendente dall'ordine visibile |
+| `format_id`, `stick_id`, `stick_width_mm` | Identità nello studio e larghezza fisica |
+| `head_id`, `head_format_ids`, `head_shared` | ID testa0-based locale alla soluzione, ID assegnati ordinati, true se condivisa |
+| `approach_spacing_mm`, `minimum_approach_spacing_mm`, `extra_spacing_mm` | Interasse mobile effettivo, minimo del formato, differenza |
+| `head_pickup_centres_mm`, `head_final_centres_mm` | Coordinate di tutti i canali, nell'ordine canale0…N−1; origine al primo canale al prelievo |
+| `pocket_stick_centres_mm`, `divider_lefts_mm` | Primo strato locale, origine alla parete interna sinistra; bordi sinistri dei divisori |
+| `left_wall_clearance_mm`, `right_wall_clearance_mm` | Giochi effettivi ai due lati del cassetto |
+| `gap_centre_spacings_mm`, `gap_stick_clearances_mm` | Interassi e distanze fra superfici stick adiacenti (includono il divisore se presente) |
+| `gap_divider_clearances_mm` | Una coppia sinistra/destra per gap con divisore; null per gap senza divisore |
+| `gap_structural` | true solo per centrale gruppo4, escluso dal limite aggiuntivo |
+
+Le colonne plurali sono liste JSON; i gap seguono gli slot adiacenti del primo
+strato (0–1,1–2,…), le coordinate hanno precisione completa. Per gruppo1:
+`head_id`, `head_shared` e i tre interassi sono vuoti, le liste testa/gap sono`[]`;
+nessuna testa contribuisce al conteggio. Una testa separata ha un solo assegnato,
+condivisa ne ha almeno due. Teste separate con stessa geometria hanno ID diversi.
+I parametri salvati nei file restano schema2: il CSV ha una versione distinta.
 
 UTF-8 con BOM, delimitatore virgola, decimali con punto, terminatori CRLF;
-virgole, doppi apici e ritorni a capo nei nomi vengono quotati correttamente.
+virgole, doppi apici e ritorni a capo nei nomi e nelle liste JSON vengono quotati.
 I numeri conservano precisione completa. Le lunghezze hanno suffisso `_mm`.
-Il conteggio teste esclude grouping 1; i candidati di gruppo 1 restano nel
-dettaglio come nel dominio. Non si presume la vecchia struttura CSV Python.
+La GUI costruisce il CSV prima del selettore/scrittura; un errore non produce un
+file parziale. Il conteggio teste esclude grouping1; tali candidati restano nel
+dettaglio. Non si presume la vecchia struttura CSV Python.
 
 ## Filtri e disegno
 
@@ -123,5 +163,5 @@ separate/condivise e usa dimensioni effettive. Lettura di studi con
 la GUI segnala il cambio e ricalcola tutti i risultati dagli input. Un nuovo
 salvataggio esplicito usa il contratto corrente. Posizioni/identità vengono
 ricostruite deterministicamente, senza cache ambigue della vecchia ricerca.
-CSV conserva le colonne correnti con dimensioni/metriche aggiornate; la
-presentazione completa di assegnazioni e l’editor sono per LEO-19.
+LEO-19 aggiunge CSVv2, editor e quote complete secondo ADR0003, conservando
+schema2/contratto motore e il significato delle colonne originali.

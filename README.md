@@ -67,7 +67,12 @@ versione Rust. Formati e limiti sono descritti in
 I nuovi studi/preferenze usano lo schema 2; lo schema Rust 1 viene letto
 senza riscriverlo, conservando i parametri salvati. I predefiniti incorporati
 usano divisore 7,5 mm e interasse aggiuntivo massimo 5 mm. Quest’ultimo è
-conservato nei file; la ricerca lo applica alle assegnazioni complete; l’editor sarà collegato in LEO-19.
+conservato nei file; la ricerca lo applica alle assegnazioni complete ed è modificabile
+in **Modifica → Dati astucciatrice**, con validazione, Applica e Annulla.
+I dettagli distinguono ID e assegnazioni delle teste separate/condivise; il popup
+del formato include interassi finali e giochi effettivi. I CSV versione2
+aggiungono configurazione scelta, identità, coordinate e parametri, senza cambiare
+il significato della larghezza testa (passo MT × canali).
 
 La ricerca enumera anche le alternative separate/condivise delle teste,
 verificando posizioni finali e cassetti effettivi (LEO-18).

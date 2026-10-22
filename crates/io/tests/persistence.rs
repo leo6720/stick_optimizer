@@ -215,17 +215,17 @@ fn csv_round_trip_checks_columns_numbers_quoting_and_stable_rank() {
     .unwrap();
     assert!(!report.solutions.is_empty());
     let s = &report.solutions[0];
-    let summary = records(&summary_csv([(7, s)]));
+    let summary = records(&summary_csv(&doc.study, [(7, s)]).unwrap());
     assert_eq!(summary.len(), 2);
-    assert_eq!(summary[0].len(), 11);
-    assert_eq!(summary[1].len(), 11);
+    assert!(summary[0].len() > 11);
+    assert_eq!(summary[1].len(), summary[0].len());
     assert_eq!(summary[1][0], "7");
     assert_eq!(summary[1][1].parse::<f64>().unwrap(), s.score);
     assert_eq!(summary[1][4].parse::<usize>().unwrap(), s.head_types.len());
-    let detail = records(&details_csv(s));
+    let detail = records(&details_csv(&doc.study, 7, s).unwrap());
     assert_eq!(detail.len(), 2);
-    assert_eq!(detail[0].len(), 28);
-    assert_eq!(detail[1].len(), 28);
+    assert!(detail[0].len() > 28);
+    assert_eq!(detail[1].len(), detail[0].len());
     assert_eq!(detail[1][1], doc.study.sticks[0].name);
     assert_eq!(detail[1][9].parse::<f64>().unwrap(), s.pitch.mm());
     for (column, value) in [
@@ -389,4 +389,184 @@ fn shared_and_separate_head_assignments_reconstruct_after_reopening() {
         Document::new(reopened.name, reopened.study, true, reopened.view).engine,
         ENGINE_ID
     );
+}
+
+#[test]
+fn chosen_configuration_csv_and_public_file_roundtrip_agree_for_mixed_width_heads() {
+    let temp = Temp::new();
+    for group in [2, 3, 4] {
+        let mut doc = example();
+        doc.study.settings = Settings {
+            channels: group,
+            max_shift: 0.0,
+            max_layers: Some(1),
+            max_pitch: 60.0 * f64::from(group),
+            result_count: 10000,
+            ab_target: match group {
+                2 => 68.0 / 11.0,
+                3 => 105.0 / 11.0,
+                _ => 144.0 / 11.0,
+            },
+            ..Settings::default()
+        };
+        doc.study.formats[0].quantity = group;
+        doc.study.sticks.push(Stick {
+            id: 3,
+            name: "Altro β".into(),
+            width: 26.0,
+            fin: 4.0,
+            ..doc.study.sticks[0].clone()
+        });
+        doc.study.formats.push(Format {
+            id: 4,
+            name: "F β".into(),
+            stick_id: 3,
+            quantity: group,
+        });
+        let report = optimize(
+            &doc.study,
+            &SearchControl::default(),
+            SearchLimits::default(),
+        )
+        .unwrap();
+        for shared in [true, false] {
+            let mut roundtrip_study = doc.study.clone();
+            if !shared {
+                roundtrip_study.settings.ab_target = match group {
+                    2 => 55.0 / 11.0,
+                    3 => 81.0 / 11.0,
+                    _ => 141.0 / 11.0,
+                };
+            }
+            let alternatives = optimize(
+                &roundtrip_study,
+                &SearchControl::default(),
+                SearchLimits::default(),
+            )
+            .unwrap();
+            let (index, chosen) = alternatives
+                .solutions
+                .iter()
+                .enumerate()
+                .find(|(_, s)| s.head_types.len() == if shared { 1 } else { 2 })
+                .expect("both alternatives remain distinguishable");
+            let mut doc = Document::new(
+                doc.name.clone(),
+                roundtrip_study,
+                true,
+                ViewState::default(),
+            );
+            doc.view.selected = Some(index + 1);
+            doc.view.order_by_pitch = true;
+            let before = details_csv(&doc.study, index + 1, chosen).unwrap();
+            let rows = records(&before);
+            let cell = |row: usize, name: &str| {
+                rows[row][rows[0].iter().position(|h| h == name).unwrap()].as_str()
+            };
+            assert_eq!(cell(1, "rank"), (index + 1).to_string());
+            assert_eq!(cell(1, "format_id"), "2");
+            assert_eq!(cell(2, "format_id"), "4"); // ID remains explicit alongside quoted names.
+            assert_eq!(cell(1, "head_shared"), shared.to_string());
+            assert_eq!(cell(1, "head_id") == cell(2, "head_id"), shared);
+            assert_eq!(cell(1, "max_extra_spacing_mm"), "5");
+            assert_eq!(cell(1, "divider_width_mm"), "7.5");
+            assert_eq!(cell(1, "head_width_mm"), (60 * group).to_string());
+            let summary = records(&summary_csv(&doc.study, [(index + 1, chosen)]).unwrap());
+            let config: serde_json::Value =
+                serde_json::from_str(summary[1].last().unwrap()).unwrap();
+            assert_eq!(
+                config["heads"].as_array().unwrap().len(),
+                if shared { 1 } else { 2 }
+            );
+            let path = temp.0.join(format!("g{group}-{shared}.stic"));
+            save(&path, &doc).unwrap();
+            let source = std::fs::read(&path).unwrap();
+            let reopened = load(&path).unwrap();
+            assert_eq!(std::fs::read(&path).unwrap(), source);
+            assert_eq!(reopened.view, doc.view);
+            let after = optimize(
+                &reopened.study,
+                &SearchControl::default(),
+                SearchLimits::default(),
+            )
+            .unwrap();
+            let restored = &after.solutions[reopened.view.selected.unwrap() - 1];
+            assert_eq!(restored, chosen);
+            assert_eq!(
+                details_csv(&reopened.study, index + 1, restored).unwrap(),
+                before
+            );
+        }
+        // Independent approved physical quotations for shared divided heads.
+        let (index, chosen) = report
+            .solutions
+            .iter()
+            .enumerate()
+            .find(|(_, s)| s.head_types.len() == 1 && s.candidates.iter().all(|c| c.dividers > 0))
+            .unwrap();
+        let rows = records(&details_csv(&doc.study, index + 1, chosen).unwrap());
+        let cell = |name: &str| rows[1][rows[0].iter().position(|h| h == name).unwrap()].as_str();
+        assert_eq!(cell("head_format_ids"), "[2,4]");
+        assert_eq!(cell("extra_spacing_mm"), "1");
+        assert_eq!(
+            cell("approach_spacing_mm"),
+            if group == 4 { "27" } else { "37.5" }
+        );
+        if group == 4 {
+            assert_eq!(cell("pocket_width_mm"), "143");
+            assert_eq!(cell("pocket_stick_centres_mm"), "[14.5,41.5,101.5,128.5]");
+            assert_eq!(cell("gap_centre_spacings_mm"), "[27.0,60.0,27.0]");
+            assert_eq!(cell("gap_structural"), "[false,true,false]");
+            assert_eq!(
+                cell("gap_divider_clearances_mm"),
+                "[null,[13.75,13.75],null]"
+            );
+        } else if group == 2 {
+            assert_eq!(cell("pocket_width_mm"), "67");
+            assert_eq!(cell("pocket_stick_centres_mm"), "[14.75,52.25]");
+            assert_eq!(cell("divider_lefts_mm"), "[29.75]");
+            assert_eq!(cell("gap_divider_clearances_mm"), "[[2.5,2.5]]");
+        }
+    }
+}
+
+#[test]
+fn group_one_csv_has_explicit_empty_head_fields_and_join_errors_are_reported() {
+    let mut doc = example();
+    doc.study.formats[0].quantity = 1;
+    doc.study.settings.max_shift = 0.0;
+    let report = optimize(
+        &doc.study,
+        &SearchControl::default(),
+        SearchLimits::default(),
+    )
+    .unwrap();
+    let s = report
+        .solutions
+        .iter()
+        .find(|s| s.candidates[0].grouping == 1)
+        .unwrap();
+    let rows = records(&details_csv(&doc.study, 1, s).unwrap());
+    let cell = |name: &str| rows[1][rows[0].iter().position(|h| h == name).unwrap()].as_str();
+    for field in [
+        "head_id",
+        "head_shared",
+        "approach_spacing_mm",
+        "minimum_approach_spacing_mm",
+        "extra_spacing_mm",
+    ] {
+        assert_eq!(cell(field), "");
+    }
+    for field in [
+        "head_format_ids",
+        "head_final_centres_mm",
+        "gap_centre_spacings_mm",
+        "gap_structural",
+    ] {
+        assert_eq!(cell(field), "[]");
+    }
+    assert_eq!(cell("head_width_mm"), "720");
+    let mut wrong = doc.study.clone();
+    wrong.sticks.clear();
+    assert!(details_csv(&wrong, 1, s).is_err());
 }

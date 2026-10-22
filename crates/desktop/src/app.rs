@@ -217,8 +217,14 @@ impl PrototypeApp {
                 app.start_search();
             }
             Ok(
-                "geometry" | "geometry-detail" | "detail" | "detail-compact" | "detail-scaled"
-                | "detail-bottom" | "detail-carry",
+                "geometry"
+                | "geometry-detail"
+                | "detail"
+                | "detail-compact"
+                | "detail-scaled"
+                | "detail-bottom"
+                | "detail-carry"
+                | "detail-carry-bottom",
             ) => {
                 if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-scaled") {
                     ctx.set_zoom_factor(1.5);
@@ -1169,6 +1175,9 @@ Dimensioni in mm",
                         .map(|c| {
                             vec![
                                 c.format_name.clone(),
+                                c.head_id
+                                    .map(|id| format!("Testa {} · ID {id}", id + 1))
+                                    .unwrap_or_else(|| "Nessuna · gruppo 1".into()),
                                 c.stick_name.clone(),
                                 format_number(c.input_pitch.mm()),
                                 c.grouping.to_string(),
@@ -1194,6 +1203,7 @@ Dimensioni in mm",
                         "format_details",
                         &[
                             "Formato",
+                            "Testa assegnata",
                             "Stick",
                             "Passo MT (mm)",
                             "Gruppo",
@@ -1262,6 +1272,12 @@ Dimensioni in mm",
                                 format_number(length),
                                 dividers.to_string(),
                                 pockets.to_string(),
+                                pocket
+                                    .divider_lefts
+                                    .iter()
+                                    .map(|&v| format_number(v))
+                                    .collect::<Vec<_>>()
+                                    .join("; "),
                                 formats,
                             ]
                         })
@@ -1275,6 +1291,7 @@ Dimensioni in mm",
                             "Lungh. (mm)",
                             "Divisori",
                             "Cass./passo",
+                            "Divisori x (mm)",
                             "Formati",
                         ],
                         data,
@@ -1286,8 +1303,7 @@ Dimensioni in mm",
                     let data = solution
                         .head_types
                         .iter()
-                        .enumerate()
-                        .map(|(i, head)| {
+                        .map(|head| {
                             let candidates: Vec<_> = solution
                                 .candidates
                                 .iter()
@@ -1299,7 +1315,15 @@ Dimensioni in mm",
                                 .collect::<Vec<_>>()
                                 .join(", ");
                             vec![
-                                format!("Testa {}", i + 1),
+                                format!("Testa {}", head.id + 1),
+                                head.id.to_string(),
+                                if candidates.len() > 1 {
+                                    "Condivisa"
+                                } else {
+                                    "Separata"
+                                }
+                                .into(),
+                                format_number(head.geometry.approach_spacing),
                                 head.geometry.grouping.to_string(),
                                 format_number(head.geometry.pickup_pitch.mm()),
                                 format_number(candidates[0].head_width),
@@ -1310,7 +1334,16 @@ Dimensioni in mm",
                     detail_table(
                         ui,
                         "head_details",
-                        &["Tipo", "Gruppo", "Passo MT (mm)", "Larg. (mm)", "Formati"],
+                        &[
+                            "Tipo",
+                            "ID",
+                            "Assegnazione",
+                            "Interasse avv. (mm)",
+                            "Gruppo",
+                            "Passo MT (mm)",
+                            "Larg. (mm)",
+                            "Formati",
+                        ],
                         data,
                         None,
                     );
@@ -1691,6 +1724,248 @@ mod tests {
             assert!(app.parameters_open);
             assert_eq!(app.parameter_editor, editor);
         }
+    }
+
+    #[test]
+    fn extra_spacing_editor_is_visible_validated_applied_and_cancelled() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        calculate(&mut app);
+        let before = app.study.parameters.clone();
+        app.dirty = false;
+        app.open_parameter_editor(ParameterEditor::Cartoner);
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "Interasse aggiuntivo massimo", 0.0);
+        for invalid in ["-1", "NaN", "infinity", "abc"] {
+            app.parameters_draft.as_mut().unwrap().max_extra_spacing = invalid.into();
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+            assert!(app.parameters_open && app.parameters_error.is_some());
+            assert_eq!(app.study.parameters, before);
+            assert!(!app.results.is_empty() && !app.dirty);
+        }
+        app.parameters_draft.as_mut().unwrap().max_extra_spacing = "2,75".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Annulla", 0.0));
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters, before);
+        app.open_parameter_editor(ParameterEditor::Cartoner);
+        app.parameters_draft.as_mut().unwrap().max_extra_spacing = "0".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters.max_extra_spacing, "0");
+        assert!(app.results.is_empty() && app.dirty);
+        assert!(app.defaults.is_none()); // Applying never saves preferences.
+    }
+
+    #[test]
+    fn editor_calculation_details_csv_and_reopen_preserve_chosen_configuration() {
+        let folder = std::env::temp_dir().join(format!("stick-leo19-ui-{}", std::process::id()));
+        std::fs::create_dir_all(&folder).unwrap();
+        for group in [2, 3, 4] {
+            for shared in [true, false] {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                let mut study = app.study.to_study().unwrap();
+                study.formats.remove(1);
+                for (f, s) in study.formats.iter_mut().zip(&mut study.sticks) {
+                    f.quantity = group;
+                    s.fin = 30.0 - s.width;
+                }
+                study.settings.channels = group;
+                study.settings.max_shift = 0.0;
+                study.settings.max_layers = Some(1);
+                study.settings.max_pitch = 60.0 * f64::from(group);
+                study.settings.result_count = 10000;
+                study.settings.ab_target = if shared {
+                    match group {
+                        2 => 68.0 / 11.0,
+                        3 => 105.0 / 11.0,
+                        _ => 144.0 / 11.0,
+                    }
+                } else {
+                    match group {
+                        2 => 55.0 / 11.0,
+                        3 => 81.0 / 11.0,
+                        _ => 141.0 / 11.0,
+                    }
+                };
+                app.study = StudyDraft::from_study("Mixed widths".into(), study);
+                app.study.parameters.max_extra_spacing = "4".into();
+                app.open_parameter_editor(ParameterEditor::Cartoner);
+                for _ in 0..4 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                // Type through egui, rather than replacing the underlying draft.
+                ctx.memory_mut(|m| {
+                    m.request_focus(Id::new((
+                        "parameter",
+                        ParameterEditor::Cartoner,
+                        "Interasse aggiuntivo massimo",
+                    )))
+                });
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![
+                        key_event(
+                            egui::Key::A,
+                            egui::Modifiers {
+                                ctrl: true,
+                                command: true,
+                                ..egui::Modifiers::NONE
+                            },
+                        ),
+                        egui::Event::Text("5,0".into()),
+                    ],
+                );
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+                assert_eq!(
+                    app.study.to_study().unwrap().settings.max_extra_spacing,
+                    5.0
+                );
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(&ctx, &mut app, text_position(&output, "Calcola", 0.0));
+                finish_job(&mut app);
+                let row = app
+                    .results
+                    .iter()
+                    .find(|r| {
+                        r.heads == if shared { 1 } else { 2 }
+                            && (!shared || r.solution.candidates.iter().all(|c| c.dividers > 0))
+                    })
+                    .unwrap()
+                    .clone();
+                app.selected = Some(row.id);
+                app.detail_view = DetailView::Heads;
+                for _ in 0..3 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(&output, if shared { "Condivisa" } else { "Separata" }, 0.0);
+                let core = app.study.to_study().unwrap();
+                let c = &row.solution.candidates[0];
+                let dimensions = stick_optimizer_core::candidate_dimensions(&core, c).unwrap();
+                assert_eq!(
+                    dimensions.extra_spacing,
+                    Some(if shared { 1.0 } else { 0.0 })
+                );
+                if shared {
+                    let quote_ctx = egui::Context::default();
+                    let mut output = quote_ctx.run_ui(
+                        egui::RawInput {
+                            screen_rect: Some(egui::Rect::from_min_size(
+                                egui::Pos2::ZERO,
+                                egui::vec2(1180.0, 4000.0),
+                            )),
+                            ..Default::default()
+                        },
+                        |ui| {
+                            egui::Frame::NONE.inner_margin(8.0).show(ui, |ui| {
+                                details::configuration_values(ui, &core, &row.solution, c)
+                            });
+                        },
+                    );
+                    output.textures_delta.clear();
+                    text_position(&output, "Configurazione effettiva e giochi", 0.0);
+                    text_position(&output, "Interasse aggiuntivo del formato", 0.0);
+                    text_position(&output, if group == 4 { "27 mm" } else { "37,5 mm" }, 0.0);
+                    text_position(&output, "1 mm", 0.0);
+                }
+                app.detail_popup = Some((row.id, c.format_id));
+                draw_frame(&ctx, &mut app, vec![]);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(&output, "Testa 1 · ID 0", 0.0);
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+                assert!(app.detail_popup.is_none());
+                let before = stick_optimizer_io::details_csv(&core, row.id, &row.solution).unwrap();
+                app.order_by_pitch = true;
+                let view = app.view_state();
+                let path = folder.join(format!("g{group}-{shared}.stic"));
+                app.save_to(&path).unwrap();
+                let source = std::fs::read(&path).unwrap();
+                app.apply_pending(PendingAction::ExampleStudy);
+                app.open_from(&path).unwrap();
+                finish_job(&mut app);
+                assert_eq!(app.view_state(), view);
+                let selected = app
+                    .results
+                    .iter()
+                    .find(|r| Some(r.id) == app.selected)
+                    .unwrap();
+                assert_eq!(*selected.solution, *row.solution);
+                assert_eq!(
+                    stick_optimizer_io::details_csv(
+                        &app.study.to_study().unwrap(),
+                        selected.id,
+                        &selected.solution
+                    )
+                    .unwrap(),
+                    before
+                );
+                assert_eq!(std::fs::read(&path).unwrap(), source);
+            }
+        }
+        std::fs::remove_dir_all(folder).unwrap();
+    }
+
+    #[test]
+    fn preferences_change_only_on_explicit_save_and_invalid_read_keeps_current_study() {
+        let folder = std::env::temp_dir().join(format!("stick-leo19-prefs-{}", std::process::id()));
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join("preferences-v1.json");
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        app.study.parameters.divider_width = "2,125".into();
+        app.study.parameters.max_extra_spacing = "3,125".into();
+        app.save_defaults_to(&path).unwrap();
+        let source = std::fs::read(&path).unwrap();
+        let mut reopened = PrototypeApp::new(&ctx);
+        reopened.read_defaults_from(&path).unwrap();
+        assert_eq!(reopened.study.parameters.divider_width, "2.125");
+        assert_eq!(reopened.study.parameters.max_extra_spacing, "3.125");
+        reopened.open_parameter_editor(ParameterEditor::Cartoner);
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut reopened, vec![]);
+        }
+        reopened
+            .parameters_draft
+            .as_mut()
+            .unwrap()
+            .max_extra_spacing = "1,25".into();
+        let output = draw_frame(&ctx, &mut reopened, vec![]);
+        click_at(&ctx, &mut reopened, text_position(&output, "Applica", 0.0));
+        assert_eq!(reopened.study.parameters.max_extra_spacing, "1,25");
+        assert_eq!(std::fs::read(&path).unwrap(), source);
+        reopened.save_defaults_to(&path).unwrap();
+        assert_ne!(std::fs::read(&path).unwrap(), source);
+        let loaded = stick_optimizer_io::load_preferences(&path)
+            .unwrap()
+            .parameters()
+            .0;
+        assert_eq!(loaded.max_extra_spacing, 1.25);
+        assert_eq!(loaded.divider_width, 2.125);
+        calculate(&mut reopened);
+        let before = reopened.document().unwrap();
+        let results = reopened.results.clone();
+        std::fs::write(&path, b"{broken").unwrap();
+        assert!(reopened.read_defaults_from(&path).is_err());
+        assert_eq!(
+            stick_optimizer_io::encode(&reopened.document().unwrap()).unwrap(),
+            stick_optimizer_io::encode(&before).unwrap()
+        );
+        assert_eq!(reopened.results.len(), results.len());
+        assert_eq!(std::fs::read(&path).unwrap(), b"{broken");
+        std::fs::remove_dir_all(folder).unwrap();
     }
 
     #[test]

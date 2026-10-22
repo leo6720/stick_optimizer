@@ -43,6 +43,9 @@ impl ParameterEditor {
                 target.max_layers.clone_from(&source.max_layers);
                 target.divider_width.clone_from(&source.divider_width);
                 target.wall_width.clone_from(&source.wall_width);
+                target
+                    .max_extra_spacing
+                    .clone_from(&source.max_extra_spacing);
                 target.wall_clearance.clone_from(&source.wall_clearance);
                 target
                     .adjacent_clearance
@@ -66,6 +69,11 @@ impl ParameterEditor {
                 ("C_2 - Larghezza parete", &mut p.wall_width, "mm"),
                 ("C_3 - Gioco stick-parete/div", &mut p.wall_clearance, "mm"),
                 ("C_4 - Gioco stick-stick", &mut p.adjacent_clearance, "mm"),
+                (
+                    "Interasse aggiuntivo massimo",
+                    &mut p.max_extra_spacing,
+                    "mm",
+                ),
                 ("B_extra - Quota B aggiuntiva", &mut p.carton_b_extra, "mm"),
                 (
                     "P_tp - Passo max trasporto prodotto",

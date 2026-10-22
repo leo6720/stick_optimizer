@@ -54,7 +54,7 @@ Schema, CSV, rappresentazione del riporto e limiti in `rust-files.md`.
 LEO-17 aggiunge `core/head.rs`, API pubblica per coordinate finali e
 compatibilità dell’intera assegnazione ([ADR0001](adr/0001-final-head-geometry.md)).
 LEO-18 integra ricerca e aggregazione con teste separate/condivise e cassetti
-effettivi ([ADR0002](adr/0002-exact-final-head-search.md)); editor finale in LEO-19.
+effettivi ([ADR0002](adr/0002-exact-final-head-search.md)); editor, quote e CSV finali in [ADR0003](adr/0003-chosen-head-details-and-csv.md).
 
 Le sezioni seguenti descrivono le formule del riferimento Python conservato nel
 tag `python-beta-reference`, ora tradotte nel motore Rust. Le note sui file e
@@ -127,3 +127,16 @@ I tipi cassetto includono posizioni divisori. Pareto e score usano le stesse
 sette metriche e formule con dimensioni effettive, gruppo1 escluso.
 [ADR0002](adr/0002-exact-final-head-search.md) descrive arrotondamento fisico,
 spareggi, partizioni, progresso/limiti e contratto motore versionato.
+
+
+## Consumatori della configurazione scelta (LEO-19)
+
+`core/dimensions.rs` proietta le coordinate effettive in quote e giochi fisici;
+GUI e CSV leggono la stessa API, senza aritmetica fisica nei presentatori.
+La tabella formati identifica la testa assegnata, quella delle teste mostra
+ID, separate/condivise e interasse finale; i cassetti includono posizioni divisori.
+Il popup formato conserva quote precedenti e aggiunge minimi, eccessi e giochi
+per gap, distinguendo il centrale strutturale del gruppo4. I file conservano la
+ricetta schema2; il rango originale ricostruisce la configurazione scelta anche
+con filtri/ordinamento diversi. CSVv2 descrive esplicitamente gli assegnati e le
+coordinate. Nessuna modifica a ricerca, formule di penalità o head_width.

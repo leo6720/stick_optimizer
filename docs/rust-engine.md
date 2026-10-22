@@ -114,4 +114,4 @@ stabilità sulla massima luce reale dei compartimenti. Tipi cassetto includono
 posizioni divisori, tipi testa includono assegnazioni esplicite. Contratto,
 formule geometriche e motivazioni: [ADR0002](adr/0002-exact-final-head-search.md).
 Le note preparatorie LEO-17 sopra descrivono lo stato storico precedente;
-ricerca e compatibilità sono ora integrate, editor finale in LEO-19.
+ricerca e compatibilità sono ora integrate, editor e consumatori completati in LEO-19, [ADR0003](adr/0003-chosen-head-details-and-csv.md).
