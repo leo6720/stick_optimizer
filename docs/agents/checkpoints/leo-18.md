@@ -7,8 +7,9 @@
 - Baseline: `f2956653e5f6bb80d638fdbd28eab8cef50ef087` (merged prerequisite PR21).
 - Initial reviewed head: `4b36c382a2929335b02ef1a53e313397c56f2d76`.
 - Current product head: `170b5348b6b8fced04df6c6875aa8773e380f8a6` (following checkpoint commit changes no product).
-- Phase: cycle2 remaining P2 corrected at geometry source and verified; awaiting cycle3 independent review on the final pushed head.
-- Review cycles: **2 completed**, cycle3 pending coordinator handoff. The same standards P2 survived the first fix at half-grid boundaries; the new correction is not yet independently approved. Cycle3 is the final allowed cycle before an unresolved-finding block.
+- Reviewed final head: `5a5cf56d649ac16b877cf740c07397e73b41fcfd`; final checkpoint update is documentation only.
+- Phase: implementation, verification and both independent reviews complete; PR23 ready for the user's integration decision after coordinator handoff.
+- Review cycles: **3 completed**. Cycle1 standards P2: float noise split identical drawers; cycle2: same P2 remained at half-grid boundaries; cycle3: specification PASS and standards PASS, finding resolved. Open findings: **none**. Interrupted original reviews are not counted as PASS.
 - Accepted scope: LEO16 definition 20 October, sizing 21 October, 140k child of 390k/3.
 - No LEO19/7, merge, deployment, new automation or Linear state change by implementer.
 - PR: draft https://github.com/leo6720/stick_optimizer/pull/23 (single PR, main base).
@@ -190,9 +191,31 @@ captures `/tmp/leo18-cycle3-gui/` are session-local; tests/ADR/checkpoint durabl
 
 ## Next action and review boundary
 
-Push the checkpoint head and hand exact baseline/final head to the coordinator
-for cycle3 spec and standards review, including the independent half-grid repro.
-Do not claim correction independently approved until both reports complete.
-Preserve the counter; after cycle3 unresolved findings require a documented block,
-not another reset/retry. No product mutation during fixed-head review.
-Coordinator owns PR/Linear status and handoff. No merge/deploy authorized.
+Cycle3 completed on the full diff from baseline
+`f2956653e5f6bb80d638fdbd28eab8cef50ef087` to fixed reviewed head
+`5a5cf56d649ac16b877cf740c07397e73b41fcfd` (product170b534). The independent
+reviewers were actually created with `fork_turns:none`, separate from both the
+original implementer and the fresh resume/checkpoint owner:
+
+- `/root/leo18_spec_resume`: specification PASS, no findings; independently
+  ran11/11 public head-search tests and inspected the70-test workspace evidence.
+- `/root/leo18_standards_resume`: standards PASS, no findings; freshly compiled
+  the core, independently verified both float-noise and half-grid reproductions
+  now produce one drawer type/score580 and correct Pareto behavior, and ran11/11
+  public head-search tests.
+
+The current70-test workspace, fmt/check/Clippy/release/MSVC cross-check and fresh
+Linux pockets/detail preview results above remain the final implementation
+evidence. No tests were rerun for this documentation-only completion update.
+Native Windows execution, physical keyboard/mouse, native file pickers and
+multiple-monitor DPI remain unexecuted; MSVC is compilation only. Neither
+reviewer identified a necessary human Windows gate for this bounded change.
+These reviews are independent agent reviews, not approval on behalf of the user.
+
+Push this checkpoint-only update, then coordinator obtains confirmation that
+the final delta is documentation only within completed cycle3 (not cycle4),
+updates PR23/Linear to the reviewed handoff state and removes ready-for-agent.
+PR: https://github.com/leo6720/stick_optimizer/pull/23. Merge remains the user's
+decision. No LEO19 work until LEO18's dependency is integrated and verified in
+main under the persistent authorization. No merge/deploy or status changes by
+the implementer; no open findings or new product work.
