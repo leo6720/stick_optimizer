@@ -51,6 +51,14 @@ All existing stability/A-B/other penalty formulas and weights remain unchanged.
 Pocket type identity includes divider locations as well as width, length,
 divider count and pockets per pitch: equal counts are insufficient for physically
 different divider arrangements. The pocket table uses this complete identity.
+Divider identity uses rounded integer ticks on a fixed 1e-9 mm grid, matching
+the geometric precision contract and avoiding width-dependent floating-point
+roundoff splitting an identical physical drawer. Equality compares canonical
+keys, not pairwise epsilon distances, so it stays transitive. Coordinates remain
+unrounded for clearance checks and drawing. If scaled ticks are not finite or
+exceed exact f64 integer precision, identity retains the original coordinate
+instead of saturating or merging distinct large positions. This adds no physical
+constraint and changes no penalty formula or weight.
 
 Pitch keys/tolerances and public head-API precision rejection remain ADR0001.
 Drawers move as a local translation of the approved fixed head positions; no

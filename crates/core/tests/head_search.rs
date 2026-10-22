@@ -37,6 +37,58 @@ fn one_group(widths: &[f64], group: u32) -> Study {
 }
 
 #[test]
+fn identical_divided_drawers_share_one_type_despite_coordinate_roundoff() {
+    let mut study = one_group(&[20.0, 20.01], 2);
+    study.settings.ab_target = 56.0 / 11.0;
+    let report = optimize(&study, &SearchControl::default(), SearchLimits::default()).unwrap();
+    let shared = report
+        .solutions
+        .iter()
+        .find(|s| s.head_types.len() == 1 && s.candidates.iter().all(|c| c.dividers == 1))
+        .expect("the compatible shared divided head must survive Pareto");
+    // Both physical drawers are 56mm wide with a centred 7.5mm divider:
+    // its left edge is (56 - 7.5)/2 = 24.25mm for either stick width.
+    assert!(shared.candidates.iter().all(|c| c.pocket_width == 56));
+    assert!(shared.candidates.iter().all(|c| {
+        c.geometry.divider_lefts.len() == 1 && (c.geometry.divider_lefts[0] - 24.25).abs() < 1e-9
+    }));
+    assert_eq!(shared.pocket_types.len(), 1);
+    assert_eq!(shared.metrics(), [1.0, 1.0, 0.0, 0.0, 2.0, 0.0, 0.0]);
+    assert_eq!(shared.score, 580.0); // 300 drawer +200 head +20 grouping +60 pitch.
+    assert!(
+        !report
+            .solutions
+            .iter()
+            .any(|s| { s.head_types.len() == 2 && s.candidates.iter().all(|c| c.dividers == 1) }),
+        "the shared head dominates identical drawers with separate heads"
+    );
+}
+
+#[test]
+fn drawer_identity_is_transitive_and_keeps_distinct_divider_positions() {
+    let pocket = |position| PocketType {
+        width: 56,
+        length: 120.0,
+        dividers: 1,
+        pockets_per_pitch: 1,
+        divider_lefts: vec![position],
+    };
+    let a = pocket(24.25 - 0.4e-9);
+    let b = pocket(24.25);
+    let c = pocket(24.25 + 0.4e-9);
+    assert_eq!(a, b);
+    assert_eq!(b, c);
+    assert_eq!(a, c);
+    assert_ne!(a, pocket(24.25 + 2e-9));
+    // Large finite positions must not collapse through integer saturation or
+    // floating-point overflow during conversion to identity ticks.
+    for position in [1e20_f64, f64::MAX / 2.0] {
+        assert_eq!(pocket(position), pocket(position));
+        assert_ne!(pocket(position), pocket(position * 1.5));
+    }
+}
+
+#[test]
 fn group_four_drawer_contains_two_pairs_at_the_fixed_pickup_pitch() {
     let study = one_group(&[25.0], 4);
     let report = optimize(&study, &SearchControl::default(), SearchLimits::default()).unwrap();

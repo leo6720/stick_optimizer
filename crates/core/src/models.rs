@@ -125,7 +125,9 @@ pub struct HeadAssignment {
 }
 
 /// A physical drawer type includes divider locations, not only their count.
-#[derive(Clone, Debug, PartialEq)]
+/// Divider identity uses a fixed 1e-9 mm grid, preserving transitive equality
+/// without changing the unrounded coordinates used for physical clearances.
+#[derive(Clone, Debug)]
 pub struct PocketType {
     pub width: u64,
     pub length: f64,
@@ -133,6 +135,32 @@ pub struct PocketType {
     pub pockets_per_pitch: u32,
     pub divider_lefts: Vec<f64>,
 }
+impl PartialEq for PocketType {
+    fn eq(&self, other: &Self) -> bool {
+        self.width == other.width
+            && self.length == other.length
+            && self.dividers == other.dividers
+            && self.pockets_per_pitch == other.pockets_per_pitch
+            && self.divider_lefts.len() == other.divider_lefts.len()
+            && self
+                .divider_lefts
+                .iter()
+                .zip(&other.divider_lefts)
+                .all(|(&a, &b)| divider_identity(a) == divider_identity(b))
+    }
+}
+
+fn divider_identity(position: f64) -> (bool, f64) {
+    let ticks = position * 1e9;
+    // Beyond exact f64 integer ticks, retain the original coordinate: scaling
+    // must neither overflow into a shared infinity nor erase distinct positions.
+    if ticks.is_finite() && ticks.abs() < (1_u64 << 53) as f64 {
+        (true, ticks.round())
+    } else {
+        (false, position)
+    }
+}
+
 impl Candidate {
     pub fn pocket_type(&self) -> PocketType {
         PocketType {
