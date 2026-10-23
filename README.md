@@ -74,6 +74,14 @@ del formato include interassi finali e giochi effettivi. I CSV versione2
 aggiungono configurazione scelta, identità, coordinate e parametri, senza cambiare
 il significato della larghezza testa (passo MT × canali).
 
+Il doppio clic in **Tipi teste robot usate** apre la testa della soluzione selezionata:
+due viste frontali statiche, prima/dopo, con tutti i prelevatori e gli stick.
+Il formato rappresentato è selezionabile fra quelli assegnati; zoom del disegno e
+scorrimento permettono la lettura in finestra compatta. Esc, Chiudi o la X chiudono
+il popup; le modifiche agli input lo invalidano. Quote in mm fra centri effettivi:
+la distanza primo–ultimo centro è distinta da head_width e non è una quota
+costruttiva. Traversa e prelevatori sono stilizzati, senza simulazione cinematica.
+
 La ricerca enumera anche le alternative separate/condivise delle teste,
 verificando posizioni finali e cassetti effettivi (LEO-18).
 L’esempio incorporato verifica128assegnazioni strutturali e produce10soluzioni

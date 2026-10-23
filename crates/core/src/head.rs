@@ -37,6 +37,46 @@ pub struct HeadGeometry {
     pub positions: Vec<HeadPosition>,
 }
 
+/// Read-only diagram quotations in mm, measured between actual stick centres.
+/// These are not constructive dimensions and do not redefine `Candidate::head_width`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct HeadDiagramDimensions {
+    pub pickup_span: f64,
+    pub final_span: f64,
+    pub group_pitch: Option<f64>,
+    pub final_spacings: Vec<f64>,
+}
+
+pub fn head_diagram_dimensions(head: &HeadGeometry) -> HeadDiagramDimensions {
+    let span = |pickup| match (head.positions.first(), head.positions.last()) {
+        (Some(first), Some(last)) => {
+            if pickup {
+                last.pickup_x - first.pickup_x
+            } else {
+                last.final_x - first.final_x
+            }
+        }
+        _ => 0.0,
+    };
+    HeadDiagramDimensions {
+        pickup_span: span(true),
+        final_span: span(false),
+        group_pitch: head
+            .positions
+            .get(head.grouping as usize)
+            .zip(head.positions.first())
+            .map(|(next, first)| next.pickup_x - first.pickup_x),
+        final_spacings: head
+            .positions
+            .iter()
+            .take(head.grouping as usize)
+            .collect::<Vec<_>>()
+            .windows(2)
+            .map(|pair| pair[1].final_x - pair[0].final_x)
+            .collect(),
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HeadGeometryError {
     InvalidInput(&'static str),

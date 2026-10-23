@@ -9,6 +9,7 @@ impl PrototypeApp {
             || self.parameters_open
             || self.filter_editor.open
             || self.detail_popup.is_some()
+            || self.head_popup.is_some()
         {
             return;
         }
