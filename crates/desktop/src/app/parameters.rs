@@ -154,10 +154,10 @@ impl PrototypeApp {
                             .show(ui, |ui| {
                                 for (label, value, unit) in editor.fields(&mut draft) {
                                     let response = ui.label(label);
-                                    ui.add(TextEdit::singleline(value)
+                                    ui.add(crate::ui::field(value)
                                         .id(Id::new(("parameter", editor, label)))
                                         .desired_width(100.0)).labelled_by(response.id);
-                                    ui.label(RichText::new(unit).small().color(MUTED));
+                                    ui.label(RichText::new(unit).small().color(crate::ui::tokens(ui).muted));
                                     ui.end_row();
                                 }
                             });
@@ -169,12 +169,12 @@ impl PrototypeApp {
                         }
                     });
                 if let Some(error) = &self.parameters_error {
-                    ui.colored_label(ACCENT, error);
+                    ui.colored_label(crate::ui::tokens(ui).accent, error);
                 }
                 ui.separator();
                 ui.horizontal(|ui| {
-                    cancel = ui.button("Annulla").clicked();
-                    apply = ui.add(egui::Button::new(RichText::new("Applica").color(Color32::WHITE)).fill(ACCENT)).clicked();
+                    cancel = ui.add(crate::ui::button(ui, "Annulla", crate::ui::ButtonVariant::Secondary)).clicked();
+                    apply = ui.add(crate::ui::button(ui, "Applica", crate::ui::ButtonVariant::Primary)).clicked();
                 });
                 cancel |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });

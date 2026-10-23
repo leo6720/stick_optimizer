@@ -52,6 +52,16 @@ parziali; “Annullamento…” rimane visibile fino al termine del worker. La s
 cassetto e tipi di testa robot. Ogni modifica agli input cancella i risultati
 e scarta il calcolo precedente.
 
+Da **Modifica → Tema scuro** scegli il tema globale, con spunta coerente.
+Il primo avvio usa il chiaro; il cambiamento è immediato e viene ricordato
+localmente, anche fra Nuovo/Apri/Esempio. Questa preferenza è separata dai
+parametri predefiniti: non salva lo studio né modifica risultati o filtri.
+Se il file UI è invalido viene usato il chiaro; se non si può scrivere, un
+messaggio segnala che il tema della sessione non verrà ricordato.
+Font Inter incorporato con [licenza OFL](crates/desktop/assets/Inter-LICENSE.txt).
+La fondazione condivisa e i due temi sono operativi (LEO-21); il ridisegno A
+completo delle aree input, risultati e popup resta nei ticket LEO-22/23/24.
+
 Da **File** puoi aprire e salvare studi `.stic` con input, parametri e filtri.
 Se erano presenti risultati, Apri li ricalcola in background e ripristina la
 selezione. Salva richiede input completi e validi. La chiusura segnala le

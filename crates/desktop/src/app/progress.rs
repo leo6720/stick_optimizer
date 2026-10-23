@@ -33,15 +33,13 @@ impl PrototypeApp {
         let mut cancel = false;
         egui::Modal::new(Id::new("search_progress"))
             .backdrop_color(Color32::from_black_alpha(45))
-            .frame(
-                egui::Frame::popup(&ctx.style_of(egui::Theme::Light))
-                    .fill(Color32::WHITE)
-                    .inner_margin(20),
-            )
+            .frame(egui::Frame::popup(&ctx.global_style()).inner_margin(20))
             .show(ctx, |ui| {
                 ui.set_width(width);
                 ui.horizontal(|ui| {
-                    ui.heading(RichText::new("Calcolo in corso").color(MUTED));
+                    ui.heading(
+                        RichText::new("Calcolo in corso").color(crate::ui::tokens(ui).muted),
+                    );
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         cancel |= ui
                             .add_enabled(!cancelling, egui::Button::new("×"))
@@ -56,11 +54,11 @@ impl PrototypeApp {
                     ui.label(
                         RichText::new(format!("{}% completato", (fraction * 100.0) as u32))
                             .size(26.0)
-                            .color(MUTED),
+                            .color(crate::ui::tokens(ui).muted),
                     );
                     ui.add(
                         egui::ProgressBar::new(fraction as f32)
-                            .fill(ACCENT)
+                            .fill(crate::ui::tokens(ui).accent)
                             .desired_width(width)
                             .desired_height(8.0),
                     );
@@ -71,7 +69,7 @@ impl PrototypeApp {
                             count(total)
                         ))
                         .small()
-                        .color(MUTED),
+                        .color(crate::ui::tokens(ui).muted),
                     );
                 } else {
                     ui.label(
@@ -83,7 +81,7 @@ impl PrototypeApp {
                             "Generazione candidati…"
                         })
                         .size(20.0)
-                        .color(MUTED),
+                        .color(crate::ui::tokens(ui).muted),
                     );
                     ui.add_space(4.0);
                     ui.spinner();

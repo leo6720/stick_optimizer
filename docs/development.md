@@ -256,3 +256,25 @@ Le anteprime `head-popup`, `head-popup-g4`, `head-popup-alternate`,
 `head-popup-compact`, `head-popup-scaled` e `head-popup-zoom` usano risultati reali;
 `head-popup-compact-bottom` e `head-popup-scaled-bottom` mostrano lo scorrimento
 in fondo. Sono prove Linux separate dall'esecuzione nativa Windows.
+
+## Verifica LEO-21: fondazione e tema globale
+
+Test IO pubblici con percorsi temporanei: tema separato dai parametri,
+round trip, schema/versione/campi invalidi, file assente e sostituzione fallita.
+Eventi egui del menu verificano spunta, cambio immediato, riavvio, Nuovo/Apri/Esempio,
+file UI corrotto, errore scrittura e sessione ancora utilizzabile. Il confronto
+include byte documento/CSV, risultati completi, filtri, selezione, dirty e
+revisione; i test esistenti continuano a coprire worker e interazioni.
+Le asserzioni geometriche della testa sono conservate nei due temi; i colori
+non identificano più arbitrariamente i prelevatori. Contrasto dei token
+verificato rispetto a4.5:1 per testi e3:1 per contorni/disegni essenziali.
+
+Solo nella feature QA `ui-preview`, le modalità già esistenti accettano
+`STICK_OPTIMIZER_PREVIEW_THEME=dark` (default chiaro),
+`STICK_OPTIMIZER_PREVIEW_SIZE=720x560` e `STICK_OPTIMIZER_PREVIEW_SCALE=1.5`.
+La modalità `components` mostra gli stessi componenti egui e i loro stati.
+Queste opzioni non leggono né scrivono preferenze personali. Le immagini
+tecniche JPG originali mantengono il proprio sfondo incorporato nei due temi.
+Le fixture `progress*` restano congelate per l'aspetto: il worker è verificato
+separatamente dagli eventi e dalle regressioni esistenti. Le prove Linux/Xvfb
+non certificano input fisico, file picker o più monitor/DPI Windows.

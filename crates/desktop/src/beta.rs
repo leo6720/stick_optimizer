@@ -1,4 +1,4 @@
-use eframe::egui::{self, Color32, RichText};
+use eframe::egui::{self, RichText};
 use stick_optimizer_io::Range;
 
 #[derive(Default)]
@@ -73,24 +73,32 @@ impl FilterEditor {
                         {
                             ui.label(label);
                             for value in values {
-                                ui.add(egui::TextEdit::singleline(value).desired_width(85.0));
+                                ui.add(crate::ui::field(value).desired_width(85.0));
                             }
                             ui.end_row();
                         }
                     });
                 if let Some(error) = &self.error {
-                    ui.colored_label(Color32::DARK_RED, error);
+                    ui.colored_label(crate::ui::tokens(ui).accent, error);
                 }
                 ui.separator();
                 ui.horizontal(|ui| {
-                    if ui.button("Annulla").clicked() {
+                    if ui
+                        .add(crate::ui::button(
+                            ui,
+                            "Annulla",
+                            crate::ui::ButtonVariant::Secondary,
+                        ))
+                        .clicked()
+                    {
                         self.open = false;
                     }
                     if ui
-                        .add(
-                            egui::Button::new(RichText::new("Applica").color(Color32::WHITE))
-                                .fill(Color32::from_rgb(181, 31, 32)),
-                        )
+                        .add(crate::ui::button(
+                            ui,
+                            "Applica",
+                            crate::ui::ButtonVariant::Primary,
+                        ))
                         .clicked()
                     {
                         match self.parsed() {
@@ -131,19 +139,19 @@ pub fn draw_geometry(ui: &mut egui::Ui, g: &stick_optimizer_core::Geometry) {
         painter.rect_stroke(
             rect(r),
             0,
-            egui::Stroke::new(1.5, Color32::DARK_GRAY),
+            egui::Stroke::new(1.5, crate::ui::tokens(ui).drawing),
             egui::StrokeKind::Inside,
         );
     }
     for r in &g.dividers {
-        painter.rect_filled(rect(r), 0, Color32::GRAY);
+        painter.rect_filled(rect(r), 0, crate::ui::tokens(ui).muted);
     }
     for r in &g.sticks {
-        painter.rect_filled(rect(r), 1, Color32::from_rgb(248, 220, 220));
+        painter.rect_filled(rect(r), 1, crate::ui::tokens(ui).product_fill);
         painter.rect_stroke(
             rect(r),
             1,
-            egui::Stroke::new(1.0, Color32::from_rgb(181, 31, 32)),
+            egui::Stroke::new(1.0, crate::ui::tokens(ui).product),
             egui::StrokeKind::Inside,
         );
     }
@@ -156,7 +164,7 @@ pub fn draw_geometry(ui: &mut egui::Ui, g: &stick_optimizer_core::Geometry) {
             crate::app::format_number(g.height)
         ),
         egui::FontId::proportional(13.0),
-        Color32::DARK_GRAY,
+        crate::ui::tokens(ui).drawing,
     );
 }
 

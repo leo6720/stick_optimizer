@@ -29,6 +29,15 @@ una bozza: validazione e invalidazione avvengono dopo Applica. Annulla conserva
 lo studio. `app/details.rs` presenta i campi del candidato e la geometria nello
 stesso popup, aperto con doppio clic o pulsante, senza ricalcolare valori fisici.
 
+`desktop/ui.rs` centralizza token semantici chiaro/scuro, font Inter incorporato
+con fallback egui e varianti dei componenti (azioni, campi, intestazioni,
+tabelle e contenitori). Calcola e Applica condividono la variante primaria;
+Annulla/Chiudi e azioni quiete usano lo stesso sistema di stati egui. I colori
+delle primitive schematiche cambiano con il tema; coordinate e dimensioni
+restano quelle del core. La preferenza di presentazione vive nell'applicazione,
+separata dallo studio e dai parametri, con persistenza dedicata in IO.
+È una fondazione integrata, non il completamento del ridisegno A delle aree.
+
 Il passo 4 aggiunge il percorso `draft.to_study -> core.validate -> optimize`.
 La ricerca genera candidati, interseca passi comuni, enumera combinazioni e
 mantiene una frontiera Pareto esatta, conservando le metriche equivalenti.

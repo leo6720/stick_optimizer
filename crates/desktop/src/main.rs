@@ -5,6 +5,7 @@ mod beta;
 mod draft;
 #[cfg(feature = "ui-preview")]
 mod preview;
+mod ui;
 
 fn main() -> eframe::Result {
     #[cfg(feature = "ui-preview")]
@@ -21,6 +22,17 @@ fn main() -> eframe::Result {
     } else {
         [1450.0, 900.0]
     };
+    #[cfg(feature = "ui-preview")]
+    let window_size = std::env::var("STICK_OPTIMIZER_PREVIEW_SIZE")
+        .ok()
+        .and_then(|s| {
+            let (w, h) = s.split_once('x')?;
+            Some([
+                w.parse::<f32>().ok()?.max(720.0),
+                h.parse::<f32>().ok()?.max(560.0),
+            ])
+        })
+        .unwrap_or(window_size);
     #[cfg(not(feature = "ui-preview"))]
     let window_size = [1450.0, 900.0];
     let options = eframe::NativeOptions {

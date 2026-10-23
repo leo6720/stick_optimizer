@@ -120,8 +120,8 @@ impl PrototypeApp {
                     });
                 ui.separator();
                 ui.horizontal(|ui| {
-                    close = ui.button("Chiudi").clicked();
-                    ui.label(RichText::new("Esc per chiudere").small().color(MUTED));
+                    close = ui.add(crate::ui::button(ui, "Chiudi", crate::ui::ButtonVariant::Secondary)).clicked();
+                    ui.label(RichText::new("Esc per chiudere").small().color(crate::ui::tokens(ui).muted));
                 });
                 close |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
@@ -189,7 +189,7 @@ fn candidate_values(ui: &mut egui::Ui, c: &Candidate) {
         .spacing([24.0, 4.0])
         .show(ui, |ui| {
             for (title, values) in sections {
-                ui.strong(RichText::new(title).color(ACCENT));
+                ui.strong(RichText::new(title).color(crate::ui::tokens(ui).accent));
                 ui.label("");
                 ui.end_row();
                 for (label, value) in values {
@@ -208,11 +208,16 @@ pub(super) fn configuration_values(
     c: &Candidate,
 ) {
     let Some(d) = stick_optimizer_core::candidate_dimensions(study, c) else {
-        ui.colored_label(ACCENT, "Quote della configurazione non disponibili.");
+        ui.colored_label(
+            crate::ui::tokens(ui).accent,
+            "Quote della configurazione non disponibili.",
+        );
         return;
     };
     ui.separator();
-    ui.strong(RichText::new("Configurazione effettiva e giochi").color(ACCENT));
+    ui.strong(
+        RichText::new("Configurazione effettiva e giochi").color(crate::ui::tokens(ui).accent),
+    );
     if let Some(head) = c
         .head_id
         .and_then(|id| solution.head_types.iter().find(|h| h.id == id))
