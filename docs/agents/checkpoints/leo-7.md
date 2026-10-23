@@ -6,9 +6,11 @@
 - Accepted grill20October/sizing21October120k, N1; scope unchanged.
 - Baseline: `86c8e9ddb6c9d25a855a5b7583126c0acdf95cbb`.
 - Branch/worktree: `codex/leo-7-async`, `/workspace/stick-leo-7`.
-- Cycle0; no independent review yet, no open finding.
-- Phase: implementation and final validation complete; frozen for two independent reviews.
-- Product milestone pushed: `d253a6d`; final refinement/checkpoint commit follows.
+- Independent review cycle1 completed: both PASS, no open findings.
+- Phase: implementation, final validation and independent reviews complete; PR ready for the user’s merge decision after coordinator confirms the final documentary delta.
+- Product milestone: `d253a6d`; final product/review head: `21f195fee70f85f1a8ed6af2b86b5e672ff880c7`.
+- Single draft PR toward main: https://github.com/leo6720/stick_optimizer/pull/25.
+- This completion update changes only this checkpoint; product remains identical to the reviewed head.
 
 ## Dependency acceptance verified before claim
 
@@ -36,32 +38,33 @@ Prior independent reviewers PASS for17cycle2,18cycle3,19cycle1, no open findings
 or additional mandatory human gate. Native Windows/physical input/file pickers/
 monitor DPI unexecuted; MSVC compilation alone never claimed native execution.
 
-## Milestone
+## Historical implementation milestone (completed below)
 
 Public quotation API observed RED absent, then GREEN for fixed expected g2/3/4
 coordinates, final/pickup spans, group pitch and27/60/27 structural g4 gaps.
 Read-only projection only, no new physics/search/metric/penalty or head_width change.
 Actual egui double-click test initially RED missing popup, then GREEN for two heads,
-solution identity, Esc and invalidation; additional selector/button checks ongoing.
+solution identity, Esc and invalidation; selector/button checks were still pending at this historical milestone.
 Direct renderer test PASS all12 grippers/sticks, actual25/26 widths, fixed approved
 coordinates and no core mutation. Named actual-format selector, black traverse/
 grippers and red sticks, before above after, zoom/scroll and explicit centre-span
-labels. First six native Linux previews exit0; refining fit at zoom1 and obtaining
-scrolled captures before final visual verification.
+labels. First six native Linux previews exited0; fit refinement at zoom1 and
+scrolled captures were still pending at this historical milestone.
 
 Use pinned1.99 with CARGO_HOME=/workspace/scratch/rust-cargo,
 RUSTUP_HOME=/workspace/scratch/rust-toolchains,
 CARGO_TARGET_DIR=/workspace/stick-rust-validation/target; --locked --offline.
-Final fmt/check/Clippy/workspace tests/release/MSVC and Linux captures remain.
+At that milestone final fmt/check/Clippy/workspace tests/release/MSVC and Linux
+captures remained; all were subsequently completed as recorded below.
 No user data touched, no merge/deploy/new automation, no other ticket.
 
 
-## Final validation and frozen review handoff
+## Final implementation validation
 
 Scope remains accepted120k/N1; no further split or product decision indicated.
-No product changes after the final Rust checks below. The final commit adds the
-already-checked precision/fit/identity refinements and this documentary evidence.
-Cycle0 until coordinator starts two fresh `fork_turns:none` reviewers.
+No product changes after the final Rust checks below. Product/review head
+`21f195fee70f85f1a8ed6af2b86b5e672ff880c7` contains the checked precision/fit/identity
+refinements and implementation evidence. Independent cycle1 is completed below.
 
 | Actual command | Result |
 | --- | --- |
@@ -109,9 +112,41 @@ only screen projection arithmetic. New view does not mutate solutions. This
 self-review does not replace two fresh independent reviewer contexts.
 
 Native Windows execution, physical input, Windows file pickers and multi-monitor
-DPI remain unexecuted; MSVC is compilation only. No new mandatory human gate is
-identified by this implementation, subject to independent review. No user data
-written, no merge/deploy/automation/new ticket. Coordinator owns PR/Linear.
-Next: review entire baseline→final remote head, fix concrete findings within
-accepted scope and persist review cycles (maximum3 unresolved), no product edits
-until review feedback.
+DPI remain unexecuted; MSVC is compilation only. Both independent reviewers
+identify no additional mandatory human verification gate for this scope. No user
+data written, no merge/deploy/automation/new ticket. Coordinator owns PR/Linear.
+
+
+## Independent review cycle1 — completed
+
+Both reviewers were actually created as fresh independent `fork_turns:none` contexts,
+separate from the implementer and coordinator history. Both examined the entire
+diff from baseline `86c8e9ddb6c9d25a855a5b7583126c0acdf95cbb` to fixed review head
+`21f195fee70f85f1a8ed6af2b86b5e672ff880c7`. The coordinator supplied their final
+results for this record; these are independent agent reviews, not an approval
+on behalf of the user.
+
+| Reviewer | Final result and independent evidence |
+| --- | --- |
+| Specification `/root/leo7_spec_review` | PASS, no findings;9 targeted tests passed and all9 Linux screenshots individually inspected. |
+| Standards `/root/leo7_standards_review` | PASS, no findings; public core tests and4 desktop head tests passed, compact/scaled screenshots inspected. |
+
+Cycle1 completed with no open findings or corrective review cycle. Neither
+reviewer identified an additional mandatory human gate. The implementation
+validation remains79 full workspace tests, fmt/check/Clippy/release/MSVC compilation
+and9 inspected actual native Linux captures above. Native Windows execution,
+physical input, Windows file pickers and monitor/DPI remain unexecuted; neither
+Linux nor cross compilation certifies those paths. ParentLEO16 was verified and
+closed Done by the coordinator before this ticket was claimed, as recorded in
+the prerequisite matrix.
+
+PR25: https://github.com/leo6720/stick_optimizer/pull/25 (draft, main base).
+This final update modifies only this checkpoint; `git diff --check` and the
+checkpoint-only diff are the appropriate validation. No Rust tests are rerun
+for this documentary-only change, and no product mutation follows review.
+
+Next action: coordinator obtains both reviewers’ confirmation of the final
+documentary delta within the same completed cycle1, records the final remote
+head in PR/Linear, moves to In Review and removes ready-for-agent. The user
+decides whether to merge. No Done claim before integration and verification;
+no merge, deploy, other ticket or automation authorized by this record.
