@@ -1,11 +1,12 @@
 # LEO-11 — UI funzionante in Rust, direzione A Essenziale
 
-Stato: bozza1 per conferma di specifica, verifiche e scomposizione.
+Stato: revisione1 accettata dall’utente il23ottobre2026; sviluppo e prosecuzione autorizzati.
 Ticket: https://linear.app/leochist/issue/LEO-11
 Baseline prodotto: main `44bb771d7e87a89b08cba07103316c3b333e302c`.
 Riferimenti visivi: A-chiaro.png e A-scuro.png in varianti-v4 di questa directory.
-La scelta estetica e il perimetro Rust sono confermati; il documento completo
-e il piano esecutivo non sono ancora approvati. Nessun ready o codice prodotto.
+Fonte: «Si perfetto» in risposta alla conferma di specifica, verifiche,
+suddivisione e autorizzazione a sviluppo/prosecuzione dei figli dopo i merge
+dell’utente. Nessun merge/deploy o nuova automazione autorizzati.
 
 ## Problema
 
@@ -135,20 +136,29 @@ Intervallo complessivo345–530k; stime centrali, non contatore o hard cap.
 
 | Figlio proposto | Consegna verificabile | Stima centrale (intervallo) | Bloccato da |
 | --- | --- | --- | --- |
-|1 Tema globale e componenti condivisi | Toggle e persistenza completi, tema leggibile ovunque, componenti usati davvero; ridisegno delle aree ancora da completare |120k (100–145k) | Nessuno |
-|2 Area input e cornice A | MT, stick/formati, menu e stato ridisegnati; editing, azioni e focus reali nei due temi |95k (75–120k) |1 integrato/verificato su main |
-|3 Risultati e dettagli inline A | Tabelle, selezione, riepilogo, filtri inline e penalità, con tutte le colonne e valori reali |110k (90–140k) |1 integrato/verificato su main |
-|4 Popup e stati trasversali A | Editor, filtri, formato/testa, progresso, conferme e diagnostica coerenti con comportamenti originali |100k (80–125k) |1 integrato/verificato su main |
+|LEO-21 Tema globale e componenti condivisi | Toggle e persistenza completi, tema leggibile ovunque, componenti usati davvero; ridisegno delle aree ancora da completare |120k (100–145k) | Nessuno |
+|LEO-22 Area input e cornice A | MT, stick/formati, menu e stato ridisegnati; editing, azioni e focus reali nei due temi |95k (75–120k) |LEO-21 integrato/verificato su main |
+|LEO-23 Risultati e dettagli inline A | Tabelle, selezione, riepilogo, filtri inline e penalità, con tutte le colonne e valori reali |110k (90–140k) |LEO-21 integrato/verificato su main |
+|LEO-24 Popup e stati trasversali A | Editor, filtri, formato/testa, progresso, conferme e diagnostica coerenti con comportamenti originali |100k (80–125k) |LEO-21 integrato/verificato su main |
 
 Il runner resta su un ticket alla volta;2/3/4 non hanno blocchi funzionali
 reciproci inventati. La fondazione stabilizza i contratti condivisi. Ogni figlio
 avrà criteri propri, sorgente della definizione, stima e verifiche. Se emergono
 nuovi contratti o lavoro oltre target ristimare prima di espandere lo scope.
 
-## Stato della definizione e prossima azione
+## Definizione accettata e autorizzazione alla prosecuzione
 
-Confermati scelta A e obiettivo UI Rust. Specifica, confini di verifica e
-scomposizione sopra proposti all'utente per conferma; nessun figlio pubblicato
-o ready assegnato prima di tale conferma. La pubblicazione futura del piano
-deve registrare anche l'eventuale autorizzazione esplicita alla prosecuzione
-dei figli dopo i merge, con ID reali/revisioni, senza inferirla dalla parentela.
+Approvazione esplicita dell’utente il23ottobre2026: «Si perfetto» alla domanda
+«Confermi specifica, verifiche e suddivisione, autorizzando sviluppo e prosecuzione
+dei figli dopo i tuoi merge?». Revisione1 di specifica e dimensionamento.
+Parent LEO-11 è contenitore, non esecutivo. Solo questi figli sono autorizzati:
+LEO-21 (120k), LEO-22 (95k), LEO-23 (110k), LEO-24 (100k).
+LEO-21 non ha dipendenze. LEO-22/23/24 conservano dipendenza nativa solo su
+LEO-21; possono essere abilitati dal runner esistente dopo merge raggiungibile
+su main aggiornato e verifica pertinente dei criteri di LEO-21, senza chiedere
+un nuovo consenso per figlio. Un ticket alla volta; nessun blocco umano cancellato,
+nessun nuovo lavoro estraneo o revisione del contratto senza decisione.
+I registri con UUID reali sono anche nel parent e in ciascun figlio Linear.
+Ogni presa/ripresa usa un implementatore nuovo fork:none, branch isolato e
+checkpoint, più due revisori fresh separati sullo SHA fissato.
+Done solo dopo integrazione e verifica. Nessun merge/deploy o nuova automazione.
