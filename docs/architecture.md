@@ -140,3 +140,15 @@ per gap, distinguendo il centrale strutturale del gruppo4. I file conservano la
 ricetta schema2; il rango originale ricostruisce la configurazione scelta anche
 con filtri/ordinamento diversi. CSVv2 descrive esplicitamente gli assegnati e le
 coordinate. Nessuna modifica a ricerca, formule di penalità o head_width.
+
+
+## Vista frontale della testa (LEO-7)
+
+`app/heads.rs` conserva soluzione, ID testa e formato rappresentato. Il doppio clic
+usa l'ID esplicito, anche per teste separate con la stessa vecchia chiave. Le due
+viste leggono `HeadGeometry.positions`; larghezza stick e nome provengono dal formato
+reale selezionato. Il core espone `head_diagram_dimensions`, proiezione read-only
+dei centri per interassi, passo gruppi e distanze primo–ultimo. Nessuna modifica
+a ricerca, dimensionamento fisico, score o dati soluzione. La GUI converte solo
+coordinate in mm in coordinate schermo. Traversa, altezza stick e prelevatori sono
+stilizzati; head_width conserva passo MT × canali.

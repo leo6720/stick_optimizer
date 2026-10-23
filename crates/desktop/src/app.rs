@@ -10,6 +10,7 @@ use stick_optimizer_core::{
 use crate::draft::StudyDraft;
 mod details;
 mod files;
+mod heads;
 mod parameters;
 use files::FileAction;
 use parameters::ParameterEditor;
@@ -76,6 +77,7 @@ pub struct PrototypeApp {
     parameters_draft: Option<crate::draft::Parameters>,
     parameters_error: Option<String>,
     detail_popup: Option<(usize, u64)>,
+    head_popup: Option<heads::HeadPopup>,
     detail_view: DetailView,
     collapsed: HashSet<u64>,
     selected_stick: Option<u64>,
@@ -113,6 +115,7 @@ impl Default for PrototypeApp {
             parameters_draft: None,
             parameters_error: None,
             detail_popup: None,
+            head_popup: None,
             detail_view: DetailView::Formats,
             collapsed: HashSet::new(),
             selected_stick: None,
@@ -212,7 +215,23 @@ impl PrototypeApp {
                 app.detail_view = DetailView::Pockets;
                 app.start_search();
             }
-            Ok("heads") => {
+            Ok(
+                "heads"
+                | "head-popup"
+                | "head-popup-compact"
+                | "head-popup-scaled"
+                | "head-popup-scaled-bottom"
+                | "head-popup-compact-bottom"
+                | "head-popup-zoom"
+                | "head-popup-g4"
+                | "head-popup-alternate",
+            ) => {
+                if std::env::var("STICK_OPTIMIZER_PREVIEW")
+                    .as_deref()
+                    .is_ok_and(|m| m.starts_with("head-popup-scaled"))
+                {
+                    ctx.set_zoom_factor(1.5);
+                }
                 app.detail_view = DetailView::Heads;
                 app.start_search();
             }
@@ -303,6 +322,7 @@ impl PrototypeApp {
         self.restore_view = None;
         self.geometry_format = None;
         self.detail_popup = None;
+        self.head_popup = None;
         self.results.clear();
         self.selected = None;
         self.diagnostic = None;
@@ -768,6 +788,7 @@ Dimensioni in mm",
             });
         self.parameters_window(ui.ctx());
         self.details_window(ui.ctx());
+        self.head_window(ui.ctx());
         if let Some(ranges) = self.filter_editor.show(ui.ctx()) {
             self.ranges = ranges;
             self.dirty = true;
@@ -1331,7 +1352,7 @@ Dimensioni in mm",
                             ]
                         })
                         .collect();
-                    detail_table(
+                    if let Some((index, open)) = detail_table(
                         ui,
                         "head_details",
                         &[
@@ -1345,7 +1366,25 @@ Dimensioni in mm",
                             "Formati",
                         ],
                         data,
-                        None,
+                        self.head_popup
+                            .as_ref()
+                            .filter(|p| p.rank == result.id)
+                            .and_then(|p| {
+                                solution.head_types.iter().position(|h| h.id == p.head_id)
+                            }),
+                    ) {
+                        if open {
+                            self.head_popup = heads::HeadPopup::new(
+                                result.id,
+                                solution,
+                                solution.head_types[index].id,
+                            );
+                        }
+                    }
+                    ui.label(
+                        RichText::new("Doppio clic su una testa per la vista prima/dopo.")
+                            .small()
+                            .color(MUTED),
                     );
                 }
             }
@@ -1652,6 +1691,86 @@ mod tests {
         app.study.sticks[0].width = "27".into();
         app.invalidate_results();
         assert!(app.detail_popup.is_none());
+    }
+
+    #[test]
+    fn head_double_click_keeps_solution_and_head_identity_and_closes_stale_views() {
+        for index in 0..2 {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            calculate(&mut app);
+            app.detail_view = DetailView::Heads;
+            let original = app.results[0].solution.clone();
+            assert!(original.head_types.len() >= 2);
+            app.head_popup = None;
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let label = format!("Testa {}", index + 1);
+            let pos = text_position(&output, &label, 400.0);
+            click_at(&ctx, &mut app, pos);
+            click_at(&ctx, &mut app, pos);
+            let popup = app.head_popup.as_ref().unwrap();
+            assert_eq!(
+                (popup.rank, popup.head_id),
+                (1, original.head_types[index].id)
+            );
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            text_position(&output, "Prima del raggruppamento", 0.0);
+            text_position(&output, "Dopo il raggruppamento", 0.0);
+            text_position(&output, "Chiudi", 0.0);
+            if index == 0 {
+                let head = &original.head_types[index];
+                let first = original
+                    .candidates
+                    .iter()
+                    .find(|c| c.format_id == head.geometry.format_ids[0])
+                    .unwrap();
+                let last = original
+                    .candidates
+                    .iter()
+                    .find(|c| c.format_id == *head.geometry.format_ids.last().unwrap())
+                    .unwrap();
+                assert_ne!(first.format_id, last.format_id);
+                click_at(
+                    &ctx,
+                    &mut app,
+                    text_position(&output, &first.format_name, 200.0),
+                );
+                for _ in 0..4 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(
+                    &ctx,
+                    &mut app,
+                    text_position(&output, &last.format_name, 200.0),
+                );
+                assert_eq!(app.head_popup.as_ref().unwrap().format_id, last.format_id);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(
+                    &output,
+                    &format!("{} · larghezza stick 26 mm", last.format_name),
+                    0.0,
+                );
+                click_at(&ctx, &mut app, text_position(&output, "Chiudi", 0.0));
+            } else {
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+            }
+            assert!(app.head_popup.is_none());
+            assert_eq!(*app.results[0].solution, *original);
+            app.head_popup = heads::HeadPopup::new(1, &original, original.head_types[0].id);
+            app.invalidate_results();
+            assert!(app.head_popup.is_none());
+        }
     }
 
     #[test]

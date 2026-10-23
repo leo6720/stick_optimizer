@@ -10,7 +10,10 @@ mod geometry;
 pub use geometry::{Geometry, GeometryRect, schematic};
 
 mod head;
-pub use head::{HeadFormat, HeadGeometry, HeadGeometryError, HeadPosition, final_head_geometry};
+pub use head::{
+    HeadDiagramDimensions, HeadFormat, HeadGeometry, HeadGeometryError, HeadPosition,
+    final_head_geometry, head_diagram_dimensions,
+};
 
 mod assignments;
 

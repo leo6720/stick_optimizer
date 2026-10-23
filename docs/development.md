@@ -204,3 +204,12 @@ non rigenerare le fixture storiche Python dalla nuova implementazione.
 I campi invariati restano confrontati con la fixture originale. Test IO/desktop
 verificano ricostruzione di teste separate/condivise, cambio contratto motore,
 conservazione file e righe testa distinte pur con uguale chiave di prelievo.
+
+
+LEO-7 verifica quote e coordinate tramite API core pubblica e confronta le primitive
+disegnate per g2/3/4, tutti i canali e larghezze reali25/26mm. Eventi egui esercitano
+doppio clic su teste diverse, selezione del formato condiviso, Chiudi/Esc e invalidazione.
+Le anteprime `head-popup`, `head-popup-g4`, `head-popup-alternate`,
+`head-popup-compact`, `head-popup-scaled` e `head-popup-zoom` usano risultati reali;
+`head-popup-compact-bottom` e `head-popup-scaled-bottom` mostrano lo scorrimento
+in fondo. Sono prove Linux separate dall'esecuzione nativa Windows.
