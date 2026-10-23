@@ -1,5 +1,28 @@
 # LEO-11 — prime alternative visive, non approvate
 
+## Ripartenza3 — componenti ridisegnati
+
+L'utente ha respinto anche la revisione2: la richiesta mantiene soltanto la
+disposizione generale, non gli asset o le composizioni della vecchia UI.
+I componenti e i raggruppamenti visivi possono essere completamente ripensati.
+La palette della prima alternativa resta il riferimento, ma le proposte1/2
+non sono approvate e non devono essere trattate come base accettata.
+
+[concept-v3.png](concept-v3.png) è una nuova esplorazione visiva generata con
+le tre fotografie fornite come riferimenti di stile: organizzazione generale
+input a sinistra, risultati sopra e dettagli sotto a destra. Introduce un nuovo
+linguaggio di componenti: gruppi stick/formati, controlli, tavola risultati,
+riepilogo e selettori dei dettagli, con nuove proporzioni e gerarchie.
+
+È un concept grafico, non una schermata implementata o una specifica funzionale.
+Numeri e geometrie sono illustrativi, non risultati verificati. Eventuali
+azioni ripetute nei gruppi e testi abbreviati dell'immagine non approvano
+cambi ai flussi, duplicazioni di comandi o perdita di dati: richiedono verifica
+prima del mockup fedele e del contratto finale. Tema scuro da sviluppare dopo
+il feedback sulla direzione. Nessun codice prodotto o ready.
+
+Le esplorazioni precedenti rimangono sotto solo come storico dei tentativi.
+
 ## Revisione2 — misure e gerarchia, non soltanto palette
 
 L'utente ha preferito la palette della prima alternativa, criticando le tre
