@@ -9,7 +9,10 @@ Base e dipendenze Git: <branch, SHA, PR>
 ## Risultato
 
 <Una modifica dimostrabile dall'inizio alla fine, abbastanza piccola
-da essere implementata e verificata in una sessione.>
+da essere implementata e verificata in una sessione nuova.
+Comportamento per l'utente, non un elenco di livelli tecnici da modificare.
+Indicare storie/decisioni della specifica coperte; preparazioni di dominio o
+migrazioni dichiarano il confine pubblico e ciò che resta da integrare.>
 
 ## Accettazione
 
@@ -32,7 +35,8 @@ da essere implementata e verificata in una sessione.>
 
 <Data e riferimento alla decisione dell'utente, revisione della specifica.
 Compilare dopo il grill e prima di Todo + ready-for-agent; non è un'approvazione
-implicita del merge.>
+implicita del merge. Fonte dell'approvazione della suddivisione o della delega
+esplicita a definirla nel piano accettato; non dedurla dalla sola macro.>
 
 ## Esecuzione asincrona Stick Optimizer
 
