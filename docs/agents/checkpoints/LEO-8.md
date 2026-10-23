@@ -82,9 +82,10 @@ Nessun dimensionamento retroattivo inventato per l’attività già In Review.
   risolti: geometry.rs conserva coordinate effettive e un solo strato;
   app.rs conserva entrambi i test LEO-7/8; development/rust-files/ui-design
   conservano documentazione main e comportamento LEO-8.
-- Nuova integrazione: round 1, cumulativo 2; due revisori separati da avviare
-  dal coordinatore sul medesimo main/head congelato. Non è un’autorevisione
-  indipendente. Nessun rilievo di codice aperto dell’implementatore.
+- Nuova integrazione: round 1, cumulativo 2 completato con due revisioni
+  separate PASS sullo stesso main/head congelato; dettagli sotto. Nessun
+  rilievo bloccante o suggerimento residuo. Il ciclo storico PASS resta valido
+  come evidenza storica e non viene azzerato.
 
 ### Verifiche della ripresa realmente eseguite
 
@@ -98,7 +99,8 @@ Rust 1.99.0; Cargo.lock, toolchain e manifest invariati rispetto a main.
 - Test pubblico `single_layer_view_preserves_real_geometry_and_solution_data`
   rafforzato per tutte le coordinate effettive stick/divisori, poi rieseguito:
   PASS. Il test group4 ereditato usa coordinate attese indipendenti.
-- Build workspace release e debug con `eframe/x11,ui-preview`: PASS.
+- Build workspace release con `eframe/x11`: PASS.
+- Build workspace debug con `eframe/x11,ui-preview`: PASS.
 - Check e Clippy MSVC workspace/all-targets/all-features locked: PASS come
   compilazione cross-target, senza esecuzione o build nativa Windows.
 - Sette catture Linux/Xvfb reali acquisite e ispezionate:
@@ -111,9 +113,41 @@ Rust 1.99.0; Cargo.lock, toolchain e manifest invariati rispetto a main.
 - Compatibilità con PR19 finale `96f0e72738739c4a5fa727c4872bb76a2493ff9c`:
   merge-tree scratch pulito dopo spostamento delle sole sezioni documentali8
   lontano dai punti di inserimento9. Nessun codice o commit9 incorporato in20.
-  Verifica finale su head esatti e risultato conservati nel handoff.
+  Verifica finale bidirezionale sugli head esatti:
+  PR20 `a71048264f4e175d3e982e00c392e377a760d50a` e PR19
+  `96f0e72738739c4a5fa727c4872bb76a2493ff9c`: entrambi gli ordini di
+  `git merge-tree --write-tree` terminano con codice 0 e lo stesso tree
+  `8db3a843622cc5b00717068cef17cdaa9544a0e3`.
+  Log `/workspace/scratch/leo8-19-final-merge-tree.log`.
+- Il tree combinato è stato estratto soltanto nello scratch
+  `/workspace/scratch/leo8-19-combined`, senza merge effettivi o nuovi branch.
+  `cargo test --workspace --all-features --features eframe/x11 --locked
+  --manifest-path /workspace/scratch/leo8-19-combined/Cargo.toml`:
+  **89 test PASS** (31 core, 47 desktop, 11 IO), zero fallimenti.
+  Log `/workspace/scratch/leo8-19-combined-tests.log`. Questa suite verifica
+  insieme modal LEO-9, strato LEO-8 e popup teste LEO-7 sul tree indicato;
+  non costituisce esecuzione nativa Windows.
 
-Fase: implementazione e controlli completati, handoff per due revisioni nuove.
-Il coordinatore mantiene ticket e PR, registra gli esiti e conserva i contatori.
-Le prove native rinviate non bloccano questa preparazione autorizzata; la
-successiva decisione di merge resta dell’utente.
+### Esito finale delle revisioni separate
+
+Baseline comune `509003851451f5ccc8280f4bfc4a577611e266e5`, head prodotto
+comune `a71048264f4e175d3e982e00c392e377a760d50a`:
+
+- Specifica: `/root/leo8_merge_spec`, contesto separato dall’implementatore,
+  **PASS**, nessun finding. Ha rieseguito indipendentemente i due test
+  `single_layer` e diff whitespace, e ispezionato tutte le sette PNG.
+- Standard/correttezza: `/root/leo8_merge_standards`, contesto separato
+  dall’implementatore, **PASS**, nessun finding. Ha rieseguito due test mirati,
+  suite workspace completa **81 PASS** (30 core, 40 desktop, 11 IO) e diff
+  whitespace, e ispezionato tutte le sette PNG.
+
+Questo aggiornamento finale modifica solo il checkpoint, registra gli esiti
+ricevuti dal coordinatore e precisa le feature delle build; nessun cambiamento
+prodotto o nuovo round di correzione. Il coordinatore farà verificare il delta
+documentale agli stessi revisori nel medesimo round 1/cumulativo 2.
+
+Fase: preparazione tecnica e revisioni prodotto concluse PASS; resta il controllo
+del delta documentale finale e la decisione separata dell’utente sul merge.
+Il coordinatore mantiene ticket e PR In Review; nessun merge main, deploy o
+Done effettuato. Windows nativo, input fisici e monitor/DPI restano rinviati
+per decisione esplicita dell’utente e non sono dichiarati superati.
