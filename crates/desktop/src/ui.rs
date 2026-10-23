@@ -242,8 +242,12 @@ pub fn gallery(ui: &mut egui::Ui) {
             .inner_margin(12)
             .show(ui, |ui| {
                 heading(ui, "Contenitore e intestazione");
-                table_label(ui, "Formato", false, false, true);
-                table_label(ui, "Valore reale · 25 mm", false, false, false);
+                ui.allocate_ui(egui::vec2(320.0, 24.0), |ui| {
+                    table_label(ui, "Formato", false, false, true);
+                });
+                ui.allocate_ui(egui::vec2(320.0, 24.0), |ui| {
+                    table_label(ui, "Valore reale · 25 mm", false, false, false);
+                });
                 ui.label(RichText::new("Testo secondario").color(tokens(ui).muted));
             });
     });
