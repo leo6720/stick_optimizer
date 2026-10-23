@@ -18,12 +18,13 @@ La PR era già non-draft alla presa; la coordinatrice aggiorna PR e stato Linear
 - Vecchio head pubblicato: `76c9b2c4ad971695cb3f84952b1d604993c69086`.
 - Main integrato e baseline di revisione:
   `509003851451f5ccc8280f4bfc4a577611e266e5`.
-- Head di consegna: il merge commit contenente questo aggiornamento;
-  SHA esatto da registrare in PR/Linear dopo normale push, senza force/rebase.
-- Due cicli storici conclusi PASS, nessun rilievo residuo secondo il checkpoint
-  finale Linear. Nuova integrazione: round1, cumulativo3, revisori indipendenti
-  da avviare sullo SHA fisso; nessuna revisione nuova dichiarata già superata.
-  Cicli irrisolti di questa ripresa:0; massimo3 prima di registrare un blocco.
+- Head prodotto revisionato e pubblicato:
+  `7587497543f6f88ea11cb960845caddce7a94b9c`, merge con genitori vecchio head
+  e main sopra. Il successivo commit modifica soltanto questo checkpoint;
+  lo SHA documentale finale viene registrato in PR/Linear dopo push normale.
+- Due cicli storici conclusi PASS, preservati. Round1 di integrazione concluso
+  PASS su entrambi gli assi: cumulativo3, nessun rilievo aperto, zero cicli
+  irrisolti in questa ripresa. Nessuna modifica di prodotto dopo le revisioni.
 
 ## Risoluzione e rispetto del main corrente
 
@@ -88,9 +89,31 @@ errori/limiti e scarto dei risultati dopo annullamento. Nessun dato utente usato
 
 Nessuna esecuzione, test nativo, build linkata o DPI fisico Windows certificato.
 L'utente ha rinviato questi controlli; non si introduce una nuova approvazione
-per completare la preparazione tecnica. Prossima azione: revisori separati sul
-diff completo main5090038 → head di consegna; poi coordinatrice aggiorna PR/Linear
-In Review. Il merge resta una decisione distinta dell'utente, ticket non Done.
+per completare la preparazione tecnica. La coordinatrice aggiorna PR19/Linear
+In Review e registra lo SHA finale. La prossima decisione di merge spetta
+all'utente; nessun merge/deploy eseguito, ticket non Done.
+
+## Revisioni indipendenti concluse — integrazione round1, cumulativo3
+
+Esiti comunicati dalla coordinatrice dopo le due letture separate del diff
+completo dalla baseline `509003851451f5ccc8280f4bfc4a577611e266e5` all'head
+`7587497543f6f88ea11cb960845caddce7a94b9c` della PR19.
+I revisori sono contesti nuovi `fork_turns: "none"`, separati dall'implementatore
+e dalla cronologia della coordinatrice; non sono autorevisione o approvazioni
+per conto dell'utente.
+
+| Revisore | Esito ed evidenze autonome |
+| --- | --- |
+| Specifica `/root/leo9_merge_spec` | PASS, nessun finding; 16 test desktop e 1 core superati. |
+| Standard `/root/leo9_merge_standards` | PASS, nessun finding; 4 test desktop e 1 core superati, controllo diff superato. |
+
+Questo aggiornamento finale interessa solo il checkpoint. Controllati delta
+limitato al file e `git diff --check`; non si ripetono suite Rust già superate
+per una modifica puramente documentale. Restano valide le87verifiche di test,
+i controlli e le prove Linux sopra. Windows/input fisico/DPI restano
+esplicitamente rinviati dall'utente, non dichiarati superati. PR unica:
+https://github.com/leo6720/stick_optimizer/pull/19. Nessun gate di approvazione
+aggiuntivo introdotto; la decisione di merge resta distinta e dell'utente.
 
 ---
 
