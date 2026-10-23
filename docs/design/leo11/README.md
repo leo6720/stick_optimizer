@@ -1,5 +1,45 @@
 # LEO-11 — prime alternative visive, non approvate
 
+## Revisione2 — misure e gerarchia, non soltanto palette
+
+L'utente ha preferito la palette della prima alternativa, criticando le tre
+proposte perché troppo simili alla UI attuale salvo i colori. Ha fornito tre
+fotografie di reference: dashboard scura con contenitori delicati, tabella chiara
+con righe leggibili e componenti/menu chiari con padding, raggi e ombre leggere.
+Palette A confermata; composizione estetica e misure non ancora approvate.
+Il vincolo di organizzazione funzionale non congela coordinate, proporzioni,
+dimensioni e spaziature: questo chiarimento prevale sulla prima interpretazione.
+
+Aprire [proposta-v2.html](proposta-v2.html), autonoma, o le catture
+[chiaro](v2-chiaro.png), [scuro](v2-scuro.png) e [confronto](v2-confronto.png).
+La tavola dei componenti è nello stesso HTML; screenshot in v2-componenti-*.png.
+
+Cambiamenti concreti proposti:
+
+- Inter Variable incorporata, con licenza SIL OFL1.1 e origine/hash in
+  font-source.json; solo artefatto HTML, non font integrata nel prodotto Rust.
+- Titolo principale20px, controllo34px invece di27, righe risultati35px invece
+  di26, spazi interni più leggibili e intestazioni tabelle35px invece di27.
+- Sidebar400px invece di430, margine principale26px invece di18;
+  stessi gruppi e comandi, senza nuove funzioni o navigazione.
+- Risultati in un contenitore scorrevole di212px: circa5 righe visibili invece
+  di7 nel primo mockup, mantenendo dati, riepilogo e dettagli sullo schermo.
+  Questo compromesso di densità resta da valutare dall'utente.
+- Tabelle con contorni9–10px, griglia delicata, riepilogo su superficie tenue,
+  pulsanti7px e icone lineari inline; nessuna nuova azione.
+
+Controlli ChromiumLinux: font Inter effettivamente caricato, menu/tema
+dimostrativi, quattro catture e confronto, nessun erroreJS o overflow laterale
+indesiderato nel pannello principale. Alla misura1450×900 il contenuto principale
+sta nei suoi820px; tabella risultati scorre210px su281px, dettaglio mantiene
+lo scorrimento orizzontale. Catture chiara/scura ispezionate.
+Nessuna verifica compatta/zoom/nativa egui o implementazione del tema nel prodotto.
+
+Rigenerazione aggiuntiva: build_v2.py dopo build_mockups.py, poi render_v2.py.
+Il font rimane nel file locale InterVariable.woff2 e viene incorporato nell'HTML.
+
+## Prima esplorazione — conservata come storico
+
 Esplorazione richiesta dall'utente durante il grill. Non è implementazione
 di prodotto, specifica accettata o autorizzazione ready. Nessuna modifica ai
 crate Rust, a dati utente o ai flussi applicativi.
