@@ -85,6 +85,13 @@ il ciclo di riporto e usa B astuccio come riferimento verticale: non introduce
 un'altezza fisica del cassetto assente dal modello. Benchmark e nuovi requisiti
 fisici richiedono un'attività separata; questa rifinitura non ne modifica le formule.
 
+La tabella teste apre con doppio clic una vista frontale statica prima/dopo.
+Titolo e assegnati identificano testa e soluzione; per teste condivise il formato
+rappresentato è esplicito e selezionabile. Tutti i canali hanno un prelevatore
+nero e uno stick rosso. Quote dei centri dal core, zoom del disegno e scorrimento
+orizzontale/verticale; Chiudi resta fuori dal contenuto scorrevole. La vista
+si chiude con Esc/X/Chiudi o invalidazione, senza alterare la soluzione.
+
 ## Avanzamento del calcolo (LEO-9)
 
 Popup modale centrato, senza ridimensionamento, bianco con leggero oscuramento

@@ -67,8 +67,28 @@ conserva i risultati già calcolati. Da **Modifica** puoi salvare i parametri pr
 per i nuovi studi. I vecchi `.sop` e `user_defaults.json` non sono usati dalla
 versione Rust. Formati e limiti sono descritti in
 [docs/rust-files.md](docs/rust-files.md).
+I nuovi studi/preferenze usano lo schema 2; lo schema Rust 1 viene letto
+senza riscriverlo, conservando i parametri salvati. I predefiniti incorporati
+usano divisore 7,5 mm e interasse aggiuntivo massimo 5 mm. Quest’ultimo è
+conservato nei file; la ricerca lo applica alle assegnazioni complete ed è modificabile
+in **Modifica → Dati astucciatrice**, con validazione, Applica e Annulla.
+I dettagli distinguono ID e assegnazioni delle teste separate/condivise; il popup
+del formato include interassi finali e giochi effettivi. I CSV versione2
+aggiungono configurazione scelta, identità, coordinate e parametri, senza cambiare
+il significato della larghezza testa (passo MT × canali).
 
-L'esempio incorporato esplora 40 combinazioni e produce 16 soluzioni Pareto.
+Il doppio clic in **Tipi teste robot usate** apre la testa della soluzione selezionata:
+due viste frontali statiche, prima/dopo, con tutti i prelevatori e gli stick.
+Il formato rappresentato è selezionabile fra quelli assegnati; zoom del disegno e
+scorrimento permettono la lettura in finestra compatta. Esc, Chiudi o la X chiudono
+il popup; le modifiche agli input lo invalidano. Quote in mm fra centri effettivi:
+la distanza primo–ultimo centro è distinta da head_width e non è una quota
+costruttiva. Traversa e prelevatori sono stilizzati, senza simulazione cinematica.
+
+La ricerca enumera anche le alternative separate/condivise delle teste,
+verificando posizioni finali e cassetti effettivi (LEO-18).
+L’esempio incorporato verifica128assegnazioni strutturali e produce10soluzioni
+Pareto, conservando anche alternative con teste separate.
 La ricerca esatta ha limiti operativi espliciti: oltre un milione di combinazioni
 o 10.000 soluzioni in frontiera interrompe la ricerca e segnala il limite,
 senza presentare un risultato incompleto. Precisione e limiti sono descritti in

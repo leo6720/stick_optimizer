@@ -10,6 +10,7 @@ impl PrototypeApp {
             || self.parameters_open
             || self.filter_editor.open
             || self.detail_popup.is_some()
+            || self.head_popup.is_some()
         {
             return;
         }
@@ -46,11 +47,15 @@ impl PrototypeApp {
                     | "detail-compact"
                     | "detail-scaled"
                     | "detail-bottom"
-                    | "detail-carry")
+                    | "detail-carry"
+                    | "detail-carry-bottom")
             )
             && let Some(result) = self.results.first()
             && let Some(c) = result.solution.candidates.get(
-                if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-carry") {
+                if matches!(
+                    std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(),
+                    Ok("detail-carry" | "detail-carry-bottom")
+                ) {
                     1
                 } else {
                     0
@@ -95,6 +100,7 @@ impl PrototypeApp {
                     .show(ui, |ui| {
                         if let Some(c) = solution.candidates.iter().find(|c| c.format_id == format_id) {
                             ui.strong(format!("{} · {}", c.format_name, c.stick_name));
+                            ui.label(c.head_id.map(|id|format!("Testa {} · ID {id}", id+1)).unwrap_or_else(||"Nessuna testa · gruppo 1".into()));
                             if let Ok(study) = self.study.to_study()
                                 && let Some(g) = stick_optimizer_core::schematic(&study, c)
                             { crate::beta::draw_geometry(ui, &g); }
@@ -103,8 +109,11 @@ impl PrototypeApp {
                             }
                             ui.separator();
                             candidate_values(ui, c);
+                            if let Ok(study)=self.study.to_study() {
+                                configuration_values(ui,&study,&solution,c);
+                            }
                             #[cfg(feature = "ui-preview")]
-                            if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-bottom") {
+                            if matches!(std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(), Ok("detail-bottom" | "detail-carry-bottom")) {
                                 ui.scroll_to_cursor(Some(egui::Align::BOTTOM));
                             }
                         }
@@ -190,4 +199,114 @@ fn candidate_values(ui: &mut egui::Ui, c: &Candidate) {
                 }
             }
         });
+}
+
+pub(super) fn configuration_values(
+    ui: &mut egui::Ui,
+    study: &stick_optimizer_core::Study,
+    solution: &stick_optimizer_core::Solution,
+    c: &Candidate,
+) {
+    let Some(d) = stick_optimizer_core::candidate_dimensions(study, c) else {
+        ui.colored_label(ACCENT, "Quote della configurazione non disponibili.");
+        return;
+    };
+    ui.separator();
+    ui.strong(RichText::new("Configurazione effettiva e giochi").color(ACCENT));
+    if let Some(head) = c
+        .head_id
+        .and_then(|id| solution.head_types.iter().find(|h| h.id == id))
+    {
+        ui.label(if head.geometry.format_ids.len() > 1 {
+            "Testa condivisa"
+        } else {
+            "Testa separata"
+        });
+        let formats = solution
+            .candidates
+            .iter()
+            .filter(|c| c.head_id == Some(head.id))
+            .map(|c| format!("{} (ID {})", c.format_name, c.format_id))
+            .collect::<Vec<_>>()
+            .join(", ");
+        ui.label(format!("Formati assegnati: {formats}"));
+    }
+    egui::Grid::new("configuration_values")
+        .num_columns(2)
+        .spacing([24.0, 4.0])
+        .show(ui, |ui| {
+            let mut values = vec![
+                (
+                    "Limite interasse aggiuntivo",
+                    study.settings.max_extra_spacing,
+                ),
+                ("Spessore divisore", study.settings.divider_width),
+                (
+                    "Gioco minimo stick-parete/divisore",
+                    study.settings.wall_clearance,
+                ),
+                (
+                    "Gioco minimo stick-stick",
+                    study.settings.adjacent_clearance,
+                ),
+                ("Gioco effettivo parete sinistra", d.left_wall_clearance),
+                ("Gioco effettivo parete destra", d.right_wall_clearance),
+            ];
+            if let (Some(spacing), Some(minimum), Some(extra)) = (
+                d.approach_spacing,
+                d.minimum_approach_spacing,
+                d.extra_spacing,
+            ) {
+                values.extend([
+                    ("Interasse finale di avvicinamento", spacing),
+                    ("Interasse minimo del formato", minimum),
+                    ("Interasse aggiuntivo del formato", extra),
+                ]);
+            }
+            for (label, value) in values {
+                ui.label(label);
+                ui.label(format!("{} mm", format_number(value)));
+                ui.end_row();
+            }
+        });
+    ui.label("Coordinate locali del primo strato, dall'interno della parete sinistra:");
+    ui.label(format!(
+        "Centri stick (mm): {}",
+        c.geometry
+            .stick_centres
+            .iter()
+            .map(|&v| format_number(v))
+            .collect::<Vec<_>>()
+            .join("; ")
+    ));
+    ui.label(format!(
+        "Bordi sinistri divisori (mm): {}",
+        c.geometry
+            .divider_lefts
+            .iter()
+            .map(|&v| format_number(v))
+            .collect::<Vec<_>>()
+            .join("; ")
+    ));
+    for (i, gap) in d.gaps.iter().enumerate() {
+        ui.label(format!(
+            "Distanza {}–{}: {} mm · gioco stick-stick: {} mm{}",
+            i + 1,
+            i + 2,
+            format_number(gap.centre_spacing),
+            format_number(gap.stick_clearance),
+            if gap.structural {
+                " · strutturale (esclusa dal limite aggiuntivo)"
+            } else {
+                ""
+            }
+        ));
+        if let Some([left, right]) = gap.divider_clearances {
+            ui.label(format!(
+                "Giochi ai lati del divisore: {} / {} mm",
+                format_number(left),
+                format_number(right)
+            ));
+        }
+    }
 }

@@ -13,7 +13,9 @@ Se manca la specifica dichiararlo; non inventare requisiti.
 Esaminare due assi distinti: Spec (requisiti, errori, lavoro estraneo) e
 Standard (contratti, responsabilità, coerenza e regole documentate).
 Quando il contesto consente ed è autorizzato, affidare le due letture a revisori
-separati con lo stesso diff e solo i riferimenti necessari.
+separati, ciascuno con `spawn_agent(fork_turns: "none")`, lo stesso diff e
+solo i riferimenti necessari. Se non disponibile, registrare il blocco senza
+sostituire il gate indipendente con autorevisione.
 Se eseguite dallo stesso agente dichiarare autorevisione; non chiamarla indipendente.
 Per ogni rilievo citare posizione, effetto e criterio. Separare difetti da
 suggerimenti; non ripetere rilievi già coperti da strumenti superati.

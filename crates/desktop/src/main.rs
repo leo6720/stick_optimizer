@@ -10,7 +10,12 @@ fn main() -> eframe::Result {
     #[cfg(feature = "ui-preview")]
     let window_size = if matches!(
         std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(),
-        Ok("compact" | "detail-compact" | "parameters-compact" | "progress-compact")
+        Ok("compact"
+            | "detail-compact"
+            | "parameters-compact"
+            | "progress-compact"
+            | "head-popup-compact"
+            | "head-popup-compact-bottom")
     ) {
         [760.0, 620.0]
     } else {

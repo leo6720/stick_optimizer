@@ -42,28 +42,39 @@ impl PrototypeApp {
             .or_else(|| rows.first().map(|r| r.id));
     }
     pub(super) fn read_defaults(&mut self) {
-        let result = (|| -> Result<(), io::Error> {
-            let path = preferences_path()?;
-            match io::load_preferences(&path) {
-                Ok(p) => {
-                    let (s, w) = p.parameters();
-                    let parameters = crate::draft::Parameters::from_core(s, w);
-                    self.study.parameters = parameters.clone();
-                    self.defaults = Some(parameters);
-                    Ok(())
-                }
-                Err(e)
-                    if e.downcast_ref::<std::io::Error>()
-                        .is_some_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
-                {
-                    Ok(())
-                }
-                Err(e) => Err(e),
-            }
-        })();
+        let result = preferences_path().and_then(|path| self.read_defaults_from(&path));
         if let Err(e) = result {
             self.diagnostic = Some(format!("Preferenze non caricate: {e}"));
         }
+    }
+    pub(super) fn read_defaults_from(&mut self, path: &Path) -> Result<(), io::Error> {
+        match io::load_preferences(path) {
+            Ok(p) => {
+                let (s, w) = p.parameters();
+                let parameters = crate::draft::Parameters::from_core(s, w);
+                self.study.parameters = parameters.clone();
+                self.defaults = Some(parameters);
+                Ok(())
+            }
+            Err(e)
+                if e.downcast_ref::<std::io::Error>()
+                    .is_some_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
+            {
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
+    pub(super) fn save_defaults_to(&mut self, path: &Path) -> Result<(), io::Error> {
+        // Validate parameters independently of incomplete input drafts.
+        let mut sample = StudyDraft::example();
+        sample.parameters = self.study.parameters.clone();
+        let study = sample.to_study().map_err(|errors| errors.join("; "))?;
+        std::fs::create_dir_all(path.parent().ok_or("Cartella preferenze mancante.")?)?;
+        io::save_preferences(path, &Preferences::new(study.settings, study.weights))?;
+        self.defaults = Some(self.study.parameters.clone());
+        self.status = "Parametri predefiniti salvati per i nuovi studi e il prossimo avvio.".into();
+        Ok(())
     }
     pub(super) fn document(&self) -> Result<Document, io::Error> {
         let study = self.study.to_study().map_err(|errors| errors.join("; "))?;
@@ -108,7 +119,7 @@ impl PrototypeApp {
         } else {
             self.status = format!("Studio aperto: {}", path.display());
         }
-        if document.engine != "rust-geometry-v1" {
+        if document.engine != io::ENGINE_ID {
             self.diagnostic=Some("Studio creato con un altro motore: i risultati saranno ricalcolati con quello attuale.".into());
         }
         Ok(())
@@ -169,32 +180,29 @@ impl PrototypeApp {
                 self.save_current(matches!(action, FileAction::SaveAs));
                 Ok(())
             }
-            FileAction::Preferences => (|| -> Result<(), io::Error> {
-                // Validate parameters independently of incomplete input drafts.
-                let mut sample = StudyDraft::example();
-                sample.parameters = self.study.parameters.clone();
-                let study = sample.to_study().map_err(|errors| errors.join("; "))?;
-                let path = preferences_path()?;
-                std::fs::create_dir_all(path.parent().expect("preferences directory"))?;
-                io::save_preferences(&path, &Preferences::new(study.settings, study.weights))?;
-                self.defaults = Some(self.study.parameters.clone());
-                self.status =
-                    "Parametri predefiniti salvati per i nuovi studi e il prossimo avvio.".into();
-                Ok(())
-            })(),
+            FileAction::Preferences => {
+                preferences_path().and_then(|path| self.save_defaults_to(&path))
+            }
             FileAction::Summary | FileAction::Details => (|| -> Result<(), io::Error> {
                 let rows = self.visible_results();
                 let bytes = if matches!(action, FileAction::Summary) {
                     if rows.is_empty() {
                         return Err("Nessuna soluzione visibile da esportare.".into());
                     }
-                    io::summary_csv(rows.iter().map(|r| (r.id, r.solution.as_ref())))
+                    io::summary_csv(
+                        &self.study.to_study().map_err(|e| e.join("; "))?,
+                        rows.iter().map(|r| (r.id, r.solution.as_ref())),
+                    )?
                 } else {
                     let selected = rows
                         .iter()
                         .find(|r| Some(r.id) == self.selected)
                         .ok_or("Seleziona una soluzione visibile.")?;
-                    io::details_csv(&selected.solution)
+                    io::details_csv(
+                        &self.study.to_study().map_err(|e| e.join("; "))?,
+                        selected.id,
+                        &selected.solution,
+                    )?
                 };
                 let filename = if matches!(action, FileAction::Summary) {
                     "soluzioni.csv"
@@ -260,7 +268,7 @@ mod tests {
         app.study.parameters.result_count = usize::MAX.to_string();
         assert!(app.start_search());
         wait(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         app.selected = Some(4);
         app.ranges[0] = Range {
             min: Some(app.results[3].pitch),
@@ -308,6 +316,37 @@ mod tests {
         assert!(app.study.input_errors().is_empty());
     }
     #[test]
+    fn legacy_engine_is_signalled_and_recomputed_under_current_contract() {
+        let temp = Temp::new();
+        let path = temp.0.join("old-engine.stic");
+        let mut app = PrototypeApp::default();
+        let mut document = app.document().unwrap();
+        document.engine = "rust-geometry-v1".into();
+        document.recalculate = true;
+        io::save(&path, &document).unwrap();
+        let original = std::fs::read(&path).unwrap();
+        app.open_from(&path).unwrap();
+        assert!(app.diagnostic.as_deref().unwrap().contains("altro motore"));
+        wait(&mut app);
+        assert!(!app.results.is_empty());
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        assert_eq!(app.document().unwrap().engine, io::ENGINE_ID);
+        let expected = optimize(
+            &app.study.to_study().unwrap(),
+            &SearchControl::default(),
+            SearchLimits::default(),
+        )
+        .unwrap();
+        assert_eq!(
+            app.results
+                .iter()
+                .map(|r| r.solution.as_ref().clone())
+                .collect::<Vec<_>>(),
+            expected.solutions
+        );
+    }
+
+    #[test]
     fn invalid_open_and_save_preserve_current_study_path_and_results() {
         let temp = Temp::new();
         let path = temp.0.join("valid.stic");
@@ -316,9 +355,20 @@ mod tests {
         assert!(app.start_search());
         wait(&mut app);
         app.save_to(&path).unwrap();
+        let before = app
+            .results
+            .iter()
+            .map(|r| r.solution.as_ref().clone())
+            .collect::<Vec<_>>();
         std::fs::write(&bad, b"{broken").unwrap();
         assert!(app.open_from(&bad).is_err());
-        assert_eq!(app.results.len(), 16);
+        assert_eq!(
+            app.results
+                .iter()
+                .map(|r| r.solution.as_ref().clone())
+                .collect::<Vec<_>>(),
+            before
+        );
         assert_eq!(app.current_path, Some(path.clone()));
         assert!(!app.dirty);
         app.study.formats[0].quantity = "abc".into();

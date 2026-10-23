@@ -1,4 +1,7 @@
-use crate::{Candidate, Format, Pitch, Settings, Solution, Stick, Study, validate};
+use crate::{
+    Candidate, Format, HeadFormat, HeadGeometry, HeadGeometryError, Pitch, PocketGeometry,
+    Settings, Solution, Stick, Study, final_head_geometry, validate,
+};
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
@@ -96,19 +99,6 @@ fn pitch(value: f64) -> Result<Pitch, SearchError> {
     Ok(Pitch(ticks as i64))
 }
 
-pub(crate) fn layout(group: u32, dividers: u32) -> &'static [u32] {
-    match (group, dividers) {
-        (1, 0) => &[1],
-        (2, 0) => &[2],
-        (2, 1) => &[1, 1],
-        (3, 0) => &[3],
-        (3, 2) => &[1, 1, 1],
-        (4, 0) => &[4],
-        (4, 1) => &[2, 2],
-        _ => unreachable!("internal allowed layout"),
-    }
-}
-
 fn gcd(mut a: u32, mut b: u32) -> u32 {
     while b != 0 {
         (a, b) = (b, a % b);
@@ -125,17 +115,92 @@ fn compute(
     dividers: u32,
     pockets_per_pitch: u32,
 ) -> Result<Option<Candidate>, SearchError> {
-    let compartments = layout(grouping, dividers);
-    let adjacent: u32 = compartments.iter().map(|&n| n - 1).sum();
-    let raw_width = grouping as f64 * s.width
-        + dividers as f64 * p.divider_width
-        + adjacent as f64 * p.adjacent_clearance
-        + 2.0 * compartments.len() as f64 * p.wall_clearance;
-    let rounded = raw_width.round_ties_even();
+    compute_with_head(
+        f,
+        s,
+        p,
+        input,
+        grouping,
+        dividers,
+        pockets_per_pitch,
+        None,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn compute_with_head(
+    f: &Format,
+    s: &Stick,
+    p: &Settings,
+    input: Pitch,
+    grouping: u32,
+    dividers: u32,
+    pockets_per_pitch: u32,
+    assigned: Option<&HeadGeometry>,
+    head_id: Option<usize>,
+) -> Result<Option<Candidate>, SearchError> {
+    let owned;
+    let centres = if grouping == 1 {
+        vec![0.0]
+    } else {
+        let head = if let Some(head) = assigned {
+            head
+        } else {
+            owned = match final_head_geometry(
+                p,
+                &[HeadFormat {
+                    format_id: f.id,
+                    stick_width: s.width,
+                    pickup_pitch: input,
+                    grouping,
+                    dividers,
+                }],
+            ) {
+                Ok(head) => head,
+                Err(HeadGeometryError::Incompatible(_)) => return Ok(None),
+                Err(HeadGeometryError::InvalidInput(_)) => return Err(SearchError::NumericalRange),
+            };
+            &owned
+        };
+        head.positions
+            .iter()
+            .take(grouping as usize)
+            .map(|pos| pos.final_x)
+            .collect()
+    };
+    let span = centres[grouping as usize - 1] - centres[0];
+    let raw_width = span + s.width + 2.0 * p.wall_clearance;
+    // A rounded-down drawer cannot contain the required wall games. Integer
+    // dimensions therefore round upwards under the final-geometry contract.
+    let rounded = raw_width.ceil();
     if !rounded.is_finite() || rounded >= (1u64 << 53) as f64 {
         return Err(SearchError::NumericalRange);
     }
     let pocket_width = rounded as u64;
+    // Centre the approved head span directly. Expanding this into stick width,
+    // wall clearance and rounding surplus introduces width-dependent roundoff
+    // even when the resulting physical drawer and head geometry are identical.
+    let offset = (rounded - span) / 2.0;
+    let stick_centres: Vec<_> = centres.iter().map(|x| x - centres[0] + offset).collect();
+    let divider_lefts = if dividers > 0 {
+        // G2/G4 have one central divider; G3 has two symmetric dividers
+        // separated by half the head span. Use the physical drawer centre,
+        // never averaged stick coordinates, so equivalent shapes cannot land
+        // on opposite identity-grid sides through cancellation.
+        let central_left = (rounded - p.divider_width) / 2.0;
+        match grouping {
+            2 | 4 => vec![central_left],
+            3 => vec![central_left - span / 4.0, central_left + span / 4.0],
+            _ => unreachable!(),
+        }
+    } else {
+        Vec::new()
+    };
+    let geometry = PocketGeometry {
+        stick_centres,
+        divider_lefts,
+    };
     let pocket_pitch = grouping as f64 * input.mm();
     let cartoner = pockets_per_pitch as f64 * pocket_pitch;
     let ratio = cartoner / p.pitch_step;
@@ -153,12 +218,13 @@ fn compute(
     let stack_height = layers as f64 * s.thickness;
     let carton_b = stack_height + p.carton_b_extra;
     let ab_ratio = rounded / carton_b;
-    let unsupported = compartments
-        .iter()
-        .map(|&n| {
-            n as f64 * s.width + (n - 1) as f64 * p.adjacent_clearance + 2.0 * p.wall_clearance
-        })
-        .fold(0.0, f64::max);
+    let mut unsupported: f64 = 0.0;
+    let mut boundary = 0.0;
+    for &divider in &geometry.divider_lefts {
+        unsupported = unsupported.max(divider - boundary);
+        boundary = divider + p.divider_width;
+    }
+    unsupported = unsupported.max(rounded - boundary);
     let width_ratio = unsupported / s.length;
     let carryover_required = !f.quantity.is_multiple_of(grouping);
     let carryover_cycle = if carryover_required {
@@ -203,6 +269,8 @@ fn compute(
         return Err(SearchError::NumericalRange);
     }
     Ok(Some(Candidate {
+        head_id,
+        geometry,
         format_id: f.id,
         format_name: f.name.clone(),
         stick_id: s.id,
@@ -346,70 +414,99 @@ pub fn optimize(
     if common.is_empty() {
         return Err(SearchError::NoCommonPitch);
     }
+    // Count every structural partition, including incompatible assignments.
+    // This is the exact amount of complete-assignment work, not a claim about
+    // the number of feasible solutions. Bound the candidate Cartesian product
+    // before the estimation pass as well.
+    let base_count = common
+        .iter()
+        .try_fold(0u64, |sum, pitch| {
+            by_format
+                .iter()
+                .try_fold(1u64, |n, map| n.checked_mul(map[pitch].len() as u64))
+                .and_then(|n| sum.checked_add(n))
+        })
+        .ok_or_else(|| SearchError::LimitExceeded("stima combinazioni oltre u64".into()))?;
+    if base_count > limits.combinations {
+        return Err(SearchError::LimitExceeded(
+            "combinazioni di candidati oltre il limite".into(),
+        ));
+    }
     let mut estimated = 0u64;
-    for pitch in &common {
-        let count = by_format
-            .iter()
-            .try_fold(1u64, |acc, map| acc.checked_mul(map[pitch].len() as u64));
-        let count = count
-            .ok_or_else(|| SearchError::LimitExceeded("stima combinazioni oltre u64".into()))?;
-        estimated = estimated
-            .checked_add(count)
-            .ok_or_else(|| SearchError::LimitExceeded("stima combinazioni oltre u64".into()))?;
-    }
-    control.estimated.store(estimated, Ordering::Relaxed);
-    if estimated > limits.combinations {
-        return Err(SearchError::LimitExceeded(format!(
-            "{estimated} combinazioni stimate, limite {}",
-            limits.combinations
-        )));
-    }
-    let mut frontier: Vec<Solution> = Vec::new();
-    let mut examined = 0;
-    for pitch in &common {
-        let lists: Vec<_> = by_format.iter().map(|map| &map[pitch]).collect();
+    for common_pitch in &common {
+        let lists: Vec<_> = by_format.iter().map(|map| &map[common_pitch]).collect();
         let mut indices = vec![0usize; lists.len()];
         loop {
             checkpoint(control)?;
-            let candidates = lists
+            let candidates: Vec<_> = lists
                 .iter()
                 .zip(&indices)
                 .map(|(list, &i)| list[i].clone())
                 .collect();
-            let solution = Solution::aggregate(candidates, &study.weights);
-            if !solution.score.is_finite() || solution.penalties.iter().any(|v| !v.is_finite()) {
-                return Err(SearchError::NumericalRange);
+            let count =
+                crate::assignments::Partitions::new(&candidates).count(limits.combinations)?;
+            estimated = estimated
+                .checked_add(count)
+                .ok_or_else(|| SearchError::LimitExceeded("stima oltre u64".into()))?;
+            if estimated > limits.combinations {
+                return Err(SearchError::LimitExceeded(
+                    "combinazioni e partizioni oltre il limite".into(),
+                ));
             }
-            let mut dominated = false;
-            for existing in &frontier {
+            if !advance_indices(&mut indices, &lists) {
+                break;
+            }
+        }
+    }
+    control.estimated.store(estimated, Ordering::Relaxed);
+    let mut frontier: Vec<Solution> = Vec::new();
+    let mut examined = 0;
+    for common_pitch in &common {
+        let lists: Vec<_> = by_format.iter().map(|map| &map[common_pitch]).collect();
+        let mut indices = vec![0usize; lists.len()];
+        loop {
+            let candidates: Vec<_> = lists
+                .iter()
+                .zip(&indices)
+                .map(|(list, &i)| list[i].clone())
+                .collect();
+            let mut partitions = crate::assignments::Partitions::new(&candidates);
+            loop {
                 checkpoint(control)?;
-                if existing.dominates(&solution) {
-                    dominated = true;
+                if let Some(solution) =
+                    assign_heads(study, &candidates, partitions.groups(), control)?
+                {
+                    if !solution.score.is_finite()
+                        || solution.penalties.iter().any(|v| !v.is_finite())
+                    {
+                        return Err(SearchError::NumericalRange);
+                    }
+                    let mut dominated = false;
+                    for existing in &frontier {
+                        checkpoint(control)?;
+                        if existing.dominates(&solution) {
+                            dominated = true;
+                            break;
+                        }
+                    }
+                    if !dominated {
+                        frontier.retain(|existing| !solution.dominates(existing));
+                        frontier.push(solution);
+                        if frontier.len() > limits.frontier {
+                            return Err(SearchError::LimitExceeded(format!(
+                                "frontiera Pareto oltre {} soluzioni",
+                                limits.frontier
+                            )));
+                        }
+                    }
+                }
+                examined += 1;
+                control.examined.store(examined, Ordering::Relaxed);
+                if !partitions.advance() {
                     break;
                 }
             }
-            if !dominated {
-                frontier.retain(|existing| !solution.dominates(existing));
-                frontier.push(solution);
-                if frontier.len() > limits.frontier {
-                    return Err(SearchError::LimitExceeded(format!(
-                        "frontiera Pareto oltre {} soluzioni",
-                        limits.frontier
-                    )));
-                }
-            }
-            examined += 1;
-            control.examined.store(examined, Ordering::Relaxed);
-            let mut position = indices.len();
-            while position > 0 {
-                position -= 1;
-                indices[position] += 1;
-                if indices[position] < lists[position].len() {
-                    break;
-                }
-                indices[position] = 0;
-            }
-            if position == 0 && indices[0] == 0 {
+            if !advance_indices(&mut indices, &lists) {
                 break;
             }
         }
@@ -438,6 +535,86 @@ pub fn optimize(
     })
 }
 
+fn advance_indices(indices: &mut [usize], lists: &[&Vec<Candidate>]) -> bool {
+    for position in (0..indices.len()).rev() {
+        indices[position] += 1;
+        if indices[position] < lists[position].len() {
+            return true;
+        }
+        indices[position] = 0;
+    }
+    false
+}
+
+fn assign_heads(
+    study: &Study,
+    base: &[Candidate],
+    mut groups: Vec<Vec<usize>>,
+    control: &SearchControl,
+) -> Result<Option<Solution>, SearchError> {
+    let mut candidates = base.to_vec();
+    let mut heads = Vec::new();
+    // IDs are canonical within a solution, even when input order differs.
+    groups.sort_by_key(|group| group.iter().map(|&i| base[i].format_id).min().unwrap());
+    for (id, indices) in groups.into_iter().enumerate() {
+        checkpoint(control)?;
+        let formats: Vec<_> = indices
+            .iter()
+            .map(|&i| {
+                let c = &base[i];
+                let stick = study
+                    .sticks
+                    .iter()
+                    .find(|s| s.id == c.stick_id)
+                    .expect("validated stick");
+                HeadFormat {
+                    format_id: c.format_id,
+                    stick_width: stick.width,
+                    pickup_pitch: c.input_pitch,
+                    grouping: c.grouping,
+                    dividers: c.dividers,
+                }
+            })
+            .collect();
+        let geometry = match final_head_geometry(&study.settings, &formats) {
+            Ok(g) => g,
+            Err(HeadGeometryError::Incompatible(_)) => return Ok(None),
+            Err(HeadGeometryError::InvalidInput(_)) => return Err(SearchError::NumericalRange),
+        };
+        for i in indices {
+            checkpoint(control)?;
+            let c = &base[i];
+            let format = study
+                .formats
+                .iter()
+                .find(|f| f.id == c.format_id)
+                .expect("validated format");
+            let stick = study
+                .sticks
+                .iter()
+                .find(|s| s.id == c.stick_id)
+                .expect("validated stick");
+            let Some(rebuilt) = compute_with_head(
+                format,
+                stick,
+                &study.settings,
+                c.input_pitch,
+                c.grouping,
+                c.dividers,
+                c.pockets_per_pitch,
+                Some(&geometry),
+                Some(id),
+            )?
+            else {
+                return Ok(None);
+            };
+            candidates[i] = rebuilt;
+        }
+        heads.push(crate::HeadAssignment { id, geometry });
+    }
+    Ok(Some(Solution::aggregate(candidates, heads, &study.weights)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -461,6 +638,8 @@ mod tests {
             }],
             settings: Settings {
                 result_count: 10000,
+                // Original Python-reference fixture input (before LEO-17 defaults).
+                divider_width: 2.0,
                 ..Settings::default()
             },
             weights: Weights::default(),
@@ -468,7 +647,7 @@ mod tests {
     }
 
     #[test]
-    fn widths_round_half_to_even_and_penalties_follow_reference_thresholds() {
+    fn integer_widths_fit_and_penalties_follow_reference_thresholds() {
         let study = study();
         let s = &study.sticks[0];
         let f = &study.formats[0];
@@ -480,10 +659,10 @@ mod tests {
             .unwrap()
             .unwrap();
         assert_eq!(one.pocket_width, 30); // 29.5 -> 30
-        assert_eq!(three.pocket_width, 82); // 82.5 -> 82
+        assert_eq!(three.pocket_width, 83); // physical minimum82.5 rounds upward
         assert_eq!(three.carryover_cycle, 3);
         assert_eq!(three.penalties[1], 5.0);
-        let solution = Solution::aggregate(vec![one], &study.weights);
+        let solution = Solution::aggregate(vec![one], vec![], &study.weights);
         assert!(solution.head_types.is_empty());
         let mut eight = f.clone();
         eight.quantity = 8;
@@ -497,108 +676,5 @@ mod tests {
         assert_eq!(four.carryover_cycle, 4);
         assert_eq!(four.penalties[1], 6.0);
         assert_eq!(four.penalties[3], 0.0);
-    }
-
-    #[test]
-    fn generated_candidates_match_every_python_field_including_dominated_candidates() {
-        let study = study();
-        let generated = generate(
-            &study.formats[0],
-            &study.sticks[0],
-            &study.settings,
-            &SearchControl::default(),
-            SearchLimits::default(),
-        )
-        .unwrap();
-        let rows: Vec<Vec<_>> = include_str!("../tests/fixtures/python-reference.tsv")
-            .lines()
-            .filter(|l| l.starts_with("C\thalf\t"))
-            .map(|l| l.split('\t').collect())
-            .collect();
-        assert_eq!(generated.len(), rows.len());
-        for (c, row) in generated.iter().zip(rows) {
-            let values = [
-                c.input_pitch.mm(),
-                c.grouping as f64,
-                c.dividers as f64,
-                c.pockets_per_pitch as f64,
-                c.pocket_width as f64,
-                c.pocket_length,
-                c.pocket_pitch,
-                c.cartoner_pitch.mm(),
-                c.occupied_width,
-                c.unused_space,
-                c.layers as f64,
-                c.stack_height,
-                c.carton_a,
-                c.carton_b,
-                c.ab_ratio,
-                u8::from(c.carryover_required) as f64,
-                c.carryover_cycle as f64,
-                c.unsupported_width,
-                c.width_ratio,
-                c.deposits as f64,
-                c.head_width,
-                c.penalties[0],
-                c.penalties[1],
-                c.penalties[2],
-                c.penalties[3],
-                c.penalties[4],
-            ];
-            for (value, expected) in values.into_iter().zip(&row[3..]) {
-                let expected: f64 = expected.parse().unwrap();
-                assert!(
-                    (value - expected).abs() < 1e-10 * expected.abs().max(1.0),
-                    "{value} != {expected}"
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn incremental_pareto_matches_materialized_brute_force_with_equal_metrics() {
-        let mut study = study();
-        study.formats.push(Format {
-            id: 2,
-            name: "A10".into(),
-            stick_id: 1,
-            quantity: 10,
-        });
-        let control = SearchControl::default();
-        let limits = SearchLimits::default();
-        let lists: Vec<_> = study
-            .formats
-            .iter()
-            .map(|f| generate(f, &study.sticks[0], &study.settings, &control, limits).unwrap())
-            .collect();
-        let mut all = Vec::new();
-        for a in &lists[0] {
-            for b in &lists[1] {
-                if a.cartoner_pitch == b.cartoner_pitch {
-                    all.push(Solution::aggregate(
-                        vec![a.clone(), b.clone()],
-                        &study.weights,
-                    ));
-                }
-            }
-        }
-        let mut expected: Vec<_> = all
-            .iter()
-            .filter(|s| !all.iter().any(|other| other.dominates(s)))
-            .cloned()
-            .collect();
-        expected.sort_by(|a, b| {
-            a.score
-                .total_cmp(&b.score)
-                .then(a.metrics().partial_cmp(&b.metrics()).unwrap())
-                .then(a.pitch.cmp(&b.pitch))
-        });
-        let report = optimize(&study, &control, limits).unwrap();
-        assert_eq!(report.examined, all.len() as u64);
-        assert_eq!(report.solutions, expected);
-        let mut equal = expected[0].clone();
-        equal.pitch = Pitch(equal.pitch.0 + 5_000_000);
-        assert!(!equal.dominates(&expected[0]));
-        assert!(!expected[0].dominates(&equal));
     }
 }

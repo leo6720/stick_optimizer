@@ -28,7 +28,16 @@ template in docs/agents/templates/ticket.md. Prima di crearli cercare duplicati.
 Usare relazioni native blockedBy e parentId, dopo aver risolto gli UUID reali;
 non dedurre UUID da identificativi LEO-N e non modificare i blocchi già presenti
 senza averli letti. Un ticket può partire solo se i suoi blocchi sono risolti.
-L'etichetta ready-for-agent da sola non basta.
+L'etichetta ready-for-agent da sola non basta: per la presa asincrona servono
+stato Todo, sezioni Definizione accettata e Dimensionamento, dipendenze risolte.
+Seguire [token-sizing.md](token-sizing.md): circa 150.000 token per ticket,
+parent non esecutivo quando suddiviso, stima/criteri/verifiche per ogni figlio.
+Seguire [async-workflow.md](async-workflow.md) per presa, checkpoint e revisione.
+Per i figli autorizzati di uno split registrare **Autorizzazione alla
+prosecuzione** nel parent/figli con fonte, ID espliciti e revisioni accettate.
+Il runner può aggiungere ready solo secondo quella autorizzazione e dopo prova
+di merge raggiungibile su main e verifica dell'accettazione per ogni dipendenza;
+Done da solo non la risolve. Conservare relazioni e blocchi umani.
 
 Gli stati attuali sono Backlog, Todo, In Progress, In Review, Done, Canceled
 e Duplicate. Rileggerli prima delle scritture: i nomi possono cambiare.

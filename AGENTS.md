@@ -89,8 +89,19 @@ Aggiornare `README.md` per installazione e uso; `docs/architecture.md` per fluss
 ## Agent skills
 
 Workflow cloud e PC: [docs/agents/workflow.md](docs/agents/workflow.md).
+Per le issue accettate e pronte è autorizzato il flusso asincrono descritto in
+[async-workflow.md](docs/agents/async-workflow.md): un ticket alla volta,
+implementazione, test e revisori separati, senza merge o deploy.
+I figli esplicitamente autorizzati di uno split accettato e dimensionato possono
+ricevere ready al risveglio esistente dopo merge e verifica delle dipendenze su
+main; conservare fonte/ID/revisioni nell'Autorizzazione alla prosecuzione e
+applicare tutti i gate di async-workflow.md. Non autorizza ticket sconosciuti.
+Implementatore e ciascun revisore usano contesti nuovi `fork_turns: "none"`.
 Le skill locali sono in `.agents/skills/<nome>/SKILL.md`; se il client non le
 rileva, leggere il file su richiesta. Non presumere disponibilità di slash command.
+Dopo il grill, prima di ready o sviluppo, stimare e scomporre secondo
+[dimensionamento in token](docs/agents/token-sizing.md): circa 150.000 token
+per ticket, N = ceil(stima totale / 150.000), contesti esecutivi separati.
 Tracker: Linear, workspace leochist, team Leochist (LEO), progetto Stick Optimizer.
 Leggere [issue-tracker.md](docs/agents/issue-tracker.md) prima di usare Linear e
 [triage-labels.md](docs/agents/triage-labels.md) per le etichette.

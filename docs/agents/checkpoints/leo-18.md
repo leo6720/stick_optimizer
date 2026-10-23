@@ -1,0 +1,221 @@
+# LEO-18 — exact final-head search
+
+- Issue: https://linear.app/leochist/issue/LEO-18
+- Initial implementer: `/root/leo18_implementer`, actually spawned with `fork_turns:none`.
+- Resume/checkpoint owner: `/root/leo18_resume_owner`, fresh isolated `fork_turns:none`.
+- Ownership: only LEO-18, isolated `/workspace/stick-leo-18`, `codex/leo-18-async`.
+- Baseline: `f2956653e5f6bb80d638fdbd28eab8cef50ef087` (merged prerequisite PR21).
+- Initial reviewed head: `4b36c382a2929335b02ef1a53e313397c56f2d76`.
+- Current product head: `170b5348b6b8fced04df6c6875aa8773e380f8a6` (following checkpoint commit changes no product).
+- Reviewed final head: `5a5cf56d649ac16b877cf740c07397e73b41fcfd`; final checkpoint update is documentation only.
+- Phase: implementation, verification and both independent reviews complete; PR23 ready for the user's integration decision after coordinator handoff.
+- Review cycles: **3 completed**. Cycle1 standards P2: float noise split identical drawers; cycle2: same P2 remained at half-grid boundaries; cycle3: specification PASS and standards PASS, finding resolved. Open findings: **none**. Interrupted original reviews are not counted as PASS.
+- Accepted scope: LEO16 definition 20 October, sizing 21 October, 140k child of 390k/3.
+- No LEO19/7, merge, deployment, new automation or Linear state change by implementer.
+- PR: draft https://github.com/leo6720/stick_optimizer/pull/23 (single PR, main base).
+
+## Scope and technical decisions
+
+Every structural head partition is enumerated, jointly checked and rebuilt with
+effective drawer geometry before Pareto. Explicit solution-local head IDs and
+full assignment geometries replace the old key collapse. Drawers include g4's
+fixed central gap, local stick/divider coordinates and upward integer rounding
+so required clearances are never rounded away. Existing penalty/score formulas
+and weights are preserved with effective dimensions; group1 excluded.
+Physical pocket identity includes divider locations. Engine marker changes to
+`rust-final-heads-v2`; schema2/migration unchanged. Details: ADR0002.
+No final parameter editor, rich CSV redesign, or head popup implemented.
+
+## Initial implementation verification (before cycle1 correction)
+
+Read-only preflight on exact baseline: 26 core/IO tests and full workspace Linux
+check passed offline. Product/Cargo/toolchain diff vs reviewed498bdbe was empty.
+Pinned Rust1.99.0, cached Cargo.lock dependencies, Linux and MSVC target installed.
+First public g4 regression RED: old107mm instead of approved141mm. GREEN:
+141mm drawer, exact schematic stick x5/31/91/117mm.
+
+All Cargo commands used `CARGO_HOME=/workspace/scratch/rust-cargo`,
+`RUSTUP_HOME=/workspace/scratch/rust-toolchains`, shared
+`CARGO_TARGET_DIR=/workspace/stick-rust-validation/target`, pinned cargo executable,
+`--locked --offline`. Desktop Linux checks additionally enable `eframe/x11`
+without changing Cargo manifests.
+
+| Check | Actual result |
+| --- | --- |
+| `cargo fmt --all -- --check` | PASS after final test addition |
+| `cargo check --workspace --all-targets --all-features --features eframe/x11 --locked --offline` | PASS |
+| `cargo clippy --workspace --all-targets --all-features --features eframe/x11 --locked --offline -- -D warnings` | PASS, repeated after final test addition |
+| `cargo test --workspace --all-features --features eframe/x11 --locked --offline` | PASS **66 tests:23 core+34 desktop+9 IO** |
+| Final `cargo test -p stick-optimizer-core --test head_search --locked --offline` | PASS **8 tests**, including one additional shared-drawer constraint regression after the 66-test full run |
+| `cargo build --workspace --release --features eframe/x11 --locked --offline` | PASS |
+| `cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked --offline` | PASS (cross compilation check only) |
+| Debug desktop build with `ui-preview,eframe/x11` | PASS |
+| Actual Linux Xvfb launch/capture/visual inspection | PASS heads, pockets, detail, detail-carry |
+| `git diff --check` | PASS |
+
+Final inventory is67 tests; full workspace was run at66, then the new public
+constraint test and all7 preceding head-search tests passed together. Production
+code did not change after the passing full workspace run. No unnecessary second
+full GUI test run. Final Clippy includes the new test. The first workspace run
+failed only old hardcoded16-result expectations, which were replaced by
+meaningful nonempty/solution/selection/identity checks; later full run passed.
+Historical Python fixture remains unchanged; unchanged candidate-field semantics
+are still checked. The independently defined physical oracle supersedes obsolete
+compact geometry/rank expectations, rather than regenerating them from the engine.
+
+The public oracle enumerates every n-ary label map and materializes pairwise
+Pareto; production uses iterative restricted-growth partitions and an incremental
+frontier. Eighteen small cases cover g2/3/4, mixed dividers,2/3 formats, exact/over
+5mm, nontransitivity, fractional wall clearance, dimensions, metrics and score.
+Separate assertions cover canonical identity, different pickup pitches, group1,
+40 partitions with exact limits, completed progress, running cancellation,
+output truncation and compatible heads whose widened drawer exceeds pitch.
+GUI/IO cover distinct head rows across rerenders and complete reconstruction on
+reopening, old-engine warning, and source bytes preserved without saving.
+
+Linux screenshots show input/results together, correct assignments/counts,
+g4 drawer141mm with two pairs and central divider, updated group2 drawer56mm,
+and the partial final layer for34 sticks. Artifacts/logs currently in
+`/tmp/leo18-gui/`; text logs `/tmp/leo18-workspace-tests.log`,
+`/tmp/leo18-check.log`, `/tmp/leo18-clippy-final.log`, `/tmp/leo18-release.log`,
+`/tmp/leo18-msvc.log`. They are session-local; durable evidence is this checkpoint,
+versioned tests and ADR. Windows native execution, physical keyboard/mouse,
+native Windows file pickers and multiple-monitor DPI were not exercised.
+MSVC check is not described as native execution.
+
+## Cycle1 review and bounded correction
+
+The original cycle1 reviewers were interrupted by a usage limit without final
+PASS reports. Cycle1 was resumed on the same exact head by fresh independent
+`/root/leo18_spec_resume` and `/root/leo18_standards_resume`. Spec PASS; standards
+reported one concrete P2, not PASS. Spec independently ran8/8 head-search tests.
+No counter reset or approval was inferred from an interrupted review.
+
+P2: raw f64 equality of drawer divider positions split physically identical
+drawers. Independent public reproduction: widths20/20.01, g2, pickup60,
+divider7.5, A/B target56/11. Shared-head drawers both width56 had divider edges
+24.249999999999996/24.25; the search incorrectly counted2 drawer types and
+kept a dominated separate-head arrangement. Correct identity yields metrics
+[1,1,0,0,2,0,0], score580, and removes that separate-head arrangement by Pareto.
+
+Resume owner verified clean head/ownership before editing. Public regression
+was observed RED at2 types versus1; bounded fix is GREEN. PocketType equality
+now compares canonical divider ticks on a fixed1e-9mm grid, retaining raw
+physical coordinates and exact original-coordinate fallback above exact f64
+integer tick precision or on scaling overflow. Equality is transitive; no
+pairwise epsilon chaining, physical constraint, penalty formula or weight change.
+Tests also exercise transitivity, distinct divider positions and huge finite
+coordinates. GUI drawer-row membership uses this same core equality; study
+results are rebuilt rather than cached. ADR0002 documents the identity precision.
+
+## Correction verification (product head7aca80b)
+
+Same pinned toolchain/cache/target paths and offline locked setup as above.
+All following checks were actually rerun because core identity affects ranking,
+GUI drawer membership and reconstructed study results:
+
+| Check | Actual result |
+| --- | --- |
+| Public regression before fix | RED, drawer types2 instead of1 |
+| `cargo test -p stick-optimizer-core --test head_search --locked --offline` | PASS10/10 |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo check --workspace --all-targets --all-features --features eframe/x11 --locked --offline` | PASS |
+| `cargo clippy --workspace --all-targets --all-features --features eframe/x11 --locked --offline -- -D warnings` | PASS |
+| `cargo test --workspace --all-features --features eframe/x11 --locked --offline` | PASS69 tests:26core+34desktop+9IO |
+| `cargo build --workspace --release --features eframe/x11 --locked --offline` | PASS |
+| `cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked --offline` | PASS, compilation only |
+| `git diff --check` | PASS |
+
+Logs: `/tmp/leo18-cycle2-{workspace,check,clippy,release,msvc}.log` (session-local).
+No new GUI screenshot run for the equality-only correction; original four Linux
+launch/capture/visual checks remain historical evidence on4b36c382. Full synthetic
+desktop suite rerun passed after correction. Windows native execution, physical
+keyboard/mouse, Windows file pickers and multiple-monitor DPI remain unexecuted.
+MSVC cross-check does not certify native Windows behavior. No new functional
+decision or necessary human test gate was identified by cycle1 reviewers.
+
+## Cycle2 review and root-cause correction
+
+On fixed head `a1dc9d4eb4ec74f508a6c16ad90083340b416aba`, independent standards
+review reproduced the same P2 at a grid half-tick. Widths20.01/20.02,
+divider7.499999999, other original g2 parameters and A/B56/11 yielded divider
+coordinates24.250000000500002/24.250000000499995. Deterministic grid equality
+was transitive but correctly put these differing raw values into different bins;
+the underlying width-dependent cancellation had not been removed. No PASS is
+claimed for that standards review or for the first correction's completeness.
+
+Fresh clean-head and live Linear ownership checks preceded the new edits.
+The expanded public regression was observed RED on precisely that raw-coordinate
+pair. The bounded correction computes the centered head offset as
+`(rounded_width - head_span)/2`, and divider coordinates directly from the
+centered physical drawer: g2/g4 single central divider; g3 symmetric pair
+separated by half the head span. This is algebraically the same physical model,
+but removes stick width and intermediate stick-coordinate averaging from divider
+placement. No grid movement, tolerance loosening, pairwise epsilon equality,
+penalty/weight change or new physical constraint. The canonical identity equality
+remains as documented precision handling, with distinct-location/large-range tests.
+
+The new public test covers63 valid cases: groups2/3/4, three pairs of nearby stick
+widths, seven divider thicknesses around grid half-ticks. It requires exact raw
+divider-coordinate agreement for physically identical shared drawers, one drawer
+type, expected metrics/score, and elimination of the equivalent separate-head
+arrangement. All prior physical oracle and clearance regressions remain passing.
+
+## Current verification (product head170b534)
+
+All Cargo commands use the same pinned toolchain/cache/target paths and
+`--locked --offline`; Linux workspace commands enable `eframe/x11`.
+
+| Check | Actual result |
+| --- | --- |
+| Half-grid public regression before correction | RED, exact reviewer coordinate pair reproduced |
+| `cargo test -p stick-optimizer-core --test head_search --locked --offline` | PASS11/11, includes63-case boundary sweep |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo test --workspace --all-features --features eframe/x11 --locked --offline` | PASS70 tests:27core+34desktop+9IO |
+| `cargo check --workspace --all-targets --all-features --features eframe/x11 --locked --offline` | PASS |
+| `cargo clippy --workspace --all-targets --all-features --features eframe/x11 --locked --offline -- -D warnings` | PASS |
+| `cargo build --workspace --release --features eframe/x11 --locked --offline` | PASS |
+| `cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked --offline` | PASS, compilation only |
+| Debug build `ui-preview,eframe/x11` | PASS |
+| Fresh Linux Xvfb launch/capture/visual inspection | PASS pockets and detail |
+| `git diff --check` | PASS |
+
+Fresh captures show input/results together, completed128 structural combinations
+and10 Pareto results, drawer rows56/141/57mm and the group2 schematic centered
+within its56mm drawer. Initial preview attempt failed Xvfb socket creation in
+the default network sandbox; repeating the same local-only display command with
+network-enabled sandbox permission captured both views successfully. No product
+error was observed. Windows native and physical-device/DPI limits remain unchanged.
+Logs `/tmp/leo18-cycle3-{workspace,check,clippy,release,msvc,preview-build}.log`,
+captures `/tmp/leo18-cycle3-gui/` are session-local; tests/ADR/checkpoint durable.
+
+## Next action and review boundary
+
+Cycle3 completed on the full diff from baseline
+`f2956653e5f6bb80d638fdbd28eab8cef50ef087` to fixed reviewed head
+`5a5cf56d649ac16b877cf740c07397e73b41fcfd` (product170b534). The independent
+reviewers were actually created with `fork_turns:none`, separate from both the
+original implementer and the fresh resume/checkpoint owner:
+
+- `/root/leo18_spec_resume`: specification PASS, no findings; independently
+  ran11/11 public head-search tests and inspected the70-test workspace evidence.
+- `/root/leo18_standards_resume`: standards PASS, no findings; freshly compiled
+  the core, independently verified both float-noise and half-grid reproductions
+  now produce one drawer type/score580 and correct Pareto behavior, and ran11/11
+  public head-search tests.
+
+The current70-test workspace, fmt/check/Clippy/release/MSVC cross-check and fresh
+Linux pockets/detail preview results above remain the final implementation
+evidence. No tests were rerun for this documentation-only completion update.
+Native Windows execution, physical keyboard/mouse, native file pickers and
+multiple-monitor DPI remain unexecuted; MSVC is compilation only. Neither
+reviewer identified a necessary human Windows gate for this bounded change.
+These reviews are independent agent reviews, not approval on behalf of the user.
+
+Push this checkpoint-only update, then coordinator obtains confirmation that
+the final delta is documentation only within completed cycle3 (not cycle4),
+updates PR23/Linear to the reviewed handoff state and removes ready-for-agent.
+PR: https://github.com/leo6720/stick_optimizer/pull/23. Merge remains the user's
+decision. No LEO19 work until LEO18's dependency is integrated and verified in
+main under the persistent authorization. No merge/deploy or status changes by
+the implementer; no open findings or new product work.
