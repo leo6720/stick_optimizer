@@ -113,3 +113,28 @@ inventato. Coordinatrice gestisce PR draft, rilettura/conferma dei revisori,
 Linear InReview/ready-for-human e rimozione ready-for-agent. Nessun Done/merge.
 Prossimo: pubblicare source/evidenze sul solo branch dedicato; coordinatrice
 crea PR, poi registrare esclusivamente link/stato/esiti reali e final-head ack.
+
+## PR e resoconti del ciclo1
+
+PR draft verso main: https://github.com/leo6720/stick_optimizer/pull/27 .
+Head pubblicato con codice e QA: `b80983a199bf69fcbfdcdc2c5f95eb604e271f2b`.
+Entrambi i revisori fresh separati, `/root/leo21_spec_review` e
+`/root/leo21_standards_review`, hanno dato esito favorevole e ACK su questo
+head, senza difetti concreti aperti. Il revisore standard ha rieseguito7test
+mirati unici; entrambi hanno confermato96test dai log e verificato
+indipendentemente hashPNG/RGBA, dimensioni e provenienza delle46catture.
+I resoconti sono revisioni di agenti, non approvazioni GitHub a nome dell'utente.
+Nota non bloccante: i log stdout/stderr originali contengono righe vuote finali;
+non sono stati normalizzati per preservare l'evidenza originale.
+
+Questo ultimo aggiornamento modifica solo checkpoint/rapporto con link PR ed
+esiti reali. Prodotto e QA restano quelli già revisionati; la coordinatrice
+chiederà conferma sullo SHA conclusivo dopo push. Da questo momento **zero
+mutazioni** in attesa del final ACK.
+
+Stato operativo atteso dopo final ACK: **In Review + ready-for-human**, rimuovendo
+ready-for-agent per il gate Windows nativo residuo. Prossima azione utente:
+collaudo Windows di tema/persistenza e interazioni, input fisico, picker e DPI;
+poi decisione distinta sul merge. Nessun Done al push e nessun merge automatico.
+LEO-22/23/24 restano bloccati finché LEO-21 non sarà integrato e verificato su
+main secondo il registro di prosecuzione: questa PR non risolve la dipendenza.

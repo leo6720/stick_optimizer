@@ -111,9 +111,22 @@ più monitor/DPI per questo ticket: gate umano da gestire dalla coordinatrice;
 nessuna rinuncia storica trasferita da altre PR. Linux/Xvfb e input egui sintetici
 non certificano questi controlli. Nessun merge/deploy o nuova automazione.
 
-## Revisione
+## Revisione e consegna
 
-Ciclo1 avviato dalla coordinatrice, revisori separati fresh `fork_turns:none`:
+PR draft verso main: https://github.com/leo6720/stick_optimizer/pull/27 .
+Ciclo1, due revisori separati fresh `fork_turns:none`:
 `/root/leo21_spec_review` e `/root/leo21_standards_review`, distinti da
-`/root/leo21_implement`. Gli esiti e la conferma sull'head finale saranno
-registrati nel checkpoint; questo rapporto non inventa approvazioni.
+`/root/leo21_implement`. Entrambi favorevoli su codice+QA pubblicati in
+`b80983a199bf69fcbfdcdc2c5f95eb604e271f2b`, senza difetti concreti aperti.
+Il revisore standard ha rieseguito7test mirati unici; entrambi hanno confermato
+conteggi96 dai log e hashPNG/RGBA, dimensioni e provenienza delle46immagini.
+Nessuna approvazione GitHub a nome dell'utente. I log originali conservano anche
+le righe vuote finali, nota non bloccante dei revisori.
+
+Ultimo commit di soli documenti per registrare PR/esiti; nessun prodotto o
+artefatto QA alterato. Final ACK sullo SHA conclusivo richiesto dalla
+coordinatrice dopo push. Stato previsto dopo ACK: In Review + ready-for-human,
+con gate Windows nativo e nessun difetto prodotto aperto nel perimetro verificato.
+Prossima azione utente: prove Windows di tema/persistenza, input/picker/DPI e
+successiva decisione distinta sul merge. LEO-22/23/24 restano dipendenti da
+LEO-21 integrato e verificato su main; questa PR non li abilita da sola.
