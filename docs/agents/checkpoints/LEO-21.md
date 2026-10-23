@@ -56,3 +56,22 @@ Contrasto iniziale del bordo chiaro insufficiente su hover rilevato dal test
 oggettivo; palette corretta prima della suite finale.
 Prima cattura reale Xvfb results-dark1450x900 acquisita e ispezionata;
 matrice completa e controlli finali ancora da completare. **Ciclo0**.
+
+### Correzioni pre-review (ciclo0)
+
+L'ispezione della coordinatrice sulla prima principale chiara ha rilevato
+intestazioni input quasi bianche. Causa: egui usa `widgets.active.fg_stroke`
+anche per `strong_text_color`; la prima mappa poneva il bianco previsto per
+azioni primarie su superfici ordinarie. Correzione semantica globale: active
+neutro/hover con testo leggibile e bordo accent; Primary conserva on_primary
+esplicito. Regressione sul testo strong realmente renderizzato RED→GREEN
+in entrambi i temi. Prime catture obsolete, rigenerazione integrale prevista.
+Questo controllo della coordinatrice non è una review indipendente.
+
+La prima suite integrata ha trovato due assunzioni del test harness:
+identificazione primitive tramite altezza42 esatta in f32, ora tolleranza0.001
+mantenendo tutti i12 stick/prelevatori e asserzioni coordinate/larghezze;
+quote basse nel popup fuori clip con le metriche Inter, ora controllate dopo
+un vero evento wheel sul contenuto. Nessuna asserzione geometrica o quota
+eliminata. Test popup mirato GREEN. Correzione harness menu: clic noto sulla
+checkbox dietro conferma, non semplice apertura del menu.

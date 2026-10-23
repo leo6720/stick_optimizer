@@ -120,9 +120,11 @@ pub fn install(ctx: &egui::Context) {
         style.visuals.widgets.hovered.bg_fill = t.hover;
         style.visuals.widgets.hovered.weak_bg_fill = t.hover;
         style.visuals.widgets.hovered.bg_stroke = egui::Stroke::new(1.0, t.accent);
-        style.visuals.widgets.active.bg_fill = t.primary;
-        style.visuals.widgets.active.weak_bg_fill = t.primary;
-        style.visuals.widgets.active.fg_stroke.color = t.on_primary;
+        style.visuals.widgets.active.bg_fill = t.hover;
+        style.visuals.widgets.active.weak_bg_fill = t.hover;
+        // egui also uses active.fg_stroke for strong labels outside buttons.
+        // Keep it readable on ordinary surfaces; primary actions set on_primary explicitly.
+        style.visuals.widgets.active.fg_stroke.color = t.text;
         style.visuals.widgets.active.bg_stroke = egui::Stroke::new(1.5, t.accent);
         style.visuals.widgets.open.bg_fill = t.hover;
         style.visuals.widgets.open.weak_bg_fill = t.hover;
@@ -265,6 +267,39 @@ mod tests {
         let (a, b) = (luminance(a), luminance(b));
         (a.max(b) + 0.05) / (a.min(b) + 0.05)
     }
+    #[test]
+    fn rendered_strong_labels_are_readable_in_both_themes() {
+        for theme in [Theme::Light, Theme::Dark] {
+            let ctx = egui::Context::default();
+            install(&ctx);
+            apply_theme(&ctx, theme);
+            let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
+                ui.strong("Intestazione");
+            });
+            output.textures_delta.clear();
+            let text = output
+                .shapes
+                .iter()
+                .find_map(|s| match &s.shape {
+                    egui::epaint::Shape::Text(t) if t.galley.job.text == "Intestazione" => Some(t),
+                    _ => None,
+                })
+                .unwrap();
+            let color = text.override_text_color.unwrap_or_else(|| {
+                let color = text.galley.job.sections[0].format.color;
+                if color == Color32::PLACEHOLDER {
+                    text.fallback_color
+                } else {
+                    color
+                }
+            });
+            assert!(
+                contrast(color, Tokens::for_theme(theme).inset) >= 4.5,
+                "{theme:?}: rendered strong label is unreadable"
+            );
+        }
+    }
+
     #[test]
     fn semantic_foregrounds_remain_readable_on_both_surface_maps() {
         for theme in [Theme::Light, Theme::Dark] {

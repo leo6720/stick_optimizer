@@ -252,14 +252,16 @@ mod tests {
                             .shapes
                             .iter()
                             .filter_map(|s| match &s.shape {
-                                egui::epaint::Shape::Rect(r) if r.rect.height() == 42.0 => {
+                                egui::epaint::Shape::Rect(r)
+                                    if (r.rect.height() - 42.0).abs() < 0.001 =>
+                                {
                                     Some(r.rect)
                                 }
                                 _ => None,
                             })
                             .collect();
                         assert_eq!(sticks.len(), 12);
-                        let grippers = output.shapes.iter().filter(|s| matches!(&s.shape, egui::epaint::Shape::Rect(r) if r.rect.height() == 14.0 && r.rect.width() == 6.0)).count();
+                        let grippers = output.shapes.iter().filter(|s| matches!(&s.shape, egui::epaint::Shape::Rect(r) if (r.rect.height() - 14.0).abs() < 0.001 && (r.rect.width() - 6.0).abs() < 0.001)).count();
                         assert_eq!(grippers, 12);
                         for (i, rect) in sticks.iter().enumerate() {
                             let expected = if before {

@@ -1862,14 +1862,22 @@ mod tests {
         let mut app = PrototypeApp::new(&ctx);
         let menu = draw_frame(&ctx, &mut app, vec![]);
         let menu_pos = text_position(&menu, "Modifica", 0.0);
+        click_at(&ctx, &mut app, menu_pos);
+        let menu = draw_frame(&ctx, &mut app, vec![]);
+        let toggle_pos = text_position(&menu, "Tema scuro", 0.0);
         app.pending = Some(PendingAction::EmptyStudy);
         draw_frame(&ctx, &mut app, vec![]);
-        click_at(&ctx, &mut app, menu_pos);
+        click_at(&ctx, &mut app, toggle_pos);
         let output = draw_frame(&ctx, &mut app, vec![]);
         // Clicking outside may dismiss the existing confirmation, but cannot toggle the theme.
         assert!(!output.shapes.is_empty());
         assert_eq!(ctx.theme(), egui::Theme::Light);
         app.pending = None;
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
         let send = held_job(&mut app);
         draw_frame(&ctx, &mut app, vec![]);
         click_at(&ctx, &mut app, menu_pos);
@@ -1909,11 +1917,29 @@ mod tests {
         for text in [
             "Sezione schematica · quote in mm · contorno alto B astuccio",
             "Impilamento",
-            "Passo astucciatrice",
             "Chiudi",
         ] {
             text_position(&output, text, 0.0);
         }
+        // Inter has different line metrics: lower quotations remain available by scrolling.
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![
+                egui::Event::PointerMoved(egui::pos2(600.0, 400.0)),
+                egui::Event::MouseWheel {
+                    unit: egui::MouseWheelUnit::Point,
+                    phase: egui::TouchPhase::Move,
+                    delta: egui::vec2(0.0, -220.0),
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+        );
+        for _ in 0..6 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "Passo astucciatrice", 0.0);
         draw_frame(
             &ctx,
             &mut app,
