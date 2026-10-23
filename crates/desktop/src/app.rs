@@ -12,6 +12,7 @@ mod details;
 mod files;
 mod heads;
 mod parameters;
+mod progress;
 use files::FileAction;
 use parameters::ParameterEditor;
 use stick_optimizer_io::{Range, ViewState};
@@ -208,6 +209,19 @@ impl PrototypeApp {
         }
         #[cfg(feature = "ui-preview")]
         match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
+            Ok(
+                mode @ ("progress"
+                | "progress-preparing"
+                | "progress-finalizing"
+                | "progress-cancelling"
+                | "progress-compact"
+                | "progress-scaled"),
+            ) => {
+                if mode == "progress-scaled" {
+                    ctx.set_zoom_factor(1.5);
+                }
+                app.preview_progress(mode);
+            }
             Ok("results" | "compact") => {
                 app.start_search();
             }
@@ -373,19 +387,6 @@ impl PrototypeApp {
             return;
         };
         if !job.handle.as_ref().expect("active handle").is_finished() {
-            self.status = if job.control.cancelled.load(Ordering::Relaxed) {
-                "Annullamento del calcolo…".into()
-            } else {
-                let estimated = job.control.estimated.load(Ordering::Relaxed);
-                if estimated == 0 {
-                    "Generazione candidati…".into()
-                } else {
-                    format!(
-                        "Calcolo: {} / {estimated} combinazioni",
-                        job.control.examined.load(Ordering::Relaxed)
-                    )
-                }
-            };
             return;
         }
         let mut job = self.job.take().expect("job exists");
@@ -527,6 +528,20 @@ impl PrototypeApp {
         if self.job.is_some() {
             ui.ctx()
                 .request_repaint_after(std::time::Duration::from_millis(50));
+        }
+        if self.job.is_some() {
+            let ctx = ui.ctx();
+            if let Some(id) = ctx.memory(|memory| memory.focused())
+                && ctx.read_response(id).is_none_or(|response| {
+                    response.layer_id
+                        != egui::Modal::default_area(Id::new("search_progress")).layer()
+                })
+            {
+                ctx.memory_mut(|memory| memory.surrender_focus(id));
+            }
+            // The backdrop supplies dimming; keep the study legible beneath it.
+            ui.visuals_mut().disabled_alpha = 1.0;
+            ui.disable();
         }
         egui::Panel::top("menu_bar")
             .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(10))
@@ -767,14 +782,11 @@ Dimensioni in mm",
                         {
                             self.start_search();
                         }
-                        if let Some(job) = &self.job {
-                            if ui.button("Annulla calcolo").clicked() {
-                                job.control.cancelled.store(true, Ordering::Relaxed);
-                            }
-                            ui.spinner();
-                        }
                     });
                 });
+                if self.job.is_some() && ui.is_enabled() {
+                    ui.disable();
+                }
                 ui.label(
                     RichText::new("Ricerca geometrica statica · quote in millimetri")
                         .small()
@@ -787,6 +799,10 @@ Dimensioni in mm",
                         self.results_ui(ui);
                     });
             });
+        if self.job.is_some() {
+            self.search_progress(ui.ctx());
+            return;
+        }
         self.parameters_window(ui.ctx());
         self.details_window(ui.ctx());
         self.head_window(ui.ctx());
@@ -1473,6 +1489,11 @@ Dimensioni in mm",
     fn check_close_request(&mut self, ctx: &egui::Context) {
         let preview =
             cfg!(feature = "ui-preview") && std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_some();
+        if self.job.is_some() && ctx.input(|i| i.viewport().close_requested()) && !preview {
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+            self.cancel_search();
+            return;
+        }
         if self.dirty
             && !self.allow_close
             && !preview
@@ -1489,7 +1510,10 @@ impl eframe::App for PrototypeApp {
         self.check_close_request(ui.ctx());
         self.render(ui);
         #[cfg(feature = "ui-preview")]
-        if self.job.is_none() {
+        if self.job.is_none()
+            || std::env::var("STICK_OPTIMIZER_PREVIEW")
+                .is_ok_and(|mode| mode.starts_with("progress"))
+        {
             crate::preview::capture(ui.ctx());
         }
     }
@@ -2287,6 +2311,242 @@ mod tests {
                 "worker did not finish"
             );
             std::thread::yield_now();
+        }
+    }
+
+    // Hold the worker at a public completion boundary, independently of CPU speed.
+    fn held_job(
+        app: &mut PrototypeApp,
+    ) -> std::sync::mpsc::Sender<Result<SearchReport, SearchError>> {
+        let (send, receive) = std::sync::mpsc::channel();
+        app.invalidate_results();
+        app.job = Some(SearchJob {
+            revision: app.revision,
+            control: Arc::new(SearchControl::default()),
+            handle: Some(std::thread::spawn(move || {
+                receive.recv().unwrap_or(Err(SearchError::Cancelled))
+            })),
+        });
+        send
+    }
+
+    #[test]
+    fn running_search_blocks_new_study_shortcut_and_keeps_modal_visible() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let send = held_job(&mut app);
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::N, egui::Modifiers::CTRL)],
+        );
+        assert!(
+            app.pending.is_none(),
+            "Ctrl+N must not bypass the search modal"
+        );
+        text_position(&output, "Calcolo in corso", 0.0);
+        text_position(&output, "Generazione candidati…", 0.0);
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
+    #[test]
+    fn progress_uses_actual_counts_and_distinguishes_preparation_and_finalization() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let send = held_job(&mut app);
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let control = Arc::clone(&app.job.as_ref().unwrap().control);
+        control.estimated.store(10_000, Ordering::Relaxed);
+        control.examined.store(4_200, Ordering::Relaxed);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "42% completato", 0.0);
+        text_position(&output, "4.200 / 10.000 combinazioni esaminate", 0.0);
+        control.examined.store(10_000, Ordering::Relaxed);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "Preparazione risultati…", 0.0);
+        assert!(!output.shapes.iter().any(|shape| matches!(&shape.shape,
+            egui::epaint::Shape::Text(t) if t.galley.job.text.contains("100%"))));
+        assert!(app.job.is_some());
+        assert!(app.results.is_empty());
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
+    #[test]
+    fn cancel_and_close_keep_modal_until_worker_ends_and_discard_even_success() {
+        for button in ["Annulla", "×"] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            let send = held_job(&mut app);
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let pos = text_position(&output, button, 0.0);
+            click_at(&ctx, &mut app, pos);
+            assert!(
+                app.job
+                    .as_ref()
+                    .unwrap()
+                    .control
+                    .cancelled
+                    .load(Ordering::Relaxed)
+            );
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            text_position(&output, "Annullamento…", 0.0);
+            draw_frame(
+                &ctx,
+                &mut app,
+                vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+            );
+            assert!(app.job.is_some());
+            assert!(app.pending.is_none());
+            let report = optimize(
+                &app.study.to_study().unwrap(),
+                &SearchControl::default(),
+                SearchLimits::default(),
+            )
+            .unwrap();
+            send.send(Ok(report)).unwrap();
+            finish_job(&mut app);
+            assert!(app.results.is_empty());
+            assert!(app.status.contains("Calcolo annullato"));
+            draw_frame(
+                &ctx,
+                &mut app,
+                vec![key_event(egui::Key::N, egui::Modifiers::CTRL)],
+            );
+            assert!(matches!(app.pending, Some(PendingAction::EmptyStudy)));
+        }
+    }
+
+    #[test]
+    fn active_search_blocks_focused_inputs_menus_and_all_file_shortcuts() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let before = app.study.sticks[0].width.clone();
+        let id = app.study.sticks[0].id;
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        ctx.memory_mut(|m| m.request_focus(Id::new(("width", id))));
+        let send = held_job(&mut app);
+        for key in [egui::Key::N, egui::Key::O, egui::Key::S] {
+            draw_frame(
+                &ctx,
+                &mut app,
+                vec![
+                    key_event(key, egui::Modifiers::CTRL),
+                    egui::Event::Text("999".into()),
+                ],
+            );
+            assert!(app.pending.is_none());
+            assert!(app.file_action.is_none());
+            assert_eq!(app.study.sticks[0].width, before);
+        }
+        for label in ["File", "Modifica", "Calcola"] {
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let pos = text_position(&output, label, 0.0);
+            click_at(&ctx, &mut app, pos);
+            assert!(!egui::Popup::is_any_open(&ctx));
+            assert!(!app.parameters_open);
+            assert!(app.job.is_some());
+        }
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
+    #[test]
+    fn modal_cancel_remains_accessible_from_keyboard() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let send = held_job(&mut app);
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Tab, egui::Modifiers::NONE)],
+        );
+        draw_frame(&ctx, &mut app, vec![]);
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Enter, egui::Modifiers::NONE)],
+        );
+        assert!(
+            app.job
+                .as_ref()
+                .unwrap()
+                .control
+                .cancelled
+                .load(Ordering::Relaxed)
+        );
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
+    #[test]
+    fn native_window_close_requests_cancel_without_exiting_or_confirming() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::default();
+        let send = held_job(&mut app);
+        let mut input = egui::RawInput::default();
+        input
+            .viewports
+            .get_mut(&egui::ViewportId::ROOT)
+            .unwrap()
+            .events
+            .push(egui::ViewportEvent::Close);
+        let mut output = ctx.run_ui(input, |ui| app.check_close_request(ui.ctx()));
+        output.textures_delta.clear();
+        assert!(
+            output.viewport_output[&egui::ViewportId::ROOT]
+                .commands
+                .iter()
+                .any(|c| matches!(c, egui::ViewportCommand::CancelClose))
+        );
+        assert!(
+            app.job
+                .as_ref()
+                .unwrap()
+                .control
+                .cancelled
+                .load(Ordering::Relaxed)
+        );
+        assert!(app.pending.is_none());
+        assert!(!app.allow_close);
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
+    #[test]
+    fn worker_errors_and_limits_unblock_without_partial_results() {
+        for error in [
+            SearchError::NoCommonPitch,
+            SearchError::LimitExceeded("limite di prova".into()),
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            let send = held_job(&mut app);
+            draw_frame(&ctx, &mut app, vec![]);
+            send.send(Err(error.clone())).unwrap();
+            finish_job(&mut app);
+            assert!(app.results.is_empty());
+            assert_eq!(app.diagnostic.as_deref(), Some(error.to_string().as_str()));
+            draw_frame(
+                &ctx,
+                &mut app,
+                vec![key_event(egui::Key::N, egui::Modifiers::CTRL)],
+            );
+            assert!(app.pending.is_some());
         }
     }
 

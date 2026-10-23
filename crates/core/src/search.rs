@@ -10,6 +10,8 @@ pub struct SearchControl {
     pub cancelled: AtomicBool,
     pub examined: AtomicU64,
     pub estimated: AtomicU64,
+    /// Enumeration and Pareto updates are finished; the report is being prepared.
+    pub finalizing: AtomicBool,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -367,6 +369,7 @@ pub fn optimize(
     if !errors.is_empty() {
         return Err(SearchError::InvalidInput(errors));
     }
+    control.finalizing.store(false, Ordering::Relaxed);
     control.examined.store(0, Ordering::Relaxed);
     control.estimated.store(0, Ordering::Relaxed);
     let mut by_format = Vec::new();
@@ -508,6 +511,7 @@ pub fn optimize(
             }
         }
     }
+    control.finalizing.store(true, Ordering::Release);
     // Stable sort: Python's metric/pitch tie order, then enumeration order.
     frontier.sort_by(|a, b| {
         a.score

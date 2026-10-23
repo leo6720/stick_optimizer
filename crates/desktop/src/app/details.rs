@@ -5,7 +5,8 @@ use stick_optimizer_core::Candidate;
 impl PrototypeApp {
     pub(super) fn shortcuts(&mut self, ctx: &egui::Context) {
         // File commands must not bypass an open decision or dialog.
-        if self.pending.is_some()
+        if self.job.is_some()
+            || self.pending.is_some()
             || self.parameters_open
             || self.filter_editor.open
             || self.detail_popup.is_some()

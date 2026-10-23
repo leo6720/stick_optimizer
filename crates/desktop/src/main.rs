@@ -13,6 +13,7 @@ fn main() -> eframe::Result {
         Ok("compact"
             | "detail-compact"
             | "parameters-compact"
+            | "progress-compact"
             | "head-popup-compact"
             | "head-popup-compact-bottom")
     ) {

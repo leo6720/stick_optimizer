@@ -158,6 +158,9 @@ impl PrototypeApp {
         }
     }
     pub(super) fn handle_file_action(&mut self) {
+        if self.job.is_some() {
+            return;
+        }
         let Some(action) = self.file_action.take() else {
             return;
         };
