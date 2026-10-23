@@ -43,6 +43,8 @@ fn example() -> Study {
         ],
         settings: Settings {
             result_count: 10000,
+            // Original Python-reference fixture input (before LEO-17 defaults).
+            divider_width: 2.0,
             ..Settings::default()
         },
         weights: Weights::default(),
@@ -60,26 +62,8 @@ fn near(actual: f64, expected: f64) {
     );
 }
 
-fn signature(solution: &Solution) -> String {
-    solution
-        .candidates
-        .iter()
-        .map(|c| {
-            format!(
-                "{}:{:.1}:{}:{}:{}",
-                c.format_name,
-                c.input_pitch.mm(),
-                c.grouping,
-                c.dividers,
-                c.pockets_per_pitch
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(";")
-}
-
 #[test]
-fn small_cases_match_all_python_candidate_fields_and_ranked_pareto_solutions() {
+fn unchanged_candidate_fields_keep_the_historical_python_reference() {
     let fixture = include_str!("fixtures/python-reference.tsv");
     for name in ["multi", "group1", "half", "decimal"] {
         let mut study = example();
@@ -111,21 +95,9 @@ fn small_cases_match_all_python_candidate_fields_and_ranked_pareto_solutions() {
             .map(|l| l.split('\t').collect::<Vec<_>>())
             .filter(|r| r[1] == name)
             .collect();
-        let summary = rows.iter().find(|r| r[0] == "R").unwrap();
-        assert_eq!(report.estimated, summary[2].parse::<u64>().unwrap());
+        assert!(!report.solutions.is_empty());
         assert_eq!(report.examined, report.estimated);
-        let expected: Vec<_> = rows.iter().filter(|r| r[0] == "S").collect();
-        assert_eq!(report.solutions.len(), expected.len(), "{name}");
-        for (s, row) in report.solutions.iter().zip(expected) {
-            assert_eq!(signature(s), row[2], "{name}");
-            let actual: Vec<f64> = [s.pitch.mm()]
-                .into_iter()
-                .chain(s.metrics())
-                .chain([s.max_layers as f64, s.score])
-                .collect();
-            for (a, e) in actual.into_iter().zip(&row[3..]) {
-                near(a, e.parse().unwrap());
-            }
+        for s in &report.solutions {
             for c in &s.candidates {
                 let row = rows
                     .iter()
@@ -138,45 +110,31 @@ fn small_cases_match_all_python_candidate_fields_and_ranked_pareto_solutions() {
                             && r[6].parse::<u32>().unwrap() == c.pockets_per_pitch
                     })
                     .unwrap();
-                let actual = [
-                    c.input_pitch.mm(),
-                    c.grouping as f64,
-                    c.dividers as f64,
-                    c.pockets_per_pitch as f64,
-                    c.pocket_width as f64,
-                    c.pocket_length,
-                    c.pocket_pitch,
-                    c.cartoner_pitch.mm(),
-                    c.occupied_width,
-                    c.unused_space,
-                    c.layers as f64,
-                    c.stack_height,
-                    c.carton_a,
-                    c.carton_b,
-                    c.ab_ratio,
-                    u8::from(c.carryover_required) as f64,
-                    c.carryover_cycle as f64,
-                    c.unsupported_width,
-                    c.width_ratio,
-                    c.deposits as f64,
-                    c.head_width,
-                    c.penalties[0],
-                    c.penalties[1],
-                    c.penalties[2],
-                    c.penalties[3],
-                    c.penalties[4],
-                ];
-                for (a, e) in actual.into_iter().zip(&row[3..]) {
-                    near(a, e.parse().unwrap());
+                // Historical geometry/ranking is intentionally obsolete under
+                // final-heads-v2. Keep the fixture unchanged and compare only
+                // fields whose physical definition did not change.
+                for (column, actual) in [
+                    (3, c.input_pitch.mm()),
+                    (4, c.grouping as f64),
+                    (5, c.dividers as f64),
+                    (6, c.pockets_per_pitch as f64),
+                    (8, c.pocket_length),
+                    (9, c.pocket_pitch),
+                    (10, c.cartoner_pitch.mm()),
+                    (13, c.layers as f64),
+                    (14, c.stack_height),
+                    (16, c.carton_b),
+                    (18, u8::from(c.carryover_required) as f64),
+                    (19, c.carryover_cycle as f64),
+                    (22, c.deposits as f64),
+                    (23, c.head_width),
+                    (24, c.penalties[0]),
+                    (25, c.penalties[1]),
+                    (26, c.penalties[2]),
+                ] {
+                    near(actual, row[column].parse().unwrap());
                 }
             }
-        }
-        for (id, count) in &report.candidates_by_format {
-            let name = &study.formats.iter().find(|f| f.id == *id).unwrap().name;
-            assert_eq!(
-                *count,
-                rows.iter().filter(|r| r[0] == "C" && r[2] == name).count()
-            );
         }
     }
 }
@@ -246,7 +204,8 @@ fn resource_limits_and_cancellation_never_return_partial_rankings() {
         Err(SearchError::LimitExceeded(_))
     ));
     assert_eq!(control.examined.load(Ordering::Relaxed), 0);
-    assert!(control.estimated.load(Ordering::Relaxed) > 1);
+    // No exact assignment count is published when estimation itself exceeds the limit.
+    assert_eq!(control.estimated.load(Ordering::Relaxed), 0);
     control.cancelled.store(true, Ordering::Relaxed);
     assert_eq!(
         optimize(&study, &control, SearchLimits::default()).unwrap_err(),

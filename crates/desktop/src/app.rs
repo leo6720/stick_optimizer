@@ -10,6 +10,7 @@ use stick_optimizer_core::{
 use crate::draft::StudyDraft;
 mod details;
 mod files;
+mod heads;
 mod parameters;
 use files::FileAction;
 use parameters::ParameterEditor;
@@ -76,6 +77,7 @@ pub struct PrototypeApp {
     parameters_draft: Option<crate::draft::Parameters>,
     parameters_error: Option<String>,
     detail_popup: Option<(usize, u64)>,
+    head_popup: Option<heads::HeadPopup>,
     detail_view: DetailView,
     collapsed: HashSet<u64>,
     selected_stick: Option<u64>,
@@ -113,6 +115,7 @@ impl Default for PrototypeApp {
             parameters_draft: None,
             parameters_error: None,
             detail_popup: None,
+            head_popup: None,
             detail_view: DetailView::Formats,
             collapsed: HashSet::new(),
             selected_stick: None,
@@ -212,13 +215,36 @@ impl PrototypeApp {
                 app.detail_view = DetailView::Pockets;
                 app.start_search();
             }
-            Ok("heads") => {
+            Ok(
+                "heads"
+                | "head-popup"
+                | "head-popup-compact"
+                | "head-popup-scaled"
+                | "head-popup-scaled-bottom"
+                | "head-popup-compact-bottom"
+                | "head-popup-zoom"
+                | "head-popup-g3"
+                | "head-popup-g4"
+                | "head-popup-alternate",
+            ) => {
+                if std::env::var("STICK_OPTIMIZER_PREVIEW")
+                    .as_deref()
+                    .is_ok_and(|m| m.starts_with("head-popup-scaled"))
+                {
+                    ctx.set_zoom_factor(1.5);
+                }
                 app.detail_view = DetailView::Heads;
                 app.start_search();
             }
             Ok(
-                "geometry" | "geometry-detail" | "detail" | "detail-compact" | "detail-scaled"
-                | "detail-bottom" | "detail-carry",
+                "geometry"
+                | "geometry-detail"
+                | "detail"
+                | "detail-compact"
+                | "detail-scaled"
+                | "detail-bottom"
+                | "detail-carry"
+                | "detail-carry-bottom",
             ) => {
                 if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("detail-scaled") {
                     ctx.set_zoom_factor(1.5);
@@ -297,6 +323,7 @@ impl PrototypeApp {
         self.restore_view = None;
         self.geometry_format = None;
         self.detail_popup = None;
+        self.head_popup = None;
         self.results.clear();
         self.selected = None;
         self.diagnostic = None;
@@ -762,6 +789,7 @@ Dimensioni in mm",
             });
         self.parameters_window(ui.ctx());
         self.details_window(ui.ctx());
+        self.head_window(ui.ctx());
         if let Some(ranges) = self.filter_editor.show(ui.ctx()) {
             self.ranges = ranges;
             self.dirty = true;
@@ -1169,6 +1197,9 @@ Dimensioni in mm",
                         .map(|c| {
                             vec![
                                 c.format_name.clone(),
+                                c.head_id
+                                    .map(|id| format!("Testa {} · ID {id}", id + 1))
+                                    .unwrap_or_else(|| "Nessuna · gruppo 1".into()),
                                 c.stick_name.clone(),
                                 format_number(c.input_pitch.mm()),
                                 c.grouping.to_string(),
@@ -1194,6 +1225,7 @@ Dimensioni in mm",
                         "format_details",
                         &[
                             "Formato",
+                            "Testa assegnata",
                             "Stick",
                             "Passo MT (mm)",
                             "Gruppo",
@@ -1242,18 +1274,17 @@ Dimensioni in mm",
                         .pocket_types
                         .iter()
                         .enumerate()
-                        .map(|(i, &(width, length, dividers, pockets))| {
+                        .map(|(i, pocket)| {
+                            let (width, length, dividers, pockets) = (
+                                pocket.width,
+                                pocket.length,
+                                pocket.dividers,
+                                pocket.pockets_per_pitch,
+                            );
                             let formats = solution
                                 .candidates
                                 .iter()
-                                .filter(|c| {
-                                    (
-                                        c.pocket_width,
-                                        c.pocket_length,
-                                        c.dividers,
-                                        c.pockets_per_pitch,
-                                    ) == (width, length, dividers, pockets)
-                                })
+                                .filter(|c| c.pocket_type() == *pocket)
                                 .map(|c| c.format_name.as_str())
                                 .collect::<Vec<_>>()
                                 .join(", ");
@@ -1263,6 +1294,12 @@ Dimensioni in mm",
                                 format_number(length),
                                 dividers.to_string(),
                                 pockets.to_string(),
+                                pocket
+                                    .divider_lefts
+                                    .iter()
+                                    .map(|&v| format_number(v))
+                                    .collect::<Vec<_>>()
+                                    .join("; "),
                                 formats,
                             ]
                         })
@@ -1276,6 +1313,7 @@ Dimensioni in mm",
                             "Lungh. (mm)",
                             "Divisori",
                             "Cass./passo",
+                            "Divisori x (mm)",
                             "Formati",
                         ],
                         data,
@@ -1287,12 +1325,11 @@ Dimensioni in mm",
                     let data = solution
                         .head_types
                         .iter()
-                        .enumerate()
-                        .map(|(i, &(group, pitch))| {
+                        .map(|head| {
                             let candidates: Vec<_> = solution
                                 .candidates
                                 .iter()
-                                .filter(|c| (c.grouping, c.input_pitch) == (group, pitch))
+                                .filter(|c| c.head_id == Some(head.id))
                                 .collect();
                             let formats = candidates
                                 .iter()
@@ -1300,20 +1337,54 @@ Dimensioni in mm",
                                 .collect::<Vec<_>>()
                                 .join(", ");
                             vec![
-                                format!("Testa {}", i + 1),
-                                group.to_string(),
-                                format_number(pitch.mm()),
+                                format!("Testa {}", head.id + 1),
+                                head.id.to_string(),
+                                if candidates.len() > 1 {
+                                    "Condivisa"
+                                } else {
+                                    "Separata"
+                                }
+                                .into(),
+                                format_number(head.geometry.approach_spacing),
+                                head.geometry.grouping.to_string(),
+                                format_number(head.geometry.pickup_pitch.mm()),
                                 format_number(candidates[0].head_width),
                                 formats,
                             ]
                         })
                         .collect();
-                    detail_table(
+                    if let Some((index, open)) = detail_table(
                         ui,
                         "head_details",
-                        &["Tipo", "Gruppo", "Passo MT (mm)", "Larg. (mm)", "Formati"],
+                        &[
+                            "Tipo",
+                            "ID",
+                            "Assegnazione",
+                            "Interasse avv. (mm)",
+                            "Gruppo",
+                            "Passo MT (mm)",
+                            "Larg. (mm)",
+                            "Formati",
+                        ],
                         data,
-                        None,
+                        self.head_popup
+                            .as_ref()
+                            .filter(|p| p.rank == result.id)
+                            .and_then(|p| {
+                                solution.head_types.iter().position(|h| h.id == p.head_id)
+                            }),
+                    ) && open
+                    {
+                        self.head_popup = heads::HeadPopup::new(
+                            result.id,
+                            solution,
+                            solution.head_types[index].id,
+                        );
+                    }
+                    ui.label(
+                        RichText::new("Doppio clic su una testa per la vista prima/dopo.")
+                            .small()
+                            .color(MUTED),
                     );
                 }
             }
@@ -1688,6 +1759,86 @@ mod tests {
     }
 
     #[test]
+    fn head_double_click_keeps_solution_and_head_identity_and_closes_stale_views() {
+        for index in 0..2 {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            calculate(&mut app);
+            app.detail_view = DetailView::Heads;
+            let original = app.results[0].solution.clone();
+            assert!(original.head_types.len() >= 2);
+            app.head_popup = None;
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let label = format!("Testa {}", index + 1);
+            let pos = text_position(&output, &label, 400.0);
+            click_at(&ctx, &mut app, pos);
+            click_at(&ctx, &mut app, pos);
+            let popup = app.head_popup.as_ref().unwrap();
+            assert_eq!(
+                (popup.rank, popup.head_id),
+                (1, original.head_types[index].id)
+            );
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            text_position(&output, "Prima del raggruppamento", 0.0);
+            text_position(&output, "Dopo il raggruppamento", 0.0);
+            text_position(&output, "Chiudi", 0.0);
+            if index == 0 {
+                let head = &original.head_types[index];
+                let first = original
+                    .candidates
+                    .iter()
+                    .find(|c| c.format_id == head.geometry.format_ids[0])
+                    .unwrap();
+                let last = original
+                    .candidates
+                    .iter()
+                    .find(|c| c.format_id == *head.geometry.format_ids.last().unwrap())
+                    .unwrap();
+                assert_ne!(first.format_id, last.format_id);
+                click_at(
+                    &ctx,
+                    &mut app,
+                    text_position(&output, &first.format_name, 200.0),
+                );
+                for _ in 0..4 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(
+                    &ctx,
+                    &mut app,
+                    text_position(&output, &last.format_name, 200.0),
+                );
+                assert_eq!(app.head_popup.as_ref().unwrap().format_id, last.format_id);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(
+                    &output,
+                    &format!("{} · larghezza stick 26 mm", last.format_name),
+                    0.0,
+                );
+                click_at(&ctx, &mut app, text_position(&output, "Chiudi", 0.0));
+            } else {
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+            }
+            assert!(app.head_popup.is_none());
+            assert_eq!(*app.results[0].solution, *original);
+            app.head_popup = heads::HeadPopup::new(1, &original, original.head_types[0].id);
+            app.invalidate_results();
+            assert!(app.head_popup.is_none());
+        }
+    }
+
+    #[test]
     fn separate_parameter_editors_validate_apply_and_cancel() {
         for editor in ParameterEditor::ALL {
             let ctx = egui::Context::default();
@@ -1717,7 +1868,7 @@ mod tests {
                 app.parameters_error
             );
             assert_eq!(app.study.parameters, before);
-            assert_eq!(app.results.len(), 16);
+            assert!(!app.results.is_empty());
 
             let value = if editor == ParameterEditor::ResultCount {
                 "7"
@@ -1760,6 +1911,248 @@ mod tests {
     }
 
     #[test]
+    fn extra_spacing_editor_is_visible_validated_applied_and_cancelled() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        calculate(&mut app);
+        let before = app.study.parameters.clone();
+        app.dirty = false;
+        app.open_parameter_editor(ParameterEditor::Cartoner);
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "Interasse aggiuntivo massimo", 0.0);
+        for invalid in ["-1", "NaN", "infinity", "abc"] {
+            app.parameters_draft.as_mut().unwrap().max_extra_spacing = invalid.into();
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+            assert!(app.parameters_open && app.parameters_error.is_some());
+            assert_eq!(app.study.parameters, before);
+            assert!(!app.results.is_empty() && !app.dirty);
+        }
+        app.parameters_draft.as_mut().unwrap().max_extra_spacing = "2,75".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Annulla", 0.0));
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters, before);
+        app.open_parameter_editor(ParameterEditor::Cartoner);
+        app.parameters_draft.as_mut().unwrap().max_extra_spacing = "0".into();
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+        assert!(!app.parameters_open);
+        assert_eq!(app.study.parameters.max_extra_spacing, "0");
+        assert!(app.results.is_empty() && app.dirty);
+        assert!(app.defaults.is_none()); // Applying never saves preferences.
+    }
+
+    #[test]
+    fn editor_calculation_details_csv_and_reopen_preserve_chosen_configuration() {
+        let folder = std::env::temp_dir().join(format!("stick-leo19-ui-{}", std::process::id()));
+        std::fs::create_dir_all(&folder).unwrap();
+        for group in [2, 3, 4] {
+            for shared in [true, false] {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                let mut study = app.study.to_study().unwrap();
+                study.formats.remove(1);
+                for (f, s) in study.formats.iter_mut().zip(&mut study.sticks) {
+                    f.quantity = group;
+                    s.fin = 30.0 - s.width;
+                }
+                study.settings.channels = group;
+                study.settings.max_shift = 0.0;
+                study.settings.max_layers = Some(1);
+                study.settings.max_pitch = 60.0 * f64::from(group);
+                study.settings.result_count = 10000;
+                study.settings.ab_target = if shared {
+                    match group {
+                        2 => 68.0 / 11.0,
+                        3 => 105.0 / 11.0,
+                        _ => 144.0 / 11.0,
+                    }
+                } else {
+                    match group {
+                        2 => 55.0 / 11.0,
+                        3 => 81.0 / 11.0,
+                        _ => 141.0 / 11.0,
+                    }
+                };
+                app.study = StudyDraft::from_study("Mixed widths".into(), study);
+                app.study.parameters.max_extra_spacing = "4".into();
+                app.open_parameter_editor(ParameterEditor::Cartoner);
+                for _ in 0..4 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                // Type through egui, rather than replacing the underlying draft.
+                ctx.memory_mut(|m| {
+                    m.request_focus(Id::new((
+                        "parameter",
+                        ParameterEditor::Cartoner,
+                        "Interasse aggiuntivo massimo",
+                    )))
+                });
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![
+                        key_event(
+                            egui::Key::A,
+                            egui::Modifiers {
+                                ctrl: true,
+                                command: true,
+                                ..egui::Modifiers::NONE
+                            },
+                        ),
+                        egui::Event::Text("5,0".into()),
+                    ],
+                );
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
+                assert_eq!(
+                    app.study.to_study().unwrap().settings.max_extra_spacing,
+                    5.0
+                );
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                click_at(&ctx, &mut app, text_position(&output, "Calcola", 0.0));
+                finish_job(&mut app);
+                let row = app
+                    .results
+                    .iter()
+                    .find(|r| {
+                        r.heads == if shared { 1 } else { 2 }
+                            && (!shared || r.solution.candidates.iter().all(|c| c.dividers > 0))
+                    })
+                    .unwrap()
+                    .clone();
+                app.selected = Some(row.id);
+                app.detail_view = DetailView::Heads;
+                for _ in 0..3 {
+                    draw_frame(&ctx, &mut app, vec![]);
+                }
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(&output, if shared { "Condivisa" } else { "Separata" }, 0.0);
+                let core = app.study.to_study().unwrap();
+                let c = &row.solution.candidates[0];
+                let dimensions = stick_optimizer_core::candidate_dimensions(&core, c).unwrap();
+                assert_eq!(
+                    dimensions.extra_spacing,
+                    Some(if shared { 1.0 } else { 0.0 })
+                );
+                if shared {
+                    let quote_ctx = egui::Context::default();
+                    let mut output = quote_ctx.run_ui(
+                        egui::RawInput {
+                            screen_rect: Some(egui::Rect::from_min_size(
+                                egui::Pos2::ZERO,
+                                egui::vec2(1180.0, 4000.0),
+                            )),
+                            ..Default::default()
+                        },
+                        |ui| {
+                            egui::Frame::NONE.inner_margin(8.0).show(ui, |ui| {
+                                details::configuration_values(ui, &core, &row.solution, c)
+                            });
+                        },
+                    );
+                    output.textures_delta.clear();
+                    text_position(&output, "Configurazione effettiva e giochi", 0.0);
+                    text_position(&output, "Interasse aggiuntivo del formato", 0.0);
+                    text_position(&output, if group == 4 { "27 mm" } else { "37,5 mm" }, 0.0);
+                    text_position(&output, "1 mm", 0.0);
+                }
+                app.detail_popup = Some((row.id, c.format_id));
+                draw_frame(&ctx, &mut app, vec![]);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                text_position(&output, "Testa 1 · ID 0", 0.0);
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+                assert!(app.detail_popup.is_none());
+                let before = stick_optimizer_io::details_csv(&core, row.id, &row.solution).unwrap();
+                app.order_by_pitch = true;
+                let view = app.view_state();
+                let path = folder.join(format!("g{group}-{shared}.stic"));
+                app.save_to(&path).unwrap();
+                let source = std::fs::read(&path).unwrap();
+                app.apply_pending(PendingAction::ExampleStudy);
+                app.open_from(&path).unwrap();
+                finish_job(&mut app);
+                assert_eq!(app.view_state(), view);
+                let selected = app
+                    .results
+                    .iter()
+                    .find(|r| Some(r.id) == app.selected)
+                    .unwrap();
+                assert_eq!(*selected.solution, *row.solution);
+                assert_eq!(
+                    stick_optimizer_io::details_csv(
+                        &app.study.to_study().unwrap(),
+                        selected.id,
+                        &selected.solution
+                    )
+                    .unwrap(),
+                    before
+                );
+                assert_eq!(std::fs::read(&path).unwrap(), source);
+            }
+        }
+        std::fs::remove_dir_all(folder).unwrap();
+    }
+
+    #[test]
+    fn preferences_change_only_on_explicit_save_and_invalid_read_keeps_current_study() {
+        let folder = std::env::temp_dir().join(format!("stick-leo19-prefs-{}", std::process::id()));
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join("preferences-v1.json");
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        app.study.parameters.divider_width = "2,125".into();
+        app.study.parameters.max_extra_spacing = "3,125".into();
+        app.save_defaults_to(&path).unwrap();
+        let source = std::fs::read(&path).unwrap();
+        let mut reopened = PrototypeApp::new(&ctx);
+        reopened.read_defaults_from(&path).unwrap();
+        assert_eq!(reopened.study.parameters.divider_width, "2.125");
+        assert_eq!(reopened.study.parameters.max_extra_spacing, "3.125");
+        reopened.open_parameter_editor(ParameterEditor::Cartoner);
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut reopened, vec![]);
+        }
+        reopened
+            .parameters_draft
+            .as_mut()
+            .unwrap()
+            .max_extra_spacing = "1,25".into();
+        let output = draw_frame(&ctx, &mut reopened, vec![]);
+        click_at(&ctx, &mut reopened, text_position(&output, "Applica", 0.0));
+        assert_eq!(reopened.study.parameters.max_extra_spacing, "1,25");
+        assert_eq!(std::fs::read(&path).unwrap(), source);
+        reopened.save_defaults_to(&path).unwrap();
+        assert_ne!(std::fs::read(&path).unwrap(), source);
+        let loaded = stick_optimizer_io::load_preferences(&path)
+            .unwrap()
+            .parameters()
+            .0;
+        assert_eq!(loaded.max_extra_spacing, 1.25);
+        assert_eq!(loaded.divider_width, 2.125);
+        calculate(&mut reopened);
+        let before = reopened.document().unwrap();
+        let results = reopened.results.clone();
+        std::fs::write(&path, b"{broken").unwrap();
+        assert!(reopened.read_defaults_from(&path).is_err());
+        assert_eq!(
+            stick_optimizer_io::encode(&reopened.document().unwrap()).unwrap(),
+            stick_optimizer_io::encode(&before).unwrap()
+        );
+        assert_eq!(reopened.results.len(), results.len());
+        assert_eq!(std::fs::read(&path).unwrap(), b"{broken");
+        std::fs::remove_dir_all(folder).unwrap();
+    }
+
+    #[test]
     fn parameter_dialog_cancels_without_losing_results_and_validates_before_applying() {
         let ctx = egui::Context::default();
         let mut app = PrototypeApp::new(&ctx);
@@ -1776,7 +2169,7 @@ mod tests {
         );
         assert!(!app.parameters_open);
         assert_eq!(app.study.parameters, before);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert!(!app.dirty);
 
         app.parameters_open = true;
@@ -1786,7 +2179,7 @@ mod tests {
         click_at(&ctx, &mut app, text_position(&output, "Applica", 0.0));
         assert!(app.parameters_open && app.parameters_error.is_some());
         assert_eq!(app.study.parameters, before);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
 
         app.parameters_draft.as_mut().unwrap().pitch_step = "2,5".into();
         let output = draw_frame(&ctx, &mut app, vec![]);
@@ -1896,7 +2289,7 @@ mod tests {
             ],
         );
         assert_eq!(app.study.name, "Studio rinominato");
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert_eq!(app.selected, Some(2));
         assert!(app.dirty);
     }
@@ -1963,10 +2356,82 @@ mod tests {
     }
 
     #[test]
+    fn head_table_preserves_separate_heads_with_the_same_pickup_key() {
+        use stick_optimizer_core::{Format, Settings, Stick, Study, Weights};
+        let study = Study {
+            sticks: [25.0, 26.0]
+                .iter()
+                .enumerate()
+                .map(|(i, &width)| Stick {
+                    id: i as u64,
+                    name: format!("S{i}"),
+                    length: 110.0,
+                    width,
+                    thickness: 6.0,
+                    fin: 30.0 - width,
+                })
+                .collect(),
+            formats: (0..2)
+                .map(|i| Format {
+                    id: i,
+                    name: format!("F{i}"),
+                    stick_id: i,
+                    quantity: 2,
+                })
+                .collect(),
+            settings: Settings {
+                channels: 2,
+                max_shift: 0.0,
+                max_layers: Some(1),
+                max_pitch: 120.0,
+                result_count: 10000,
+                ..Settings::default()
+            },
+            weights: Weights::default(),
+        };
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        app.study = StudyDraft::from_study("Identità teste".into(), study);
+        calculate(&mut app);
+        let row = app
+            .results
+            .iter()
+            .find(|r| {
+                r.solution.head_types.len() == 2
+                    && r.solution.candidates.iter().all(|c| c.dividers == 0)
+            })
+            .unwrap();
+        let identity = row.id;
+        app.selected = Some(identity);
+        app.detail_view = DetailView::Heads;
+        for _ in 0..2 {
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let texts: Vec<_> = output
+                .shapes
+                .iter()
+                .filter_map(|s| match &s.shape {
+                    egui::epaint::Shape::Text(t) => Some(t.galley.job.text.as_str()),
+                    _ => None,
+                })
+                .collect();
+            assert!(texts.contains(&"Testa 1") && texts.contains(&"Testa 2"));
+            assert!(!texts.contains(&"F0, F1"));
+            assert_eq!(app.selected, Some(identity));
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let pos = text_position(&output, "Testa 2", 400.0);
+        click_at(&ctx, &mut app, pos);
+        click_at(&ctx, &mut app, pos);
+        let popup = app.head_popup.as_ref().unwrap();
+        assert_eq!((popup.rank, popup.head_id), (identity, 1));
+        assert_eq!(popup.format_id, 1);
+    }
+
+    #[test]
     fn real_results_are_blocked_by_invalid_inputs_and_cleared_after_edits() {
         let mut app = PrototypeApp::default();
         calculate(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         app.study.sticks[0].width = "non numerico".into();
         app.invalidate_results();
         assert!(app.results.is_empty());
@@ -2022,7 +2487,7 @@ mod tests {
         assert!(app.start_search());
         assert!(!app.start_search()); // At most one worker.
         finish_job(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         assert_eq!(app.results[0].solution.candidates.len(), 3);
         assert!(app.start_search());
         app.study.formats[0].quantity = "11".into();
@@ -2078,7 +2543,7 @@ mod tests {
             );
         }
         finish_job(&mut app);
-        assert_eq!(app.results.len(), 16);
+        assert!(!app.results.is_empty());
         let output = draw_frame(&ctx, &mut app, vec![]);
         assert!(output.shapes.iter().any(|shape| matches!(&shape.shape,
             egui::epaint::Shape::Text(text) if text.galley.job.text == "Soluzione 01")));

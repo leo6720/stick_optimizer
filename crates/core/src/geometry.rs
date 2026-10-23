@@ -51,29 +51,21 @@ pub fn schematic(study: &Study, c: &Candidate) -> Option<Geometry> {
             width: c.pocket_width as f64,
             height: c.carton_b,
         });
-        let mut x = left;
-        let layout = crate::search::layout(c.grouping, c.dividers);
-        for (i, &count) in layout.iter().enumerate() {
-            x += p.wall_clearance;
-            for _ in 0..count {
-                g.sticks.push(GeometryRect {
-                    x,
-                    y: 0.0,
-                    width: s.width,
-                    height: s.thickness,
-                });
-                x += s.width + p.adjacent_clearance;
-            }
-            x += p.wall_clearance - p.adjacent_clearance;
-            if i + 1 < layout.len() {
-                g.dividers.push(GeometryRect {
-                    x,
-                    y: 0.0,
-                    width: p.divider_width,
-                    height: c.carton_b,
-                });
-                x += p.divider_width;
-            }
+        for &x in &c.geometry.divider_lefts {
+            g.dividers.push(GeometryRect {
+                x: left + x,
+                y: 0.0,
+                width: p.divider_width,
+                height: c.carton_b,
+            });
+        }
+        for &centre in &c.geometry.stick_centres {
+            g.sticks.push(GeometryRect {
+                x: left + centre - s.width / 2.0,
+                y: 0.0,
+                width: s.width,
+                height: s.thickness,
+            });
         }
     }
     Some(g)

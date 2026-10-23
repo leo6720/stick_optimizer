@@ -53,3 +53,12 @@ nessuna animazione, simulazione, selettore di strati o nuova funzione.
 Nessuna dipendenza bloccante nel ticket. LEO-16 cambia in futuro la geometria
 fisica delle teste/cassetti: questa modifica conserva le coordinate correnti;
 non anticipa quel contratto. Branch isolato `codex/leo-8-async`, PR verso main.
+
+## Nota di integrazione — 23 ottobre 2026
+
+La sezione dipendenze sopra descrive la baseline originaria. Il main di questa
+ripresa è `509003851451f5ccc8280f4bfc4a577611e266e5`, con LEO-17/18/19 e
+LEO-7 già integrati. La vista conserva le coordinate effettive del candidato
+(`geometry.stick_centres` e `geometry.divider_lefts`), comprese le partizioni
+separate/condivise e il passo strutturale del gruppo 4. Cambia soltanto il
+numero di strati disegnati. La definizione funzionale accettata resta invariata.

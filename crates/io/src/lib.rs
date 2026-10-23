@@ -10,6 +10,7 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
+pub const ENGINE_ID: &str = "rust-final-heads-v2";
 pub const MAX_FILE_BYTES: usize = 8 * 1024 * 1024;
 static TEMP_ID: AtomicU64 = AtomicU64::new(0);
 pub fn load(path: &Path) -> Result<Document, Error> {

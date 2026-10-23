@@ -52,6 +52,10 @@ produce le primitive in mm della sezione statica con un solo strato completo
 per cassetto, contorni B e divisori invariati: la GUI le disegna senza
 ricalcolare vincoli o metriche. I filtri della vista non modificano il motore.
 Schema, CSV, rappresentazione del riporto e limiti in `rust-files.md`.
+LEO-17 aggiunge `core/head.rs`, API pubblica per coordinate finali e
+compatibilità dell’intera assegnazione ([ADR0001](adr/0001-final-head-geometry.md)).
+LEO-18 integra ricerca e aggregazione con teste separate/condivise e cassetti
+effettivi ([ADR0002](adr/0002-exact-final-head-search.md)); editor, quote e CSV finali in [ADR0003](adr/0003-chosen-head-details-and-csv.md).
 
 Le sezioni seguenti descrivono le formule del riferimento Python conservato nel
 tag `python-beta-reference`, ora tradotte nel motore Rust. Le note sui file e
@@ -112,3 +116,40 @@ Il filtro Pareto confronta sette metriche da minimizzare: numero tipi cassetto, 
 `build_multi_format_solutions()` raggruppa i candidati per passo comune e genera il prodotto cartesiano per ogni passo. Tutte le soluzioni così ottenute vengono mantenute prima del filtro Pareto; con molti formati il tempo e la memoria possono crescere rapidamente. `number_of_results_to_show` limita solo l'output finale, non la ricerca. Non esiste un limite preventivo delle combinazioni.
 
 `project_io.py` salva input, risultati, filtri e selezione in JSON `.sop`. L'interfaccia salva e apre questo stato; non è un formato versionato o dotato di migrazioni. I CSV sono scritti in UTF-8 con BOM (`utf-8-sig`). Il riepilogo esporta tutte le soluzioni mostrate, il dettaglio una soluzione selezionata.
+
+## Geometria finale integrata (LEO-18)
+
+L’API preparatoria LEO-17 è ora usata dalla ricerca: ogni tupla di candidati
+al passo comune enumera tutte le partizioni delle teste compatibili per
+passo/raggruppamento e verifica congiuntamente gli assegnati. Coordinate,
+identità soluzione-locali e geometria cassetto sono prodotte nel core;
+tabelle e schematico non ricostruiscono classi per la vecchia chiave.
+I tipi cassetto includono posizioni divisori. Pareto e score usano le stesse
+sette metriche e formule con dimensioni effettive, gruppo1 escluso.
+[ADR0002](adr/0002-exact-final-head-search.md) descrive arrotondamento fisico,
+spareggi, partizioni, progresso/limiti e contratto motore versionato.
+
+
+## Consumatori della configurazione scelta (LEO-19)
+
+`core/dimensions.rs` proietta le coordinate effettive in quote e giochi fisici;
+GUI e CSV leggono la stessa API, senza aritmetica fisica nei presentatori.
+La tabella formati identifica la testa assegnata, quella delle teste mostra
+ID, separate/condivise e interasse finale; i cassetti includono posizioni divisori.
+Il popup formato conserva quote precedenti e aggiunge minimi, eccessi e giochi
+per gap, distinguendo il centrale strutturale del gruppo4. I file conservano la
+ricetta schema2; il rango originale ricostruisce la configurazione scelta anche
+con filtri/ordinamento diversi. CSVv2 descrive esplicitamente gli assegnati e le
+coordinate. Nessuna modifica a ricerca, formule di penalità o head_width.
+
+
+## Vista frontale della testa (LEO-7)
+
+`app/heads.rs` conserva soluzione, ID testa e formato rappresentato. Il doppio clic
+usa l'ID esplicito, anche per teste separate con la stessa vecchia chiave. Le due
+viste leggono `HeadGeometry.positions`; larghezza stick e nome provengono dal formato
+reale selezionato. Il core espone `head_diagram_dimensions`, proiezione read-only
+dei centri per interassi, passo gruppi e distanze primo–ultimo. Nessuna modifica
+a ricerca, dimensionamento fisico, score o dati soluzione. La GUI converte solo
+coordinate in mm in coordinate schermo. Traversa, altezza stick e prelevatori sono
+stilizzati; head_width conserva passo MT × canali.

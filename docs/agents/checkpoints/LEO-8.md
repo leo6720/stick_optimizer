@@ -57,3 +57,63 @@ aprire formati con uno/due cassetti, divisori e riporto, cambiare formato,
 controllare fila completa, vuoto fino a B, quote e dettagli reali, finestra
 compatta e zoom/DPI. Registrare esiti e decidere il merge separatamente.
 Nessun merge, deploy o nuova automazione autorizzati.
+
+## Preparazione merge autorizzata — 23 ottobre 2026
+
+Questa sezione aggiorna fase e prossima azione delle note storiche sopra.
+Fonte: richiesta utente «prepariamole per il merge. le verifiche manuali le
+farò in seguito vediamo se ci sono conflitti e correggiamoli», registrata
+nel ticket. Ripresa tecnica della PR20 esistente; nessun merge su main,
+deploy, nuova PR o chiusura Done autorizzati. Le prove manuali native Windows,
+input fisici e monitor/DPI sono rinviate dall’utente, non superate.
+Nessun dimensionamento retroattivo inventato per l’attività già In Review.
+
+- Implementatore nuovo e isolato: `/root/leo8_merge_update`, creato dal
+  coordinatore con `fork_turns: none`; nessuna cronologia completa ereditata.
+- Baseline storica: `05f6f1e58d8d21a9de49dbb2b95f7774a6584470`.
+- Head precedente e primo ciclo di revisione PASS preservati:
+  `53e1f12a564c56e4e7194ae0cdc931bbbcc9e957`.
+- Baseline integrazione main: `509003851451f5ccc8280f4bfc4a577611e266e5`.
+- Worktree nuovo: `/workspace/stick-leo8-merge-update`; branch locale
+  `codex/leo-8-merge-update`, pubblicato normalmente sul branch PR esistente
+  `codex/leo-8-async`. Head esatto: commit contenente questa sezione;
+  `git rev-parse HEAD`, riportato anche nel successivo handoff.
+- Merge di main nel branch, senza riscrittura della storia. Cinque conflitti
+  risolti: geometry.rs conserva coordinate effettive e un solo strato;
+  app.rs conserva entrambi i test LEO-7/8; development/rust-files/ui-design
+  conservano documentazione main e comportamento LEO-8.
+- Nuova integrazione: round 1, cumulativo 2; due revisori separati da avviare
+  dal coordinatore sul medesimo main/head congelato. Non è un’autorevisione
+  indipendente. Nessun rilievo di codice aperto dell’implementatore.
+
+### Verifiche della ripresa realmente eseguite
+
+Rust 1.99.0; Cargo.lock, toolchain e manifest invariati rispetto a main.
+
+- fmt, diff whitespace, check e Clippy `-D warnings` workspace/all-targets/
+  all-features host con backend `eframe/x11`: PASS.
+- `cargo test --workspace --all-features --features eframe/x11 --locked`:
+  **81 test PASS** (30 core, 40 desktop, 11 IO). Compresi cambio formato
+  sintetico, popup teste LEO-7, ricerca esatta e CSVv2 ereditati da main.
+- Test pubblico `single_layer_view_preserves_real_geometry_and_solution_data`
+  rafforzato per tutte le coordinate effettive stick/divisori, poi rieseguito:
+  PASS. Il test group4 ereditato usa coordinate attese indipendenti.
+- Build workspace release e debug con `eframe/x11,ui-preview`: PASS.
+- Check e Clippy MSVC workspace/all-targets/all-features locked: PASS come
+  compilazione cross-target, senza esecuzione o build nativa Windows.
+- Sette catture Linux/Xvfb reali acquisite e ispezionate:
+  `/workspace/scratch/leo8-integration-previews/{detail,detail-carry,detail-compact,detail-scaled,detail-bottom,detail-carry-bottom,head-popup-compact}.png`.
+  Normale: due cassetti con due stick ciascuno e vuoto fino a B35;
+  riporto: quattro stick, divisore e gap strutturale reali, B59 e dettagli
+  9 strati/pila54/ciclo2; compatta760×620 e zoom150% leggibili con Chiudi
+  accessibile. Scroll in fondo conserva coordinate/giochi/teste reali.
+  Il popup teste LEO-7 resta visibile e scorrevole nella vista compatta.
+- Compatibilità con PR19 finale `96f0e72738739c4a5fa727c4872bb76a2493ff9c`:
+  merge-tree scratch pulito dopo spostamento delle sole sezioni documentali8
+  lontano dai punti di inserimento9. Nessun codice o commit9 incorporato in20.
+  Verifica finale su head esatti e risultato conservati nel handoff.
+
+Fase: implementazione e controlli completati, handoff per due revisioni nuove.
+Il coordinatore mantiene ticket e PR, registra gli esiti e conserva i contatori.
+Le prove native rinviate non bloccano questa preparazione autorizzata; la
+successiva decisione di merge resta dell’utente.

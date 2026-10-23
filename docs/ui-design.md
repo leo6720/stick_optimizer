@@ -65,6 +65,15 @@ si modificano i dati di calcolo, evitando dettagli obsoleti. Contenuti lunghi
 scorrono separatamente dal pulsante Chiudi; la sezione adatta la propria altezza
 alle proporzioni del disegno. File mostra le scorciatoie e raggruppa i CSV.
 
+## Strato completo nel popup formato (LEO-8)
+
+La sezione mostra un solo strato orizzontale completo in ogni cassetto, con tutti
+gli stick del raggruppamento; se ci sono due cassetti li conserva entrambi.
+Contorni, divisori, B astuccio e passo mantengono i valori precedenti; lo spazio
+sopra lo strato resta vuoto. L’etichetta della vista dichiara la semplificazione.
+Strati reali, altezza pila e riporto restano nei dettagli, anche con ultimo
+strato parziale o più di 32 strati. Nessuna nuova navigazione o scelta di strato.
+
 ## Confronto funzionale con Python
 
 | Flusso | Stato Rust |
@@ -85,11 +94,9 @@ il ciclo di riporto e usa B astuccio come riferimento verticale: non introduce
 un'altezza fisica del cassetto assente dal modello. Benchmark e nuovi requisiti
 fisici richiedono un'attività separata; questa rifinitura non ne modifica le formule.
 
-## Strato completo nel popup formato (LEO-8)
-
-La sezione mostra un solo strato orizzontale completo in ogni cassetto, con tutti
-gli stick del raggruppamento; se ci sono due cassetti li conserva entrambi.
-Contorni, divisori, B astuccio e passo mantengono i valori precedenti; lo spazio
-sopra lo strato resta vuoto. L’etichetta della vista dichiara la semplificazione.
-Strati reali, altezza pila e riporto restano nei dettagli, anche con ultimo
-strato parziale o più di 32 strati. Nessuna nuova navigazione o scelta di strato.
+La tabella teste apre con doppio clic una vista frontale statica prima/dopo.
+Titolo e assegnati identificano testa e soluzione; per teste condivise il formato
+rappresentato è esplicito e selezionabile. Tutti i canali hanno un prelevatore
+nero e uno stick rosso. Quote dei centri dal core, zoom del disegno e scorrimento
+orizzontale/verticale; Chiudi resta fuori dal contenuto scorrevole. La vista
+si chiude con Esc/X/Chiudi o invalidazione, senza alterare la soluzione.

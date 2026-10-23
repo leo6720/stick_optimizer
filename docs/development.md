@@ -49,6 +49,14 @@ la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
 temporanee isolate per studi, preferenze e CSV; non usano dati utente.
 Schema e limiti di persistenza in [rust-files.md](rust-files.md).
 
+LEO-19 aggiunge prove pubbliche di quote effettive e CSV per gruppi2/3/4,
+con25/26mm, divisori e centrale strutturale; sei scelte separate/condivise
+attraversano editor→Applica→Calcola→dettagli→CSV→salva/riapri tramite eventi
+egui e IO pubblico. Si confrontano configurazione scelta completa e byte CSV,
+non soltanto rango o numero risultati. Le preferenze sono verificate in cartelle
+temporanee: lettura e Applica non scrivono; solo salvataggio esplicito modifica
+il file; errori di lettura conservano studio e sorgente.
+
 Per rigenerare le fixture del riferimento: `python scripts/python-reference.py`.
 Lo script stima prima le combinazioni (massimo 40 nei quattro casi), richiede
 risultati e non legge né scrive user_defaults.json. La suite Rust usa i file
@@ -69,7 +77,8 @@ Lo script usa Cargo in `$env:USERPROFILE\.cargo\bin`, compila la funzione
 risultati reali nella stessa area di lavoro, parametri, tipi cassetto, tipi testa,
 diagnostica senza candidati/senza passo comune, finestra compatta, zoom UI 150%
 e molte righe. Le nuove viste coprono filtri, menu File/Modifica, popup del formato
-normale/compatto/zoomato, quote dopo lo scorrimento e formato con riporto,
+normale/compatto/zoomato, quote dopo lo scorrimento e formato con riporto (`detail-carry-bottom` include
+le nuove quote del gruppo4 dopo scorrimento),
 studio salvato e riaperto, conferma modifiche non salvate e
 messaggio di errore file. L'anteprima `reopened` scrive solo
 `work/phase5/qa-roundtrip.stic`; le altre non salvano preferenze.
@@ -165,13 +174,6 @@ Questo controllo è uno smoke test del percorso principale, non una copertura co
 4. Eseguire uno smoke test con soluzione presente e casi mirati per la modifica; per la GUI, provare manualmente il flusso interessato.
 5. Aggiornare README e documentazione tecnica con comportamento e limiti reali. Riportare verifiche non eseguite.
 
-## Workflow con Linear
-
-Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
-Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
-Per vedere i controlli Rust: `python scripts/check.py --plan`.
-Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.
-
 ## Verifica LEO-8: singolo strato nel dettaglio formato
 
 Il test pubblico `core/tests/schematic.rs` usa soluzioni reali e verifica uno/due
@@ -193,3 +195,43 @@ Sul PC Windows ripetere i controlli workspace e aprire il dettaglio di formati
 con due cassetti/divisori e riporto: verificare una sola fila completa, spazio
 vuoto fino a B, quote e valori reali invariati. Cambiare formato, ridimensionare
 e provare zoom/DPI. Registrare separatamente ciò che non viene eseguito.
+
+## Workflow con Linear
+
+Il flusso condiviso cloud/PC è in [agents/workflow.md](agents/workflow.md).
+Il tracker è configurato in [agents/issue-tracker.md](agents/issue-tracker.md).
+Per vedere i controlli Rust: `python scripts/check.py --plan`.
+Per eseguirli: `python scripts/check.py`. Le prove GUI native restano necessarie.
+
+## Verifiche LEO-17
+
+`crates/core/tests/head_geometry.rs` osserva l'API pubblica delle coordinate:
+esempi approvati, raggruppamenti/divisori, canali fissi e ripetizioni, insiemi
+congiunti e non transitività, limiti esatti/oltre e input invalidi.
+I test IO verificano schema 2, migrazione Rust 1 senza scritture o perdita di
+campi, parametri personalizzati e versioni invalide; il desktop verifica
+anche il round trip delle bozze. Le fixture Python conservano esplicitamente
+il proprio divisore storico di 2 mm, indipendentemente dal nuovo predefinito.
+Su Linux il manifest Windows non abilita un backend finestra: per verificare
+il workspace senza cambiarlo, aggiungere `--features eframe/x11` ai comandi
+Cargo pertinenti. Un `cargo check --target x86_64-pc-windows-msvc` resta
+un controllo di compilazione, distinto da build/esecuzione native Windows.
+
+## Verifiche LEO-18
+
+`crates/core/tests/head_search.rs` confronta la ricerca pubblica con un
+riferimento indipendente che enumera tutte le mappe di etichette e calcola
+Pareto materializzato. Attesi fisici espliciti per gruppo4/limiti/frazioni;
+non rigenerare le fixture storiche Python dalla nuova implementazione.
+I campi invariati restano confrontati con la fixture originale. Test IO/desktop
+verificano ricostruzione di teste separate/condivise, cambio contratto motore,
+conservazione file e righe testa distinte pur con uguale chiave di prelievo.
+
+
+LEO-7 verifica quote e coordinate tramite API core pubblica e confronta le primitive
+disegnate per g2/3/4, tutti i canali e larghezze reali25/26mm. Eventi egui esercitano
+doppio clic su teste diverse, selezione del formato condiviso, Chiudi/Esc e invalidazione.
+Le anteprime `head-popup`, `head-popup-g4`, `head-popup-alternate`,
+`head-popup-compact`, `head-popup-scaled` e `head-popup-zoom` usano risultati reali;
+`head-popup-compact-bottom` e `head-popup-scaled-bottom` mostrano lo scorrimento
+in fondo. Sono prove Linux separate dall'esecuzione nativa Windows.

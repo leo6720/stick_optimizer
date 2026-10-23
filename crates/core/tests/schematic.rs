@@ -53,6 +53,20 @@ fn single_layer_view_preserves_real_geometry_and_solution_data() {
                     .filter(|s| s.x >= pocket.x && s.x + s.width <= pocket.x + pocket.width + 0.5)
                     .collect();
                 assert_eq!(sticks.len(), c.grouping as usize);
+                // Preserve the chosen assignment's actual horizontal coordinates,
+                // including the fixed central spacing in group four.
+                for (stick, &centre) in sticks.iter().zip(&c.geometry.stick_centres) {
+                    assert!((stick.x + stick.width / 2.0 - pocket.x - centre).abs() < 1e-9);
+                }
+                let dividers: Vec<_> = g
+                    .dividers
+                    .iter()
+                    .filter(|d| d.x >= pocket.x && d.x < pocket.x + pocket.width)
+                    .collect();
+                assert_eq!(dividers.len(), c.geometry.divider_lefts.len());
+                for (divider, &left) in dividers.iter().zip(&c.geometry.divider_lefts) {
+                    assert!((divider.x - pocket.x - left).abs() < 1e-9);
+                }
                 assert!(
                     sticks
                         .iter()

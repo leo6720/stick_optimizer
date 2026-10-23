@@ -29,3 +29,9 @@ Indicare cosa richiede Windows o intervento umano.>
 ## Dipendenze e rischi
 
 <Ticket bloccanti, base PR, migrazioni e ripristino se pertinenti.>
+
+## Dimensionamento
+
+<Stima totale T in token, motivazione da codice/contratti/test/review, incertezza,
+data/revisione. Target 150.000. N = max(1, ceil(T / 150000)). Piano di split e
+stime dei figli; giustificare N=1. Riferimento: docs/agents/token-sizing.md.>

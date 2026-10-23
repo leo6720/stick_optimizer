@@ -21,6 +21,9 @@ pub struct Settings {
     pub channels: u32,
     pub max_shift: f64,
     pub divider_width: f64,
+    /// Maximum excess over each assigned format's minimum moving-gap spacing, mm.
+    /// Used by final_head_geometry and exact shared-head search.
+    pub max_extra_spacing: f64,
     pub wall_width: f64,
     pub adjacent_clearance: f64,
     pub wall_clearance: f64,
@@ -37,7 +40,8 @@ impl Default for Settings {
         Self {
             channels: 12,
             max_shift: 20.0,
-            divider_width: 2.0,
+            divider_width: 7.5,
+            max_extra_spacing: 5.0,
             wall_width: 3.0,
             adjacent_clearance: 1.0,
             wall_clearance: 2.0,
@@ -112,8 +116,74 @@ impl Pitch {
     }
 }
 
+/// Solution-local identity. Separate heads remain distinct even when their
+/// pickup keys or final coordinates coincide.
+#[derive(Clone, Debug, PartialEq)]
+pub struct HeadAssignment {
+    pub id: usize,
+    pub geometry: crate::HeadGeometry,
+}
+
+/// A physical drawer type includes divider locations, not only their count.
+/// Divider identity uses a fixed 1e-9 mm grid, preserving transitive equality
+/// without changing the unrounded coordinates used for physical clearances.
+#[derive(Clone, Debug)]
+pub struct PocketType {
+    pub width: u64,
+    pub length: f64,
+    pub dividers: u32,
+    pub pockets_per_pitch: u32,
+    pub divider_lefts: Vec<f64>,
+}
+impl PartialEq for PocketType {
+    fn eq(&self, other: &Self) -> bool {
+        self.width == other.width
+            && self.length == other.length
+            && self.dividers == other.dividers
+            && self.pockets_per_pitch == other.pockets_per_pitch
+            && self.divider_lefts.len() == other.divider_lefts.len()
+            && self
+                .divider_lefts
+                .iter()
+                .zip(&other.divider_lefts)
+                .all(|(&a, &b)| divider_identity(a) == divider_identity(b))
+    }
+}
+
+fn divider_identity(position: f64) -> (bool, f64) {
+    let ticks = position * 1e9;
+    // Beyond exact f64 integer ticks, retain the original coordinate: scaling
+    // must neither overflow into a shared infinity nor erase distinct positions.
+    if ticks.is_finite() && ticks.abs() < (1_u64 << 53) as f64 {
+        (true, ticks.round())
+    } else {
+        (false, position)
+    }
+}
+
+impl Candidate {
+    pub fn pocket_type(&self) -> PocketType {
+        PocketType {
+            width: self.pocket_width,
+            length: self.pocket_length,
+            dividers: self.dividers,
+            pockets_per_pitch: self.pockets_per_pitch,
+            divider_lefts: self.geometry.divider_lefts.clone(),
+        }
+    }
+}
+
+/// Effective first-layer coordinates relative to the inner left drawer wall.
+#[derive(Clone, Debug, PartialEq)]
+pub struct PocketGeometry {
+    pub stick_centres: Vec<f64>,
+    pub divider_lefts: Vec<f64>,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {
+    pub head_id: Option<usize>,
+    pub geometry: PocketGeometry,
     pub format_id: u64,
     pub format_name: String,
     pub stick_id: u64,
@@ -147,8 +217,8 @@ pub struct Candidate {
 pub struct Solution {
     pub candidates: Vec<Candidate>,
     pub pitch: Pitch,
-    pub pocket_types: Vec<(u64, f64, u32, u32)>,
-    pub head_types: Vec<(u32, Pitch)>,
+    pub pocket_types: Vec<PocketType>,
+    pub head_types: Vec<HeadAssignment>,
     pub max_layers: u32,
     pub penalties: [f64; 5],
     pub score: f64,
@@ -173,24 +243,18 @@ impl Solution {
         a.iter().zip(b).all(|(&x, y)| x <= y) && a.iter().zip(b).any(|(&x, y)| x < y)
     }
 
-    pub(crate) fn aggregate(candidates: Vec<Candidate>, weights: &Weights) -> Self {
+    pub(crate) fn aggregate(
+        candidates: Vec<Candidate>,
+        head_types: Vec<HeadAssignment>,
+        weights: &Weights,
+    ) -> Self {
         let mut pocket_types = Vec::new();
-        let mut head_types = Vec::new();
         let mut penalties = [0.0; 5];
         let mut max_layers = 0;
         for c in &candidates {
-            let pocket = (
-                c.pocket_width,
-                c.pocket_length,
-                c.dividers,
-                c.pockets_per_pitch,
-            );
+            let pocket = c.pocket_type();
             if !pocket_types.contains(&pocket) {
                 pocket_types.push(pocket);
-            }
-            let head = (c.grouping, c.input_pitch);
-            if c.grouping != 1 && !head_types.contains(&head) {
-                head_types.push(head);
             }
             max_layers = max_layers.max(c.layers);
             for (total, value) in penalties.iter_mut().zip(c.penalties) {

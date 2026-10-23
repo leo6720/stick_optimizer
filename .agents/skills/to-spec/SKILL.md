@@ -15,3 +15,7 @@ Se manca una decisione bloccante lasciare la specifica in bozza con needs-info.
 Pubblicare nel progetto configurato quando richiesto o già autorizzato;
 altrimenti lasciare una bozza locale e indicarlo.
 Una specifica non è automaticamente un ticket implementativo pronto.
+
+Dopo la definizione funzionale, includere Dimensionamento secondo
+docs/agents/token-sizing.md: stima totale motivata e N = max(1, ceil(T / 150000)).
+Passare a to-tickets prima di ready; non saltare lo split per avviare prima il codice.
