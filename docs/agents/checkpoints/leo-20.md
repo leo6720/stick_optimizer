@@ -1,4 +1,31 @@
-# LEO-20 — metodo originale delle skill di grill
+# LEO-20 — metodo originale per grill, specifica e ticket
+
+## Ripresa su richiesta utente — revisione 2
+
+Dopo la prima consegna l'utente ha chiesto se il metodo originale comprendesse
+anche i ticket e ha risposto «facciamolo» alla proposta di allineare to-spec e
+to-tickets mantenendo Linear, sizing150k e autorizzazioni. Estensione esplicita
+persistita nel ticket il 23 ottobre 2026: supera il perimetro iniziale per queste
+due skill e i template/riferimenti connessi. Stima rivista T45000/N1, motivazione
+e incertezza nel ticket; nessun prodotto e nessuna nuova automazione.
+
+Stesso branch/PR26 e baseline main `074634d28a3d57433f87a3524a15b528cf0da1e1`;
+head della prima consegna `762f1eafa06109a54ea4e95af733a42b0e75dc25`.
+Coordinatrice modifica solo istruzioni/documentazione nel checkout isolato.
+Fase corrente: controlli documentali e due nuove revisioni sul contratto ampliato.
+Round1 PASS storico conservato sotto; round2 da concludere, nessun rilievo aperto.
+SHA del nuovo head e revisori registrati in PR/Linear prima della consegna.
+
+To-spec/to-tickets includono fonti integrali fissate, metodo operativo completo
+e precedenze locali esplicite. Template includono storie/decisioni/confini dei
+test, copertura dei criteri, revisione approvata del piano o delega esplicita.
+Nessun ready dalla sola specifica, nessun figlio bloccato pronto, parent solo
+contenitore quando suddiviso, prosecuzione autorizzata preservata.
+Test Rust non pertinenti; nessuna certificazione di caricamento automatico.
+
+---
+
+## Prima consegna — revisione 1, preservata
 
 ## Richiesta e perimetro
 

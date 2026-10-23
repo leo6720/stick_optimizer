@@ -1,9 +1,11 @@
 # Workflow di sviluppo con agenti
 
 Configurazione iniziale del 15 ottobre 2026 per LEO-5, aggiornata per
-l'intervista originale il 23 ottobre su richiesta dell'utente.
+l'intervista e la pianificazione originali il 23 ottobre su richiesta dell'utente.
 Grilling e domain-modeling sono copie integrali della fonte; i due ingressi
 grill-me/grill-with-docs adattano il caricamento ai client cloud e PC.
+To-spec e to-tickets riprendono il metodo originale con fonti integrali e
+precedenze locali esplicite per Linear, sizing e autorizzazioni.
 Le altre skill restano adattamenti locali, non un'installazione integrale
 dell'intero pacchetto né una trascrizione del video. Fonte fissata:
 https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb035946536778336
@@ -49,10 +51,17 @@ file: la presenza nel repo non garantisce registrazione o comandi slash.
    Per il lavoro sul repo usare grill-with-docs: carica anche domain-modeling,
    aggiorna termini durante il chiarimento e ADR soltanto quando qualificati,
    conserva tutte le decisioni nel ticket e richiede conferma prima di dichiararle accettate.
-2. Scrivere la specifica con criteri osservabili e confini di test.
+2. To-spec sintetizza la conversazione senza nuovo grill; concorda i confini
+   pubblici dei test (riusando accordi già presi), copre storie utente, criteri,
+   decisioni, verifiche ed esclusioni. La specifica da sola non è ready.
 3. Stimare i token della specifica e calcolare N = ceil(totale / 150.000),
    minimo uno. Scomporre e stimare i ticket secondo [token-sizing.md](token-sizing.md),
-   con criteri e dipendenze native Linear. Pronti solo i ticket esecutivi dimensionati.
+   con criteri e dipendenze native Linear. To-tickets propone tagli verticali,
+   risultato, blocchi e stime; confronta la granularità con l'utente prima della
+   pubblicazione, salvo piano già approvato o delega esplicita persistita.
+   Crea sub-issue e blocchi nativi senza chiudere il parent; pronti solo i ticket
+   esecutivi dimensionati e autorizzati con dipendenze risolte. I refactor ampi
+   seguono expand–contract con build coerenti, senza branch condivisi impliciti.
 4. Ogni ticket si sviluppa in un contesto nuovo, con branch e PR propri.
    Lavorare una modifica alla volta; test-first per comportamento e bug,
    controlli proporzionati per documentazione e cambi cosmetici.

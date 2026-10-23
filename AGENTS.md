@@ -105,6 +105,11 @@ per round di domande indipendenti, con raccomandazioni e conferma finale;
 non sostituirlo con un chiarimento abbreviato. `grill-me` non scrive artefatti,
 `grill-with-docs` conserva inoltre documentazione e decisioni del ticket.
 Fonte fissata e differenze: [.agents/skills/UPSTREAM.md](.agents/skills/UPSTREAM.md).
+To-spec e to-tickets leggono anche i rispettivi riferimenti originali integrali;
+le precedenze locali su ready, parent, Linear e prosecuzione restano prevalenti.
+Conservare tutti i passaggi: confini pubblici di test concordati, specifica
+completa, confronto della suddivisione e pubblicazione come sub-issue con blocchi
+nativi. Riutilizzare approvazioni o deleghe esplicite già valide senza ripeterle.
 Dopo il grill, prima di ready o sviluppo, stimare e scomporre secondo
 [dimensionamento in token](docs/agents/token-sizing.md): circa 150.000 token
 per ticket, N = ceil(stima totale / 150.000), contesti esecutivi separati.
