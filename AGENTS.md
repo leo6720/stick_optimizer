@@ -99,6 +99,12 @@ applicare tutti i gate di async-workflow.md. Non autorizza ticket sconosciuti.
 Implementatore e ciascun revisore usano contesti nuovi `fork_turns: "none"`.
 Le skill locali sono in `.agents/skills/<nome>/SKILL.md`; se il client non le
 rileva, leggere il file su richiesta. Non presumere disponibilità di slash command.
+Per il grill leggere anche le dipendenze esplicite: `grilling` per `grill-me`,
+`grilling` e `domain-modeling` per `grill-with-docs`. Il metodo originale lavora
+per round di domande indipendenti, con raccomandazioni e conferma finale;
+non sostituirlo con un chiarimento abbreviato. `grill-me` non scrive artefatti,
+`grill-with-docs` conserva inoltre documentazione e decisioni del ticket.
+Fonte fissata e differenze: [.agents/skills/UPSTREAM.md](.agents/skills/UPSTREAM.md).
 Dopo il grill, prima di ready o sviluppo, stimare e scomporre secondo
 [dimensionamento in token](docs/agents/token-sizing.md): circa 150.000 token
 per ticket, N = ceil(stima totale / 150.000), contesti esecutivi separati.

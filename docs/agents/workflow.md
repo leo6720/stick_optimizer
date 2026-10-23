@@ -1,9 +1,13 @@
 # Workflow di sviluppo con agenti
 
-Configurazione del 15 ottobre 2026 per LEO-5. È un adattamento locale,
-non l'installazione integrale delle skill di Matt Pocock né una trascrizione
-del video. Riferimento consultato:
+Configurazione iniziale del 15 ottobre 2026 per LEO-5, aggiornata per
+l'intervista originale il 23 ottobre su richiesta dell'utente.
+Grilling e domain-modeling sono copie integrali della fonte; i due ingressi
+grill-me/grill-with-docs adattano il caricamento ai client cloud e PC.
+Le altre skill restano adattamenti locali, non un'installazione integrale
+dell'intero pacchetto né una trascrizione del video. Fonte fissata:
 https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb035946536778336
+File importati, licenza e differenze: [.agents/skills/UPSTREAM.md](../../.agents/skills/UPSTREAM.md).
 
 ## Avvio asincrono
 
@@ -20,22 +24,31 @@ Senza tale autorizzazione persistita il runner non inventa ready.
 Aggiungi in Linear un'idea, un bug o un esempio nel progetto Stick Optimizer.
 Poi chiedi, per esempio:
 - «Chiarisci LEO-N con grill-with-docs».
+- «Metti alla prova questa idea con grill-me» (sola intervista, senza scrivere file o Linear).
 - «Trasforma questa richiesta in una specifica con to-spec».
 - «Dividi la specifica in ticket con to-tickets».
 - «Implementa LEO-N».
 - «Rivedi la PR rispetto alla specifica e agli standard».
 - «Fai la retrospettiva della sessione».
 
-Le sette skill locali sono in .agents/skills/: grill-with-docs, to-spec,
-to-tickets, implement, tdd, code-review, retro. Aprire il relativo SKILL.md.
+Le dieci skill locali sono in .agents/skills/: grill-me, grill-with-docs,
+grilling, domain-modeling, to-spec, to-tickets, implement, tdd, code-review, retro.
+Aprire il relativo SKILL.md e tutte le dipendenze che indica.
 Su client che le rilevano automaticamente si possono usare i comandi del client.
 Se il cloud non le mostra nel catalogo, chiedere esplicitamente di leggere il
 file: la presenza nel repo non garantisce registrazione o comandi slash.
 
 ## Flusso
 
-1. Chiarire solo le decisioni mancanti che cambiano comportamento o perimetro.
-   Prima leggere codice, glossario e documentazione; non chiedere fatti reperibili.
+1. Su richiesta dell'utente, applicare grilling integralmente: albero delle decisioni,
+   round con l'intera frontiera di domande indipendenti e una raccomandazione per
+   ciascuna; attendere le risposte prima delle domande dipendenti. Prima leggere
+   codice, glossario e documentazione e delegare la ricerca dei fatti reperibili.
+   Decisioni già accettate restano risolte; approfondire le assunzioni mancanti
+   fino alla frontiera vuota e alla conferma dell'intesa, senza allargare il perimetro.
+   Per il lavoro sul repo usare grill-with-docs: carica anche domain-modeling,
+   aggiorna termini durante il chiarimento e ADR soltanto quando qualificati,
+   conserva tutte le decisioni nel ticket e richiede conferma prima di dichiararle accettate.
 2. Scrivere la specifica con criteri osservabili e confini di test.
 3. Stimare i token della specifica e calcolare N = ceil(totale / 150.000),
    minimo uno. Scomporre e stimare i ticket secondo [token-sizing.md](token-sizing.md),
