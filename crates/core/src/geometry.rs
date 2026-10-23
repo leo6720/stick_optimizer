@@ -14,13 +14,13 @@ pub struct Geometry {
     pub pockets: Vec<GeometryRect>,
     pub dividers: Vec<GeometryRect>,
     pub sticks: Vec<GeometryRect>,
-    pub truncated: bool,
 }
 /// The outline height is carton B, not an assumed physical pocket height.
-/// At most 32 layers are drawn; quotas remain those of the full candidate.
+/// Draw one complete horizontal layer per pocket, even when the last real
+/// layer is partial. The candidate and full-height outline remain unchanged.
 pub fn schematic(study: &Study, c: &Candidate) -> Option<Geometry> {
     let s = study.sticks.iter().find(|s| s.id == c.stick_id)?;
-    let f = study
+    study
         .formats
         .iter()
         .find(|f| f.id == c.format_id && f.stick_id == s.id)?;
@@ -42,7 +42,6 @@ pub fn schematic(study: &Study, c: &Candidate) -> Option<Geometry> {
         pockets: vec![],
         dividers: vec![],
         sticks: vec![],
-        truncated: c.layers > 32,
     };
     for pocket in 0..c.pockets_per_pitch {
         let left = f64::from(pocket) * c.pocket_pitch + p.wall_width;
@@ -60,18 +59,13 @@ pub fn schematic(study: &Study, c: &Candidate) -> Option<Geometry> {
                 height: c.carton_b,
             });
         }
-        for (slot, &centre) in c.geometry.stick_centres.iter().enumerate() {
-            for layer in 0..c.layers.min(32) {
-                if u64::from(layer) * u64::from(c.grouping) + (slot as u64) < u64::from(f.quantity)
-                {
-                    g.sticks.push(GeometryRect {
-                        x: left + centre - s.width / 2.0,
-                        y: f64::from(layer) * s.thickness,
-                        width: s.width,
-                        height: s.thickness,
-                    });
-                }
-            }
+        for &centre in &c.geometry.stick_centres {
+            g.sticks.push(GeometryRect {
+                x: left + centre - s.width / 2.0,
+                y: 0.0,
+                width: s.width,
+                height: s.thickness,
+            });
         }
     }
     Some(g)
@@ -82,7 +76,7 @@ mod tests {
     use super::*;
     use crate::{Format, SearchControl, SearchLimits, Settings, Stick, Weights, optimize};
     #[test]
-    fn drawing_matches_real_candidates_partial_layers_and_all_compartments() {
+    fn drawing_shows_one_complete_layer_without_changing_real_candidates() {
         let mut study = Study {
             sticks: vec![Stick {
                 id: 1,
@@ -115,23 +109,24 @@ mod tests {
                 g.dividers.len(),
                 (c.dividers * c.pockets_per_pitch) as usize
             );
-            assert_eq!(g.sticks.len(), 7 * c.pockets_per_pitch as usize);
+            assert_eq!(g.sticks.len(), (c.grouping * c.pockets_per_pitch) as usize);
             assert_eq!(g.width, c.cartoner_pitch.mm());
             assert_eq!(g.height, c.carton_b);
-            assert!(!g.truncated);
             for r in g.sticks {
                 assert_eq!(r.width, 25.0);
                 assert_eq!(r.height, 6.0);
                 assert!(r.y + r.height <= c.stack_height);
                 assert!(r.x + r.width <= g.width + 0.5);
             }
-            // Protect render cost even with very high layer limits.
+            // The represented layer does not grow with the actual layer count.
             let mut huge = c.clone();
             huge.layers = u32::MAX;
             study.formats[0].quantity = u32::MAX;
             let limited = schematic(&study, &huge).unwrap();
-            assert!(limited.truncated);
-            assert!(limited.sticks.len() <= 256);
+            assert_eq!(
+                limited.sticks.len(),
+                (c.grouping * c.pockets_per_pitch) as usize
+            );
             study.formats[0].quantity = 7;
             let mut invalid = c.clone();
             invalid.grouping = 9;

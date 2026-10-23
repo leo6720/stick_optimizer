@@ -110,6 +110,7 @@ impl FilterEditor {
 
 pub fn draw_geometry(ui: &mut egui::Ui, g: &stick_optimizer_core::Geometry) {
     ui.label(RichText::new("Sezione schematica · quote in mm · contorno alto B astuccio").small());
+    ui.label(RichText::new("Vista semplificata: un solo strato completo per cassetto.").small());
     let width = ui.available_width().max(250.0);
     let height = ((f64::from(width - 48.0) * g.height / g.width + 64.0) as f32).clamp(140.0, 260.0);
     let (area, _) = ui.allocate_exact_size(egui::vec2(width, height), egui::Sense::hover());
@@ -157,9 +158,6 @@ pub fn draw_geometry(ui: &mut egui::Ui, g: &stick_optimizer_core::Geometry) {
         egui::FontId::proportional(13.0),
         Color32::DARK_GRAY,
     );
-    if g.truncated {
-        ui.label("Sono disegnati solo i primi 32 strati; le quote e i risultati restano completi.");
-    }
 }
 
 #[cfg(test)]

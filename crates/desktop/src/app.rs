@@ -1718,6 +1718,71 @@ mod tests {
     }
 
     #[test]
+    fn format_popup_switches_the_single_layer_and_preserves_real_details() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        ctx.global_style_mut(|style| style.animation_time = 0.0);
+        calculate(&mut app);
+        let candidates = app.results[0].solution.candidates.clone();
+        app.detail_popup = Some((1, candidates[0].format_id));
+        for _ in 0..4 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        for (index, candidate) in candidates.iter().enumerate() {
+            if index > 0 {
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                let position = |output: &egui::FullOutput, label: &str| {
+                    output
+                        .shapes
+                        .iter()
+                        .rev()
+                        .find_map(|shape| match &shape.shape {
+                            egui::epaint::Shape::Text(t) if t.galley.job.text == label => {
+                                Some(t.pos + t.galley.size() / 2.0)
+                            }
+                            _ => None,
+                        })
+                        .unwrap_or_else(|| panic!("Missing popup choice {label}"))
+                };
+                let pos = position(&output, &candidates[index - 1].format_name);
+                click_at(&ctx, &mut app, pos);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                let pos = position(&output, &candidate.format_name);
+                click_at(&ctx, &mut app, pos);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            assert_eq!(app.detail_popup, Some((1, candidate.format_id)));
+            text_position(
+                &output,
+                "Vista semplificata: un solo strato completo per cassetto.",
+                0.0,
+            );
+            text_position(
+                &output,
+                &format!(
+                    "Passo {} mm  ·  B {} mm",
+                    format_number(candidate.cartoner_pitch.mm()),
+                    format_number(candidate.carton_b)
+                ),
+                0.0,
+            );
+            let rectangles = output
+                .shapes
+                .iter()
+                .filter(|shape| {
+                    matches!(&shape.shape,
+                egui::epaint::Shape::Rect(r) if r.fill == Color32::from_rgb(248, 220, 220))
+                })
+                .count();
+            assert_eq!(
+                rectangles,
+                (candidate.grouping * candidate.pockets_per_pitch) as usize
+            );
+            assert_eq!(app.results[0].solution.candidates, candidates);
+        }
+    }
+
+    #[test]
     fn head_double_click_keeps_solution_and_head_identity_and_closes_stale_views() {
         for index in 0..2 {
             let ctx = egui::Context::default();

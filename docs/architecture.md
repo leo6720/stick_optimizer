@@ -53,7 +53,8 @@ conservano input e stato della vista, rigenerando in background eventuali
 risultati alla riapertura. La sostituzione dello studio avviene solo dopo la
 validazione completa del file. Le preferenze vengono scritte esplicitamente
 nella cartella locale dell'utente, mai nei dati Python. `core/geometry.rs`
-produce le primitive in mm della sezione statica: la GUI le disegna senza
+produce le primitive in mm della sezione statica con un solo strato completo
+per cassetto, contorni B e divisori invariati: la GUI le disegna senza
 ricalcolare vincoli o metriche. I filtri della vista non modificano il motore.
 Schema, CSV, rappresentazione del riporto e limiti in `rust-files.md`.
 LEO-17 aggiunge `core/head.rs`, API pubblica per coordinate finali e

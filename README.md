@@ -58,7 +58,9 @@ selezione. Salva richiede input completi e validi. La chiusura segnala le
 modifiche non salvate. **File → Esporta** scrive le soluzioni visibili o il
 dettaglio selezionato in CSV. **Filtri…** permette di limitare passo, cassetti,
 teste, strati e punteggio. Nella **Panoramica formati**, il doppio clic su una
-riga apre quote complete e disegno nello stesso popup; **Apri dettaglio…**
+riga apre quote complete e disegno nello stesso popup. Il disegno mostra un solo
+strato completo per cassetto, mantenendo contorni, divisori, B astuccio e passo;
+i dettagli conservano strati reali, altezza pila e riporto. **Apri dettaglio…**
 apre il formato selezionato, oppure il primo. Il popup permette di cambiare
 formato ed è chiudibile con Esc. La vista grafica non è una scheda separata.
 Ctrl+O apre, Ctrl+S salva, Ctrl+Maiusc+S salva con nome e Ctrl+N crea un nuovo

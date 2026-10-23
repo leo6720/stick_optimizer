@@ -139,12 +139,16 @@ formati o da Apri dettaglio, raccoglie quote e disegno nella stessa finestra.
 Permette di scegliere un formato della soluzione di origine e si chiude con Esc.
 Il core produce rettangoli in mm;
 la GUI li scala e disegna. La sezione rappresenta cassetti per passo,
-compartimenti, divisori e strati. Il contorno verticale usa B astuccio come
+compartimenti, divisori e un solo strato completo per ogni cassetto. Il contorno verticale usa B astuccio come
 riferimento, non un'altezza fisica del cassetto non definita dal modello.
-L'ultimo strato è parziale quando la quantità non è divisibile per il gruppo;
-il ciclo di riporto è indicato, non simulato. Si disegnano al massimo 32 strati
-con avviso, mantenendo quote e risultati completi. Le formule delle penalità restano quelle esistenti; LEO-18 usa larghezze
-effettive arrotondate per eccesso per conservare i giochi fisici.
+Il disegno mostra il primo strato completo anche quando l’ultimo strato reale
+è parziale: uno stick affiancato per ogni posizione del raggruppamento, in
+entrambi i cassetti quando sono due. Lo spazio sopra resta vuoto senza ridurre B.
+I dettagli mantengono quantità, strati reali, altezza pila e riporto. Non c’è
+un limite grafico di 32 strati né relativo avviso: viene rappresentato sempre
+un solo strato. Il ciclo di riporto è indicato, non simulato. Arrotondamento della
+larghezza cassetto e formule del motore restano invariati: LEO-18 usa
+coordinate effettive e arrotondamento per eccesso per conservare i giochi fisici.
 
 ## Verifiche residue
 
