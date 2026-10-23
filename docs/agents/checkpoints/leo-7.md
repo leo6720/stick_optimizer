@@ -7,7 +7,8 @@
 - Baseline: `86c8e9ddb6c9d25a855a5b7583126c0acdf95cbb`.
 - Branch/worktree: `codex/leo-7-async`, `/workspace/stick-leo-7`.
 - Cycle0; no independent review yet, no open finding.
-- Phase: implementation milestone; final checks/screens/review remain.
+- Phase: implementation and final validation complete; frozen for two independent reviews.
+- Product milestone pushed: `d253a6d`; final refinement/checkpoint commit follows.
 
 ## Dependency acceptance verified before claim
 
@@ -53,3 +54,64 @@ RUSTUP_HOME=/workspace/scratch/rust-toolchains,
 CARGO_TARGET_DIR=/workspace/stick-rust-validation/target; --locked --offline.
 Final fmt/check/Clippy/workspace tests/release/MSVC and Linux captures remain.
 No user data touched, no merge/deploy/new automation, no other ticket.
+
+
+## Final validation and frozen review handoff
+
+Scope remains accepted120k/N1; no further split or product decision indicated.
+No product changes after the final Rust checks below. The final commit adds the
+already-checked precision/fit/identity refinements and this documentary evidence.
+Cycle0 until coordinator starts two fresh `fork_turns:none` reviewers.
+
+| Actual command | Result |
+| --- | --- |
+| cargo fmt --all -- --check | PASS |
+| cargo check --workspace --all-targets --all-features --features eframe/x11 --locked --offline | PASS |
+| cargo clippy --workspace --all-targets --all-features --features eframe/x11 --locked --offline -- -D warnings | PASS |
+| cargo test --workspace --all-features --features eframe/x11 --locked --offline | PASS79:29core+39desktop+11IO |
+| cargo build --workspace --release --features eframe/x11 --locked --offline | PASS |
+| cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked --offline | PASS compilation only |
+| cargo build -p stick-optimizer-desktop --features ui-preview,eframe/x11 --locked --offline | PASS |
+| git diff --check | PASS |
+
+Test-first public API and missing popup compilation failures were observed before
+implementation. The final renderer checks independently approved expected centre
+arrays, all12 black grippers/red sticks and actual25/26mm widths for g2/3/4, before
+and after; no solution mutation. Actual egui double clicks open two different
+heads, preserve rank/ID, change the shared format via ComboBox, and close via
+Chiudi/Esc; invalidation closes stale views. The existing same-pickup-key test now
+also double clicks the second separate head and verifies its own rank/ID/format.
+
+Initial selector test clicked an identically named sidebar field; limiting the
+coordinate lookup to the popup fixed the harness, without production change.
+Immediate close/reopen clicks in one context were intercepted by egui's closing
+window fade, so independent-head interactions use fresh contexts. Clippy first
+requested one collapsed nested-if; corrected and all final checks above passed.
+No failure or test omission is hidden. Measurements use full f64 round-trip
+precision from the read-only core projection, with Italian decimal separators.
+
+Nine fresh actual native Linux Xvfb runs exited0, captured and individually
+visually inspected: head-popup, head-popup-compact, head-popup-compact-bottom,
+head-popup-scaled, head-popup-scaled-bottom, head-popup-zoom, head-popup-g3,
+head-popup-g4, head-popup-alternate. All12 channels fit at drawing zoom1; compact
+and150% UI scroll reach the complete lower view/centre quotation while Chiudi
+remains visible. Drawing zoom1.5 exposes horizontal scroll. Shared alternate
+shows actual B26mm rather than A25mm with the same fixed geometry. G3 shows
+36.5/36.5mm and613mm final span; G4 shows26/60/26mm,592mm final span and fixed
+central pair; pickup span660mm distinct from retained720mm head_width.
+Screenshots/logs in /tmp/leo7-gui; Rust logs /tmp/leo7-{fmt,check,clippy,workspace,
+release,msvc,preview-build}.log. Temporary display server terminated.
+
+Self-review: core diff adds a read-only measurement projection only; final_head_geometry,
+search, dimensions/constraints, metrics, weights, ranking, CSV and file schema are
+unchanged. GUI uses explicit solution-local IDs and selected actual format widths;
+only screen projection arithmetic. New view does not mutate solutions. This
+self-review does not replace two fresh independent reviewer contexts.
+
+Native Windows execution, physical input, Windows file pickers and multi-monitor
+DPI remain unexecuted; MSVC is compilation only. No new mandatory human gate is
+identified by this implementation, subject to independent review. No user data
+written, no merge/deploy/automation/new ticket. Coordinator owns PR/Linear.
+Next: review entire baseline→final remote head, fix concrete findings within
+accepted scope and persist review cycles (maximum3 unresolved), no product edits
+until review feedback.

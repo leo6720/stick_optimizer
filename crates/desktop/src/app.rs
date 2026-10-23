@@ -223,6 +223,7 @@ impl PrototypeApp {
                 | "head-popup-scaled-bottom"
                 | "head-popup-compact-bottom"
                 | "head-popup-zoom"
+                | "head-popup-g3"
                 | "head-popup-g4"
                 | "head-popup-alternate",
             ) => {
@@ -1372,14 +1373,13 @@ Dimensioni in mm",
                             .and_then(|p| {
                                 solution.head_types.iter().position(|h| h.id == p.head_id)
                             }),
-                    ) {
-                        if open {
-                            self.head_popup = heads::HeadPopup::new(
-                                result.id,
-                                solution,
-                                solution.head_types[index].id,
-                            );
-                        }
+                    ) && open
+                    {
+                        self.head_popup = heads::HeadPopup::new(
+                            result.id,
+                            solution,
+                            solution.head_types[index].id,
+                        );
                     }
                     ui.label(
                         RichText::new("Doppio clic su una testa per la vista prima/dopo.")
@@ -2353,6 +2353,13 @@ mod tests {
             assert!(!texts.contains(&"F0, F1"));
             assert_eq!(app.selected, Some(identity));
         }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let pos = text_position(&output, "Testa 2", 400.0);
+        click_at(&ctx, &mut app, pos);
+        click_at(&ctx, &mut app, pos);
+        let popup = app.head_popup.as_ref().unwrap();
+        assert_eq!((popup.rank, popup.head_id), (identity, 1));
+        assert_eq!(popup.format_id, 1);
     }
 
     #[test]

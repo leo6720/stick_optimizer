@@ -2,6 +2,11 @@
 use super::*;
 use stick_optimizer_core::{HeadGeometry, head_diagram_dimensions};
 
+// Preserve the core value's round-trip precision in mm labels.
+fn measurement(value: f64) -> String {
+    value.to_string().replace('.', ",")
+}
+
 pub(super) struct HeadPopup {
     pub rank: usize,
     pub head_id: usize,
@@ -28,12 +33,25 @@ impl PrototypeApp {
             && self.job.is_none()
             && let Ok(mode) = std::env::var("STICK_OPTIMIZER_PREVIEW")
             && mode.starts_with("head-popup")
-            && let Some(result) = self.results.first()
-            && let Some(head) =
+            && let Some(result) = self.results.iter().find(|r| {
+                mode != "head-popup-g3"
+                    || r.solution
+                        .head_types
+                        .iter()
+                        .any(|h| h.geometry.grouping == 3)
+            })
+            && let Some(head) = if mode == "head-popup-g3" {
+                result
+                    .solution
+                    .head_types
+                    .iter()
+                    .find(|h| h.geometry.grouping == 3)
+            } else {
                 result
                     .solution
                     .head_types
                     .get(if mode == "head-popup-g4" { 1 } else { 0 })
+            }
         {
             self.head_popup = HeadPopup::new(result.id, &result.solution, head.id);
             if let Some(popup) = self.head_popup.as_mut() {
@@ -88,18 +106,18 @@ impl PrototypeApp {
                     ui.label(RichText::new("Vista esemplificativa statica · traversa e prelevatori stilizzati, senza quote costruttive.").small().color(MUTED));
                     if let Some(c) = candidates.iter().find(|c| c.format_id == popup.format_id)
                         && let Some(stick) = study.sticks.iter().find(|s| s.id == c.stick_id) {
-                        ui.label(format!("{} · larghezza stick {} mm", c.format_name, format_number(stick.width)));
+                        ui.label(format!("{} · larghezza stick {} mm", c.format_name, measurement(stick.width)));
                         let quotes = head_diagram_dimensions(&head.geometry);
-                        ui.label(format!("Passo di prelievo: {} mm", format_number(head.geometry.pickup_pitch.mm())));
-                        if let Some(pitch) = quotes.group_pitch { ui.label(format!("Passo fra gruppi: {} mm", format_number(pitch))); }
-                        ui.label(format!("Interassi finali nel gruppo: {} mm", quotes.final_spacings.iter().map(|&v|format_number(v)).collect::<Vec<_>>().join(" / ")));
+                        ui.label(format!("Passo di prelievo: {} mm", measurement(head.geometry.pickup_pitch.mm())));
+                        if let Some(pitch) = quotes.group_pitch { ui.label(format!("Passo fra gruppi: {} mm", measurement(pitch))); }
+                        ui.label(format!("Interassi finali nel gruppo: {} mm", quotes.final_spacings.iter().map(|&v|measurement(v)).collect::<Vec<_>>().join(" / ")));
                         for (before, title, span) in [(true, "Prima del raggruppamento", quotes.pickup_span), (false, "Dopo il raggruppamento", quotes.final_span)] {
                             ui.separator(); ui.strong(title);
                             let canvas_width = ui.available_width().max(280.0) * popup.zoom;
                             egui::ScrollArea::horizontal().id_salt(("head_drawing", before)).show(ui, |ui| {
                                 draw_front(ui, &head.geometry, stick.width, before, canvas_width);
                             });
-                            ui.label(format!("Distanza primo–ultimo centro: {} mm", format_number(span)));
+                            ui.label(format!("Distanza primo–ultimo centro: {} mm", measurement(span)));
                         }
                     }
                     #[cfg(feature = "ui-preview")]
