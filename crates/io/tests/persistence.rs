@@ -570,3 +570,51 @@ fn group_one_csv_has_explicit_empty_head_fields_and_join_errors_are_reported() {
     wrong.sticks.clear();
     assert!(details_csv(&wrong, 1, s).is_err());
 }
+
+#[test]
+fn ui_theme_is_versioned_separate_and_round_trips_without_touching_parameters() {
+    let temp = Temp::new();
+    let path = temp.0.join("ui-preferences-v1.json");
+    let parameters = temp.0.join("preferences-v1.json");
+    std::fs::write(&parameters, b"parameter sentinel").unwrap();
+    assert_eq!(load_ui_preferences(&path).unwrap().theme, Theme::Light);
+    assert!(!path.exists(), "reading defaults must not create a file");
+    save_ui_preferences(&path, &UiPreferences { theme: Theme::Dark }).unwrap();
+    assert_eq!(load_ui_preferences(&path).unwrap().theme, Theme::Dark);
+    let wire: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    assert_eq!(
+        wire,
+        serde_json::json!({"schema":"stick-optimizer-ui-preferences","version":1,"theme":"dark"})
+    );
+    save_ui_preferences(&path, &UiPreferences::default()).unwrap();
+    assert_eq!(load_ui_preferences(&path).unwrap().theme, Theme::Light);
+    assert_eq!(std::fs::read(parameters).unwrap(), b"parameter sentinel");
+}
+
+#[test]
+fn ui_preferences_reject_invalid_files_and_failed_writes_preserve_existing_data() {
+    let temp = Temp::new();
+    let path = temp.0.join("ui.json");
+    for bytes in [
+        "{broken",
+        "{}",
+        r#"{"schema":"stick-optimizer-ui-preferences","version":2,"theme":"dark"}"#,
+        r#"{"schema":"study","version":1,"theme":"dark"}"#,
+        r#"{"schema":"stick-optimizer-ui-preferences","version":1,"theme":"system"}"#,
+        r#"{"schema":"stick-optimizer-ui-preferences","version":1,"theme":"dark","settings":{}}"#,
+    ] {
+        std::fs::write(&path, bytes).unwrap();
+        assert!(load_ui_preferences(&path).is_err());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), bytes);
+    }
+    let directory = temp.0.join("cannot-replace-directory");
+    std::fs::create_dir(&directory).unwrap();
+    std::fs::write(directory.join("keep"), b"keep").unwrap();
+    assert!(save_ui_preferences(&directory, &UiPreferences { theme: Theme::Dark }).is_err());
+    assert_eq!(std::fs::read(directory.join("keep")).unwrap(), b"keep");
+    assert_eq!(
+        std::fs::read_dir(&temp.0).unwrap().count(),
+        2,
+        "no sibling temporary file left"
+    );
+}

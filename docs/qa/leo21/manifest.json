@@ -1,0 +1,839 @@
+{
+  "baseline": "44bb771d7e87a89b08cba07103316c3b333e302c",
+  "product_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+  "source_head": "1c4615fbfb74e0ee4fc8e0a3970f53cf1de3aef0",
+  "provenance": "Actual eframe Glow viewport screenshots on Linux Xvfb; unchanged RGBA pixels after lossless PNG compression. No generated concepts. Source head change only affects the components QA fixture.",
+  "date": "2026-10-23",
+  "count": 46,
+  "native_windows_executed": false,
+  "screenshots": [
+    {
+      "mode": "results",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/results-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "3aa217be3ea106a2b680e632e98d50e133835fafecaa3a71753131b5f5c6335f",
+      "png_sha256": "805b9c2a74427e2897a1731d3a28e086930d52d280d93eca3116ee680bde20cb",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 207140
+    },
+    {
+      "mode": "results",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/results-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "5cefb68bf33aad57751eeafe44b2b95baa99794d2a4beec63956a6820856226d",
+      "png_sha256": "a365091a6cc9c1920a9877d6736233d2a28737df42104ca84de4340ea8de12ca",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 208855
+    },
+    {
+      "mode": "edit-menu",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/edit-menu-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "9597c06464ebba25f902cb827207a464d8a04b29d67fec0b2e24c45475fb30c4",
+      "png_sha256": "f0ac9841b02234c653e44d0111cd2368545fdcc77a527e5e92fb66b177791972",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 136531
+    },
+    {
+      "mode": "edit-menu",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/edit-menu-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "3851f263c05ac7dfebf1c5e97f6292a711a5f1d0556da5325ca5399a08f2fad6",
+      "png_sha256": "db4d8576a8b63374f0307c8256e49882db8c027a65764892bb11cec664398a3c",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 135163
+    },
+    {
+      "mode": "parameters",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/parameters-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "fc1036d163344e884de288894e50fb721edf23adfc47e22066aa2cc67a2ac131",
+      "png_sha256": "3e5dd339022f3264ab68156f4492d7c47d11dcf90d0a807a99914f578e8f0eb1",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 199515
+    },
+    {
+      "mode": "parameters",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/parameters-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "355a58472348efecb98a960c4c6be945efb3edeabae0d97d71b473f245a97e7b",
+      "png_sha256": "c619dc0a42218aece48e4fb9573cfbd6ee05db891df4a821095ac519d45add18",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 198479
+    },
+    {
+      "mode": "filters",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/filters-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "3566838b6352ddd2ad0b55218b870b2296e2fe7c40b91f4d7503cc9821187840",
+      "png_sha256": "0584217e96e5b81df3d16cc4e517584f2fd5687df346092b54366aad9ae23dc8",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 218647
+    },
+    {
+      "mode": "filters",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/filters-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "43813881e878a54fd13a1b5da61b969c031ad009205b04a843761e0d07a4b43f",
+      "png_sha256": "bd15478b124208950908a5494ee2f036c0ec950e82cbdba9f5d9674e265ce192",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 220530
+    },
+    {
+      "mode": "progress",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "d157d0163fcda15f9a79988767541db8f605cc90c9ca5e79e4cdc9da6d366da6",
+      "png_sha256": "a38582846af66e36d8b4b6a952d8adecd7b305e2f4d5deba12678efe8bd087c6",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 147320
+    },
+    {
+      "mode": "progress",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "ecaf84d006e263fb47a50fa09df396bfe5f58e6c80710661a0ec722764b6ce9b",
+      "png_sha256": "f55db257ca0e165edae42ca0b744698417bc6d489e1fc263346ce3081599f341",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 145502
+    },
+    {
+      "mode": "progress-preparing",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-preparing-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "6189d5988efd78f30d1a39c16ebc06180e50046936d7bf6b481b52f4b47c9b38",
+      "png_sha256": "968f00728a97cba9859e759b80eb9bc5f2dcadbb6a0010cf6e5a511055d0adb0",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 146638
+    },
+    {
+      "mode": "progress-preparing",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-preparing-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "c5ff5ad23509eb9018587bef270d3ac0e843574d1a0a9835b691c78562f3dc18",
+      "png_sha256": "a0caf905f1cb46d69a8365e07c19fae53e9cf532940b98192d95f5de5cb1affc",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 144607
+    },
+    {
+      "mode": "progress-finalizing",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-finalizing-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "207891e9ca431765a2443e1d72f665fb4cb0fdeebdddb3a1a7dbc79306a2e29f",
+      "png_sha256": "98c9a0fd55ed63434fc14d4465445bb836eb421da6c073cfec5adebf1f83eccd",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 146341
+    },
+    {
+      "mode": "progress-finalizing",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-finalizing-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "7fd207dc282ec05a26b42aa1fd282d2c0fe84b87776225e7f334daebeedc8d4b",
+      "png_sha256": "f30b16d21df7c85eea3b4e6de26a108835f8e78f4b97cace72ddefa40cc70a25",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 144307
+    },
+    {
+      "mode": "progress-cancelling",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-cancelling-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "fc7d81568bd9ded5a067e1578fb4e3441d3e60f0ab9a212d76cc12ee27551c1c",
+      "png_sha256": "bc896085306576814c606557fec0202bc7d9863277647890d751a5719435056c",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 145021
+    },
+    {
+      "mode": "progress-cancelling",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/progress-cancelling-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "60b45d75c65e35e04865db9c9951297a617e3e97a18e2a60ffae32c2c6832a1f",
+      "png_sha256": "e73a98e1fdfb85c2ac3d44fa03642838dea037a01209ff4839ad81c8d8bdeed9",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 142615
+    },
+    {
+      "mode": "detail",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/detail-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "449ba9c490af2f33bec932dd5abe60c4d197b0aa40e000b90e0bf4070e199a12",
+      "png_sha256": "3e64ae2834ce59a76e199ed15b9762029561f855481ffcb60dc3b4557978c3d8",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 198549
+    },
+    {
+      "mode": "detail",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/detail-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "7148063814a0ceb035824ffb4d49eabb800471d155987e12248cd33f8c0d8200",
+      "png_sha256": "e6332013680eea25309cfde89e4e5b1cd24a885121bc1ea4de17328c41bdcba0",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 201740
+    },
+    {
+      "mode": "detail-bottom",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/detail-bottom-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "b2b3c23f84d190b33fb8ae536124a91e0e1ce510dd8c065abd62fe9499d9549f",
+      "png_sha256": "ea045faad39a85eaccf41d8a37cd0924d2deb741047216194c9d96bd4fba3f40",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 233757
+    },
+    {
+      "mode": "detail-bottom",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/detail-bottom-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "f2297de6936548384f1da74c5219b2c1297c2ef032fa28234cfb3ac8d7c2c2fb",
+      "png_sha256": "1f4b26383b37c3ab77cc3d6f2214c99242f0a7b10271535a20777b714f78b94f",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 236149
+    },
+    {
+      "mode": "head-popup",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/head-popup-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "bd1b42431adce27d17524c7288777b92388c2ea14e8928bf71be05bc8b4dc2ed",
+      "png_sha256": "f48f6c20d2f87c1bca3053a3d0f76c303c746fccf18a2f0a45158cc3a6ed2811",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 181704
+    },
+    {
+      "mode": "head-popup",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/head-popup-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "7a9b74a5c0fe23e57a591c529045687b8e4397ff7938039d654abf728fb866c8",
+      "png_sha256": "f29bee40a0dd3dce1a213c15bd926d3903c899e4ae1059ccfe3c2103a16095fc",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 181405
+    },
+    {
+      "mode": "components",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/components-1450x900-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "1c4615fbfb74e0ee4fc8e0a3970f53cf1de3aef0",
+      "pixel_sha256": "e2df1267b4573d82f210402ac85093c72251a9b22341d8c2f8fcb67809e542e3",
+      "png_sha256": "e20b66883bb0ed22d36b0b6f265cde19af1a98d7ce6bb084ef907ddc14d91fb7",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 51195
+    },
+    {
+      "mode": "components",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/components-1450x900-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "1c4615fbfb74e0ee4fc8e0a3970f53cf1de3aef0",
+      "pixel_sha256": "dbf56e58875aff962c06c78880a81363e71ce086f6f265e74133039ea3798a99",
+      "png_sha256": "95f0fd34c19fe48428682227853ea54fb78f1d3675bd89abda519895d1494eda",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 50909
+    },
+    {
+      "mode": "compact",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/compact-760x620-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "428eedd2d784277ffedea4ba1766af65f6dea4d0f0936c647467a53c807a87e6",
+      "png_sha256": "3727e8c430219fdc1c7a79172a006ee4a98debdf03be0e30ca13ccf2b9e3add9",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 141302
+    },
+    {
+      "mode": "compact",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/compact-760x620-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "0fba202073dcce11690d12426547f4fb4a05157b85273a6ff1dc6feaff530a39",
+      "png_sha256": "1ba610e98b6b11883dc8599f99ff5196b54e77adb254bd177891eb7e0c3e797a",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 145978
+    },
+    {
+      "mode": "scaled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/scaled-1450x900-1.5-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "de4031853ef7daceb03b92db1467cbc8f9e288eac1c6d38dad2b47aab2e1aeef",
+      "png_sha256": "b97239d9abab5b83b90826c43a96861b30dd8f32c136e8abb3be9973b80e677b",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 274233
+    },
+    {
+      "mode": "scaled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/scaled-1450x900-1.5-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "a82b382db05baf42bac8933fa01a1d0570f17b5e19cbc4162274851937923899",
+      "png_sha256": "6b08de304b65d825829546e8cf4c35b57ae9efd0dde2f60b2d86e169e6829f2f",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 280429
+    },
+    {
+      "mode": "results",
+      "theme": "light",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/results-720x560-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "a0d0e4a9581f24d95eba5617b062840813b7df6989061b4eedd22c06df47f1d2",
+      "png_sha256": "50933323e2f3ae17d3c9ca8e246d070a4ebaabc97801e4ff20af3ba3b7219214",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 125195
+    },
+    {
+      "mode": "results",
+      "theme": "dark",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/results-720x560-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "0d822d54d0bcda8a7e87bd62621ab32c46de40217cdda80e5ae6292dca7358a9",
+      "png_sha256": "7dea1d3cf9967d3270160325c3c41f8232f2467afc9ad3a9a2cd7690592ec347",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 129737
+    },
+    {
+      "mode": "detail-compact",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/detail-compact-760x620-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "279602bb36ff4473ed8dc492f7b64f7b7e326d90624e4b6761e2e151ea7b5925",
+      "png_sha256": "5771485ba66c6942806a17d34530739a71a0024757f60cf69c7632fa90b30ec0",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 73413
+    },
+    {
+      "mode": "detail-compact",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/detail-compact-760x620-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "6fcea4a54f0c97bf8fc5d5905655a8ff1a833ee2b0eb9d67d962f44a15b6c120",
+      "png_sha256": "24452eb4d5bd54cada358886f642732b7cb5b9318b4942bb6e0a7f82c552f70b",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 77148
+    },
+    {
+      "mode": "parameters-compact",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/parameters-compact-760x620-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "2d0c261504e3f54a20f4df35965a6c7dc9f5a03c3d4f137ce6410d15bbfcee79",
+      "png_sha256": "a9b2a924ba4fd835891aa7b5ff3d2c03c6bf18f4c40d77f2dbc7b2de6f58c5b1",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 119879
+    },
+    {
+      "mode": "parameters-compact",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/parameters-compact-760x620-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "22567c964224dce6e6db5762c344cb9ce11caf3afcdb979669f07b89cf186292",
+      "png_sha256": "0862b401c0d51fdf7685f13ef28bc3dcab03b5524155942c2c6988278f568fa4",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 121552
+    },
+    {
+      "mode": "progress-compact",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/progress-compact-760x620-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "f48b0de0614abd9463e4d69b13c50e4c6357ddc83b3b0a14e3537ced87a74b71",
+      "png_sha256": "2a1bf1b9c5dc1c8aa2f3d2e5e75da8d2b57a4d74efce9cae4724a32c647637c9",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 112388
+    },
+    {
+      "mode": "progress-compact",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/progress-compact-760x620-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "67cd06d8427756e73a6d5b1b45123e8f7e7a391907e61cf9cd66118ebd9d2640",
+      "png_sha256": "75780a519a1765948763762a2be2f4a164c07d24b53fa107969255effb69d6de",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 111234
+    },
+    {
+      "mode": "head-popup-compact-bottom",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/head-popup-compact-bottom-760x620-1-light.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "4ded757cfbde7eca10877dbbcc00b3cbe412f61a9990ada5836b6346a93c7d00",
+      "png_sha256": "cee3206cfebefdc9a1d80bf60596612ff4f8d81ea35fb699253192aa6285dde2",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 55787
+    },
+    {
+      "mode": "head-popup-compact-bottom",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/head-popup-compact-bottom-760x620-1-dark.png",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "986c4c0aea8b2cfefc8f8e649f841581935699fd632bcea0b0c575beff260391",
+      "png_sha256": "c82ac5a524998ecfd9d090a819d252f93360d7375ff158b6460fc2338b9b067e",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 57775
+    },
+    {
+      "mode": "detail-scaled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/detail-scaled-1450x900-1.5-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "4cfd9961cc09d1085c52009577ecae5f9d26c8370e37e93c68bb1f9187426c82",
+      "png_sha256": "ebb9bd6936922cf9b22dc338454f5413598c38ed9e3db6c026d479f2b272c6a2",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 241977
+    },
+    {
+      "mode": "detail-scaled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/detail-scaled-1450x900-1.5-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "f2cdfbf356e755b5d28c6a64cb0427a7dc18f6594f0d3f1ff9e7b83f942aad31",
+      "png_sha256": "9293d4e21ad88d0cbaa829b89c1ba2be9ed6f7024466cb31774d466fce60e36b",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 240909
+    },
+    {
+      "mode": "parameters-scaled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/parameters-scaled-1450x900-1.5-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "187d404272d2abcbdae14b1fb6429e9c3546069bc6c9ed33014af45db7af9718",
+      "png_sha256": "c2ccfaa66a49973c7d4f0f1eab4a4678b67346120429cb79527a81e3f5facb0c",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 290063
+    },
+    {
+      "mode": "parameters-scaled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/parameters-scaled-1450x900-1.5-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "e93d3b0cf333bd3e7093e932c4e15780422638e6eb756aacb1f80bfc9be93278",
+      "png_sha256": "9ade78c45438d005919041d922a5db3b2497d66292284a1a5b9aabb6f21d7352",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 290818
+    },
+    {
+      "mode": "progress-scaled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/progress-scaled-1450x900-1.5-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "bd19d132b3dee2f5a9dc7886d388ff3482111f222761ec4c495d08c6c5407fb5",
+      "png_sha256": "d1285523b3a56e97088039add32b9caa1987ebb624b6c8cfe1cdb7644971c172",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 219282
+    },
+    {
+      "mode": "progress-scaled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/progress-scaled-1450x900-1.5-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": true,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "3a5e7d2f4eb0bf88112fe059655a2b513759aaa8bca997dbe6591dcad42c1aa5",
+      "png_sha256": "ec5ecd4d81b5fa6f05785c8b85169828d244516d411651fcc329c1a0459d8855",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 217174
+    },
+    {
+      "mode": "head-popup-scaled-bottom",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/head-popup-scaled-bottom-1450x900-1.5-light.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "fc72edc7ca38117b1817db49521b0370345a9387af8510bc3023b2ba5a1ef24d",
+      "png_sha256": "154a13fdfda323562cf5a505d4c5158e4703b359e004fb405df47fcbcad586dd",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 88598
+    },
+    {
+      "mode": "head-popup-scaled-bottom",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/head-popup-scaled-bottom-1450x900-1.5-dark.png",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "fixture": false,
+      "source_head": "b6c78c80b08dee35088cc93ba09aee8c9cd7aa92",
+      "pixel_sha256": "475e733ccc2e9bbfb453fc70b529e4bc200b72e501c0aa4fa7678b02380ea3fc",
+      "png_sha256": "b76251089843d3e2c54f4eb1c4c432c64207756715599b70791914281c419d99",
+      "inspected": "PASS: implementer visual inspection, actual Linux eframe viewport",
+      "bytes": 90362
+    }
+  ]
+}

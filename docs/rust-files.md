@@ -48,6 +48,26 @@ avvio e agli studi nuovi; Apri usa sempre i parametri dello studio.
 anche come nuovi predefiniti occorre salvarli esplicitamente. L'esempio caricato
 dal menu File resta quello incorporato. `user_defaults.json` non viene usato.
 
+## Preferenza UI globale (LEO-21)
+
+Il toggle **Modifica → Tema scuro** scrive soltanto
+`%LOCALAPPDATA%/StickOptimizer/ui-preferences-v1.json` su Windows; su Linux
+`$XDG_CONFIG_HOME/StickOptimizer/ui-preferences-v1.json`, oppure
+`$HOME/.config/StickOptimizer/ui-preferences-v1.json` se XDG non è impostata.
+È un file distinto da `preferences-v1.json`, dagli studi e dai CSV:
+`schema: stick-optimizer-ui-preferences`, `version: 1`, `theme: light|dark`.
+L'API IO pubblica `load_ui_preferences`/`save_ui_preferences` riceve il percorso;
+non applica né salva parametri, non legge gli studi. Stessi limiti di8MiB e
+scrittura atomica tramite file fratello, con pulizia in caso di errore.
+
+Lettura senza file: chiaro e nessuna scrittura; schema/versione/campi/tema
+invalidi: errore IO e fallback GUI chiaro con messaggio, senza riscrivere il
+sorgente. La scelta esplicita successiva può sostituire il file UI invalido.
+Scrittura fallita: il tema scelto rimane nella sessione e un messaggio persistente
+segnala la mancata persistenza; dati precedenti conservati. Nuovo, Apri ed Esempio
+mantengono il tema, che non segue automaticamente il sistema operativo.
+Il comando resta soggetto ai blocchi di ricerca e conferma esistenti.
+
 ## Migrazione Rust dello schema 1 (LEO-17)
 
 Studi e preferenze nuovi scrivono la versione 2: `settings.max_extra_spacing`

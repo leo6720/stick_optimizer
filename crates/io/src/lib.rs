@@ -1,6 +1,7 @@
 //! Versioned studies, preferences and CSV adapters. The core has no serde dependency.
 mod csv;
 mod schema;
+mod ui_preferences;
 pub use csv::{details_csv, summary_csv};
 pub use schema::{Document, Preferences, Range, ViewState, decode, encode};
 use std::{
@@ -9,6 +10,7 @@ use std::{
     path::Path,
     sync::atomic::{AtomicU64, Ordering},
 };
+pub use ui_preferences::{Theme, UiPreferences, load_ui_preferences, save_ui_preferences};
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub const ENGINE_ID: &str = "rust-final-heads-v2";
 pub const MAX_FILE_BYTES: usize = 8 * 1024 * 1024;

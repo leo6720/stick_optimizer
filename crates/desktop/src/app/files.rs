@@ -19,6 +19,19 @@ fn preferences_path() -> Result<PathBuf, io::Error> {
         .join("StickOptimizer")
         .join("preferences-v1.json"))
 }
+/// Presentation-only path; never reused for parameter defaults.
+pub(super) fn ui_preferences_path() -> Result<PathBuf, io::Error> {
+    #[cfg(windows)]
+    let base = std::env::var_os("LOCALAPPDATA").map(PathBuf::from);
+    #[cfg(not(windows))]
+    let base = std::env::var_os("XDG_CONFIG_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".config")));
+    Ok(base
+        .ok_or("Cartella delle preferenze UI non disponibile.")?
+        .join("StickOptimizer")
+        .join("ui-preferences-v1.json"))
+}
 impl PrototypeApp {
     pub(super) fn view_state(&self) -> ViewState {
         let selected = self

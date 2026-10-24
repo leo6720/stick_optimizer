@@ -103,7 +103,7 @@ impl PrototypeApp {
                             .show_ui(ui, |ui| { for c in &candidates { ui.selectable_value(&mut popup.format_id, c.format_id, &c.format_name); } });
                     });
                     ui.add(egui::Slider::new(&mut popup.zoom, 0.5..=3.0).text("Zoom disegno"));
-                    ui.label(RichText::new("Vista esemplificativa statica · traversa e prelevatori stilizzati, senza quote costruttive.").small().color(MUTED));
+                    ui.label(RichText::new("Vista esemplificativa statica · traversa e prelevatori stilizzati, senza quote costruttive.").small().color(crate::ui::tokens(ui).muted));
                     if let Some(c) = candidates.iter().find(|c| c.format_id == popup.format_id)
                         && let Some(stick) = study.sticks.iter().find(|s| s.id == c.stick_id) {
                         ui.label(format!("{} · larghezza stick {} mm", c.format_name, measurement(stick.width)));
@@ -124,7 +124,7 @@ impl PrototypeApp {
                     if std::env::var("STICK_OPTIMIZER_PREVIEW").is_ok_and(|m| m.ends_with("-bottom")) { ui.scroll_to_cursor(Some(egui::Align::BOTTOM)); }
                 });
                 ui.separator();
-                close = ui.button("Chiudi").clicked();
+                close = ui.add(crate::ui::button(ui, "Chiudi", crate::ui::ButtonVariant::Secondary)).clicked();
                 close |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
         if open && !close {
@@ -142,14 +142,14 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
     let scale = (width - 56.0) / (last.pickup_x + stick_width) as f32;
     let x = |value: f64| rect.left() + 28.0 + ((value + stick_width / 2.0) as f32 * scale);
     let painter = ui.painter_at(rect);
-    let black = Color32::BLACK;
+    let structure = crate::ui::tokens(ui).drawing;
     painter.rect_filled(
         egui::Rect::from_min_max(
             egui::pos2(rect.left() + 12.0, rect.top() + 12.0),
             egui::pos2(rect.right() - 12.0, rect.top() + 19.0),
         ),
         0.0,
-        black,
+        structure,
     );
     for point in &head.positions {
         let centre = x(if before {
@@ -162,7 +162,7 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
                 egui::pos2(centre, rect.top() + 19.0),
                 egui::pos2(centre, rect.top() + 49.0),
             ],
-            egui::Stroke::new(2.0, black),
+            egui::Stroke::new(2.0, structure),
         );
         painter.rect_filled(
             egui::Rect::from_center_size(
@@ -170,7 +170,7 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
                 egui::vec2(6.0, 14.0),
             ),
             0.0,
-            black,
+            structure,
         );
         painter.rect_filled(
             egui::Rect::from_center_size(
@@ -178,9 +178,9 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
                 egui::vec2(stick_width as f32 * scale, 42.0),
             ),
             1.0,
-            ACCENT,
+            crate::ui::tokens(ui).product,
         );
-        painter.circle_filled(egui::pos2(centre, rect.top() + 105.0), 2.0, black);
+        painter.circle_filled(egui::pos2(centre, rect.top() + 105.0), 2.0, structure);
     }
     if let (Some(first), Some(last)) = (head.positions.first(), head.positions.last()) {
         let a = x(if before {
@@ -194,7 +194,7 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
                 egui::pos2(a, rect.top() + 119.0),
                 egui::pos2(b, rect.top() + 119.0),
             ],
-            egui::Stroke::new(1.0, MUTED),
+            egui::Stroke::new(1.0, crate::ui::tokens(ui).muted),
         );
         for end in [a, b] {
             painter.line_segment(
@@ -202,7 +202,7 @@ fn draw_front(ui: &mut egui::Ui, head: &HeadGeometry, stick_width: f64, before: 
                     egui::pos2(end, rect.top() + 113.0),
                     egui::pos2(end, rect.top() + 125.0),
                 ],
-                egui::Stroke::new(1.0, MUTED),
+                egui::Stroke::new(1.0, crate::ui::tokens(ui).muted),
             );
         }
     }
@@ -233,41 +233,52 @@ mod tests {
                 .collect();
             let head = final_head_geometry(&Settings::default(), &formats).unwrap();
             let original = head.clone();
-            for width in [25.0, 26.0] {
-                for before in [true, false] {
-                    let ctx = egui::Context::default();
-                    let mut origin = egui::Pos2::ZERO;
-                    let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
-                        origin = ui.cursor().min;
-                        draw_front(ui, &head, width, before, 1000.0);
-                    });
-                    output.textures_delta.clear();
-                    let sticks: Vec<_> = output
-                        .shapes
-                        .iter()
-                        .filter_map(|s| match &s.shape {
-                            egui::epaint::Shape::Rect(r) if r.fill == ACCENT => Some(r.rect),
-                            _ => None,
-                        })
-                        .collect();
-                    assert_eq!(sticks.len(), 12);
-                    let grippers = output.shapes.iter().filter(|s| matches!(&s.shape, egui::epaint::Shape::Rect(r) if r.fill == Color32::BLACK && r.rect.height() == 14.0)).count();
-                    assert_eq!(grippers, 12);
-                    for (i, rect) in sticks.iter().enumerate() {
-                        let expected = if before {
-                            i as f64 * 60.0
-                        } else {
-                            first[i % grouping as usize]
-                                + (i / grouping as usize) as f64 * f64::from(grouping) * 60.0
-                        };
-                        let scale = 944.0 / (660.0 + width) as f32;
-                        assert!(
-                            (rect.center().x
-                                - (origin.x + 28.0 + (expected + width / 2.0) as f32 * scale))
-                                .abs()
-                                < 0.001
-                        );
-                        assert!((rect.width() - width as f32 * scale).abs() < 0.001);
+            for theme in [
+                stick_optimizer_io::Theme::Light,
+                stick_optimizer_io::Theme::Dark,
+            ] {
+                for width in [25.0, 26.0] {
+                    for before in [true, false] {
+                        let ctx = egui::Context::default();
+                        crate::ui::install(&ctx);
+                        crate::ui::apply_theme(&ctx, theme);
+                        let mut origin = egui::Pos2::ZERO;
+                        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
+                            origin = ui.cursor().min;
+                            draw_front(ui, &head, width, before, 1000.0);
+                        });
+                        output.textures_delta.clear();
+                        let sticks: Vec<_> = output
+                            .shapes
+                            .iter()
+                            .filter_map(|s| match &s.shape {
+                                egui::epaint::Shape::Rect(r)
+                                    if (r.rect.height() - 42.0).abs() < 0.001 =>
+                                {
+                                    Some(r.rect)
+                                }
+                                _ => None,
+                            })
+                            .collect();
+                        assert_eq!(sticks.len(), 12);
+                        let grippers = output.shapes.iter().filter(|s| matches!(&s.shape, egui::epaint::Shape::Rect(r) if (r.rect.height() - 14.0).abs() < 0.001 && (r.rect.width() - 6.0).abs() < 0.001)).count();
+                        assert_eq!(grippers, 12);
+                        for (i, rect) in sticks.iter().enumerate() {
+                            let expected = if before {
+                                i as f64 * 60.0
+                            } else {
+                                first[i % grouping as usize]
+                                    + (i / grouping as usize) as f64 * f64::from(grouping) * 60.0
+                            };
+                            let scale = 944.0 / (660.0 + width) as f32;
+                            assert!(
+                                (rect.center().x
+                                    - (origin.x + 28.0 + (expected + width / 2.0) as f32 * scale))
+                                    .abs()
+                                    < 0.001
+                            );
+                            assert!((rect.width() - width as f32 * scale).abs() < 0.001);
+                        }
                     }
                 }
             }

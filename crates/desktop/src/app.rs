@@ -1,4 +1,4 @@
-use eframe::egui::{self, Color32, Id, RichText, TextEdit};
+use eframe::egui::{self, Color32, Id, RichText};
 use egui_extras::{Column, TableBuilder};
 use std::collections::HashSet;
 use std::sync::{Arc, atomic::Ordering};
@@ -16,9 +16,6 @@ mod progress;
 use files::FileAction;
 use parameters::ParameterEditor;
 use stick_optimizer_io::{Range, ViewState};
-
-const ACCENT: Color32 = Color32::from_rgb(181, 31, 32);
-const MUTED: Color32 = Color32::from_rgb(80, 85, 85);
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum DetailView {
@@ -105,6 +102,9 @@ pub struct PrototypeApp {
     filter_editor: crate::beta::FilterEditor,
     restore_view: Option<(u64, ViewState)>,
     geometry_format: Option<u64>,
+    ui_theme: stick_optimizer_io::Theme,
+    ui_preferences_path: Option<std::path::PathBuf>,
+    ui_preferences_error: Option<String>,
 }
 
 impl Default for PrototypeApp {
@@ -143,43 +143,32 @@ impl Default for PrototypeApp {
             filter_editor: crate::beta::FilterEditor::default(),
             restore_view: None,
             geometry_format: None,
+            ui_theme: stick_optimizer_io::Theme::Light,
+            ui_preferences_path: None,
+            ui_preferences_error: None,
         }
     }
 }
 
 impl PrototypeApp {
     pub fn new(ctx: &egui::Context) -> Self {
-        ctx.set_visuals(egui::Visuals::light());
-        ctx.global_style_mut(|style| {
-            style.spacing.item_spacing = egui::vec2(6.0, 4.0);
-            style.spacing.button_padding = egui::vec2(8.0, 4.0);
-            style.spacing.window_margin = egui::Margin::same(12);
-            style.spacing.menu_margin = egui::Margin::same(8);
-            style.spacing.menu_width = 340.0;
-            style.visuals.window_fill = Color32::WHITE;
-            style.visuals.faint_bg_color = Color32::from_rgb(246, 246, 246);
-            style.visuals.selection.bg_fill = ACCENT;
-            style.visuals.selection.stroke.color = Color32::WHITE;
-            style.visuals.widgets.active.bg_fill = ACCENT;
-            style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(248, 233, 233);
-            style.visuals.widgets.noninteractive.fg_stroke.color = MUTED;
-            style.visuals.widgets.inactive.bg_fill = Color32::WHITE;
-            style.visuals.widgets.inactive.bg_stroke =
-                egui::Stroke::new(1.0, Color32::from_rgb(210, 212, 212));
-            style.visuals.widgets.noninteractive.corner_radius = egui::CornerRadius::same(2);
-            style.visuals.widgets.inactive.corner_radius = egui::CornerRadius::same(2);
-            style.visuals.widgets.hovered.corner_radius = egui::CornerRadius::same(2);
-            style.visuals.widgets.active.corner_radius = egui::CornerRadius::same(2);
-            style
-                .text_styles
-                .insert(egui::TextStyle::Body, egui::FontId::proportional(13.0));
-            style
-                .text_styles
-                .insert(egui::TextStyle::Button, egui::FontId::proportional(13.0));
-            style
-                .text_styles
-                .insert(egui::TextStyle::Heading, egui::FontId::proportional(17.0));
-        });
+        let path = if cfg!(test) || std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_some() {
+            None
+        } else {
+            Some(files::ui_preferences_path())
+        };
+        let mut app = Self::new_with_ui_preferences(
+            ctx,
+            path.as_ref().and_then(|p| p.as_ref().ok()).cloned(),
+        );
+        if let Some(Err(error)) = path {
+            app.ui_preferences_error = Some(format!("Preferenza tema non disponibile: {error}"));
+        }
+        app
+    }
+
+    fn new_with_ui_preferences(ctx: &egui::Context, path: Option<std::path::PathBuf>) -> Self {
+        crate::ui::install(ctx);
         #[allow(unused_mut)] // Preview modes mutate the initial state only in QA builds.
         let mut app = Self {
             mt_image: load_diagram(
@@ -204,6 +193,22 @@ impl PrototypeApp {
             ),
             ..Self::default()
         };
+        app.ui_preferences_path = path;
+        if let Some(path) = &app.ui_preferences_path {
+            match stick_optimizer_io::load_ui_preferences(path) {
+                Ok(preferences) => app.ui_theme = preferences.theme,
+                Err(error) => {
+                    app.ui_preferences_error = Some(format!(
+                        "Preferenze UI non caricate: {error}. Tema chiaro in uso."
+                    ))
+                }
+            }
+        }
+        #[cfg(feature = "ui-preview")]
+        if std::env::var("STICK_OPTIMIZER_PREVIEW_THEME").as_deref() == Ok("dark") {
+            app.ui_theme = stick_optimizer_io::Theme::Dark;
+        }
+        crate::ui::apply_theme(ctx, app.ui_theme);
         if !cfg!(test) && std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_none() {
             app.read_defaults();
         }
@@ -328,6 +333,12 @@ impl PrototypeApp {
                 }
             }
             _ => {}
+        }
+        #[cfg(feature = "ui-preview")]
+        if let Ok(scale) = std::env::var("STICK_OPTIMIZER_PREVIEW_SCALE")
+            && let Ok(scale) = scale.parse::<f32>()
+        {
+            ctx.set_zoom_factor(scale.clamp(0.5, 2.0));
         }
         app
     }
@@ -519,6 +530,11 @@ impl PrototypeApp {
     }
 
     fn render(&mut self, ui: &mut egui::Ui) {
+        #[cfg(feature = "ui-preview")]
+        if std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() == Ok("components") {
+            crate::ui::gallery(ui);
+            return;
+        }
         self.poll_search();
         self.handle_file_action();
         self.shortcuts(ui.ctx());
@@ -544,7 +560,7 @@ impl PrototypeApp {
             ui.disable();
         }
         egui::Panel::top("menu_bar")
-            .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(10))
+            .frame(crate::ui::container(ui, crate::ui::Surface::Main).inner_margin(10))
             .show(ui, |ui| {
                 egui::MenuBar::new().ui(ui, |ui| {
                     let _file_menu = ui.menu_button("File", |ui| {
@@ -627,6 +643,41 @@ impl PrototypeApp {
                         );
                     }
                     let _edit_menu = ui.menu_button("Modifica", |ui| {
+                        let mut dark = self.ui_theme == stick_optimizer_io::Theme::Dark;
+                        if ui
+                            .add_enabled(
+                                self.pending.is_none() && self.job.is_none(),
+                                egui::Checkbox::new(&mut dark, "Tema scuro"),
+                            )
+                            .changed()
+                        {
+                            self.ui_theme = if dark {
+                                stick_optimizer_io::Theme::Dark
+                            } else {
+                                stick_optimizer_io::Theme::Light
+                            };
+                            crate::ui::apply_theme(ui.ctx(), self.ui_theme);
+                            self.ui_preferences_error = match &self.ui_preferences_path {
+                                Some(path) => stick_optimizer_io::save_ui_preferences(
+                                    path,
+                                    &stick_optimizer_io::UiPreferences {
+                                        theme: self.ui_theme,
+                                    },
+                                )
+                                .err()
+                                .map(|e| {
+                                    format!(
+                                        "Tema non salvato: {e}. La sessione resta utilizzabile."
+                                    )
+                                }),
+                                None => Some(
+                                    "Tema non salvato: percorso preferenze UI non disponibile."
+                                        .into(),
+                                ),
+                            };
+                            ui.close();
+                        }
+                        ui.separator();
                         for editor in ParameterEditor::ALL {
                             if ui.button(editor.title()).clicked() {
                                 self.open_parameter_editor(editor);
@@ -652,10 +703,14 @@ impl PrototypeApp {
                         );
                     }
                     ui.separator();
-                    ui.label(RichText::new("Stick Optimizer").strong().color(ACCENT));
+                    ui.label(
+                        RichText::new("Stick Optimizer")
+                            .strong()
+                            .color(crate::ui::tokens(ui).accent),
+                    );
                     if ui
                         .add(
-                            TextEdit::singleline(&mut self.study.name)
+                            crate::ui::field(&mut self.study.name)
                                 .id(Id::new("study_name"))
                                 .desired_width(240.0),
                         )
@@ -663,20 +718,27 @@ impl PrototypeApp {
                     {
                         self.dirty = true;
                     }
-                    ui.label(RichText::new("Beta Rust").small().color(MUTED));
+                    ui.label(
+                        RichText::new("Beta Rust")
+                            .small()
+                            .color(crate::ui::tokens(ui).muted),
+                    );
                     if self.dirty {
-                        ui.label(RichText::new("• Da salvare").small().color(ACCENT));
+                        ui.label(
+                            RichText::new("• Da salvare")
+                                .small()
+                                .color(crate::ui::tokens(ui).accent),
+                        );
                     }
                 });
             });
         egui::Panel::bottom("status")
-            .frame(
-                egui::Frame::new()
-                    .fill(Color32::from_rgb(242, 242, 242))
-                    .inner_margin(8),
-            )
+            .frame(crate::ui::container(ui, crate::ui::Surface::Inset).inner_margin(8))
             .show(ui, |ui| {
                 ui.label(&self.status);
+                if let Some(error) = &self.ui_preferences_error {
+                    ui.colored_label(crate::ui::tokens(ui).accent, error);
+                }
             });
 
         let maximum_sidebar = (ui.available_width() * 0.5).max(300.0);
@@ -684,16 +746,12 @@ impl PrototypeApp {
             .default_size(430.0)
             .size_range(300.0..=maximum_sidebar)
             .resizable(true)
-            .frame(
-                egui::Frame::new()
-                    .fill(Color32::from_rgb(244, 244, 244))
-                    .inner_margin(14),
-            )
+            .frame(crate::ui::container(ui, crate::ui::Surface::Inset).inner_margin(14))
             .show(ui, |ui| {
                 egui::ScrollArea::vertical()
                     .id_salt("sidebar_scroll")
                     .show(ui, |ui| {
-                        ui.heading(RichText::new("Dati MT").color(ACCENT));
+                        crate::ui::heading(ui, "Dati MT");
                         if let Some(image) = &self.mt_image {
                             ui.add(
                                 egui::Image::new(image).fit_to_exact_size(egui::vec2(210.0, 136.6)),
@@ -703,7 +761,7 @@ impl PrototypeApp {
                             let label = ui.label("Np · Canali MT");
                             if ui
                                 .add(
-                                    TextEdit::singleline(&mut self.study.parameters.channels)
+                                    crate::ui::field(&mut self.study.parameters.channels)
                                         .id(Id::new(("param", "Canali MT")))
                                         .desired_width(70.0),
                                 )
@@ -714,7 +772,7 @@ impl PrototypeApp {
                             }
                         });
                         ui.separator();
-                        ui.heading(RichText::new("Formati").color(ACCENT));
+                        crate::ui::heading(ui, "Formati");
                         ui.horizontal(|ui| {
                             if let Some(image) = &self.stick_image {
                                 ui.add(
@@ -731,7 +789,7 @@ Bs · Lunghezza pinna
 Dimensioni in mm",
                                 )
                                 .small()
-                                .color(MUTED),
+                                .color(crate::ui::tokens(ui).muted),
                             );
                         });
                         if self.inputs(ui) {
@@ -740,7 +798,11 @@ Dimensioni in mm",
                         ui.add_space(8.0);
                         let errors = self.study.input_errors();
                         if !errors.is_empty() {
-                            ui.label(RichText::new("Dati da correggere").strong().color(ACCENT));
+                            ui.label(
+                                RichText::new("Dati da correggere")
+                                    .strong()
+                                    .color(crate::ui::tokens(ui).accent),
+                            );
                             for error in errors.iter().take(5) {
                                 ui.label(error);
                             }
@@ -762,20 +824,19 @@ Dimensioni in mm",
                                     }),
                             )
                             .small()
-                            .color(MUTED),
+                            .color(crate::ui::tokens(ui).muted),
                         );
                     });
             });
         egui::CentralPanel::default()
-            .frame(egui::Frame::new().fill(Color32::WHITE).inner_margin(18))
+            .frame(crate::ui::container(ui, crate::ui::Surface::Main).inner_margin(18))
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui
                             .add_enabled(
                                 self.job.is_none() && self.study.input_errors().is_empty(),
-                                egui::Button::new(RichText::new("Calcola").color(Color32::WHITE))
-                                    .fill(ACCENT),
+                                crate::ui::button(ui, "Calcola", crate::ui::ButtonVariant::Primary),
                             )
                             .clicked()
                             && self.job.is_none()
@@ -790,7 +851,7 @@ Dimensioni in mm",
                 ui.label(
                     RichText::new("Ricerca geometrica statica · quote in millimetri")
                         .small()
-                        .color(MUTED),
+                        .color(crate::ui::tokens(ui).muted),
                 );
                 ui.separator();
                 egui::ScrollArea::vertical()
@@ -1028,16 +1089,16 @@ Dimensioni in mm",
         ui.label(
             RichText::new("Punto o virgola per i decimali · clic destro per rimuovere")
                 .small()
-                .color(MUTED),
+                .color(crate::ui::tokens(ui).muted),
         );
         changed
     }
 
     fn results_ui(&mut self, ui: &mut egui::Ui) {
-        ui.heading(RichText::new("Migliori Soluzioni").color(ACCENT));
+        crate::ui::heading(ui, "Migliori Soluzioni");
         if let Some(message) = &self.diagnostic {
             egui::Frame::group(ui.style())
-                .fill(Color32::from_rgb(249, 240, 240))
+                .fill(crate::ui::tokens(ui).hover)
                 .show(ui, |ui| {
                     ui.label(message);
                 });
@@ -1051,7 +1112,7 @@ Dimensioni in mm",
             if ui.checkbox(&mut self.one_head_only, "Una sola testa")
                 .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio").changed() {self.dirty = true;}
             if ui.button("Filtri…").clicked() {self.filter_editor.edit(self.ranges);}
-            if ui.button("Azzera filtri").clicked() {self.ranges = [Range::default();5];self.one_head_only = false;self.dirty = true;}
+            if ui.add(crate::ui::button(ui, "Azzera filtri", crate::ui::ButtonVariant::Quiet)).clicked() {self.ranges = [Range::default();5];self.one_head_only = false;self.dirty = true;}
         });
         ui.horizontal(|ui| {
             ui.label("Ordina per:");
@@ -1081,7 +1142,7 @@ Dimensioni in mm",
                 rows.len()
             ))
             .small()
-            .color(MUTED),
+            .color(crate::ui::tokens(ui).muted),
         );
         let table_width = ui.available_width().max(690.0);
         egui::ScrollArea::horizontal()
@@ -1122,9 +1183,9 @@ Dimensioni in mm",
                                     egui::Label::new(
                                         RichText::new(format!("Soluzione {:02}", result.id)).color(
                                             if self.selected == Some(result.id) {
-                                                Color32::WHITE
+                                                crate::ui::tokens(ui).on_primary
                                             } else {
-                                                MUTED
+                                                crate::ui::tokens(ui).muted
                                             },
                                         ),
                                     )
@@ -1159,12 +1220,12 @@ Dimensioni in mm",
         if let Some(result) = rows.iter().find(|row| Some(row.id) == self.selected) {
             ui.add_space(18.0);
             egui::Frame::group(ui.style())
-                .fill(Color32::WHITE)
+                .fill(crate::ui::tokens(ui).surface)
                 .inner_margin(8)
                 .show(ui, |ui| {
                     ui.strong(
                         RichText::new(format!("Soluzione {:02} · dettagli", result.id))
-                            .color(ACCENT),
+                            .color(crate::ui::tokens(ui).accent),
                     );
                     ui.horizontal_wrapped(|ui| {
                         ui.label(format!("Passo: {} mm", format_number(result.pitch)));
@@ -1189,7 +1250,9 @@ Dimensioni in mm",
                 });
         } else {
             ui.add_space(18.0);
-            ui.strong(RichText::new("Dettagli della soluzione").color(ACCENT));
+            ui.strong(
+                RichText::new("Dettagli della soluzione").color(crate::ui::tokens(ui).accent),
+            );
             ui.label("Seleziona una soluzione per visualizzare il riepilogo.");
         }
         ui.add_space(8.0);
@@ -1272,7 +1335,7 @@ Dimensioni in mm",
                         ui.label(
                             RichText::new("Doppio clic su un formato per quote e disegno.")
                                 .small()
-                                .color(MUTED),
+                                .color(crate::ui::tokens(ui).muted),
                         );
                         if ui.button("Apri dettaglio…").clicked() {
                             let id = self
@@ -1400,7 +1463,7 @@ Dimensioni in mm",
                     ui.label(
                         RichText::new("Doppio clic su una testa per la vista prima/dopo.")
                             .small()
-                            .color(MUTED),
+                            .color(crate::ui::tokens(ui).muted),
                     );
                 }
             }
@@ -1471,12 +1534,19 @@ Dimensioni in mm",
                         },
                     )
                     .clicked();
-                if ui.button("Annulla").clicked() {
+                if ui
+                    .add(crate::ui::button(
+                        ui,
+                        "Annulla",
+                        crate::ui::ButtonVariant::Secondary,
+                    ))
+                    .clicked()
+                {
                     self.pending = None;
                 }
             });
             if let Some(error) = &self.diagnostic {
-                ui.colored_label(ACCENT, error);
+                ui.colored_label(crate::ui::tokens(ui).accent, error);
             }
         });
         if confirm {
@@ -1579,20 +1649,7 @@ fn detail_table(
 }
 
 fn table_text(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, strong: bool) {
-    let layout = if right {
-        egui::Layout::right_to_left(egui::Align::Center)
-    } else {
-        egui::Layout::left_to_right(egui::Align::Center)
-    };
-    ui.with_layout(layout, |ui| {
-        let mut text = RichText::new(value).color(if selected { Color32::WHITE } else { MUTED });
-        if strong {
-            text = text.strong();
-        }
-        // Row clicks belong to the table, not to text selection inside a label.
-        ui.add(egui::Label::new(text).truncate().selectable(false))
-            .on_hover_text(value);
-    });
+    crate::ui::table_label(ui, value, right, selected, strong);
 }
 
 fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::TextureHandle> {
@@ -1615,7 +1672,7 @@ fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::T
 fn cell(ui: &mut egui::Ui, id: impl egui::AsId, value: &mut String) -> bool {
     ui.add_sized(
         [ui.available_width(), 22.0],
-        TextEdit::singleline(value).id(Id::new(id)),
+        crate::ui::field(value).id(Id::new(id)),
     )
     .changed()
 }
@@ -1676,6 +1733,169 @@ mod tests {
         }
     }
 
+    fn toggle_theme_from_menu(ctx: &egui::Context, app: &mut PrototypeApp) {
+        let output = draw_frame(ctx, app, vec![]);
+        click_at(ctx, app, text_position(&output, "Modifica", 0.0));
+        let output = draw_frame(ctx, app, vec![]);
+        let label = text_position(&output, "Tema scuro", 0.0);
+        // The rendered checkbox mark must agree with the active theme, including restart.
+        let check = output.shapes.iter().any(|s| matches!(&s.shape,
+            egui::epaint::Shape::Path(path) if path.points.len() == 3
+                && path.points.iter().all(|p| p.x < label.x && p.x > label.x - 90.0 && (p.y-label.y).abs()<12.0)));
+        assert_eq!(check, ctx.theme() == egui::Theme::Dark);
+        click_at(ctx, app, label);
+        draw_frame(ctx, app, vec![]);
+    }
+
+    #[test]
+    fn theme_menu_persists_independently_and_preserves_study_results_and_view() {
+        let folder = std::env::temp_dir().join(format!("stick-theme-gui-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&folder);
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join("ui-preferences-v1.json");
+        let parameters = folder.join("preferences-v1.json");
+        std::fs::write(&parameters, b"untouched parameters").unwrap();
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new_with_ui_preferences(&ctx, Some(path.clone()));
+        assert_eq!(ctx.theme(), egui::Theme::Light);
+        assert!(!path.exists());
+        calculate(&mut app);
+        app.ranges[0].min = Some(1.0);
+        app.order_by_pitch = true;
+        app.selected = Some(2);
+        let before = stick_optimizer_io::encode(&app.document().unwrap()).unwrap();
+        let solutions: Vec<_> = app.results.iter().map(|r| r.solution.clone()).collect();
+        let revision = app.revision;
+        let dirty = app.dirty;
+        let csv = stick_optimizer_io::summary_csv(
+            &app.study.to_study().unwrap(),
+            solutions
+                .iter()
+                .enumerate()
+                .map(|(i, s)| (i + 1, s.as_ref())),
+        )
+        .unwrap();
+        toggle_theme_from_menu(&ctx, &mut app);
+        assert_eq!(ctx.theme(), egui::Theme::Dark);
+        assert_eq!(
+            stick_optimizer_io::load_ui_preferences(&path)
+                .unwrap()
+                .theme,
+            stick_optimizer_io::Theme::Dark
+        );
+        assert_eq!(
+            before,
+            stick_optimizer_io::encode(&app.document().unwrap()).unwrap()
+        );
+        assert_eq!(revision, app.revision);
+        assert_eq!(dirty, app.dirty);
+        assert!(app.job.is_none());
+        assert_eq!(
+            solutions,
+            app.results
+                .iter()
+                .map(|r| r.solution.clone())
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            csv,
+            stick_optimizer_io::summary_csv(
+                &app.study.to_study().unwrap(),
+                app.results
+                    .iter()
+                    .enumerate()
+                    .map(|(i, r)| (i + 1, r.solution.as_ref()))
+            )
+            .unwrap()
+        );
+        assert_eq!(std::fs::read(&parameters).unwrap(), b"untouched parameters");
+        let second_ctx = egui::Context::default();
+        let mut restarted = PrototypeApp::new_with_ui_preferences(&second_ctx, Some(path.clone()));
+        assert_eq!(second_ctx.theme(), egui::Theme::Dark);
+        let study_path = folder.join("study.stic");
+        app.save_to(&study_path).unwrap();
+        let study_bytes = std::fs::read(&study_path).unwrap();
+        restarted.open_from(&study_path).unwrap();
+        finish_job(&mut restarted);
+        draw_frame(&second_ctx, &mut restarted, vec![]);
+        assert_eq!(second_ctx.theme(), egui::Theme::Dark);
+        for action in [PendingAction::EmptyStudy, PendingAction::ExampleStudy] {
+            restarted.apply_pending(action);
+            draw_frame(&second_ctx, &mut restarted, vec![]);
+            assert_eq!(second_ctx.theme(), egui::Theme::Dark);
+        }
+        toggle_theme_from_menu(&second_ctx, &mut restarted);
+        assert_eq!(second_ctx.theme(), egui::Theme::Light);
+        assert_eq!(std::fs::read(study_path).unwrap(), study_bytes);
+        assert_eq!(std::fs::read(parameters).unwrap(), b"untouched parameters");
+        std::fs::remove_dir_all(folder).unwrap();
+    }
+
+    #[test]
+    fn corrupt_theme_falls_back_and_failed_persistence_keeps_session_usable() {
+        let folder =
+            std::env::temp_dir().join(format!("stick-theme-errors-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&folder);
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join("ui.json");
+        std::fs::write(&path, b"broken").unwrap();
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new_with_ui_preferences(&ctx, Some(path.clone()));
+        assert_eq!(ctx.theme(), egui::Theme::Light);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        assert!(output.shapes.iter().any(|s| matches!(&s.shape, egui::epaint::Shape::Text(t) if t.galley.job.text.contains("Preferenze UI non caricate"))));
+        assert_eq!(std::fs::read(&path).unwrap(), b"broken");
+        std::fs::remove_file(&path).unwrap();
+        std::fs::create_dir(&path).unwrap();
+        toggle_theme_from_menu(&ctx, &mut app);
+        assert_eq!(ctx.theme(), egui::Theme::Dark);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        assert!(output.shapes.iter().any(|s| matches!(&s.shape, egui::epaint::Shape::Text(t) if t.galley.job.text.contains("Tema non salvato"))));
+        calculate(&mut app);
+        assert!(!app.results.is_empty());
+        std::fs::remove_dir_all(folder).unwrap();
+    }
+
+    #[test]
+    fn theme_menu_cannot_bypass_worker_or_confirmation_modal() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let menu = draw_frame(&ctx, &mut app, vec![]);
+        let menu_pos = text_position(&menu, "Modifica", 0.0);
+        click_at(&ctx, &mut app, menu_pos);
+        let menu = draw_frame(&ctx, &mut app, vec![]);
+        let toggle_pos = text_position(&menu, "Tema scuro", 0.0);
+        app.pending = Some(PendingAction::EmptyStudy);
+        draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, toggle_pos);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        // Clicking outside may dismiss the existing confirmation, but cannot toggle the theme.
+        assert!(!output.shapes.is_empty());
+        assert_eq!(ctx.theme(), egui::Theme::Light);
+        app.pending = None;
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
+        let send = held_job(&mut app);
+        draw_frame(&ctx, &mut app, vec![]);
+        click_at(&ctx, &mut app, menu_pos);
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        assert!(!output.shapes.iter().any(|s| matches!(&s.shape, egui::epaint::Shape::Text(t) if t.galley.job.text == "Tema scuro")));
+        assert!(
+            !app.job
+                .as_ref()
+                .unwrap()
+                .control
+                .cancelled
+                .load(Ordering::Relaxed)
+        );
+        assert_eq!(ctx.theme(), egui::Theme::Light);
+        send.send(Err(SearchError::Cancelled)).unwrap();
+        finish_job(&mut app);
+    }
+
     #[test]
     fn double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it() {
         let ctx = egui::Context::default();
@@ -1697,11 +1917,29 @@ mod tests {
         for text in [
             "Sezione schematica · quote in mm · contorno alto B astuccio",
             "Impilamento",
-            "Passo astucciatrice",
             "Chiudi",
         ] {
             text_position(&output, text, 0.0);
         }
+        // Inter has different line metrics: lower quotations remain available by scrolling.
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![
+                egui::Event::PointerMoved(egui::pos2(600.0, 400.0)),
+                egui::Event::MouseWheel {
+                    unit: egui::MouseWheelUnit::Point,
+                    phase: egui::TouchPhase::Move,
+                    delta: egui::vec2(0.0, -220.0),
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+        );
+        for _ in 0..6 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        text_position(&output, "Passo astucciatrice", 0.0);
         draw_frame(
             &ctx,
             &mut app,
