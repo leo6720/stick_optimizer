@@ -18,7 +18,10 @@ impl PrototypeApp {
                 ui.allocate_ui_with_layout(
                     egui::vec2(width, 44.0),
                     egui::Layout::top_down(egui::Align::LEFT),
-                    title,
+                    |ui| {
+                        ui.set_min_width(width);
+                        title(ui);
+                    },
                 );
                 self.calculate_button(ui);
             });
@@ -59,29 +62,43 @@ impl PrototypeApp {
         ui.scope(|ui| {
             ui.spacing_mut().interact_size.y = 32.0;
             ui.horizontal_wrapped(|ui| {
-            if ui.checkbox(&mut self.one_head_only, "Una sola testa")
-                .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio").changed() {self.dirty = true;}
-            if ui.add(crate::ui::button(ui, "Filtri…", crate::ui::ButtonVariant::Secondary).min_size(egui::vec2(72.0,32.0))).clicked() {self.filter_editor.edit(self.ranges);}
-            if ui.add(crate::ui::button(ui, "Azzera filtri", crate::ui::ButtonVariant::Quiet)).clicked() {self.ranges = [Range::default();5];self.one_head_only = false;self.dirty = true;}
-            ui.separator();
-            ui.label("Ordina per:");
-            egui::ComboBox::from_id_salt("result_order")
-                .width(140.0)
-                .selected_text(if self.order_by_pitch {
-                    "Passo"
-                } else {
-                    "Punteggio"
-                })
-                .show_ui(ui, |ui| {
-                    self.dirty |= ui
-                        .selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio")
-                        .changed();
-                    self.dirty |= ui
-                        .selectable_value(&mut self.order_by_pitch, true, "Ordina per passo")
-                        .changed();
-                });
-        });
+                if ui
+                    .checkbox(&mut self.one_head_only, "Una sola testa")
+                    .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio")
+                    .changed()
+                {
+                    self.dirty = true;
+                }
+                if ui
+                    .add(crate::ui::button(ui, "Filtri…", crate::ui::ButtonVariant::Secondary)
+                        .min_size(egui::vec2(72.0, 32.0)))
+                    .clicked()
+                {
+                    self.filter_editor.edit(self.ranges);
+                }
+                if ui
+                    .add(crate::ui::button(ui, "Azzera filtri", crate::ui::ButtonVariant::Quiet))
+                    .clicked()
+                {
+                    self.ranges = [Range::default(); 5];
+                    self.one_head_only = false;
+                    self.dirty = true;
+                }
+                ui.separator();
+                ui.label("Ordina per:");
+                egui::ComboBox::from_id_salt("result_order")
+                    .width(140.0)
+                    .selected_text(if self.order_by_pitch { "Passo" } else { "Punteggio" })
+                    .show_ui(ui, |ui| {
+                        self.dirty |= ui
+                            .selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio")
+                            .changed();
+                        self.dirty |= ui
+                            .selectable_value(&mut self.order_by_pitch, true, "Ordina per passo")
+                            .changed();
+                    });
             });
+        });
         let rows = self.visible_results();
         if !rows.iter().any(|row| Some(row.id) == self.selected) {
             self.selected = rows.first().map(|row| row.id);

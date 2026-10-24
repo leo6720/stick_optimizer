@@ -63,3 +63,19 @@ WIP onesto: estrazione results.rs e nuovo test toolbar presenti; suite precedent
 riverificare teste e lifecycle TexturesDelta, feedback toolbar/tab e catture
 aggiornate. Nessuna review indipendente, cicli sempre **0**, nessun source freeze.
 Questo commit precoce conserva il lavoro riprendibile; non certifica completamento.
+
+## Fine implementazione — congelamento sorgente, ciclo 0
+
+Ripresa: teste e selettore PASS; suite workspace 103 PASS (31 core,59 desktop,
+13 IO), log workspace-resume-test.log. Suite su WIP precedente al solo successivo
+allineamento del Calcola; non attribuita retroattivamente al futuro head.
+Toolbar32 e spazio16 fra selettori confermati nelle sei catture native aggiornate
+(exit0), feedback coordinatrice favorevole. Ultimo intervento: larghezza minima
+del titolo nell'header normale per Calcola al margine destro; fallback compatto
+invariato. Formattazione test e toolbar senza cambio di comportamento.
+Aggiunti solo fixture preview dense/long, feature-gated: worker reale, nessun
+accesso a dati utente. Nessun'altra modifica prodotto prevista prima delle review.
+Fmt/check/clippy all-targets/all-features locked PASS sul sorgente corrente.
+Controlli mirati compact/colonne e Calcola, release e QA native finali in corso:
+esiti non anticipati. Freeze al commit contenente questa nota; dopo questo
+commit solo QA/documentazione fino a rilievi dei due revisori della coordinatrice.

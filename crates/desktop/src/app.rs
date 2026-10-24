@@ -200,6 +200,22 @@ impl PrototypeApp {
         if !cfg!(test) && std::env::var_os("STICK_OPTIMIZER_PREVIEW").is_none() {
             app.read_defaults();
         }
+        // Visual QA fixtures still run the real worker and never load user data.
+        #[cfg(feature = "ui-preview")]
+        match std::env::var("STICK_OPTIMIZER_PREVIEW_RESULTS_FIXTURE").as_deref() {
+            Ok("dense") => {
+                app.study.formats.truncate(1);
+                app.study.parameters.max_pitch = "1200".into();
+                app.study.parameters.pitch_step = "1".into();
+                app.study.parameters.offset = "150".into();
+                app.study.parameters.result_count = "1000".into();
+            }
+            Ok("long") => {
+                app.study.formats[0].name =
+                    "Formato con nome esteso, quote e identità da conservare".into();
+            }
+            _ => {}
+        }
         #[cfg(feature = "ui-preview")]
         match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
             Ok(
@@ -2276,39 +2292,77 @@ mod tests {
         let ctx = egui::Context::default();
         let mut app = PrototypeApp::new(&ctx);
         ctx.global_style_mut(|style| style.animation_time = 0.0);
-        app.study.formats[0].name = "Formato con nome esteso, quote e identità da conservare".into();
+        app.study.formats[0].name =
+            "Formato con nome esteso, quote e identità da conservare".into();
         calculate(&mut app);
         let original = app.results[0].solution.clone();
-        let visible = |out: &egui::FullOutput, label: &str| out.shapes.iter().find_map(|s| {
-            if let egui::epaint::Shape::Text(t) = &s.shape {
-                let pos = t.pos + t.galley.size() / 2.0;
-                if t.galley.job.text == label && s.clip_rect.contains(pos) { return Some(pos); }
-            }
-            None
-        });
+        let visible = |out: &egui::FullOutput, label: &str| {
+            out.shapes.iter().find_map(|s| {
+                if let egui::epaint::Shape::Text(t) = &s.shape {
+                    let pos = t.pos + t.galley.size() / 2.0;
+                    if t.galley.job.text == label && s.clip_rect.contains(pos) {
+                        return Some(pos);
+                    }
+                }
+                None
+            })
+        };
         let size = egui::vec2(1450.0, 900.0);
         for (tab, last_column) in [
             ("Panoramica formati", "Riporto"),
             ("Tipi cassetti usati", "Formati"),
             ("Tipi teste robot usate", "Formati"),
         ] {
-            for _ in 0..3 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            for _ in 0..3 {
+                draw_frame_at(&ctx, &mut app, size, vec![]);
+            }
             let output = draw_frame_at(&ctx, &mut app, size, vec![]);
             let pos = visible(&output, tab).expect("detail selector visible");
             for pressed in [true, false] {
-                draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pos),
-                    egui::Event::PointerButton { pos, button: egui::PointerButton::Primary, pressed, modifiers: egui::Modifiers::NONE }]);
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        egui::Event::PointerMoved(pos),
+                        egui::Event::PointerButton {
+                            pos,
+                            button: egui::PointerButton::Primary,
+                            pressed,
+                            modifiers: egui::Modifiers::NONE,
+                        },
+                    ],
+                );
             }
             let output = draw_frame_at(&ctx, &mut app, size, vec![]);
-            let first_column = if app.detail_view == DetailView::Formats { "Formato" } else { "Tipo" };
+            let first_column = if app.detail_view == DetailView::Formats {
+                "Formato"
+            } else {
+                "Tipo"
+            };
             let pos = visible(&output, first_column).expect("first detail column visible");
-            draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pos), egui::Event::MouseWheel {
-                unit: egui::MouseWheelUnit::Point, phase: egui::TouchPhase::Move,
-                delta: egui::vec2(-50000.0, 0.0), modifiers: egui::Modifiers::NONE,
-            }]);
-            for _ in 0..12 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            draw_frame_at(
+                &ctx,
+                &mut app,
+                size,
+                vec![
+                    egui::Event::PointerMoved(pos),
+                    egui::Event::MouseWheel {
+                        unit: egui::MouseWheelUnit::Point,
+                        phase: egui::TouchPhase::Move,
+                        delta: egui::vec2(-50000.0, 0.0),
+                        modifiers: egui::Modifiers::NONE,
+                    },
+                ],
+            );
+            for _ in 0..12 {
+                draw_frame_at(&ctx, &mut app, size, vec![]);
+            }
             let output = draw_frame_at(&ctx, &mut app, size, vec![]);
-            assert!(visible(&output, last_column).is_some(), "last column {last_column} must be reachable in {tab}");
+            assert!(
+                visible(&output, last_column).is_some(),
+                "last column {last_column} must be reachable in {tab}"
+            );
         }
         assert_eq!(original, app.results[0].solution);
 
@@ -2317,18 +2371,38 @@ mod tests {
             let mut app = PrototypeApp::new(&ctx);
             ctx.global_style_mut(|style| style.animation_time = 0.0);
             calculate(&mut app);
-            for _ in 0..3 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            for _ in 0..3 {
+                draw_frame_at(&ctx, &mut app, size, vec![]);
+            }
             let output = draw_frame_at(&ctx, &mut app, size, vec![]);
-            assert!(visible(&output, "Calcola").is_some(), "Calcola clipped at {size:?}");
+            assert!(
+                visible(&output, "Calcola").is_some(),
+                "Calcola clipped at {size:?}"
+            );
             let pointer = egui::pos2(size.x - 45.0, 260.0);
-            draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pointer), egui::Event::MouseWheel {
-                unit: egui::MouseWheelUnit::Point, phase: egui::TouchPhase::Move,
-                delta: egui::vec2(0.0, -50000.0), modifiers: egui::Modifiers::NONE,
-            }]);
-            for _ in 0..12 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            draw_frame_at(
+                &ctx,
+                &mut app,
+                size,
+                vec![
+                    egui::Event::PointerMoved(pointer),
+                    egui::Event::MouseWheel {
+                        unit: egui::MouseWheelUnit::Point,
+                        phase: egui::TouchPhase::Move,
+                        delta: egui::vec2(0.0, -50000.0),
+                        modifiers: egui::Modifiers::NONE,
+                    },
+                ],
+            );
+            for _ in 0..12 {
+                draw_frame_at(&ctx, &mut app, size, vec![]);
+            }
             let output = draw_frame_at(&ctx, &mut app, size, vec![]);
             // The outer output scroll must expose the details and aggregated penalties.
-            assert!(visible(&output, "Penalità aggregate").is_some(), "penalties unreachable at {size:?}");
+            assert!(
+                visible(&output, "Penalità aggregate").is_some(),
+                "penalties unreachable at {size:?}"
+            );
         }
     }
 
