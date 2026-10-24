@@ -168,3 +168,21 @@ nonbloccante documentato, nessuna estensione perimetro. Nessun prodotto
 editato dopo ilfreeze. Prossimaazione root: PRdraft e aggiornamentoLinear
 ready-for-human per Windowsfisico/picker/DPI o decisioneesplicita utente.
 Nessunmerge/deploy/Done.
+
+## Consegna PR draft30 — attesa umana
+
+PR draft [#30](https://github.com/leo6720/stick_optimizer/pull/30), base `main`
+`7f74aad53c540eeebc36897f8f084727b83f499a`, head documentale prima di questa
+nota `ee20832e40fe2acccdf7162531e0918e3f829ff0`. Sorgente verificato e
+revisionato `46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9`, nessun delta prodotto
+nelle successive note/evidenze. Suite109PASS, tutti7controlli PASS,36catture
+native con hash/dimensioni verificati e due revisioni indipendenti ciclo2 PASS,
+zero difetti aperti. Ciclo1 interrotto conservato nel conteggio.
+
+Fase: attesa umana per Windows nativo — input fisico, picker, chiusura OS e
+monitor/DPI. Linux/Xvfb e compilazioneMSVC non certificano queste prove;
+nessun rinvio altrui trasferito a24. Prossima azione: prove native oppure
+decisione esplicita dell'utente sul rinvio. Root gestisce Linear In Review con
+ready-for-human e rimozione ready-for-agent. Nessun merge o Done; nessuna
+nuova automazione. Questo aggiornamento riguarda solo metadati documentali:
+nessun test rilanciato e nessuna modifica prodotto.
