@@ -1,0 +1,5 @@
++ cargo fmt --all -- --check
++ cargo check --workspace --all-targets --all-features --locked
++ cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
++ cargo test --workspace --all-features --locked
++ cargo build --workspace --release --locked

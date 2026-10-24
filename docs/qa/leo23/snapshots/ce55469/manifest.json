@@ -1,0 +1,506 @@
+[
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "a55f747d6f030f7e3e4710f5d60f33c0f581dfcf25bd39e2db5ac40bf5c755b9",
+    "rgba_sha256": "2f63ca24e15e923d35e479323d3bf63e42ccb55f595a82cbcb1733fba8096e97",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "f8d3d7c89ade47db36d3a5c1bdc56dfb00ddbd4fe9d3a893dfe67eba4c1e6080",
+    "rgba_sha256": "450528f800ca551892ee17590bd73d157801088c0127eac072e515320e16ac3c",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-760x620-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "4c563e1af52494c9bf3335700ea6438a367186ec40d27587c911c1061baee2b8",
+    "rgba_sha256": "d8aaa9f2a653311f0fc41e63b9c51bd091f0c57a98e355d2bc8d0af79d369fd6",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-760x620-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "67b88d00e95bfb8529bdd9faf41a2964414cbd87a8be9410e0673fde0bdb5a35",
+    "rgba_sha256": "c888a7ef49e69414322972f62b335f6b7726c9b1777293eaf00b24aa8619e394",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-720x560-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "56053e6d368a1849fa78b64f19d455d7d55269799525930f754d3b0e8cb7cdd5",
+    "rgba_sha256": "e327a4c2afb59ea245a337b9b7de05fe8162f3bfbaa390f253837b1758eb807f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-720x560-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "a06cbfee4ae243bd4c6dd9153b674bf448b11a4ddd657cb00b6bbff4529231ae",
+    "rgba_sha256": "8400781bc6c3388926e08cff8f44f68c5ab5d788448c34ba82a48e81c5dd2b1f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1.5-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "f34c2da7dd99c930bfe932b298479929432ddc68789eca786043aefd597f62c4",
+    "rgba_sha256": "52678f19f05efe8df52cc61ae6e1a4c71af23b2162f33ff6fab69ee5fc00aea4",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1.5-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "84e98f33f1d10c39ea2761597fb81a506dd11808d54609b068f7d2775ef99acf",
+    "rgba_sha256": "a73b05d0c5fd1a11ff5f45ad19a579998c19a9033d3a0499223a50856821f737",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-1450x900-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "21d6e7cd41b2ee5c6ddd12368ea425a54afd4e0fafd5fc7864f57496bcac9602",
+    "rgba_sha256": "0f3c258cf6292b6484a70d8f5ac5e0030d125421446c58c399abaee81de943bf",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-1450x900-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "0014042ecff101a8106fd96759e0107baaa7710cd1df5d53676357c41a2c44c8",
+    "rgba_sha256": "624692ed3e7da06434d238d61017c6bcaa2f52aab289a2d9ec33f84ac24d0252",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-760x620-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "a89390731f0b035bd396d8242f32b51d37fc5effae3a1650a54738efbe9269bd",
+    "rgba_sha256": "e3000607e41a73a1ed7e3483b6c2604a63d7619a5c1eb19ef89b08bdf3575165",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-760x620-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "a4abfdfeb91cc4163dcb5db564c82fd4e0726cc68bc4e598f2106e353cccf684",
+    "rgba_sha256": "12923fa26de0f9443f487b9b37611997bfe6a64299f3930968d7eaf5bdc8d6be",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-720x560-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "56053e6d368a1849fa78b64f19d455d7d55269799525930f754d3b0e8cb7cdd5",
+    "rgba_sha256": "e327a4c2afb59ea245a337b9b7de05fe8162f3bfbaa390f253837b1758eb807f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-720x560-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "a06cbfee4ae243bd4c6dd9153b674bf448b11a4ddd657cb00b6bbff4529231ae",
+    "rgba_sha256": "8400781bc6c3388926e08cff8f44f68c5ab5d788448c34ba82a48e81c5dd2b1f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-1450x900-z1.5-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "a15d8536415fee773b6618af04967b741b0276ab66d48fe3c50c215cfb352d72",
+    "rgba_sha256": "75f75346ed352f76e74d7274b1167d4c68cb9ce93612ac7121677baf1f8966f4",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/pockets-1450x900-z1.5-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "57b27a3026b585c2c0f6397b58ef891a0ef19aea051c2cdf2208dd6a2e46e503",
+    "rgba_sha256": "c0e09bedab0936293a3461bb23339dce7e1372cf25ad3642a6d03bbbde18c100",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-1450x900-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "d97c1a28897eccd6e7e7d31ad9cda588779c7e9f2eca1805e806a96e9dd451a5",
+    "rgba_sha256": "234679b01789419317a09079eefbbfecb03487e651832df08bae0c5f75a96483",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-1450x900-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "aa18d160cc34f3835ccf310b8252339504f26615e66866a7367397cc50a5f58e",
+    "rgba_sha256": "78f82b2b8b8e5213ce590166abce89db4a1e37e78b09d9fe878b33cdf9ea8c9d",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-760x620-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "a89390731f0b035bd396d8242f32b51d37fc5effae3a1650a54738efbe9269bd",
+    "rgba_sha256": "e3000607e41a73a1ed7e3483b6c2604a63d7619a5c1eb19ef89b08bdf3575165",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-760x620-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "a4abfdfeb91cc4163dcb5db564c82fd4e0726cc68bc4e598f2106e353cccf684",
+    "rgba_sha256": "12923fa26de0f9443f487b9b37611997bfe6a64299f3930968d7eaf5bdc8d6be",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-720x560-z1-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "56053e6d368a1849fa78b64f19d455d7d55269799525930f754d3b0e8cb7cdd5",
+    "rgba_sha256": "e327a4c2afb59ea245a337b9b7de05fe8162f3bfbaa390f253837b1758eb807f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-720x560-z1-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "a06cbfee4ae243bd4c6dd9153b674bf448b11a4ddd657cb00b6bbff4529231ae",
+    "rgba_sha256": "8400781bc6c3388926e08cff8f44f68c5ab5d788448c34ba82a48e81c5dd2b1f",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-1450x900-z1.5-default-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "light",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "01890c16d7afb86ecd0e96dca17f8644803d84d5c4740bfe85216878cf0fc618",
+    "rgba_sha256": "20c2983c856232f60196ea102f8c512bf8776b7dc15a57b6ba38eed804b955c7",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/heads-1450x900-z1.5-default-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "dark",
+    "fixture": "default",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "859a51433e95e5e3bf5f853e04e03ea878b8660715f1b8a413206e26af4ffac1",
+    "rgba_sha256": "352a777f5eaa95c07da1b3a6a3b8ddabe0eac5e0f69a91b2b3cdf4faa2aaf596",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-dense-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "dense",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "dedf29f9619829b01a46b644ae6056d484d037e2a81bf3a5b3244895259e7538",
+    "rgba_sha256": "d88953d95e7038a34549c8e60b221b4013cb57dc0a80aaff2ff2d54c7a611c4a",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-dense-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "dense",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "51eb9eb904c5477dd4f769bfd00a6df8507b764f28cd0d2f0fb72d662aefcf30",
+    "rgba_sha256": "f723af3534e734410d0734d0573f19b2433e057097afc4994f45d4589a72cbe4",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-long-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "long",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "0c121f9bdada8cbf19d0e2374339c7994ab031b402cb45adf1b295641e6fae3c",
+    "rgba_sha256": "7ac4449bac100f1af73bfe63d19d73ce42ca1a9356a720ca6d6c1ee6519e86a2",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  },
+  {
+    "path": "docs/qa/leo23/snapshots/ce55469/results-1450x900-z1-long-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "long",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "76f085d1c4aedfb71fa7cb4c7211dc476dfdf1b3dd7dc447c45673855df5d45c",
+    "rgba_sha256": "0c38b7f4f926cd351c9d9232cbe5b66f0da1b5fb42e5a9cee832826954bcaeff",
+    "renderer": "eframe Glow / X11 / software GL",
+    "compression": "PNG lossless level9; decoded RGBA verified byte-for-byte"
+  }
+]

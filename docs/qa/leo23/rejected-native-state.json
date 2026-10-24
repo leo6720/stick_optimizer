@@ -1,0 +1,170 @@
+[
+  {
+    "path": "docs/qa/leo23/screenshots/native-selected-format-1450x900-light.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "selected-format",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "fa68877df54d01dbdb2bc7644bb2af350828a5dfadf0656c386e4620fb05b16d",
+    "rgba_sha256": "f21f5619678cdfb9b16881aefbbe64749124b536dc0400f7a5337381f3b2d423",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-selected-format-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-formats-right-1450x900-light.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "formats-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "fa68877df54d01dbdb2bc7644bb2af350828a5dfadf0656c386e4620fb05b16d",
+    "rgba_sha256": "f21f5619678cdfb9b16881aefbbe64749124b536dc0400f7a5337381f3b2d423",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-formats-right-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-760x620-light.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "53ee3114f5cae4d01c999669c1e563725b5a456faa74506b0a4259fdbcca2a9b",
+    "rgba_sha256": "d8aaa9f2a653311f0fc41e63b9c51bd091f0c57a98e355d2bc8d0af79d369fd6",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-bottom-760x620-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-zoom-bottom-1450x900-light.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "zoom-bottom",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6513b181b714d063b993ebd3a7ca7d34ccfe5497273fabb464dd158f2e39150d",
+    "rgba_sha256": "ce2d19b9d69201b33714c2954fee743f07bb16d61061f9e9b34c16b8d42c149b",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-zoom-bottom-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-selected-format-1450x900-dark.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "selected-format",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "3ac7314491649e7f62010aa073b9ca94c2743bc54758163a9c26089d0dfa9913",
+    "rgba_sha256": "824efea4987b16c279c5b25b982f2099624d8d5baab0e30285e501dc5f7f7018",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-selected-format-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-formats-right-1450x900-dark.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "formats-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "3ac7314491649e7f62010aa073b9ca94c2743bc54758163a9c26089d0dfa9913",
+    "rgba_sha256": "824efea4987b16c279c5b25b982f2099624d8d5baab0e30285e501dc5f7f7018",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-formats-right-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-760x620-dark.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "415a4e7e3718f531c7177de931cff3aba21cd240a3169a284c9d9e5da5e9951f",
+    "rgba_sha256": "c888a7ef49e69414322972f62b335f6b7726c9b1777293eaf00b24aa8619e394",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-bottom-760x620-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-zoom-bottom-1450x900-dark.png",
+    "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "zoom-bottom",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "b98455773385f6506207c53317c91af026ede4d918298664cefbde4a621d3839",
+    "rgba_sha256": "ca3ef649f976013ca0ff97eaf6a64509e0dc42f78f391c0a3206bef570bb5308",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / existing viewport Screenshot API",
+    "valid_evidence": false,
+    "reason": "Rejected as event-state evidence: actual viewport captured but requested XTest input did not produce the intended selected/scrolled state. GUI event/output tests certify behavior separately.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-native-state/native-zoom-bottom-1450x900-dark.png"
+  }
+]

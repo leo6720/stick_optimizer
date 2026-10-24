@@ -1,0 +1,11 @@
+These additional local capture attempts are NOT accepted evidence of interaction states.
+- Initial standalone final capture failed XOpenDisplay after its Xvfb process ended.
+  Retried with Xvfb and capture in the same shell lifetime; 28 viewport captures passed.
+- 18 XCB framebuffer reads returned black GL post-swap pixels despite process exit0.
+  Rejected before delivery; metadata in rejected-framebuffer.json.
+- 8 viewport API captures returned real image data but XTest events did not produce
+  the intended selected/scrolled state. Rejected as event-state evidence;
+  metadata in rejected-native-state.json. PASS in process-only logs means capture
+  and process lifecycle succeeded, not that the requested interaction state was observed.
+No product source or new environment-variable API was added for these attempts.
+The source event/output tests remain the behavioral evidence for selection and scrolling.

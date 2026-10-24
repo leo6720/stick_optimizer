@@ -98,3 +98,31 @@ PNG neri preservati in scratch per diagnosi, esclusi dalle evidenze consegnate;
 nessuna modifica al prodotto per compensare tale metodo. Nuovi stati selezione
 verificati con output/eventi GUI; eventuali catture aggiuntive useranno API
 viewport esistente. Windows nativo ancora non eseguito, nessun waiver inferito.
+
+## Ripresa e consegna documentale dopo secondo limite di utilizzo
+
+PR draft unica23: https://github.com/leo6720/stick_optimizer/pull/29 .
+Baseline b985d305; source finale `3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95`.
+**Cicli indipendenti2**, conservati: entrambi i revisori hanno confermato
+il fix P2 e dato ACK codice3ae1ff. Nessun difetto prodotto concreto aperto.
+Sul source finale sei mirati PASS (marker/target, doppiclic2, colonne/compatto,
+denso, toolbar/rango/CSV), fmt/check/Clippy/preview/release/MSVC PASS.
+La suite completa103 rimane riferita al WIP precedente, non al sorgente finale.
+
+28viewport accettate rigenerate su3ae1ff, hashPNG/RGBA/dimensioni/exit/provenienza
+controllati dalla coordinatrice; snapshotce554 separato.18XCBnere e8stati
+esterni non applicati respinti esplicitamente, non evidenzePASS di interazione.
+Rapporto e log persistiti in docs/qa/leo23, nessuna dipendenza da scratch per
+leggere le evidenze accettate. Nessuna infrastruttura/gateQA nuova nel prodotto.
+
+Un nuovo limite di utilizzo ha terminato `/root/leo23_resume` e il revisore SPEC
+prima della conferma finale QA/docs. `/root` salva solo documentazione ed
+evidenze, senza fallback all'implementazione prodotto nel proprio contesto.
+Codice invariato rispetto al source congelato3ae1ff. Il revisore standard
+resta disponibile; conferma del pacchetto finale ancora da acquisire e nuovo
+revisore SPEC fresco da verificare dopo pubblicazione del commit.
+
+Prossima azione: due ACK indipendenti sul pacchetto pubblicato, registrati in
+Linear/PR; se delega indisponibile, blocco preciso ready-for-human e rimozione
+ready-for-agent. Windows nativo resta assente. Nessun merge/deploy/Done;
+24 non avviato, 22 e il suo blocco umano non modificati.

@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 2 tests
+test app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it ... ok
+test app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out; finished in 9.20s
+
