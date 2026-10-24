@@ -1,0 +1,12 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 4 tests
+test app::tests::background_search_returns_real_results_and_input_edits_discard_stale_work ... ok
+test app::tests::compact_input_actions_are_reached_by_scrolling_and_keep_remove_confirmation ... ok
+test app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom ... ok
+test app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 51 filtered out; finished in 17.02s
+

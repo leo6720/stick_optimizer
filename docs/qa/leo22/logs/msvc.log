@@ -1,0 +1,4 @@
+    Checking stick-optimizer-core v0.1.0 (/workspace/stick-leo22-async/crates/core)
+    Checking stick-optimizer-io v0.1.0 (/workspace/stick-leo22-async/crates/io)
+    Checking stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.08s

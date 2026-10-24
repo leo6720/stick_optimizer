@@ -11,6 +11,7 @@ use crate::draft::StudyDraft;
 mod details;
 mod files;
 mod heads;
+mod inputs;
 mod parameters;
 mod progress;
 use files::FileAction;
@@ -80,10 +81,8 @@ pub struct PrototypeApp {
     collapsed: HashSet<u64>,
     selected_stick: Option<u64>,
     selected_input: Option<InputSelection>,
-    mt_image: Option<egui::TextureHandle>,
     mt_extra_image: Option<egui::TextureHandle>,
     cartoner_image: Option<egui::TextureHandle>,
-    stick_image: Option<egui::TextureHandle>,
     results: Vec<ResultRow>,
     selected: Option<usize>,
     one_head_only: bool,
@@ -121,10 +120,8 @@ impl Default for PrototypeApp {
             collapsed: HashSet::new(),
             selected_stick: None,
             selected_input: None,
-            mt_image: None,
             mt_extra_image: None,
             cartoner_image: None,
-            stick_image: None,
             results: Vec::new(),
             selected: None,
             one_head_only: false,
@@ -171,11 +168,6 @@ impl PrototypeApp {
         crate::ui::install(ctx);
         #[allow(unused_mut)] // Preview modes mutate the initial state only in QA builds.
         let mut app = Self {
-            mt_image: load_diagram(
-                ctx,
-                "mt_diagram",
-                include_bytes!("../../../img/dati_mt.jpg"),
-            ),
             mt_extra_image: load_diagram(
                 ctx,
                 "mt_extra_diagram",
@@ -185,11 +177,6 @@ impl PrototypeApp {
                 ctx,
                 "cartoner_diagram",
                 include_bytes!("../../../img/dati_astucciatrice.jpg"),
-            ),
-            stick_image: load_diagram(
-                ctx,
-                "stick_diagram",
-                include_bytes!("../../../img/stick_dim.jpg"),
             ),
             ..Self::default()
         };
@@ -325,6 +312,25 @@ impl PrototypeApp {
             Ok("scaled") => {
                 ctx.set_zoom_factor(1.5);
                 app.start_search();
+            }
+            Ok("inputs-empty") => {
+                app.apply_pending(PendingAction::EmptyStudy);
+            }
+            Ok("inputs-error") => {
+                app.study.parameters.channels = "1".into();
+                app.study.sticks[0].width = "0".into();
+                app.invalidate_results();
+            }
+            Ok("inputs-long") => {
+                app.study.sticks[0].name =
+                    "Stick con nome esteso per verifica completa della gerarchia".into();
+                app.study.formats[0].name = "Formato con nome esteso e quantità reale".into();
+                app.study.add_stick();
+                app.study.add_format();
+            }
+            Ok("inputs-focus") => {
+                app.selected_input = Some(InputSelection::Stick(app.study.sticks[0].id));
+                app.selected_stick = Some(app.study.sticks[0].id);
             }
             Ok("many") => {
                 for _ in 0..118 {
@@ -535,6 +541,13 @@ impl PrototypeApp {
             crate::ui::gallery(ui);
             return;
         }
+        #[cfg(feature = "ui-preview")]
+        if ui.ctx().cumulative_pass_nr() == 3
+            && let Ok("inputs-focus") = std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref()
+        {
+            ui.ctx()
+                .memory_mut(|m| m.request_focus(Id::new(("width", self.study.sticks[0].id))));
+        }
         self.poll_search();
         self.handle_file_action();
         self.shortcuts(ui.ctx());
@@ -563,6 +576,10 @@ impl PrototypeApp {
             .frame(crate::ui::container(ui, crate::ui::Surface::Main).inner_margin(10))
             .show(ui, |ui| {
                 egui::MenuBar::new().ui(ui, |ui| {
+                    crate::ui::brand_mark(ui);
+                    ui.label(RichText::new("Stick Optimizer").size(17.0).strong());
+                    ui.add_space(12.0);
+                    ui.separator();
                     let _file_menu = ui.menu_button("File", |ui| {
                         if ui
                             .add_enabled(
@@ -703,26 +720,16 @@ impl PrototypeApp {
                         );
                     }
                     ui.separator();
-                    ui.label(
-                        RichText::new("Stick Optimizer")
-                            .strong()
-                            .color(crate::ui::tokens(ui).accent),
-                    );
                     if ui
                         .add(
                             crate::ui::field(&mut self.study.name)
                                 .id(Id::new("study_name"))
-                                .desired_width(240.0),
+                                .desired_width((ui.available_width() - 100.0).clamp(90.0, 240.0)),
                         )
                         .changed()
                     {
                         self.dirty = true;
                     }
-                    ui.label(
-                        RichText::new("Beta Rust")
-                            .small()
-                            .color(crate::ui::tokens(ui).muted),
-                    );
                     if self.dirty {
                         ui.label(
                             RichText::new("• Da salvare")
@@ -735,7 +742,15 @@ impl PrototypeApp {
         egui::Panel::bottom("status")
             .frame(crate::ui::container(ui, crate::ui::Surface::Inset).inner_margin(8))
             .show(ui, |ui| {
-                ui.label(&self.status);
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(
+                        RichText::new("STATO")
+                            .size(10.0)
+                            .color(crate::ui::tokens(ui).muted),
+                    );
+                    ui.add_space(6.0);
+                    ui.label(&self.status);
+                });
                 if let Some(error) = &self.ui_preferences_error {
                     ui.colored_label(crate::ui::tokens(ui).accent, error);
                 }
@@ -743,27 +758,29 @@ impl PrototypeApp {
 
         let maximum_sidebar = (ui.available_width() * 0.5).max(300.0);
         egui::Panel::left("input_sidebar")
-            .default_size(430.0)
+            .default_size(460.0)
             .size_range(300.0..=maximum_sidebar)
             .resizable(true)
-            .frame(crate::ui::container(ui, crate::ui::Surface::Inset).inner_margin(14))
+            .frame(crate::ui::container(ui, crate::ui::Surface::Inset).inner_margin(20))
             .show(ui, |ui| {
                 egui::ScrollArea::vertical()
                     .id_salt("sidebar_scroll")
                     .show(ui, |ui| {
-                        crate::ui::heading(ui, "Dati MT");
-                        if let Some(image) = &self.mt_image {
-                            ui.add(
-                                egui::Image::new(image).fit_to_exact_size(egui::vec2(210.0, 136.6)),
-                            );
-                        }
+                        crate::ui::section_heading(
+                            ui,
+                            "Dati MT",
+                            "Macchina stickpack e numero di canali.",
+                        );
+                        ui.add_space(12.0);
                         ui.horizontal(|ui| {
-                            let label = ui.label("Np · Canali MT");
+                            let label = ui.strong("Np · Canali MT");
+                            ui.add_space(12.0);
                             if ui
-                                .add(
+                                .add_sized(
+                                    [82.0, 30.0],
                                     crate::ui::field(&mut self.study.parameters.channels)
                                         .id(Id::new(("param", "Canali MT")))
-                                        .desired_width(70.0),
+                                        .horizontal_align(egui::Align::RIGHT),
                                 )
                                 .labelled_by(label.id)
                                 .changed()
@@ -771,27 +788,16 @@ impl PrototypeApp {
                                 self.invalidate_results();
                             }
                         });
+                        inputs::mt_diagram(ui, &self.study.parameters.channels);
+                        ui.add_space(12.0);
                         ui.separator();
-                        crate::ui::heading(ui, "Formati");
-                        ui.horizontal(|ui| {
-                            if let Some(image) = &self.stick_image {
-                                ui.add(
-                                    egui::Image::new(image)
-                                        .fit_to_exact_size(egui::vec2(92.0, 106.0)),
-                                );
-                            }
-                            ui.label(
-                                RichText::new(
-                                    "Hs · Lunghezza stick
-As · Larghezza stick
-Ss · Spessore stick
-Bs · Lunghezza pinna
-Dimensioni in mm",
-                                )
-                                .small()
-                                .color(crate::ui::tokens(ui).muted),
-                            );
-                        });
+                        ui.add_space(12.0);
+                        crate::ui::section_heading(
+                            ui,
+                            "Stick e formati",
+                            "Geometrie e quantità per cassetto.",
+                        );
+                        ui.add_space(12.0);
                         if self.inputs(ui) {
                             self.invalidate_results();
                         }
@@ -826,6 +832,13 @@ Dimensioni in mm",
                             .small()
                             .color(crate::ui::tokens(ui).muted),
                         );
+                        #[cfg(feature = "ui-preview")]
+                        if matches!(
+                            std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref(),
+                            Ok("inputs-scrolled" | "inputs-error")
+                        ) {
+                            ui.scroll_to_cursor(Some(egui::Align::BOTTOM));
+                        }
                     });
             });
         egui::CentralPanel::default()
@@ -891,207 +904,6 @@ Dimensioni in mm",
             }
         }
         rows
-    }
-
-    fn inputs(&mut self, ui: &mut egui::Ui) -> bool {
-        let mut changed = false;
-        let mut remove_format = None;
-        let rows = self.input_rows();
-        let width = ui.available_width().max(380.0);
-        egui::ScrollArea::horizontal()
-            .id_salt("input_horizontal")
-            .show(ui, |ui| {
-                ui.set_width(width);
-                TableBuilder::new(ui)
-                    .id_salt("hierarchical_inputs")
-                    .striped(true)
-                    .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-                    .column(Column::remainder().at_least(130.0).clip(true))
-                    .column(Column::exact(40.0))
-                    .columns(Column::exact(43.0), 4)
-                    .max_scroll_height(240.0)
-                    .sense(egui::Sense::CLICK)
-                    .header(26.0, |mut header| {
-                        for label in ["Stick / Formato", "Qtà", "Hs", "As", "Ss", "Bs"] {
-                            header.col(|ui| {
-                                ui.add(egui::Label::new(RichText::new(label).strong()).truncate())
-                                    .on_hover_text(label);
-                            });
-                        }
-                    })
-                    .body(|body| {
-                        body.rows(26.0, rows.len(), |mut row| match rows[row.index()] {
-                            InputRow::Stick(index) => {
-                                let stick = &mut self.study.sticks[index];
-                                let id = stick.id;
-                                row.set_selected(
-                                    self.selected_input == Some(InputSelection::Stick(id)),
-                                );
-                                row.col(|ui| {
-                                    ui.horizontal(|ui| {
-                                        let closed = self.collapsed.contains(&id);
-                                        if ui
-                                            .add_sized(
-                                                [18.0, 22.0],
-                                                egui::Button::new(if closed { "+" } else { "−" }),
-                                            )
-                                            .on_hover_text("Espandi o comprimi i formati")
-                                            .clicked()
-                                        {
-                                            if closed {
-                                                self.collapsed.remove(&id);
-                                            } else {
-                                                self.collapsed.insert(id);
-                                            }
-                                        }
-                                        changed |= cell(ui, ("stick_name", id), &mut stick.name);
-                                        if ui.memory(|memory| memory.focused())
-                                            == Some(Id::new(("stick_name", id)))
-                                        {
-                                            self.selected_stick = Some(id);
-                                            self.selected_input = Some(InputSelection::Stick(id));
-                                        }
-                                    });
-                                });
-                                row.col(|ui| {
-                                    ui.label("—");
-                                });
-                                for (key, value) in [
-                                    ("length", &mut stick.length),
-                                    ("width", &mut stick.width),
-                                    ("thickness", &mut stick.thickness),
-                                    ("fin", &mut stick.fin),
-                                ] {
-                                    row.col(|ui| {
-                                        changed |= cell(ui, (key, id), value);
-                                        if ui.memory(|memory| memory.focused())
-                                            == Some(Id::new((key, id)))
-                                        {
-                                            self.selected_stick = Some(id);
-                                            self.selected_input = Some(InputSelection::Stick(id));
-                                        }
-                                    });
-                                }
-                                let response = row.response();
-                                if response.clicked() {
-                                    self.selected_stick = Some(id);
-                                    self.selected_input = Some(InputSelection::Stick(id));
-                                }
-                                response.context_menu(|ui| {
-                                    if ui.button("Rimuovi stick e formati associati").clicked() {
-                                        self.pending = Some(PendingAction::RemoveStick(id));
-                                        ui.close();
-                                    }
-                                });
-                            }
-                            InputRow::Format(index) => {
-                                let format = &mut self.study.formats[index];
-                                let id = format.id;
-                                let parent = format.stick_id;
-                                row.set_selected(
-                                    self.selected_input == Some(InputSelection::Format(id)),
-                                );
-                                row.col(|ui| {
-                                    ui.horizontal(|ui| {
-                                        ui.add_space(24.0);
-                                        changed |= cell(ui, ("format_name", id), &mut format.name);
-                                        if ui.memory(|memory| memory.focused())
-                                            == Some(Id::new(("format_name", id)))
-                                        {
-                                            self.selected_stick = parent;
-                                            self.selected_input = Some(InputSelection::Format(id));
-                                        }
-                                    });
-                                });
-                                row.col(|ui| {
-                                    changed |= cell(ui, ("quantity", id), &mut format.quantity);
-                                    if ui.memory(|memory| memory.focused())
-                                        == Some(Id::new(("quantity", id)))
-                                    {
-                                        self.selected_stick = parent;
-                                        self.selected_input = Some(InputSelection::Format(id));
-                                    }
-                                });
-                                for _ in 0..4 {
-                                    row.col(|_ui| {});
-                                }
-                                let response = row.response();
-                                if response.clicked() {
-                                    self.selected_stick = parent;
-                                    self.selected_input = Some(InputSelection::Format(id));
-                                }
-                                response.context_menu(|ui| {
-                                    if ui.button("Rimuovi formato").clicked() {
-                                        remove_format = Some(id);
-                                        ui.close();
-                                    }
-                                });
-                            }
-                        });
-                    });
-            });
-        ui.horizontal_wrapped(|ui| {
-            if ui.button("Agg. Stick").clicked() {
-                self.study.add_stick();
-                self.selected_stick = self.study.sticks.last().map(|stick| stick.id);
-                self.selected_input = self.selected_stick.map(InputSelection::Stick);
-                changed = true;
-            }
-            if ui
-                .add_enabled(
-                    !self.study.sticks.is_empty(),
-                    egui::Button::new("Agg. Formato"),
-                )
-                .on_hover_text("Aggiunge un formato allo stick selezionato, o al primo stick")
-                .clicked()
-            {
-                self.study.add_format();
-                if let Some(parent) = self
-                    .selected_stick
-                    .filter(|id| self.study.sticks.iter().any(|stick| stick.id == *id))
-                {
-                    self.study
-                        .formats
-                        .last_mut()
-                        .expect("just inserted")
-                        .stick_id = Some(parent);
-                    self.collapsed.remove(&parent);
-                }
-                if let Some(format) = self.study.formats.last() {
-                    self.selected_input = Some(InputSelection::Format(format.id));
-                    if let Some(parent) = format.stick_id {
-                        self.collapsed.remove(&parent);
-                    }
-                }
-                changed = true;
-            }
-            if ui
-                .add_enabled(self.selected_input.is_some(), egui::Button::new("Rimuovi"))
-                .on_hover_text(
-                    "Rimuovi la riga selezionata; per uno stick conferma anche i formati associati",
-                )
-                .clicked()
-            {
-                match self.selected_input {
-                    Some(InputSelection::Stick(id)) => {
-                        self.pending = Some(PendingAction::RemoveStick(id))
-                    }
-                    Some(InputSelection::Format(id)) => remove_format = Some(id),
-                    None => {}
-                }
-            }
-        });
-        if let Some(id) = remove_format {
-            self.study.formats.retain(|format| format.id != id);
-            self.selected_input = None;
-            changed = true;
-        }
-        ui.label(
-            RichText::new("Punto o virgola per i decimali · clic destro per rimuovere")
-                .small()
-                .color(crate::ui::tokens(ui).muted),
-        );
-        changed
     }
 
     fn results_ui(&mut self, ui: &mut egui::Ui) {
@@ -1667,14 +1479,6 @@ fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::T
         egui::ColorImage::from_rgba_unmultiplied(size, image.as_raw()),
         egui::TextureOptions::LINEAR,
     ))
-}
-
-fn cell(ui: &mut egui::Ui, id: impl egui::AsId, value: &mut String) -> bool {
-    ui.add_sized(
-        [ui.available_width(), 22.0],
-        crate::ui::field(value).id(Id::new(id)),
-    )
-    .changed()
 }
 
 pub(crate) fn format_number(value: f64) -> String {
@@ -3079,6 +2883,212 @@ mod tests {
     }
 
     #[test]
+    fn input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom() {
+        for (size, zoom) in [
+            (egui::vec2(1450.0, 900.0), 1.0),
+            (egui::vec2(760.0, 620.0), 1.0),
+            (egui::vec2(720.0, 560.0), 1.0),
+            (egui::vec2(966.7, 600.0), 1.5),
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            ctx.set_zoom_factor(zoom);
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            for label in ["Hs", "As", "Ss", "Bs"] {
+                let shape = output
+                    .shapes
+                    .iter()
+                    .find(|s| {
+                        matches!(&s.shape,
+                    egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                    })
+                    .expect("dimension legend rendered");
+                let egui::epaint::Shape::Text(text) = &shape.shape else {
+                    unreachable!()
+                };
+                assert!(
+                    shape
+                        .clip_rect
+                        .contains_rect(egui::Rect::from_min_size(text.pos, text.galley.size())),
+                    "{label} clipped at {size:?}, zoom {zoom}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn compact_input_actions_are_reached_by_scrolling_and_keep_remove_confirmation() {
+        for size in [egui::vec2(760.0, 620.0), egui::vec2(720.0, 560.0)] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+            for _ in 0..4 {
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        egui::Event::PointerMoved(egui::pos2(80.0, 150.0)),
+                        egui::Event::MouseWheel {
+                            unit: egui::MouseWheelUnit::Point,
+                            phase: egui::TouchPhase::Move,
+                            delta: egui::vec2(0.0, -2000.0),
+                            modifiers: egui::Modifiers::NONE,
+                        },
+                    ],
+                );
+            }
+            for _ in 0..8 {
+                draw_frame_at(&ctx, &mut app, size, vec![]);
+            }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            for label in ["Agg. Stick", "Agg. Formato", "Rimuovi"] {
+                let shape = output
+                    .shapes
+                    .iter()
+                    .find(|s| {
+                        matches!(&s.shape,
+                    egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                    })
+                    .expect("input action rendered after scroll");
+                let egui::epaint::Shape::Text(text) = &shape.shape else {
+                    unreachable!()
+                };
+                assert!(
+                    shape
+                        .clip_rect
+                        .contains_rect(egui::Rect::from_min_size(text.pos, text.galley.size())),
+                    "{label} unreachable at {size:?}"
+                );
+            }
+            let pos = text_position(&output, "Agg. Stick", 0.0);
+            for pressed in [true, false] {
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        egui::Event::PointerMoved(pos),
+                        egui::Event::PointerButton {
+                            pos,
+                            button: egui::PointerButton::Primary,
+                            pressed,
+                            modifiers: egui::Modifiers::NONE,
+                        },
+                    ],
+                );
+            }
+            assert_eq!(app.study.sticks.len(), 3);
+            assert!(app.dirty);
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            let pos = text_position(&output, "Rimuovi", 0.0);
+            for pressed in [true, false] {
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        egui::Event::PointerMoved(pos),
+                        egui::Event::PointerButton {
+                            pos,
+                            button: egui::PointerButton::Primary,
+                            pressed,
+                            modifiers: egui::Modifiers::NONE,
+                        },
+                    ],
+                );
+            }
+            assert!(matches!(app.pending, Some(PendingAction::RemoveStick(_))));
+            draw_frame_at(
+                &ctx,
+                &mut app,
+                size,
+                vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+            );
+            assert!(app.pending.is_none());
+            assert_eq!(app.study.sticks.len(), 3);
+        }
+    }
+
+    #[test]
+    fn input_groups_expose_units_and_edit_real_values_through_events_and_public_io() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            crate::ui::apply_theme(&ctx, theme);
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            for label in ["Hs (mm)", "As (mm)", "Ss (mm)", "Bs (mm)"] {
+                text_position(&output, label, 0.0);
+            }
+            calculate(&mut app);
+            app.dirty = false;
+            let stick = app.study.sticks[0].id;
+            let format = app.study.formats[0].id;
+            let select_all = egui::Modifiers {
+                ctrl: true,
+                command: true,
+                ..egui::Modifiers::NONE
+            };
+            for (id, value) in [
+                (Id::new(("param", "Canali MT")), "8"),
+                (Id::new(("stick_name", stick)), "Stick prova"),
+                (Id::new(("length", stick)), "112,5"),
+                (Id::new(("width", stick)), "24,5"),
+                (Id::new(("thickness", stick)), "7"),
+                (Id::new(("fin", stick)), "4"),
+                (Id::new(("format_name", format)), "Formato prova"),
+                (Id::new(("quantity", format)), "16"),
+            ] {
+                draw_frame(&ctx, &mut app, vec![]);
+                let rect = ctx.read_response(id).expect("editable input visible").rect;
+                click_at(&ctx, &mut app, rect.center());
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![
+                        key_event(egui::Key::A, select_all),
+                        egui::Event::Text(value.into()),
+                    ],
+                );
+                assert!(app.dirty && app.results.is_empty());
+            }
+            let folder =
+                std::env::temp_dir().join(format!("leo22-edit-{}-{theme:?}", std::process::id()));
+            std::fs::create_dir_all(&folder).unwrap();
+            let path = folder.join("study.stic");
+            app.save_to(&path).unwrap();
+            let saved = stick_optimizer_io::load(&path).unwrap();
+            assert_eq!(saved.study.settings.channels, 8);
+            assert_eq!(saved.study.sticks[0].name, "Stick prova");
+            assert_eq!(
+                (
+                    saved.study.sticks[0].length,
+                    saved.study.sticks[0].width,
+                    saved.study.sticks[0].thickness,
+                    saved.study.sticks[0].fin
+                ),
+                (112.5, 24.5, 7.0, 4.0)
+            );
+            assert_eq!(saved.study.formats[0].name, "Formato prova");
+            assert_eq!(saved.study.formats[0].quantity, 16);
+            assert_eq!(saved.study.formats[0].stick_id, saved.study.sticks[0].id);
+            let before = std::fs::read(&path).unwrap();
+            app.open_from(&path).unwrap();
+            assert!(!app.dirty && app.job.is_none());
+            assert_eq!(
+                stick_optimizer_io::encode(&app.document().unwrap()).unwrap(),
+                before
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), before);
+            std::fs::remove_dir_all(folder).unwrap();
+        }
+    }
+
+    #[test]
     fn keyboard_edits_a_table_cell_and_tab_moves_to_next_field() {
         let ctx = egui::Context::default();
         let mut app = PrototypeApp::new(&ctx);
@@ -3134,7 +3144,7 @@ mod tests {
         for _ in 0..6 {
             output = draw_frame_at(&ctx, &mut app, size, vec![]);
         }
-        for label in ["Hs", "As", "Ss", "Bs"] {
+        for label in ["Hs (mm)", "As (mm)", "Ss (mm)", "Bs (mm)"] {
             assert!(
                 output.shapes.iter().any(|shape| {
                     if let egui::epaint::Shape::Text(text) = &shape.shape {
@@ -3184,7 +3194,7 @@ mod tests {
             let output = draw_frame_at(&ctx, &mut app, egui::vec2(760.0, 620.0), vec![]);
             for label in [
                 "Dati MT",
-                "Formati",
+                "Stick e formati",
                 "Migliori Soluzioni",
                 "Soluzione 01 · dettagli",
             ] {
@@ -3206,7 +3216,7 @@ mod tests {
                     })
                     .expect("heading already checked")
             };
-            assert!(position("Migliori Soluzioni").x > position("Formati").x + 300.0);
+            assert!(position("Migliori Soluzioni").x > position("Stick e formati").x + 280.0);
             assert!(position("Soluzione 01 · dettagli").y > position("Migliori Soluzioni").y);
             app.parameters_open = true;
             assert!(

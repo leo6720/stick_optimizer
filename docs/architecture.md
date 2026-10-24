@@ -18,8 +18,9 @@ Migliori Soluzioni e Dettagli Soluzione Selezionata a destra; parametri in
 cinque finestre separate da Modifica (pesi, numero risultati, obiettivo A/B,
 astucciatrice e dati aggiuntivi MT). `app/parameters.rs` presenta solo i campi
 del gruppo scelto e applica quel gruppo ai parametri correnti dopo la validazione
-del core, preservando gli altri campi. Le immagini originali MT e dimensioni stick sono incorporate
-nell'eseguibile e decodificate una sola volta all'avvio. Colori e gerarchia
+del core, preservando gli altri campi. Gli schemi della sidebar sono legende vettoriali native con token condivisi
+(`app/inputs.rs`); le immagini originali dei popup parametri restano incorporate
+e decodificate una sola volta all’avvio. Colori e gerarchia
 visiva seguono `ui-design.md`; non ci sono pagine separate per input/output.
 Gli ID di stick e formati sono indipendenti dai nomi modificabili. La rimozione
 di uno stick elimina i formati associati dopo conferma; la modifica degli input
@@ -34,7 +35,11 @@ con fallback egui e varianti dei componenti (azioni, campi, intestazioni,
 tabelle e contenitori). Calcola e Applica condividono la variante primaria;
 Annulla/Chiudi e azioni quiete usano lo stesso sistema di stati egui. I colori
 delle primitive schematiche cambiano con il tema; coordinate e dimensioni
-restano quelle del core. La preferenza di presentazione vive nell'applicazione,
+restano quelle del core. LEO-22 compone input dimensionali e formati associati con righe virtualizzate
+ad altezza variabile, mantenendo gli ID dei campi e delle selezioni. La cornice
+usa gli stessi token per marca, menu, identità dello studio e stato. Le legende
+MT/stick non ricalcolano geometrie né introducono misure del concept.
+La preferenza di presentazione vive nell'applicazione,
 separata dallo studio e dai parametri, con persistenza dedicata in IO.
 È una fondazione integrata, non il completamento del ridisegno A delle aree.
 

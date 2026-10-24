@@ -1,0 +1,18 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+warning: function `cell` is never used
+    --> crates/desktop/src/app.rs:1428:4
+     |
+1428 | fn cell(ui: &mut egui::Ui, id: impl egui::AsId, value: &mut String) -> bool {
+     |    ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `stick-optimizer-desktop` (bin "stick-optimizer-desktop" test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.71s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+test app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 52 filtered out; finished in 8.45s
+

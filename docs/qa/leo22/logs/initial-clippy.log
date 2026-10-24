@@ -1,0 +1,27 @@
+    Checking stick-optimizer-core v0.1.0 (/workspace/stick-leo22-async/crates/core)
+    Checking stick-optimizer-io v0.1.0 (/workspace/stick-leo22-async/crates/io)
+    Checking stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+error: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+   --> crates/desktop/src/app.rs:546:13
+    |
+546 | /             match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
+547 | |                 Ok("inputs-focus") => ui
+548 | |                     .ctx()
+549 | |                     .memory_mut(|m| m.request_focus(Id::new(("width", self.study.sticks[0].id)))),
+550 | |                 _ => {}
+551 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#single_match
+    = note: `-D clippy::single-match` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::single_match)]`
+help: try
+    |
+546 ~             if let Ok("inputs-focus") = std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() { ui
+547 +             .ctx()
+548 +             .memory_mut(|m| m.request_focus(Id::new(("width", self.study.sticks[0].id)))) }
+    |
+
+error: could not compile `stick-optimizer-desktop` (bin "stick-optimizer-desktop") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `stick-optimizer-desktop` (bin "stick-optimizer-desktop" test) due to 1 previous error

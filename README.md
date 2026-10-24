@@ -30,8 +30,8 @@ cargo build --workspace --release --locked
 Il secondo comando apre la finestra «Stick Optimizer — Beta Rust».
 L'eseguibile incorpora le risorse e non richiede Python. In sviluppo è disponibile
 anche `cargo run -p stick-optimizer-desktop --release --locked`.
-Inizia con dati di esempio: modifica gli stick e i formati nella tabella
-gerarchica a sinistra, controlla i parametri da **Modifica** e premi
+Inizia con dati di esempio: modifica gli stick e i formati nella gerarchia a gruppi
+a sinistra, controlla i parametri da **Modifica** e premi
 **Calcola** a destra. **File** permette di creare uno studio vuoto
 o ricaricare l'esempio. Seleziona una riga e premi **Rimuovi**, oppure usa il
 clic destro; eliminare uno stick richiede conferma per i formati associati. **Agg. Formato**
@@ -59,8 +59,13 @@ parametri predefiniti: non salva lo studio né modifica risultati o filtri.
 Se il file UI è invalido viene usato il chiaro; se non si può scrivere, un
 messaggio segnala che il tema della sessione non verrà ricordato.
 Font Inter incorporato con [licenza OFL](crates/desktop/assets/Inter-LICENSE.txt).
-La fondazione condivisa e i due temi sono operativi (LEO-21); il ridisegno A
-completo delle aree input, risultati e popup resta nei ticket LEO-22/23/24.
+La fondazione condivisa e i due temi sono operativi (LEO-21). L’area input e
+la cornice usano il linguaggio A Essenziale (LEO-22): gruppi stick con dimensioni
+in mm, formati associati e quantità; schemi vettoriali leggibili nei due temi.
+I disegni sono legende dimensionali non in scala: non rappresentano una soluzione
+calcolata. Menu, selezione, editing e conferme mantengono i comandi esistenti;
+le aree scorrevoli rendono raggiungibili i controlli in finestra compatta.
+Il ridisegno dei risultati e dei popup resta nei ticket LEO-23/24.
 
 Da **File** puoi aprire e salvare studi `.stic` con input, parametri e filtri.
 Se erano presenti risultati, Apri li ricalcola in background e ripristina la

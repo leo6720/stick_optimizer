@@ -1,0 +1,569 @@
+{
+  "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+  "baseline": "7a2c112e217c4987df7057d5f9b8ada43fcd15b6",
+  "count": 28,
+  "native_windows_executed": false,
+  "provenance": "Actual eframe Glow Linux/Xvfb viewport screenshots. PNG recompressed only after identical RGBA verification. UI preview fixtures are declared individually.",
+  "screenshots": [
+    {
+      "mode": "results",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/results-1450x900-1-light.png",
+      "log": "logs/results-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 8.74,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 184978,
+      "png_sha256": "20336e14b7b29342d4b27e2aac1a2a19f59ae1236a6cf19a269d3fb6055c05f1",
+      "pixel_sha256": "26b5085f5832f4ffa38cb05070f521e41f15124335cbe4832a9caee05efb42be",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "results",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/results-1450x900-1-dark.png",
+      "log": "logs/results-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 9.14,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 187205,
+      "png_sha256": "5174388f47b9f0a3e3cb85daecca6b16f2832a5a45a9b8313a2a8de93e76e4de",
+      "pixel_sha256": "d8d68112282c191c45dd7a5134fecd3aa033f37c6c99c6fcbe4203ac037b8d1b",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "compact",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/compact-760x620-1-light.png",
+      "log": "logs/compact-760x620-1-light.log",
+      "exit": 0,
+      "seconds": 8.71,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 104474,
+      "png_sha256": "367be9f80e108f6449e6b4be669a7cd7d272c373f650ac4a4d77c67cfbd4c19e",
+      "pixel_sha256": "0c8c4663f4ca8f38bbdee028df0b22bfb4d42271da299008aff2ec6271e480fb",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "compact",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/compact-760x620-1-dark.png",
+      "log": "logs/compact-760x620-1-dark.log",
+      "exit": 0,
+      "seconds": 8.41,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 108606,
+      "png_sha256": "f6006857b55c938b702df4ac4207bf4f4288ba60a2f83ee6298f2402db4df52b",
+      "pixel_sha256": "5d7a4a005bbe1a741456c0dd004e629cbd97cd051311a382855251e7ab630899",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "results",
+      "theme": "light",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/results-720x560-1-light.png",
+      "log": "logs/results-720x560-1-light.log",
+      "exit": 0,
+      "seconds": 7.84,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        720,
+        560
+      ],
+      "bytes": 91697,
+      "png_sha256": "c29f3187780aff539efc9d3a4fa10618085d11c00eebac24c98deefc68fef668",
+      "pixel_sha256": "826a1cbd08ee13060df2a5a7ff90e0159aeed29ccd61060bf555498929229a04",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "results",
+      "theme": "dark",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/results-720x560-1-dark.png",
+      "log": "logs/results-720x560-1-dark.log",
+      "exit": 0,
+      "seconds": 7.5,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        720,
+        560
+      ],
+      "bytes": 95779,
+      "png_sha256": "1c27e87d8c29cd1c1c84365dff376fcd1f34284a7152687180567a3bc7221d82",
+      "pixel_sha256": "edb009600858e3bf9908619cfbfbd53b31021384d691200237c6f387bf9b3084",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "scaled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/scaled-1450x900-1.5-light.png",
+      "log": "logs/scaled-1450x900-1.5-light.log",
+      "exit": 0,
+      "seconds": 8.86,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 206130,
+      "png_sha256": "80a62b7740e1b12b2d673acf17f30ad814e996f15fe0da8ed9f4f1f3d3cafc70",
+      "pixel_sha256": "97705f60794c13070b0836f3ae5d462c1d4e9c38992eb30402b7f49403dc6488",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "scaled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/scaled-1450x900-1.5-dark.png",
+      "log": "logs/scaled-1450x900-1.5-dark.log",
+      "exit": 0,
+      "seconds": 8.88,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 209642,
+      "png_sha256": "113b5a94bd100811a511a1e5fbd99d67842548892e4ed8d61c8ff0a6bb41d1aa",
+      "pixel_sha256": "5b0fa53b6c4c81759f87ae46172eb4281a52936610b60bc127ea42f1f3557f68",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/inputs-scrolled-760x620-1-light.png",
+      "log": "logs/inputs-scrolled-760x620-1-light.log",
+      "exit": 0,
+      "seconds": 6.96,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 98003,
+      "png_sha256": "6dbd5026a17210ed6d4e6ca6f7c92c50619c7812f56ede8d419b60c45619d0cb",
+      "pixel_sha256": "a8715a5ec93282fa0cf3a81748dc69af8e582531d61c0bfc6cc28a3a22feee7f",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/inputs-scrolled-760x620-1-dark.png",
+      "log": "logs/inputs-scrolled-760x620-1-dark.log",
+      "exit": 0,
+      "seconds": 7.16,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 97595,
+      "png_sha256": "de69b36954bba793a2bbc53cb9593a81a4f1a294980343379ff4a3ec39edf775",
+      "pixel_sha256": "7bf91d729d43d9d5ab233de4a2d7679ab5f89ee651cd4031bb0035ca8b37e7dd",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "light",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/inputs-scrolled-720x560-1-light.png",
+      "log": "logs/inputs-scrolled-720x560-1-light.log",
+      "exit": 0,
+      "seconds": 7.2,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        720,
+        560
+      ],
+      "bytes": 95660,
+      "png_sha256": "70c504cf30f747f540cacad610e4e418c1a6de0ef6ccce90ab082873e65a967f",
+      "pixel_sha256": "1342e9a71052df973c425bb5f7b861d37eac1685190ad3b2c28f1c39f5551058",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "dark",
+      "size": "720x560",
+      "scale": "1",
+      "path": "screenshots/inputs-scrolled-720x560-1-dark.png",
+      "log": "logs/inputs-scrolled-720x560-1-dark.log",
+      "exit": 0,
+      "seconds": 6.55,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        720,
+        560
+      ],
+      "bytes": 95924,
+      "png_sha256": "5fadeefd7054f6f543952d4f53eb1884c71cfa59f84f8f07b67ddbffd4b5fe15",
+      "pixel_sha256": "617c039b87b5b653000f80422eb3b3ba26c604ec749869fad8a872e35a42447e",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/inputs-scrolled-1450x900-1.5-light.png",
+      "log": "logs/inputs-scrolled-1450x900-1.5-light.log",
+      "exit": 0,
+      "seconds": 7.7,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 182439,
+      "png_sha256": "64b4d6041b72b590be10dd06dbe5a04c19cdbeb6f293bc8e59feda8e622d9e70",
+      "pixel_sha256": "31d24433d421b0ead9e98ac65d9876a21fcfc1e13e51edb73121a1cd99fed9e7",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-scrolled",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1.5",
+      "path": "screenshots/inputs-scrolled-1450x900-1.5-dark.png",
+      "log": "logs/inputs-scrolled-1450x900-1.5-dark.log",
+      "exit": 0,
+      "seconds": 8.64,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 180848,
+      "png_sha256": "1041e25d1e8d86f6c3b4ae24ce5929e60eca919922bd72aebb6668ef0890d6d2",
+      "pixel_sha256": "c5314519f5985aaa27492d9f22a9e1bc6315018106f24b8bb815d8b5b11ebb3d",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "file-menu",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/file-menu-1450x900-1-light.png",
+      "log": "logs/file-menu-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 8.51,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 137474,
+      "png_sha256": "428d3867a6c2e1f2840a8ba159e2b1608653a4946c6a6f8a5ccbdab5c000ac00",
+      "pixel_sha256": "3200e59e340b290e53460cf22f13b11e23cb0e4bce8740ad1867c85e73cd08c0",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "file-menu",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/file-menu-1450x900-1-dark.png",
+      "log": "logs/file-menu-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 8.93,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 136919,
+      "png_sha256": "1f5388f7ea6a21391972736b44dcfb196e5a61aaece734013d3535fc342d6b40",
+      "pixel_sha256": "cee983c698a21bcf14ca5fbe7e624422a9dcf333068d53c8581383239c29dac9",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "edit-menu",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/edit-menu-1450x900-1-light.png",
+      "log": "logs/edit-menu-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 8.11,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 140266,
+      "png_sha256": "a34d7a4dae851112dcbb5d29f4e6dfa183f861c2568fe82314c7e474ffa1c027",
+      "pixel_sha256": "b01de9c11c97a8057ac299e48d87b1ffa68979027405757fe76d3acb978fbcd2",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "edit-menu",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/edit-menu-1450x900-1-dark.png",
+      "log": "logs/edit-menu-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 8.31,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 139532,
+      "png_sha256": "9ea4a9d23cc8fe629274396b30908760ec8b80ab7acc828b9aff42199b5551bb",
+      "pixel_sha256": "94ced25d48ebcdf775229b628f6bb5e704bcedf2565f3cf6be1a915a580984e3",
+      "fixture": false,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-focus",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-focus-1450x900-1-light.png",
+      "log": "logs/inputs-focus-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 8.03,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 123670,
+      "png_sha256": "e52b04756fc48394caafd9ad1098f354e11dae7115413e90f8f4dc0accbf7374",
+      "pixel_sha256": "469c8494f17b321fbf416796fb6a86089e2e12ebb22f7d9e290b3e993ea6e9cf",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-focus",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-focus-1450x900-1-dark.png",
+      "log": "logs/inputs-focus-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 8.08,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 122635,
+      "png_sha256": "cf4949786274fc5821e24c9e25df63e98316418b44d97fdc189a5c24c036ef9f",
+      "pixel_sha256": "21a2433db10668a722774e0042748e7ebfc283df702e0e1ffffef9cadfcbf8cd",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-error",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-error-1450x900-1-light.png",
+      "log": "logs/inputs-error-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 6.13,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 133794,
+      "png_sha256": "2e867aaa4a837f2999f1d027f47955ae7bbca39fc5ed4309ef9a9964a9d4cf8c",
+      "pixel_sha256": "a4696b031f561fc4abe5bef3c337bc2d20b2dfb4025ec0496ee1fd3acac55260",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-error",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-error-1450x900-1-dark.png",
+      "log": "logs/inputs-error-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 7.41,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 133362,
+      "png_sha256": "c37a0c00d84622f4ec187337425fa8850a96d546b2039f3dae31cc2f449b45fa",
+      "pixel_sha256": "a61f25dd16fed2cd42ceec6a559e4ae6e21d9e2ca00f895c9af34228e47f94c4",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-empty",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-empty-1450x900-1-light.png",
+      "log": "logs/inputs-empty-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 5.47,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 107678,
+      "png_sha256": "fd637ecd6c5e5ed497723168e8144662496353350f8262ae1cc9373526a35dd9",
+      "pixel_sha256": "41211a1b63e565e81a0d699484d173a6633be5840eea201c299613c26eab7df2",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-empty",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-empty-1450x900-1-dark.png",
+      "log": "logs/inputs-empty-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 4.98,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 106536,
+      "png_sha256": "69f218340d52a4650c193a33365aa47035e0b8a4aa2e004a16d0e62e2f4297de",
+      "pixel_sha256": "12f65f978e6367cc0ca266bc8ff4be6ef70ebcce74f56f53887392a256824c0d",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-long",
+      "theme": "light",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-long-1450x900-1-light.png",
+      "log": "logs/inputs-long-1450x900-1-light.log",
+      "exit": 0,
+      "seconds": 5.17,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 133076,
+      "png_sha256": "a05dd17d1e6f7fa32e00b9a2c7006c2fa7ca5992234fadd05716385332ed5e94",
+      "pixel_sha256": "4622e95212c94e5ad04ab3f4eec2bfbc13a3d3554bab6cd179b1c4cc9214cbe2",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-long",
+      "theme": "dark",
+      "size": "1450x900",
+      "scale": "1",
+      "path": "screenshots/inputs-long-1450x900-1-dark.png",
+      "log": "logs/inputs-long-1450x900-1-dark.log",
+      "exit": 0,
+      "seconds": 5.23,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        1450,
+        900
+      ],
+      "bytes": 132092,
+      "png_sha256": "1e89cc9376e49899161bdcaf4d8601ebcd5156a2600270accc62c19d5c3b061a",
+      "pixel_sha256": "e6b977f42a6835bbc5541712029f2f9fdde081744fff83713525c9c02283186a",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-long",
+      "theme": "light",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/inputs-long-760x620-1-light.png",
+      "log": "logs/inputs-long-760x620-1-light.log",
+      "exit": 0,
+      "seconds": 4.39,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 97981,
+      "png_sha256": "6c243656ca9058695b7da5461606c427ac84187c38b3ded0bf1c5f186a887b9d",
+      "pixel_sha256": "8287ebc29719ba12c2ff6d78a7938292276484933e4467238f1a341b4b28befd",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    },
+    {
+      "mode": "inputs-long",
+      "theme": "dark",
+      "size": "760x620",
+      "scale": "1",
+      "path": "screenshots/inputs-long-760x620-1-dark.png",
+      "log": "logs/inputs-long-760x620-1-dark.log",
+      "exit": 0,
+      "seconds": 4.44,
+      "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+      "dimensions": [
+        760,
+        620
+      ],
+      "bytes": 97353,
+      "png_sha256": "eeac80b1edd991dfcf5cc0a0385ebe394de23c1fcfc5d54f793aaaccd198144b",
+      "pixel_sha256": "53e791e4e30ce986a320b03b8df36bc9863e3efdffeab3f96649286d5cb41c06",
+      "fixture": true,
+      "inspected": "PASS: implementer inspected actual native screenshot; texts/units/controls and theme; scroll views show reachable actions."
+    }
+  ]
+}

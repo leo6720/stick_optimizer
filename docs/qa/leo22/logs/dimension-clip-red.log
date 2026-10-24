@@ -1,0 +1,19 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.27s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+
+thread 'app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom' (5376) panicked at crates/desktop/src/app.rs:2893:17:
+As clipped at [1450.0 900.0], zoom 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom ... FAILED
+
+failures:
+
+failures:
+    app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 54 filtered out; finished in 3.89s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

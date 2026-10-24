@@ -171,6 +171,31 @@ pub fn field(value: &mut String) -> egui::TextEdit<'_> {
 pub fn heading(ui: &mut egui::Ui, label: &str) -> egui::Response {
     ui.heading(RichText::new(label).color(tokens(ui).text))
 }
+/// Section hierarchy for the input workspace, using the shared theme maps.
+pub fn section_heading(ui: &mut egui::Ui, title: &str, description: &str) {
+    ui.label(
+        RichText::new(title)
+            .size(22.0)
+            .strong()
+            .color(tokens(ui).text),
+    );
+    ui.label(
+        RichText::new(description)
+            .size(12.0)
+            .color(tokens(ui).muted),
+    );
+}
+
+pub fn brand_mark(ui: &mut egui::Ui) {
+    let (rect, _) = ui.allocate_exact_size(egui::vec2(24.0, 24.0), egui::Sense::hover());
+    for (i, height) in [14.0, 22.0, 18.0, 24.0, 16.0].into_iter().enumerate() {
+        let bar = egui::Rect::from_center_size(
+            egui::pos2(rect.left() + 2.0 + i as f32 * 4.5, rect.center().y),
+            egui::vec2(2.5, height),
+        );
+        ui.painter().rect_filled(bar, 1.0, tokens(ui).accent);
+    }
+}
 #[derive(Clone, Copy)]
 pub enum Surface {
     Main,

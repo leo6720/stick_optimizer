@@ -1,0 +1,64 @@
+{
+  "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2",
+  "baseline": "7a2c112e217c4987df7057d5f9b8ada43fcd15b6",
+  "native_windows_executed": false,
+  "commands": [
+    {
+      "name": "fmt",
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "seconds": 0.18,
+      "log": "logs/fmt.log"
+    },
+    {
+      "name": "check",
+      "command": "cargo check --workspace --all-targets --features eframe/x11,ui-preview --locked",
+      "exit": 0,
+      "seconds": 0.18,
+      "log": "logs/check.log"
+    },
+    {
+      "name": "clippy",
+      "command": "cargo clippy --workspace --all-targets --features eframe/x11,ui-preview --locked -- -D warnings",
+      "exit": 0,
+      "seconds": 0.2,
+      "log": "logs/clippy.log"
+    },
+    {
+      "name": "preview-build",
+      "command": "cargo build -p stick-optimizer-desktop --features eframe/x11,ui-preview --locked",
+      "exit": 0,
+      "seconds": 1.47,
+      "log": "logs/preview-build.log"
+    },
+    {
+      "name": "test",
+      "command": "cargo test --workspace --features eframe/x11,ui-preview --locked",
+      "exit": 0,
+      "seconds": 178.9,
+      "log": "logs/test.log"
+    },
+    {
+      "name": "release",
+      "command": "cargo build --workspace --release --features eframe/x11 --locked",
+      "exit": 0,
+      "seconds": 11.24,
+      "log": "logs/release.log"
+    },
+    {
+      "name": "msvc",
+      "command": "cargo check --workspace --all-targets --all-features --target x86_64-pc-windows-msvc --locked",
+      "exit": 0,
+      "seconds": 2.12,
+      "log": "logs/msvc.log"
+    }
+  ],
+  "tests": {
+    "core_unit": 2,
+    "core_integration": 29,
+    "desktop": 55,
+    "io_integration": 13,
+    "total": 99,
+    "doctests": 0
+  }
+}
