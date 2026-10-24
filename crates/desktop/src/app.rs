@@ -1306,6 +1306,50 @@ mod tests {
     }
 
     #[test]
+    fn selected_format_has_a_non_color_marker_and_explicit_open_keeps_its_target() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            crate::ui::apply_theme(&ctx, theme);
+            ctx.global_style_mut(|style| style.animation_time = 0.0);
+            calculate(&mut app);
+            let original = app.results[0].solution.clone();
+            let candidate = &original.candidates[1];
+            for _ in 0..4 {
+                draw_frame(&ctx, &mut app, vec![]);
+            }
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            click_at(
+                &ctx,
+                &mut app,
+                text_position(&output, &candidate.format_name, 400.0),
+            );
+            assert_eq!(app.geometry_format, Some(candidate.format_id));
+            assert!(app.detail_popup.is_none());
+            let output = draw_frame(&ctx, &mut app, vec![]);
+            let row = text_position(&output, &candidate.format_name, 400.0);
+            assert!(
+                output.shapes.iter().any(|s| matches!(&s.shape,
+                egui::epaint::Shape::Text(t) if t.galley.job.text == "✓"
+                    && (t.pos.y + t.galley.size().y / 2.0 - row.y).abs() < 8.0
+                    && s.clip_rect.contains(t.pos + t.galley.size() / 2.0))),
+                "selected format needs a visible marker on its own row"
+            );
+            click_at(
+                &ctx,
+                &mut app,
+                text_position(&output, "Apri dettaglio…", 400.0),
+            );
+            assert_eq!(app.detail_popup, Some((1, candidate.format_id)));
+            assert_eq!(app.results[0].solution, original);
+            assert!(app.job.is_none());
+        }
+    }
+
+    #[test]
     fn format_popup_switches_the_single_layer_and_preserves_real_details() {
         let ctx = egui::Context::default();
         let mut app = PrototypeApp::new(&ctx);

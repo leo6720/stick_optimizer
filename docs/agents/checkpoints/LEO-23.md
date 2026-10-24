@@ -79,3 +79,22 @@ Fmt/check/clippy all-targets/all-features locked PASS sul sorgente corrente.
 Controlli mirati compact/colonne e Calcola, release e QA native finali in corso:
 esiti non anticipati. Freeze al commit contenente questa nota; dopo questo
 commit solo QA/documentazione fino a rilievi dei due revisori della coordinatrice.
+
+## Revisione indipendente ciclo 1 — P2 selezione formato
+
+Due revisori nuovi della coordinatrice su b985→ce554:
+`/root/leo23_spec_review` e `/root/leo23_standards_review`.
+Entrambi trovano P2 concreto: selezione del formato usata da Apri dettaglio
+comunicata solo dal colore in detail_table. Nessun altro difetto concreto.
+Autorizzato fix minimo nel contratto; ce554 non più source finale, cicli **1**
+(non azzerati). RED significativo selected-format-red.log: singolo clic sceglie
+il formato ma manca ✓ sulla propria riga. Fix minimo: marker e peso prima cella,
+nessuna nuova colonna/azione/identità. GREEN e regressioni in corso.
+
+28 viewport native valide su ce554 conservate con provenienza vera nel manifest.
+Le18letture framebufferXCB post-swap nere sono esplicitamente respinte in
+rejected-framebuffer.json: exit0 del processo non ne certifica il contenuto.
+PNG neri preservati in scratch per diagnosi, esclusi dalle evidenze consegnate;
+nessuna modifica al prodotto per compensare tale metodo. Nuovi stati selezione
+verificati con output/eventi GUI; eventuali catture aggiuntive useranno API
+viewport esistente. Windows nativo ancora non eseguito, nessun waiver inferito.

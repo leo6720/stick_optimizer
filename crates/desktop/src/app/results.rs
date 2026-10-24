@@ -543,15 +543,22 @@ fn detail_table(
                     body.rows(30.0, data.len(), |mut row| {
                         let is_selected = selected == Some(row.index());
                         row.set_selected(is_selected);
-                        for value in &data[row.index()] {
+                        for (column, value) in data[row.index()].iter().enumerate() {
                             row.col(|ui| {
-                                table_text(
-                                    ui,
-                                    value,
-                                    value.replace(',', ".").parse::<f64>().is_ok(),
-                                    is_selected,
-                                    false,
-                                );
+                                if column == 0 {
+                                    ui.horizontal(|ui| {
+                                        ui.label(if is_selected { "✓" } else { "  " });
+                                        table_text(ui, value, false, is_selected, is_selected);
+                                    });
+                                } else {
+                                    table_text(
+                                        ui,
+                                        value,
+                                        value.replace(',', ".").parse::<f64>().is_ok(),
+                                        is_selected,
+                                        false,
+                                    );
+                                }
                             });
                         }
                         let response = row.response();
