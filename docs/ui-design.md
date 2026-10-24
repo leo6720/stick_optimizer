@@ -26,8 +26,10 @@ generica che consentiva una riprogettazione dell'interfaccia.
 
 Riferimenti nel codice Python: `gui/app.py` (`_build_layout`,
 `_build_output_tables`), `gui/forms.py`, `gui/tables.py` e `gui/results.py`.
-Gli schemi `img/dati_mt.jpg` e `img/stick_dim.jpg` sono incorporati nella GUI
-Rust. Non dipendono da cartelle accanto all'eseguibile.
+La sidebar Rust usa le legende vettoriali native MT/stick di `app/inputs.rs`
+(LEO-22); i JPG `img/dati_mt.jpg` e `img/stick_dim.jpg` restano riferimenti
+storici. Le immagini dei popup parametri sono tuttora incorporate e non
+richiedono cartelle accanto all’eseguibile.
 
 ## Stile
 

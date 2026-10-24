@@ -78,3 +78,28 @@ Fmt/checkPASS; Clippy ha segnalato `single_match` nel solo ramo QA focus.
 Correzione equivalente `if let` coordinata con root prima della mutazione;
 nessun altro cambiamento prodotto. Nuovo freeze dopo verifica dei tre controlli,
 poi suitefinale e catture su talehead. Nessun esito dei revisori anticipato.
+
+## Consegna QA su source congelato — ciclo1
+
+Sorgentef0e4b46b64710c33f271e2a85db1abe3da626ca2, baseline7a2c112.
+**99testPASS=31core+55desktop+13IO**, doctest0. Fmt/check/Clippy-Dwarnings,
+buildpreview, buildreleaseLinuxX11 e checkMSVC tuttiPASS. Nessuna esecuzione
+Windows nativa dichiarata.28catture reali e ispezionate nei due temi, normali,
+compatte/minimo/150%, scorse, menu, vuoto/errori, selezione e nomi lunghi.
+HashPNG/RGBA, dimensioni, exit0 e provenienza verificati; tutto in
+[rapporto QA](../../qa/leo22/README.md), manifest e log relativi.
+
+Revisori fresh `/root/leo22_spec_review` e `/root/leo22_standards_review` sullo
+stesso baseline/source. Root ha riferito esito favorevole codice; QA/final-head
+in attesa di conferma indipendente. Unico rilievo documentale: frase storica
+che descriveva ancora i JPGsidebar incorporati, allineata alla versione corrente
+nella passata di sole evidenze/documenti. Nessun’altra mutazione del sorgente
+successiva al freeze. **Ciclo1 conservato**, non azzerato dalla correzione lint.
+
+Prossima azione: commit/push sole evidenze, ACK dei revisori tramite root,
+PRdraft e aggiornamento InReview/ready-for-human per Windows22 gestiti da root.
+PRdraft unica22 aperta da root: https://github.com/leo6720/stick_optimizer/pull/28,
+verso main, base7a2c112/sourcef0e4b46. Entrambi i revisori favorevoli sul sorgente;
+standard ha inoltre letto i log finali99PASS e controlli, zero difetti concreti.
+Root acquisirà i final ACK del pacchetto complessivo dopo questo push di sole
+evidenze/documenti. Nessun merge/deploy/Done.

@@ -1,0 +1,17 @@
+{
+  "baseline_main": "7a2c112e217c4987df7057d5f9b8ada43fcd15b6",
+  "reviewed_dependency_head": "4d8c77a4096672e8ef53d1d4a59562b108fb2952",
+  "main_tree": "c4bb02c54eafeea14cbc309bfc56d42f4d3c642a",
+  "dependency_qa_manifest": "../leo21/manifest.json",
+  "dependency_captures_verified": 46,
+  "checks": [
+    "PNG SHA256",
+    "RGBA SHA256",
+    "dimensions",
+    "exit0"
+  ],
+  "baseline_tests_passed": 96,
+  "baseline_test_log": "logs/baseline-test.log",
+  "core_io_lock_toolchain_unchanged": true,
+  "source_head": "f0e4b46b64710c33f271e2a85db1abe3da626ca2"
+}
