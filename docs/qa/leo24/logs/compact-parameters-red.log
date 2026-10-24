@@ -1,0 +1,19 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo24-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.61s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+
+thread 'app::tests::parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows' (23643) panicked at crates/desktop/src/app.rs:2747:25:
+Weights Applica clipped at 150%
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test app::tests::parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows ... FAILED
+
+failures:
+
+failures:
+    app::tests::parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 60 filtered out; finished in 4.34s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

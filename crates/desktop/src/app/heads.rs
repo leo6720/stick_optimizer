@@ -88,13 +88,16 @@ impl PrototypeApp {
         let mut close = false;
         egui::Window::new(format!("Testa {} · ID {} · Soluzione {:02}", head.id + 1, head.id, popup.rank))
             .id(Id::new("head_detail_window"))
+            .frame(crate::ui::dialog_frame(ctx))
             .open(&mut open).collapsible(false)
             .default_width(width).default_height(height)
             .min_size(egui::vec2(280.0, 240.0))
             .default_pos(available.center() - egui::vec2(width, height) / 2.0)
             .show(ctx, |ui| {
+                crate::ui::dialog_intro(ui, "Geometria effettiva della testa · viste frontali prima e dopo il raggruppamento.");
                 egui::ScrollArea::vertical().id_salt("head_content")
-                    .max_height((ui.available_height() - 42.0).max(100.0)).show(ui, |ui| {
+                    .max_height((ui.available_height() - 60.0).clamp(60.0, crate::ui::dialog_body_height(ctx, 200.0))).show(ui, |ui| {
+                    crate::ui::dialog_section(ui, |ui| {
                     ui.label(format!("{} prelevatori · 1 stick per prelevatore · Raggruppamento {}", head.geometry.positions.len(), head.geometry.grouping));
                     ui.label(format!("Formati associati: {}", candidates.iter().map(|c| c.format_name.as_str()).collect::<Vec<_>>().join(", ")));
                     ui.horizontal_wrapped(|ui| {
@@ -103,6 +106,8 @@ impl PrototypeApp {
                             .show_ui(ui, |ui| { for c in &candidates { ui.selectable_value(&mut popup.format_id, c.format_id, &c.format_name); } });
                     });
                     ui.add(egui::Slider::new(&mut popup.zoom, 0.5..=3.0).text("Zoom disegno"));
+                    });
+                    ui.add_space(8.0);
                     ui.label(RichText::new("Vista esemplificativa statica · traversa e prelevatori stilizzati, senza quote costruttive.").small().color(crate::ui::tokens(ui).muted));
                     if let Some(c) = candidates.iter().find(|c| c.format_id == popup.format_id)
                         && let Some(stick) = study.sticks.iter().find(|s| s.id == c.stick_id) {
@@ -112,12 +117,16 @@ impl PrototypeApp {
                         if let Some(pitch) = quotes.group_pitch { ui.label(format!("Passo fra gruppi: {} mm", measurement(pitch))); }
                         ui.label(format!("Interassi finali nel gruppo: {} mm", quotes.final_spacings.iter().map(|&v|measurement(v)).collect::<Vec<_>>().join(" / ")));
                         for (before, title, span) in [(true, "Prima del raggruppamento", quotes.pickup_span), (false, "Dopo il raggruppamento", quotes.final_span)] {
-                            ui.separator(); ui.strong(title);
+                            ui.add_space(8.0);
+                            crate::ui::dialog_section(ui, |ui| {
+                            ui.strong(title);
+                            ui.add_space(6.0);
                             let canvas_width = ui.available_width().max(280.0) * popup.zoom;
                             egui::ScrollArea::horizontal().id_salt(("head_drawing", before)).show(ui, |ui| {
                                 draw_front(ui, &head.geometry, stick.width, before, canvas_width);
                             });
                             ui.label(format!("Distanza primo–ultimo centro: {} mm", measurement(span)));
+                            });
                         }
                     }
                     #[cfg(feature = "ui-preview")]

@@ -934,42 +934,68 @@ impl PrototypeApp {
             }
         };
         let mut confirm = false;
-        let response = egui::Modal::new(Id::new("confirm_action")).show(ctx, |ui| {
-            ui.set_max_width(400.0);
-            ui.strong("Conferma modifica");
-            ui.label(text);
-            ui.horizontal_wrapped(|ui| {
-                if !matches!(action, PendingAction::RemoveStick(_))
-                    && self.dirty
-                    && ui.button("Salva e continua").clicked()
-                    && self.save_current(false)
-                {
-                    confirm = true;
-                }
-                confirm |= ui
-                    .button(
-                        if self.dirty && !matches!(action, PendingAction::RemoveStick(_)) {
-                            "Continua senza salvare"
-                        } else {
-                            "Conferma"
-                        },
-                    )
-                    .clicked();
-                if ui
-                    .add(crate::ui::button(
-                        ui,
-                        "Annulla",
-                        crate::ui::ButtonVariant::Secondary,
-                    ))
-                    .clicked()
-                {
-                    self.pending = None;
-                }
+        let response = egui::Modal::new(Id::new("confirm_action"))
+            .frame(crate::ui::dialog_frame(ctx))
+            .show(ctx, |ui| {
+                ui.set_max_width((ctx.content_rect().width() - 80.0).clamp(240.0, 440.0));
+                ui.label(RichText::new("Conferma modifica").size(20.0).strong());
+                ui.add_space(10.0);
+                egui::ScrollArea::vertical()
+                    .id_salt("confirmation_body")
+                    .max_height(crate::ui::dialog_body_height(ctx, 220.0))
+                    .show(ui, |ui| {
+                        crate::ui::dialog_section(ui, |ui| {
+                            ui.label(text);
+                        });
+                        if let Some(error) = &self.diagnostic {
+                            ui.add_space(8.0);
+                            crate::ui::error_notice(ui, error);
+                        }
+                    });
+                ui.add_space(12.0);
+                ui.horizontal_wrapped(|ui| {
+                    if !matches!(action, PendingAction::RemoveStick(_))
+                        && self.dirty
+                        && ui
+                            .add(
+                                crate::ui::button(
+                                    ui,
+                                    "Salva e continua",
+                                    crate::ui::ButtonVariant::Primary,
+                                )
+                                .min_size(egui::vec2(0.0, 32.0)),
+                            )
+                            .clicked()
+                        && self.save_current(false)
+                    {
+                        confirm = true;
+                    }
+                    confirm |= ui
+                        .add(
+                            crate::ui::button(
+                                ui,
+                                if self.dirty && !matches!(action, PendingAction::RemoveStick(_)) {
+                                    "Continua senza salvare"
+                                } else {
+                                    "Conferma"
+                                },
+                                crate::ui::ButtonVariant::Secondary,
+                            )
+                            .min_size(egui::vec2(0.0, 32.0)),
+                        )
+                        .clicked();
+                    if ui
+                        .add(crate::ui::button(
+                            ui,
+                            "Annulla",
+                            crate::ui::ButtonVariant::Secondary,
+                        ))
+                        .clicked()
+                    {
+                        self.pending = None;
+                    }
+                });
             });
-            if let Some(error) = &self.diagnostic {
-                ui.colored_label(crate::ui::tokens(ui).accent, error);
-            }
-        });
         if confirm {
             self.apply_pending(action);
         } else if response.should_close() {
@@ -2722,6 +2748,80 @@ mod tests {
         // These headless tests intentionally discard GPU texture updates.
         output.textures_delta.clear();
         output
+    }
+
+    #[test]
+    fn parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            for editor in ParameterEditor::ALL {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                crate::ui::apply_theme(&ctx, theme);
+                ctx.set_zoom_factor(1.5);
+                let size = egui::vec2(480.0, 373.3); // 720×560 native at 150%.
+                app.open_parameter_editor(editor);
+                app.parameters_error = Some(
+                    "Parametro non valido: correggere il valore prima di applicare. ".repeat(12),
+                );
+                let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                for _ in 0..5 {
+                    output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                }
+                for label in ["Applica", "Annulla"] {
+                    let s = output
+                        .shapes
+                        .iter()
+                        .find(|s| {
+                            matches!(&s.shape,
+                        egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                        })
+                        .expect(label);
+                    if let egui::epaint::Shape::Text(t) = &s.shape {
+                        let rect = egui::Rect::from_min_size(t.pos, t.galley.size());
+                        assert!(
+                            s.clip_rect
+                                .intersect(egui::Rect::from_min_size(egui::Pos2::ZERO, size))
+                                .contains_rect(rect),
+                            "{editor:?} {label} clipped at 150%"
+                        );
+                    }
+                }
+                let first_label = match editor {
+                    ParameterEditor::Weights => "Tipi cassetto",
+                    ParameterEditor::ResultCount => "Numero di risultati",
+                    ParameterEditor::AbTarget => "Rapporto A/B desiderato",
+                    ParameterEditor::Cartoner => "C_1 - Larghezza divisore",
+                    ParameterEditor::Mt => "D - Offset max stick",
+                };
+                // Tab into the first parameter and edit through public events.
+                ctx.memory_mut(|m| m.request_focus(Id::new(("parameter", editor, first_label))));
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        key_event(egui::Key::A, egui::Modifiers::CTRL),
+                        egui::Event::Text("7".into()),
+                    ],
+                );
+                assert_eq!(
+                    ctx.memory(|m| m.focused()),
+                    Some(Id::new(("parameter", editor, first_label)))
+                );
+                let before = app.study.parameters.clone();
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+                assert!(!app.parameters_open);
+                assert_eq!(app.study.parameters, before);
+            }
+        }
     }
 
     #[test]

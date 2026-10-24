@@ -55,3 +55,16 @@ Solo checkpoint/evidenze di baseline salvati; prodotto24 non ancora implementato
 Nessuna revisione indipendente effettuata. Prossima azione: RED pubblico egui
 su comandi/footer e focus dei popup compatti, componenti modulari condivisi,
 prime catture intermedie alla coordinatrice, poi verifiche e source freeze.
+
+## WIP intermedio — ciclo0
+
+Componenti condivisi per superfici/dialoghi, gruppi, messaggi espliciti e footer
+usati negli editor, filtri, formato/testa, progresso e conferme. Le famiglie
+mantengono Window/Modal originali e gli ID/eventi. Geometrie e worker invariati.
+RED pubblico significativo: validazione lunga al minimo720×560/150% tagliava
+Applica nell'editor Pesi; log compact-parameters-red.log. Spostando l'errore
+nel corpo scorrevole e riservando il footer il test passa nei cinque editor
+e nei due temi (compact-parameters-green.log). Il caso ordinario era già verde,
+conservato come compact-parameters-baseline.log. Nessun esito completo finale
+ancora dichiarato. Build/catture intermedie in preparazione per feedback root.
+WIP non concluso, nessuna revisione indipendente, cicli sempre0.

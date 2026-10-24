@@ -48,11 +48,7 @@ impl PrototypeApp {
 
     pub(super) fn results_ui(&mut self, ui: &mut egui::Ui) {
         if let Some(message) = &self.diagnostic {
-            egui::Frame::group(ui.style())
-                .fill(crate::ui::tokens(ui).hover)
-                .show(ui, |ui| {
-                    ui.label(message);
-                });
+            crate::ui::error_notice(ui, message);
         }
         if self.results.is_empty() {
             ui.add_space(8.0);
