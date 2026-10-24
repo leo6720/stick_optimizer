@@ -189,7 +189,10 @@ pub fn dialog_section<R>(ui: &mut egui::Ui, add: impl FnOnce(&mut egui::Ui) -> R
     container(ui, Surface::Inset)
         .inner_margin(12)
         .corner_radius(6)
-        .show(ui, add)
+        .show(ui, |ui| {
+            ui.set_min_width(ui.available_width());
+            add(ui)
+        })
         .inner
 }
 
@@ -225,6 +228,24 @@ pub fn dialog_actions(ui: &mut egui::Ui, accept: &str) -> (bool, bool) {
             .add_sized([90.0, 32.0], button(ui, accept, ButtonVariant::Primary))
             .clicked();
         (cancel, apply)
+    })
+    .inner
+}
+
+pub fn dialog_close(ui: &mut egui::Ui) -> bool {
+    ui.add_space(8.0);
+    ui.separator();
+    ui.add_space(4.0);
+    ui.horizontal(|ui| {
+        let close = ui
+            .add_sized([90.0, 32.0], button(ui, "Chiudi", ButtonVariant::Secondary))
+            .clicked();
+        ui.label(
+            RichText::new("Esc per chiudere")
+                .small()
+                .color(tokens(ui).muted),
+        );
+        close
     })
     .inner
 }

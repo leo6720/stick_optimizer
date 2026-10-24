@@ -58,7 +58,10 @@ impl FilterEditor {
                 );
                 egui::ScrollArea::vertical()
                     .id_salt("filter_body")
-                    .max_height(crate::ui::dialog_body_height(ctx, 200.0))
+                    .max_height(
+                        crate::ui::dialog_body_height(ctx, 220.0)
+                            .min((ui.available_height() - 72.0).max(60.0)),
+                    )
                     .show(ui, |ui| {
                         if let Some(error) = &self.error {
                             crate::ui::error_notice(ui, error);

@@ -68,3 +68,25 @@ e nei due temi (compact-parameters-green.log). Il caso ordinario era già verde,
 conservato come compact-parameters-baseline.log. Nessun esito completo finale
 ancora dichiarato. Build/catture intermedie in preparazione per feedback root.
 WIP non concluso, nessuna revisione indipendente, cicli sempre0.
+
+## Candidato al congelamento sorgente — ciclo0
+
+Feedback root sulle prime10 viewport native del WIP198ca86: gerarchia leggibile;
+richiesto solo allineamento Chiudi alla dimensione32 degli altri footer.
+Corretto inoltre il footer parametri nella finestra riaperta con altezza
+memorizzata: il corpo rispetta sia il viewport sia lo spazio disponibile.
+Regressioni parametri5 PASS sul WIP aggiornato; regressioni popup4 PASS,
+inclusi marker dei selettori. Uscite con nomi/errori lunghi di filtri/formato/
+testa/conferma al minimo720×560/150% nei due temi PASS. Editing/Tab/Esc dei
+cinque editor con errore lungo PASS; il test richiede anche il valore editato.
+Il primo tentativo di quest'ultima asserzione ometteva il modificatore egui
+command nell'evento Ctrl+A e accodava testo: corretto solo l'evento di test,
+nessun comportamento prodotto modificato per compensarlo. Log storici
+esplicitamente distinti da esiti finali. Nessuna asserzione geometrica rimossa.
+
+Il commit contenente questa nota è il candidato sorgente per nuove catture
+e feedback finale. Le future verifiche complete e la matrice finale saranno
+attribuite allo SHA effettivo, non ai WIP precedenti. Nessuna review ancora,
+cicli0; nessun esito finale anticipato. Prossima azione: nuove viewport mirate,
+freeze confermato, suite/controlli e matrice nativa sullo stesso SHA, due revisori
+fresh coordinati da root. Windows nativo ancora non eseguito.

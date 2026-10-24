@@ -132,13 +132,13 @@ impl PrototypeApp {
             .open(&mut open)
             .frame(crate::ui::dialog_frame(ctx))
             .default_width((ctx.content_rect().width() - 64.0).clamp(280.0, 620.0))
-            .default_pos(ctx.content_rect().center() - egui::vec2(280.0, 240.0))
+            .default_pos(egui::pos2((ctx.content_rect().width() - 652.0).max(32.0) / 2.0, 32.0))
             .collapsible(false)
             .show(ctx, |ui| {
                 crate::ui::dialog_intro(ui, "Modifica i parametri del gruppo. Applica conferma; Annulla conserva lo studio.");
                 egui::ScrollArea::vertical()
                     .id_salt(("parameter_body", editor))
-                    .max_height(crate::ui::dialog_body_height(ctx, 200.0))
+                    .max_height(crate::ui::dialog_body_height(ctx, 260.0).min((ui.available_height() - 72.0).max(60.0)))
                     .show(ui, |ui| {
                         if let Some(error) = &self.parameters_error {
                             crate::ui::error_notice(ui, error);

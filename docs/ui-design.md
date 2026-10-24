@@ -113,6 +113,22 @@ percentuali simulate. Input, menu e scorciatoie dello studio sono bloccati;
 la tastiera rimane utilizzabile per i comandi del popup. Esc e clic esterni
 non lo nascondono. Il blocco termina soltanto quando il worker è terminato.
 
+## Popup e stati A Essenziale (LEO-24)
+
+I dialoghi interni riusano la superficie principale con margini16, gruppi su
+superficie inset con margini12, testo e bordi dei token condivisi. Introduzioni
+brevi distinguono bozza parametri, filtro e consultazione tecnica; Applica,
+Annulla e Chiudi hanno altezza32. Il corpo scorre separatamente dai footer.
+I campi parametri impilano etichetta e controllo quando manca larghezza; unità,
+valori, reset del gruppo e ID di focus sono conservati. Errori lunghi scorrono
+con il corpo e hanno etichetta «Attenzione» e bordo, oltre al colore.
+La scelta corrente di formato nei menu dei due popup ha una spunta; i nomi
+troncati nel selettore sono disponibili nel tooltip. La geometria conserva il
+primo strato completo e le viste di tutti i prelevatori prima/dopo.
+Conferme e progresso mantengono i blocchi esistenti. Le fasi indeterminate
+restano esplicite, senza percentuale stimata. File picker e cornice OS non
+vengono sostituiti da componenti interni.
+
 ## Area input e cornice A Essenziale (LEO-22)
 
 La specifica accettata rev1 di LEO-11 supera le metriche storiche della tabella

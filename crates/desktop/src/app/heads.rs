@@ -102,8 +102,13 @@ impl PrototypeApp {
                     ui.label(format!("Formati associati: {}", candidates.iter().map(|c| c.format_name.as_str()).collect::<Vec<_>>().join(", ")));
                     ui.horizontal_wrapped(|ui| {
                         ui.label("Formato rappresentato:");
-                        egui::ComboBox::from_id_salt("head_format").selected_text(candidates.iter().find(|c| c.format_id == popup.format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato"))
-                            .show_ui(ui, |ui| { for c in &candidates { ui.selectable_value(&mut popup.format_id, c.format_id, &c.format_name); } });
+                        let selected_name = candidates.iter().find(|c| c.format_id == popup.format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato");
+                        egui::ComboBox::from_id_salt("head_format").selected_text(selected_name)
+                            .width((ui.available_width() - 80.0).clamp(100.0, 360.0)).truncate()
+                            .show_ui(ui, |ui| { for c in &candidates {
+                                let label = if popup.format_id == c.format_id { format!("✓ {}", c.format_name) } else { c.format_name.clone() };
+                                ui.selectable_value(&mut popup.format_id, c.format_id, label);
+                            } }).response.on_hover_text(selected_name);
                     });
                     ui.add(egui::Slider::new(&mut popup.zoom, 0.5..=3.0).text("Zoom disegno"));
                     });
@@ -132,8 +137,7 @@ impl PrototypeApp {
                     #[cfg(feature = "ui-preview")]
                     if std::env::var("STICK_OPTIMIZER_PREVIEW").is_ok_and(|m| m.ends_with("-bottom")) { ui.scroll_to_cursor(Some(egui::Align::BOTTOM)); }
                 });
-                ui.separator();
-                close = ui.add(crate::ui::button(ui, "Chiudi", crate::ui::ButtonVariant::Secondary)).clicked();
+                close = crate::ui::dialog_close(ui);
                 close |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
         if open && !close {

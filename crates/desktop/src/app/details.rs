@@ -90,11 +90,16 @@ impl PrototypeApp {
                 crate::ui::dialog_intro(ui, "Quote e configurazione della soluzione selezionata. Tutti i valori provengono dal calcolo.");
                 ui.horizontal_wrapped(|ui| {
                     ui.label("Formato:");
+                    let selected_name = solution.candidates.iter().find(|c| c.format_id == format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato");
                     egui::ComboBox::from_id_salt("popup_format")
-                        .selected_text(solution.candidates.iter().find(|c| c.format_id == format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato"))
+                        .selected_text(selected_name)
+                        .width((ui.available_width() - 80.0).clamp(100.0, 360.0)).truncate()
                         .show_ui(ui, |ui| {
-                            for c in &solution.candidates { ui.selectable_value(&mut format_id, c.format_id, &c.format_name); }
-                        });
+                            for c in &solution.candidates {
+                                let label = if format_id == c.format_id { format!("✓ {}", c.format_name) } else { c.format_name.clone() };
+                                ui.selectable_value(&mut format_id, c.format_id, label);
+                            }
+                        }).response.on_hover_text(selected_name);
                 });
                 egui::ScrollArea::vertical()
                     .id_salt("format_popup_scroll")
@@ -120,11 +125,7 @@ impl PrototypeApp {
                             }
                         }
                     });
-                ui.separator();
-                ui.horizontal(|ui| {
-                    close = ui.add(crate::ui::button(ui, "Chiudi", crate::ui::ButtonVariant::Secondary)).clicked();
-                    ui.label(RichText::new("Esc per chiudere").small().color(crate::ui::tokens(ui).muted));
-                });
+                close = crate::ui::dialog_close(ui);
                 close |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
         self.detail_popup = (open && !close).then_some((rank, format_id));
