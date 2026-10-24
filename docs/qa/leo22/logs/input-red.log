@@ -1,0 +1,19 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo22-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.48s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+
+thread 'app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io' (3280) panicked at crates/desktop/src/app.rs:1705:32:
+Missing visible text: Hs (mm)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io ... FAILED
+
+failures:
+
+failures:
+    app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 52 filtered out; finished in 4.93s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

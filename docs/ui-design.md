@@ -110,3 +110,22 @@ Preparazione e arresto hanno testo dedicato e indicatore indeterminato, senza
 percentuali simulate. Input, menu e scorciatoie dello studio sono bloccati;
 la tastiera rimane utilizzabile per i comandi del popup. Esc e clic esterni
 non lo nascondono. Il blocco termina soltanto quando il worker è terminato.
+
+## Area input e cornice A Essenziale (LEO-22)
+
+La specifica accettata rev1 di LEO-11 supera le metriche storiche della tabella
+input sopra: sono conservate organizzazione, funzioni e identità, con gruppi
+stick distinti e formati associati. Ogni gruppo raccoglie nome, Hs/As/Ss/Bs in
+mm e legenda dimensionale; le righe formato conservano nome e quantità reali.
+La selezione ha un bordo accent e l’editing numerico è allineato a destra.
+Espansione, aggiunta/rimozione, conferme e Tab mantengono i comportamenti.
+I campi e i comandi input hanno dimensioni maggiori; righe virtualizzate e
+scorrimenti permettono di raggiungere tutto anche nel minimo720×560.
+
+Le legende MT e stick sono disegnate con i token dei due temi. MT conserva Np
+e D (offset massimo); oltre24canali o durante un input invalido la legenda è
+esplicitamente simbolica. Hs è lunghezza, As larghezza, Ss spessore nella
+sezione separata e Bs pinna. Nessuna quota illustrativa dei mockup o formula
+del motore è usata per generare misure. La cornice mantiene File/Modifica,
+scorciatoie, nome editabile, dirty e messaggi di stato. Risultati e popup
+conservano la fondazione LEO-21; il loro ridisegno appartiene a23/24.
