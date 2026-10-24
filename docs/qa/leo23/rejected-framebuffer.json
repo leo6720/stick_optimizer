@@ -1,0 +1,380 @@
+[
+  {
+    "path": "docs/qa/leo23/screenshots/native-formats-right-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "formats-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-formats-right-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-pockets-right-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "pockets-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-pockets-right-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-heads-right-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "heads-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-heads-right-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-760x620-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "25e6bcaa033240a44d33ee535d85f819bed4c59091814e2042a30103a8718626",
+    "rgba_sha256": "b1473bae566554090071da5d99fd9c6fd104efd835823aa36c27a8adb4258c4e",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-bottom-760x620-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-720x560-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "789945c56ca97444a5bed3facc0f36425af01854d9156fdd6e425ab481be9301",
+    "rgba_sha256": "ea43992587acb63caa45850950bc5e6d1985304eb90ae0bdaf69fbb9ba6b5b2d",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-bottom-720x560-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-dense-last-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "dense",
+    "native_action": "dense-last",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6c3a720650722529288eee4dd8a85aaabdfebfd5f507357e7b16379f6d46d4da",
+    "rgba_sha256": "7abd6f1f8657cc3d52784da3d5d3f92f7c05157779f461ccdb8190a82d25d4b5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-dense-last-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-tooltip-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "long",
+    "native_action": "tooltip",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "29b324515ab85d249cfcafb3ae3c2cfb78fd764555fe7b34e65c25fd5ae68875",
+    "rgba_sha256": "37f225ee35f66c57b9d7524422b9666c92078873586bc400325c6bb7cd357c21",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-tooltip-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-penalties-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "penalties",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-penalties-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-zoom-bottom-1450x900-light.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "light",
+    "fixture": "default",
+    "native_action": "zoom-bottom",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-zoom-bottom-1450x900-light.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-formats-right-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "formats-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-formats-right-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-pockets-right-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "pockets",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "pockets-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-pockets-right-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-heads-right-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "heads",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "heads-right",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-heads-right-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-760x620-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "760x620",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      760,
+      620
+    ],
+    "png_sha256": "25e6bcaa033240a44d33ee535d85f819bed4c59091814e2042a30103a8718626",
+    "rgba_sha256": "b1473bae566554090071da5d99fd9c6fd104efd835823aa36c27a8adb4258c4e",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-bottom-760x620-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-bottom-720x560-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "720x560",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "bottom",
+    "exit": 0,
+    "dimensions": [
+      720,
+      560
+    ],
+    "png_sha256": "789945c56ca97444a5bed3facc0f36425af01854d9156fdd6e425ab481be9301",
+    "rgba_sha256": "ea43992587acb63caa45850950bc5e6d1985304eb90ae0bdaf69fbb9ba6b5b2d",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-bottom-720x560-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-dense-last-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "dense",
+    "native_action": "dense-last",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "e88efa2d0c99967f67f44a05a8ea3904a9b5356fd309c08fc67e50e70bee53e8",
+    "rgba_sha256": "8cb7adbcdfa29c450e58ea0a0bbba2f882231a3869df10aa55f67f46e51fa2bf",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-dense-last-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-tooltip-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "long",
+    "native_action": "tooltip",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "469a180c4f37b8945891c680b4f6a7ee063cafcd9b315e45e9880ae7a171550a",
+    "rgba_sha256": "6366779d643e528e3da9b2aab2120a510b9ea48f6e5b248ef360ee5d4ac82b02",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-tooltip-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-penalties-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "penalties",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-penalties-1450x900-dark.png"
+  },
+  {
+    "path": "docs/qa/leo23/screenshots/native-zoom-bottom-1450x900-dark.png",
+    "source_sha": "ce554696c83acbca7595818673fc5bafcf60c7c1",
+    "mode": "results",
+    "requested_size": "1450x900",
+    "zoom": "1.5",
+    "theme": "dark",
+    "fixture": "default",
+    "native_action": "zoom-bottom",
+    "exit": 0,
+    "dimensions": [
+      1450,
+      900
+    ],
+    "png_sha256": "6b687e7c2b8f2f195751c16250ded7f77a09e1b388f98f0877ec7476984d8455",
+    "rgba_sha256": "d54e1df883792d8b3bf9751798504403afc7f19a3e0d2173e214b0f971619bc5",
+    "renderer": "eframe Glow / X11 / software GL / XTest input / XCB framebuffer",
+    "valid_evidence": false,
+    "reason": "Rejected: XCB post-swap framebuffer is black; process exit0 alone does not certify image content.",
+    "retained_scratch_path": "/workspace/scratch/leo23-resume/rejected-framebuffer/native-zoom-bottom-1450x900-dark.png"
+  }
+]

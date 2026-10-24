@@ -1,0 +1,12 @@
+{
+  "source_sha": "3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95",
+  "validated_viewports": 28,
+  "png_hashes": "PASS",
+  "rgba_hashes": "PASS",
+  "dimensions": "PASS",
+  "exit_codes": "PASS",
+  "source_provenance": "PASS",
+  "source_unchanged": "PASS",
+  "validator": "coordinator /root; integrity check, not an independent code review",
+  "native_windows_executed": false
+}

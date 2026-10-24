@@ -1,0 +1,7 @@
+Baseline: b985d30588f4d4dce696254803bb84e1a761d5d2
+Full workspace 103 PASS: source49a46fff15d95a5ea4ee4b1b10b816b75ddfb299 (format-only cleanup while running, same behavior).
+Later ce554696c83acbca7595818673fc5bafcf60c7c1: Calcola alignment + feature-gated real-worker QA fixtures.
+Final3ae1ffcb2aea1bc36dbcfe496eca015d72fb4d95: P2 row marker/weight + new test; no core/IO/lock/toolchain changes.
+Final targeted selected-format GREEN1 test (both themes), double-click2, columns/compact1, dense1, toolbar1:6 PASS.
+Final fmt/check/clippy/preview/release/MSVC PASS: cycle1-* logs; source fixed3ae1.
+The full103 run is not relabelled as a full104 run on the final source.

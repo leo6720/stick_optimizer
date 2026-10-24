@@ -1,0 +1,19 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo23-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.01s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+
+thread 'app::tests::selected_format_has_a_non_color_marker_and_explicit_open_keeps_its_target' (18557) panicked at crates/desktop/src/app.rs:1325:13:
+selected format needs a visible marker on its own row
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test app::tests::selected_format_has_a_non_color_marker_and_explicit_open_keeps_its_target ... FAILED
+
+failures:
+
+failures:
+    app::tests::selected_format_has_a_non_color_marker_and_explicit_open_keeps_its_target
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 59 filtered out; finished in 4.44s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`
