@@ -90,3 +90,28 @@ attribuite allo SHA effettivo, non ai WIP precedenti. Nessuna review ancora,
 cicli0; nessun esito finale anticipato. Prossima azione: nuove viewport mirate,
 freeze confermato, suite/controlli e matrice nativa sullo stesso SHA, due revisori
 fresh coordinati da root. Windows nativo ancora non eseguito.
+
+## Ripresa isolata — ciclo1 conservato
+
+Nuovo implementatore `/root/leo24_resume`, creato `fork_turns:none`, nel solo
+worktree/branch24 esistente. Baseline main7f74aad e source4b4a435 invariati
+alla ripresa; ownership verificata dalla coordinatrice. Lettura corrente Linear
+Leochist: In Progress+ready, rev1/stima100k invariati, commenti vuoti, nessuna
+pausa. GO alla correzione nel perimetro confermato da root.
+
+Il ciclo indipendente **1** era stato avviato dai precedenti revisori spec e
+standard, poi terminati con la sessione senza verdetto finale salvato. Non è
+PASS e il contatore non viene azzerato. Root avvierà ciclo2 sul nuovo freeze.
+
+La suite completa source4b ha **62desktop PASS/1FAIL**: regressione
+`extra_spacing_editor_is_visible_validated_applied_and_cancelled`, testo
+Interasse aggiuntivo massimo non visibile. Fmt/check/Clippy4b PASS; release e
+MSVC non eseguiti dopo quel fallimento. Le64 catture4b e relativi manifest/log
+sono conservati in `docs/qa/leo24/historical/4b4a435`, con archivio SHA256;
+nessuna attribuzione al futuro source. Nessun processo24 attivo salvo Xvfb124.
+
+Prossima azione: RED della regressione, altezza iniziale adattiva dei cinque
+editor conservando resize/manual rememberedheight/scroll/footer e disegni,
+mirati, nuovo sourcefreeze, suite/catture sullo stesso SHA. Focus nei test di
+editing viene richiesto internamente: non certifica focus iniziale automatico.
+Windows nativo tuttora non disponibile, nessun waiver24. Tracker/PR a root.
