@@ -1,0 +1,57 @@
+{
+  "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+  "baseline": "7f74aad53c540eeebc36897f8f084727b83f499a",
+  "workspace_tests_passed": 109,
+  "core_tests_passed": 31,
+  "desktop_tests_passed": 65,
+  "io_tests_passed": 13,
+  "checks": {
+    "fmt": 0,
+    "check": 0,
+    "clippy": 0,
+    "test": 0,
+    "release": 0,
+    "msvc": 0,
+    "preview-build": 0
+  },
+  "screenshots_expected": 36,
+  "screenshots_verified": 36,
+  "png_sha256_verified": true,
+  "rgba_sha256_verified": true,
+  "dimensions_verified": true,
+  "native_linux_glow_xvfb": true,
+  "native_windows_executed": false,
+  "msvc_is_compile_only": true,
+  "historical_matrix": {
+    "path": "historical/4b4a435/manifest.json",
+    "source_head": "4b4a4350af60b1a24bf91f2f15581f7f1ef1db4b",
+    "count": 64,
+    "historical_full_suite_exit": 101,
+    "archive_files_sha256_verified": 135
+  },
+  "preview_binary_sha256": "c5b92f31772bb31e4485f4166bf805ade683e716b1bf701abc9259b3d41db932",
+  "review_cycle": 2,
+  "reviews_pending_final_reports": false,
+  "reviews": [
+    {
+      "axis": "spec",
+      "agent": "/root/leo24_spec_cycle2",
+      "fork_turns": "none",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "cycle": 2,
+      "verdict": "PASS",
+      "open_defects": 0,
+      "report": "reviews/spec-cycle2.md"
+    },
+    {
+      "axis": "standards",
+      "agent": "/root/leo24_standards_cycle2",
+      "fork_turns": "none",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "cycle": 2,
+      "verdict": "PASS",
+      "open_defects": 0,
+      "report": "reviews/standards-cycle2.md"
+    }
+  ]
+}

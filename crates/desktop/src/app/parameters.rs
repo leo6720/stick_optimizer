@@ -130,52 +130,71 @@ impl PrototypeApp {
         egui::Window::new(editor.title())
             .id(Id::new(("parameters_window", editor)))
             .open(&mut open)
-            .default_width(540.0)
-            .default_pos(ctx.content_rect().center() - egui::vec2(280.0, 240.0))
+            .frame(crate::ui::dialog_frame(ctx))
+            .default_width((ctx.content_rect().width() - 64.0).clamp(280.0, 620.0))
+            // Give diagrams and fields room on first opening. A default preserves
+            // egui's remembered size after the user resizes the editor.
+            .default_height((ctx.content_rect().height() - 150.0).clamp(180.0, 740.0))
+            .default_pos(egui::pos2((ctx.content_rect().width() - 652.0).max(32.0) / 2.0, 32.0))
             .collapsible(false)
             .show(ctx, |ui| {
-                egui::ScrollArea::both()
-                    .max_height((ctx.content_rect().height() - 260.0).clamp(100.0, 560.0))
+                crate::ui::dialog_intro(ui, "Modifica i parametri del gruppo. Applica conferma; Annulla conserva lo studio.");
+                egui::ScrollArea::vertical()
+                    .id_salt(("parameter_body", editor))
+                    .max_height(crate::ui::dialog_body_height(ctx, 260.0).min((ui.available_height() - 72.0).max(60.0)))
                     .show(ui, |ui| {
+                        if let Some(error) = &self.parameters_error {
+                            crate::ui::error_notice(ui, error);
+                            ui.add_space(8.0);
+                        }
                         let diagram = match editor {
                             ParameterEditor::Cartoner => self.cartoner_image.as_ref(),
                             ParameterEditor::Mt => self.mt_extra_image.as_ref(),
                             _ => None,
                         };
                         if let Some(image) = diagram {
-                            ui.add(egui::Image::new(image).max_width(480.0).max_height(180.0).shrink_to_fit());
+                            crate::ui::dialog_section(ui, |ui| {
+                                ui.add(egui::Image::new(image).max_width(ui.available_width()).max_height(180.0).shrink_to_fit());
+                            });
                             ui.add_space(8.0);
                         }
                         if editor == ParameterEditor::Weights {
                             ui.label("Valori non negativi. I pesi ordinano le soluzioni; il filtro Pareto mantiene le sue sette metriche.");
                         }
-                        egui::Grid::new(("parameter_fields", editor))
-                            .num_columns(3).spacing([12.0, 6.0])
+                        crate::ui::dialog_section(ui, |ui| {
+                            let compact = ui.available_width() < 480.0;
+                            egui::Grid::new(("parameter_fields", editor))
+                            .num_columns(if compact { 1 } else { 3 }).spacing([16.0, 10.0])
                             .show(ui, |ui| {
                                 for (label, value, unit) in editor.fields(&mut draft) {
                                     let response = ui.label(label);
+                                    if compact { ui.end_row(); }
+                                    ui.horizontal(|ui| {
                                     ui.add(crate::ui::field(value)
                                         .id(Id::new(("parameter", editor, label)))
-                                        .desired_width(100.0)).labelled_by(response.id);
+                                        .horizontal_align(egui::Align::RIGHT)
+                                        .min_size(egui::vec2(100.0, 26.0))
+                                        .desired_width(110.0)).labelled_by(response.id);
+                                    if compact {
+                                        ui.label(RichText::new(unit).small().color(crate::ui::tokens(ui).muted));
+                                    }
+                                    });
+                                    if !compact {
                                     ui.label(RichText::new(unit).small().color(crate::ui::tokens(ui).muted));
+                                    }
                                     ui.end_row();
                                 }
                             });
+                        });
                         if editor == ParameterEditor::AbTarget {
                             ui.label("Accetta il punto o la virgola come separatore decimale.");
                         }
-                        if ui.button("Ripristina valori predefiniti").clicked() {
+                        ui.add_space(8.0);
+                        if ui.add(crate::ui::button(ui, "Ripristina valori predefiniti", crate::ui::ButtonVariant::Secondary)).clicked() {
                             editor.copy_fields(self.defaults.as_ref().unwrap_or(&Parameters::default()), &mut draft);
                         }
                     });
-                if let Some(error) = &self.parameters_error {
-                    ui.colored_label(crate::ui::tokens(ui).accent, error);
-                }
-                ui.separator();
-                ui.horizontal(|ui| {
-                    cancel = ui.add(crate::ui::button(ui, "Annulla", crate::ui::ButtonVariant::Secondary)).clicked();
-                    apply = ui.add(crate::ui::button(ui, "Applica", crate::ui::ButtonVariant::Primary)).clicked();
-                });
+                (cancel, apply) = crate::ui::dialog_actions(ui, "Applica");
                 cancel |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
         if apply {

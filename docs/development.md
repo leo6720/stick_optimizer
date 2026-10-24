@@ -49,6 +49,15 @@ la riapertura e richiesta di chiusura nativa. I test IO usano solo cartelle
 temporanee isolate per studi, preferenze e CSV; non usano dati utente.
 Schema e limiti di persistenza in [rust-files.md](rust-files.md).
 
+LEO-24 aggiunge regressioni a eventi/output egui per i footer dei cinque editor
+con validazione lunga a720×560/150%, editing/Tab/Esc e conservazione dello
+studio; per filtri, formato, testa e conferme con contenuti lunghi verifica
+uscita cliccabile e risultati invariati. I selettori formato indicano anche
+con una spunta la scelta corrente nei due temi. Le prove esistenti di quote,
+strato completo, tutti i prelevatori, parametri/preferenze e worker reale
+rimangono distinte dalle fixture visive. Le modalità preview `parameters-error`
+e `filters-error` mostrano soltanto errori congelati per verificare l'aspetto.
+
 LEO-19 aggiunge prove pubbliche di quote effettive e CSV per gruppi2/3/4,
 con25/26mm, divisori e centrale strutturale; sei scelte separate/condivise
 attraversano editor→Applica→Calcola→dettagli→CSV→salva/riapri tramite eventi

@@ -47,66 +47,68 @@ impl FilterEditor {
         let mut applied = None;
         egui::Window::new("Filtri delle soluzioni")
             .open(&mut open)
-            .default_width(400.0)
+            .frame(crate::ui::dialog_frame(ctx))
+            .default_width((ctx.content_rect().width() - 64.0).clamp(280.0, 520.0))
             .default_pos(ctx.content_rect().center() - egui::vec2(210.0, 150.0))
             .collapsible(false)
             .show(ctx, |ui| {
-                ui.label(
+                crate::ui::dialog_intro(
+                    ui,
                     "Intervalli inclusivi; vuoto = nessun limite. Min = max per un valore esatto.",
                 );
-                egui::Grid::new("range_filters")
-                    .spacing([16.0, 6.0])
+                egui::ScrollArea::vertical()
+                    .id_salt("filter_body")
+                    .max_height(
+                        crate::ui::dialog_body_height(ctx, 220.0)
+                            .min((ui.available_height() - 72.0).max(60.0)),
+                    )
                     .show(ui, |ui| {
-                        ui.strong("Colonna");
-                        ui.strong("Minimo");
-                        ui.strong("Massimo");
-                        ui.end_row();
-                        for (label, values) in [
-                            "Passo (mm)",
-                            "Tipi cassetto",
-                            "Tipi testa",
-                            "Strati max",
-                            "Punteggio",
-                        ]
-                        .into_iter()
-                        .zip(&mut self.values)
-                        {
-                            ui.label(label);
-                            for value in values {
-                                ui.add(crate::ui::field(value).desired_width(85.0));
-                            }
-                            ui.end_row();
+                        if let Some(error) = &self.error {
+                            crate::ui::error_notice(ui, error);
+                            ui.add_space(8.0);
                         }
+                        crate::ui::dialog_section(ui, |ui| {
+                            egui::Grid::new("range_filters")
+                                .spacing([16.0, 10.0])
+                                .show(ui, |ui| {
+                                    ui.strong("Colonna");
+                                    ui.strong("Minimo");
+                                    ui.strong("Massimo");
+                                    ui.end_row();
+                                    for (label, values) in [
+                                        "Passo (mm)",
+                                        "Tipi cassetto",
+                                        "Tipi testa",
+                                        "Strati max",
+                                        "Punteggio",
+                                    ]
+                                    .into_iter()
+                                    .zip(&mut self.values)
+                                    {
+                                        ui.label(label);
+                                        for value in values {
+                                            ui.add(
+                                                crate::ui::field(value)
+                                                    .horizontal_align(egui::Align::RIGHT)
+                                                    .min_size(egui::vec2(65.0, 26.0))
+                                                    .desired_width(85.0),
+                                            );
+                                        }
+                                        ui.end_row();
+                                    }
+                                });
+                        });
                     });
-                if let Some(error) = &self.error {
-                    ui.colored_label(crate::ui::tokens(ui).accent, error);
+                let (cancel, apply) = crate::ui::dialog_actions(ui, "Applica");
+                if cancel {
+                    self.open = false;
                 }
-                ui.separator();
-                ui.horizontal(|ui| {
-                    if ui
-                        .add(crate::ui::button(
-                            ui,
-                            "Annulla",
-                            crate::ui::ButtonVariant::Secondary,
-                        ))
-                        .clicked()
-                    {
-                        self.open = false;
+                if apply {
+                    match self.parsed() {
+                        Ok(r) => applied = Some(r),
+                        Err(e) => self.error = Some(e),
                     }
-                    if ui
-                        .add(crate::ui::button(
-                            ui,
-                            "Applica",
-                            crate::ui::ButtonVariant::Primary,
-                        ))
-                        .clicked()
-                    {
-                        match self.parsed() {
-                            Ok(r) => applied = Some(r),
-                            Err(e) => self.error = Some(e),
-                        }
-                    }
-                });
+                }
                 if ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape)) {
                     self.open = false;
                 }

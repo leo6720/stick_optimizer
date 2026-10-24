@@ -1,0 +1,27 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo24-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.92s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 5 tests
+
+thread 'app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying' (24667) panicked at crates/desktop/src/app.rs:1081:32:
+Missing visible text: Applica
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying ... FAILED
+test app::tests::edit_menu_opens_each_python_parameter_popup ... ok
+
+thread 'app::tests::separate_parameter_editors_validate_apply_and_cancel' (24746) panicked at crates/desktop/src/app.rs:1081:32:
+Missing visible text: Applica
+test app::tests::separate_parameter_editors_validate_apply_and_cancel ... FAILED
+test draft::tests::persisted_head_parameters_survive_draft_preferences_and_study_roundtrips ... ok
+test app::tests::parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows ... ok
+
+failures:
+
+failures:
+    app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying
+    app::tests::separate_parameter_editors_validate_apply_and_cancel
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 56 filtered out; finished in 64.85s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

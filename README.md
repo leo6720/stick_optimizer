@@ -65,7 +65,12 @@ in mm, formati associati e quantità; schemi vettoriali leggibili nei due temi.
 I disegni sono legende dimensionali non in scala: non rappresentano una soluzione
 calcolata. Menu, selezione, editing e conferme mantengono i comandi esistenti;
 le aree scorrevoli rendono raggiungibili i controlli in finestra compatta.
-Il ridisegno dei risultati e dei popup resta nei ticket LEO-23/24.
+Gli editor parametri, filtri e popup tecnici condividono superfici, gruppi e
+azioni A Essenziale (LEO-24). I footer restano fuori dal corpo scorrevole,
+anche con messaggi lunghi; il formato selezionato nel menu ha una spunta.
+Conferme, diagnostica e progresso usano gli stessi componenti nei due temi.
+Applica, Annulla, Esc e X mantengono le azioni esistenti; applicare parametri
+non salva i predefiniti. I selettori file del sistema restano nativi.
 
 Da **File** puoi aprire e salvare studi `.stic` con input, parametri e filtri.
 Se erano presenti risultati, Apri li ricalcola in background e ripristina la

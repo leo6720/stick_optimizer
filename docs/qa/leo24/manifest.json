@@ -1,0 +1,731 @@
+{
+  "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+  "baseline": "7f74aad53c540eeebc36897f8f084727b83f499a",
+  "expected": 36,
+  "count": 36,
+  "native_windows_executed": false,
+  "provenance": "Real egui/eframe Glow viewport API screenshots on Linux Xvfb. Lossless PNG recompression checked against original RGBA. Error fixture only verifies appearance. Historical 64-family matrix remains under historical/4b4a435 with original source; non-parameter popup source unchanged since then.",
+  "screenshots": [
+    {
+      "mode": "parameters",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-1450x900-1-light.png",
+      "log": "logs/parameters-1450x900-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 13.41,
+      "png_sha256": "426790b22d3efece85ecaf3ca2d5ed34a9dd81f377b7dd504afa4ed3a09cca71",
+      "pixel_sha256": "2e9722ca75df886bd9fc59fafe83a841d16257b14bf0aa217221d23f9b0190fa",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-1450x900-1-dark.png",
+      "log": "logs/parameters-1450x900-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 11.42,
+      "png_sha256": "72486cecf41afd708e127e7e48b1b1396f7341de05755c57966ccc1dd25e53d0",
+      "pixel_sha256": "07fc9bc1b7716ae174e25c436559b19dbab6d69573f98540bac335c52927cb86",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-760x620-1-light.png",
+      "log": "logs/parameters-760x620-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 12.51,
+      "png_sha256": "c87daff04cc59c93a32280bc510dd1f8a96545137dd8d0c9719c4b07f4e09e54",
+      "pixel_sha256": "aee289a10a36bd763ab6c9b2446c0b358f1216b4aa0d0f856dbc6b919718c454",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-760x620-1-dark.png",
+      "log": "logs/parameters-760x620-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 14.2,
+      "png_sha256": "d6cf2913d1e671b552e6832fae37c29b3fe1f7caccdca2466714517a183da69a",
+      "pixel_sha256": "310e324024f9334af2a1afd469ec23dca20addbdbe69579bf29b32b9d16df6e1",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-1450x900-1.5-light.png",
+      "log": "logs/parameters-1450x900-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 17.87,
+      "png_sha256": "e1216ca71420f4d6085dec71de0da002434da2981b7e91cf1f9154c27edf6a1e",
+      "pixel_sha256": "9b1f73b47b8bb17586bb05808a974526ffdd62cbacfb82f376189dbc0340f902",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-1450x900-1.5-dark.png",
+      "log": "logs/parameters-1450x900-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 15.93,
+      "png_sha256": "9ae0e76521af1c0b4385fbf958e439951654af1f33db424b36933c2cab4c3c78",
+      "pixel_sha256": "96718159e0443e00ac6a6dc69e630ef70c3b598eead3bc478518e1fe65d48459",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-1450x900-1-light.png",
+      "log": "logs/parameters-weights-1450x900-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 13.93,
+      "png_sha256": "fc1414a03164c99fdf5b93b1f184d21eb4cc35ff52fb4eca25c3e034421e1adb",
+      "pixel_sha256": "c404f07fbb87f1a7f9a0787363e18c810d6916d4f9a3a80f3553f345e98dd430",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-1450x900-1-dark.png",
+      "log": "logs/parameters-weights-1450x900-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 11.16,
+      "png_sha256": "ec02928be7987a092091ecea6601c4fd5bffcfd75dce4fbfd85b5808759e721e",
+      "pixel_sha256": "496628d49dd7660fb9185068e579b643a2ee33637df51463a850d101ba41ca3b",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-760x620-1-light.png",
+      "log": "logs/parameters-weights-760x620-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 8.45,
+      "png_sha256": "9dea680ea77f1537151b0f17e9c00cd1c13884cbf7aeb6f2eaa9423c0e989c55",
+      "pixel_sha256": "9577f63b3c4df39afa82c758792688ec0dc8eeb747a2ef6454d67721236a8a91",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-760x620-1-dark.png",
+      "log": "logs/parameters-weights-760x620-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 11.29,
+      "png_sha256": "e648eb3bec44254097f421f73d1775d255aa296d6432a17affe6b4f350ff60fa",
+      "pixel_sha256": "886c52928fa690e6cd4671209432cef26c7e285ef5b854c2cbb66f014453cbcc",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-1450x900-1.5-light.png",
+      "log": "logs/parameters-weights-1450x900-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 12.46,
+      "png_sha256": "6dff5236d8ec807bc3b748a0c1366c2c253e057ce82ec72a17d8d03a42c3aefa",
+      "pixel_sha256": "be31534c3cdd655888f655d14efea60a0a69e1807f12a94fa63a8f8ad1598d2b",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-1450x900-1.5-dark.png",
+      "log": "logs/parameters-weights-1450x900-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 13.13,
+      "png_sha256": "6897dc9caeee0b14e8338b8e022053b76abb57275291d2bddbbff50fb29f9ea6",
+      "pixel_sha256": "2e384ba7d238ca7fe3bf2ea9d2f622419656210d1301c317e7b93e0786bf9be7",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-1450x900-1-light.png",
+      "log": "logs/parameters-results-1450x900-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 10.95,
+      "png_sha256": "1401442c09324a224cb104cee5014ec4b5d3ff5be07749eacd98d1d9ff2dc791",
+      "pixel_sha256": "ddfc99764d0c5f23d537d0451fbd1955c5785871e4dab2ce6697a2a9c7a94d04",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-1450x900-1-dark.png",
+      "log": "logs/parameters-results-1450x900-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 11.37,
+      "png_sha256": "06ca28c1a73be0c9f20665a8e7492cdcf14add1345e3d286dcaf875bd87a627b",
+      "pixel_sha256": "a8bdbf5519a3cfc7dbfa3207cbfd5cb542ef7c3e59659c31a415e4f1a76ec5d3",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-760x620-1-light.png",
+      "log": "logs/parameters-results-760x620-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 10.97,
+      "png_sha256": "03c238ca0089dd99bd5ced1f04d7f544b3bad9ed6264a686dbadeb8d73bd5f73",
+      "pixel_sha256": "94ea41227b23308754b371537b554ed2ce16ca3fd2487bb44599f2710ce0c76e",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-760x620-1-dark.png",
+      "log": "logs/parameters-results-760x620-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 13.43,
+      "png_sha256": "eb53c823f3feb821a073c93fe1c51ccee4b03d4967fd595fd38d37d6060126b5",
+      "pixel_sha256": "a062b02c7b8c6fb55d46510942063f8c042f6d9815ecf21c724943def3ecff06",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-1450x900-1.5-light.png",
+      "log": "logs/parameters-results-1450x900-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 11.82,
+      "png_sha256": "76e59f9c019a554df6b5456151484ffb594068d39a69884b0800160db229dbdd",
+      "pixel_sha256": "75e298e8c9fbee57fb6984fb973c9fb85df934ff22adb80196fb2a6899911a40",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-results",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-results-1450x900-1.5-dark.png",
+      "log": "logs/parameters-results-1450x900-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 12.3,
+      "png_sha256": "059f7bee3a0c080d924a8c4fbfbfc2b73d1ea6e799ef9692b16a7752361e3b8c",
+      "pixel_sha256": "7eda4a3c396efa8754100122c80f5b1a4742c64099178e437126d1dc4cc1ee9d",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-1450x900-1-light.png",
+      "log": "logs/parameters-ab-1450x900-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 15.3,
+      "png_sha256": "3edddb154d149da0af15cab01263fa007cc2384f1c9932a7330674d392511260",
+      "pixel_sha256": "c0162108a7021e5b57f4cabeb69cf17a139c89caa01d400d4afac059bfcb23ec",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-1450x900-1-dark.png",
+      "log": "logs/parameters-ab-1450x900-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 15.46,
+      "png_sha256": "dec104d31f2a87ff51ccf98785809bd52882edc68b482f3b2153658f29410084",
+      "pixel_sha256": "ea8547f237828911ad9410e84f8285d9d1c694f124de2f186fc6e61eee2f38bb",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-760x620-1-light.png",
+      "log": "logs/parameters-ab-760x620-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 13.02,
+      "png_sha256": "e373485969ba9e950ede095a9c4197b609c97d3e7bdc6390414ddf17f7cc9fe2",
+      "pixel_sha256": "7eed4e6c5524e9eb97de7ea70269148408a1b98767fe4e56dcec0e95fba6db4e",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-760x620-1-dark.png",
+      "log": "logs/parameters-ab-760x620-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 12.37,
+      "png_sha256": "b423d26504f6fc48a4c1b78adae80cc35423b916cad8a796a55f2fde67214e2d",
+      "pixel_sha256": "cd7a0338c2ab3fb01f282011f298706d3050fb81ba437ef0d0b8197342a00914",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-1450x900-1.5-light.png",
+      "log": "logs/parameters-ab-1450x900-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 12.56,
+      "png_sha256": "c822e59967510c82b4e4ad7257d70e3f37ea6676657da50bb54cf1b8f47b55a7",
+      "pixel_sha256": "91826fee9ea6dd9387c32d1b15879260e536153dd186ec62c157fc84d04518dc",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-ab",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-ab-1450x900-1.5-dark.png",
+      "log": "logs/parameters-ab-1450x900-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 12.44,
+      "png_sha256": "6ca98f435d13955707e76ba0c704487e038491e857e5f65ff92669f0a0fe1409",
+      "pixel_sha256": "e8296fe570830ffef1e5ee47b126b9261e5931c3508fb936d686bdbcde7db936",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-1450x900-1-light.png",
+      "log": "logs/parameters-mt-1450x900-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 13.63,
+      "png_sha256": "98fe53780479b18518a4ad0854e898efcf5d16a010d8880137c737ba0146d066",
+      "pixel_sha256": "8aeb1607d07fd054b3ad03e915b2a6f6d00a9a2f25ac7f33f7c0ed5e22cb8d97",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "1450x900",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-1450x900-1-dark.png",
+      "log": "logs/parameters-mt-1450x900-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 14.97,
+      "png_sha256": "dfbaf79a9c2c6aaec7a0f427f34773c330328900e0302d15a75dfe37d29b411e",
+      "pixel_sha256": "86c0426f70bf3f7f62e8bdd3712775783a323dc36d48d704ce243455806c3a65",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-760x620-1-light.png",
+      "log": "logs/parameters-mt-760x620-1-light.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 10.15,
+      "png_sha256": "24e79907bd067fd45ea129209fd254f052f1e9fdbae622858b02920fdb7186ba",
+      "pixel_sha256": "ae76dea236d5b3908ca46a11b0a3395e83e4cdc56d405562cf84293babbb2ba2",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "760x620",
+      "scale": 1,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-760x620-1-dark.png",
+      "log": "logs/parameters-mt-760x620-1-dark.log",
+      "exit": 0,
+      "dimensions": [
+        760,
+        620
+      ],
+      "seconds": 13.92,
+      "png_sha256": "035eb1ea319e0c42ba0e16f7908c1b7d57ec2349fced71966055cd86ac9021d3",
+      "pixel_sha256": "84e5daf191f6f3ee5af8ba11357b7c88d48d9f3f6c74ea40c46a78ddbb006271",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-1450x900-1.5-light.png",
+      "log": "logs/parameters-mt-1450x900-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 15.92,
+      "png_sha256": "a14012b512c77fc1564c05122685ebde963f0ed4a6347618f471758a969578cd",
+      "pixel_sha256": "8755599b9dd770aa2eae92947cf2d51ca1f0a5bf95379edd4b15ab976631225c",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-mt",
+      "size": "1450x900",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-mt-1450x900-1.5-dark.png",
+      "log": "logs/parameters-mt-1450x900-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        1450,
+        900
+      ],
+      "seconds": 9.14,
+      "png_sha256": "c60dc561ec91b5c2e7aaa92f4ac47bfe0b74459e491024441d0026a71cafee59",
+      "pixel_sha256": "1ebdf0e05cdce0a3de17d1bac7d9bd91d264e2c4112f5eba6f0b51acc5f10dd4",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-720x560-1.5-light.png",
+      "log": "logs/parameters-720x560-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 12.22,
+      "png_sha256": "ce89e5101e7f4fe860dc894bd51c9b6f50396f56960c890b5312a672f76d9399",
+      "pixel_sha256": "5f01b1aa64963388a9d77b8c76af2a46edaa9a0a66b5e71e8c643ecc7a8d6785",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-720x560-1.5-dark.png",
+      "log": "logs/parameters-720x560-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 10.56,
+      "png_sha256": "5e4197bae62261948b8e23021a4a1e71eb13816e89028fd53dd1658bf223e273",
+      "pixel_sha256": "386f7706baf996719f9b1062b1f695b7507871b34e2c6a781c8cd4610449b947",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-720x560-1.5-light.png",
+      "log": "logs/parameters-weights-720x560-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 11.9,
+      "png_sha256": "97708a180a068af4ba8be19963c9ab5e7c88bf08b85a3c5c1f811e23fa939e58",
+      "pixel_sha256": "181644832b67c4a1d4089f0f7bb72cad4bf7d7a8534f9b762141e798e8fc3c0b",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-weights",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": false,
+      "path": "screenshots/parameters-weights-720x560-1.5-dark.png",
+      "log": "logs/parameters-weights-720x560-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 11.83,
+      "png_sha256": "a1e9af655e42cf821585425005e92d7a5c2b64ff5e8bcb3733e3f44b374734ab",
+      "pixel_sha256": "6ce82e74c37412d9fc44ae0a0a7fc18936a7be6651bf8961a4c5d04074fc54c0",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-error",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "light",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": true,
+      "path": "screenshots/parameters-error-720x560-1.5-light.png",
+      "log": "logs/parameters-error-720x560-1.5-light.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 9.7,
+      "png_sha256": "bf566c9c22bcb21ca45fb8598a3ab28d1664cbdfe31ada051cc6b595548f4f74",
+      "pixel_sha256": "792d8ec28cde04f6f473cf2b9bb4e43cd17b9d53a0a4cd13f33d66fbeec025cd",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    },
+    {
+      "mode": "parameters-error",
+      "size": "720x560",
+      "scale": 1.5,
+      "theme": "dark",
+      "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+      "fixture": true,
+      "path": "screenshots/parameters-error-720x560-1.5-dark.png",
+      "log": "logs/parameters-error-720x560-1.5-dark.log",
+      "exit": 0,
+      "dimensions": [
+        720,
+        560
+      ],
+      "seconds": 10.57,
+      "png_sha256": "23b537e2a6fa9883eccbbf05c734aab9e1e076cfc980c594b8f36609990cb311",
+      "pixel_sha256": "056480fbbf17d394cefe6a4dfe9dc3cd832f991b56998580e2bb29731afcf157",
+      "inspected": true,
+      "inspection": "Full representative view plus family contact sheet for layout, footer, scroll and theme; error/minimum views inspected separately."
+    }
+  ],
+  "inspection_summary": "All36 checked in six family/minimum contact sheets; full native representatives inspected for cartoner normal/compact/zoom, weights normal/minimum, MT normal and long-error minimum. No new visual defects found; scroll clips body deliberately while footer remains accessible."
+}

@@ -1,0 +1,2 @@
+source_head: 46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9
+command: cargo fmt --all -- --check

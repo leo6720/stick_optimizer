@@ -43,6 +43,15 @@ La preferenza di presentazione vive nell'applicazione,
 separata dallo studio e dai parametri, con persistenza dedicata in IO.
 È una fondazione integrata, non il completamento del ridisegno A delle aree.
 
+LEO-24 riutilizza in `ui.rs` superfici di dialogo, gruppi, introduzioni,
+messaggi con etichetta/bordo e footer. I cinque editor e i filtri riservano
+il footer rispetto sia al viewport sia all'altezza memorizzata della finestra;
+errori e contenuto lungo restano nel corpo scorrevole. Formato e testa mantengono
+coordinate e quote del core, con gli stessi gruppi visivi e comandi di uscita.
+Le finestre restano Window, mentre conferme e progresso conservano Modal:
+non viene esteso il blocco modale. Il progresso legge sempre le atomiche del
+worker; i pannelli condivisi non cambiano il suo ciclo di vita.
+
 Il passo 4 aggiunge il percorso `draft.to_study -> core.validate -> optimize`.
 La ricerca genera candidati, interseca passi comuni, enumera combinazioni e
 mantiene una frontiera Pareto esatta, conservando le metriche equivalenti.

@@ -29,67 +29,75 @@ impl PrototypeApp {
         // The last combination can complete between these loads and the phase
         // change. Show finalization then too, never premature success.
         let searching = !cancelling && !finalizing && total > 0 && examined < total;
-        let width = (ctx.content_rect().width() - 64.0).clamp(180.0, 420.0);
+        let width = (ctx.content_rect().width() - 96.0).clamp(180.0, 420.0);
         let mut cancel = false;
         egui::Modal::new(Id::new("search_progress"))
             .backdrop_color(Color32::from_black_alpha(45))
-            .frame(egui::Frame::popup(&ctx.global_style()).inner_margin(20))
+            .frame(crate::ui::dialog_frame(ctx).inner_margin(24))
             .show(ctx, |ui| {
                 ui.set_width(width);
                 ui.horizontal(|ui| {
-                    ui.heading(
-                        RichText::new("Calcolo in corso").color(crate::ui::tokens(ui).muted),
-                    );
+                    ui.heading(RichText::new("Calcolo in corso").color(crate::ui::tokens(ui).text));
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         cancel |= ui
-                            .add_enabled(!cancelling, egui::Button::new("×"))
+                            .add_enabled(
+                                !cancelling,
+                                crate::ui::button(ui, "×", crate::ui::ButtonVariant::Quiet),
+                            )
                             .on_hover_text("Annulla calcolo")
                             .clicked();
                     });
                 });
                 ui.add_space(18.0);
-                if searching {
-                    let fraction = examined as f64 / total as f64;
-                    // Truncate: 99.9% is not a completed enumeration.
-                    ui.label(
-                        RichText::new(format!("{}% completato", (fraction * 100.0) as u32))
-                            .size(26.0)
+                crate::ui::dialog_section(ui, |ui| {
+                    if searching {
+                        let fraction = examined as f64 / total as f64;
+                        // Truncate: 99.9% is not a completed enumeration.
+                        ui.label(
+                            RichText::new(format!("{}% completato", (fraction * 100.0) as u32))
+                                .size(26.0)
+                                .strong()
+                                .color(crate::ui::tokens(ui).text),
+                        );
+                        ui.add(
+                            egui::ProgressBar::new(fraction as f32)
+                                .fill(crate::ui::tokens(ui).accent)
+                                .desired_width(ui.available_width())
+                                .desired_height(10.0),
+                        );
+                        ui.label(
+                            RichText::new(format!(
+                                "{} / {} combinazioni esaminate",
+                                count(examined),
+                                count(total)
+                            ))
+                            .small()
+                            .color(crate::ui::tokens(ui).text),
+                        );
+                    } else {
+                        ui.label(
+                            RichText::new(if cancelling {
+                                "Annullamento…"
+                            } else if finalizing || total > 0 {
+                                "Preparazione risultati…"
+                            } else {
+                                "Generazione candidati…"
+                            })
+                            .size(20.0)
                             .color(crate::ui::tokens(ui).muted),
-                    );
-                    ui.add(
-                        egui::ProgressBar::new(fraction as f32)
-                            .fill(crate::ui::tokens(ui).accent)
-                            .desired_width(width)
-                            .desired_height(8.0),
-                    );
-                    ui.label(
-                        RichText::new(format!(
-                            "{} / {} combinazioni esaminate",
-                            count(examined),
-                            count(total)
-                        ))
-                        .small()
-                        .color(crate::ui::tokens(ui).muted),
-                    );
-                } else {
-                    ui.label(
-                        RichText::new(if cancelling {
-                            "Annullamento…"
-                        } else if finalizing || total > 0 {
-                            "Preparazione risultati…"
-                        } else {
-                            "Generazione candidati…"
-                        })
-                        .size(20.0)
-                        .color(crate::ui::tokens(ui).muted),
-                    );
-                    ui.add_space(4.0);
-                    ui.spinner();
-                }
+                        );
+                        ui.add_space(4.0);
+                        ui.spinner();
+                    }
+                });
                 ui.add_space(18.0);
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     cancel |= ui
-                        .add_enabled(!cancelling, egui::Button::new("Annulla"))
+                        .add_enabled(
+                            !cancelling,
+                            crate::ui::button(ui, "Annulla", crate::ui::ButtonVariant::Secondary)
+                                .min_size(egui::vec2(100.0, 32.0)),
+                        )
                         .clicked();
                 });
             });

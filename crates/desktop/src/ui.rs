@@ -168,6 +168,87 @@ pub fn button<'a>(ui: &egui::Ui, label: &'a str, variant: ButtonVariant) -> egui
 pub fn field(value: &mut String) -> egui::TextEdit<'_> {
     egui::TextEdit::singleline(value).margin(egui::vec2(3.0, 2.0))
 }
+
+/// Internal dialogs share surfaces and spacing; native pickers remain native.
+pub fn dialog_frame(ctx: &egui::Context) -> egui::Frame {
+    egui::Frame::window(&ctx.global_style())
+        .inner_margin(16)
+        .corner_radius(8)
+}
+
+pub fn dialog_intro(ui: &mut egui::Ui, description: &str) {
+    ui.label(
+        RichText::new(description)
+            .size(12.0)
+            .color(tokens(ui).muted),
+    );
+    ui.add_space(10.0);
+}
+
+pub fn dialog_section<R>(ui: &mut egui::Ui, add: impl FnOnce(&mut egui::Ui) -> R) -> R {
+    container(ui, Surface::Inset)
+        .inner_margin(12)
+        .corner_radius(6)
+        .show(ui, |ui| {
+            ui.set_min_width(ui.available_width());
+            add(ui)
+        })
+        .inner
+}
+
+/// A label and border communicate an error even without colour perception.
+pub fn error_notice(ui: &mut egui::Ui, message: &str) {
+    let t = tokens(ui);
+    container(ui, Surface::Inset)
+        .inner_margin(10)
+        .stroke(egui::Stroke::new(1.0, t.accent))
+        .show(ui, |ui| {
+            ui.label(RichText::new("Attenzione").strong().color(t.accent));
+            ui.label(RichText::new(message).color(t.text));
+        });
+}
+
+/// Leave the title and footer outside the scrolling body, also at 150% zoom.
+pub fn dialog_body_height(ctx: &egui::Context, reserved: f32) -> f32 {
+    (ctx.content_rect().height() - reserved).clamp(60.0, 560.0)
+}
+
+pub fn dialog_actions(ui: &mut egui::Ui, accept: &str) -> (bool, bool) {
+    ui.add_space(8.0);
+    ui.separator();
+    ui.add_space(4.0);
+    ui.horizontal(|ui| {
+        let cancel = ui
+            .add_sized(
+                [90.0, 32.0],
+                button(ui, "Annulla", ButtonVariant::Secondary),
+            )
+            .clicked();
+        let apply = ui
+            .add_sized([90.0, 32.0], button(ui, accept, ButtonVariant::Primary))
+            .clicked();
+        (cancel, apply)
+    })
+    .inner
+}
+
+pub fn dialog_close(ui: &mut egui::Ui) -> bool {
+    ui.add_space(8.0);
+    ui.separator();
+    ui.add_space(4.0);
+    ui.horizontal(|ui| {
+        let close = ui
+            .add_sized([90.0, 32.0], button(ui, "Chiudi", ButtonVariant::Secondary))
+            .clicked();
+        ui.label(
+            RichText::new("Esc per chiudere")
+                .small()
+                .color(tokens(ui).muted),
+        );
+        close
+    })
+    .inner
+}
 #[cfg(feature = "ui-preview")]
 pub fn heading(ui: &mut egui::Ui, label: &str) -> egui::Response {
     ui.heading(RichText::new(label).color(tokens(ui).text))

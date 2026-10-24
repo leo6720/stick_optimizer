@@ -1,0 +1,12 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo24-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.53s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 4 tests
+test app::tests::format_popup_switches_the_single_layer_and_preserves_real_details ... ok
+test app::tests::popup_format_choices_mark_the_selected_item_in_both_themes ... ok
+test app::tests::edit_menu_opens_each_python_parameter_popup ... ok
+test app::tests::technical_and_filter_popup_exits_survive_long_content_at_compact_zoom ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 25.72s
+

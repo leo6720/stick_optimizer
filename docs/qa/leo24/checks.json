@@ -1,0 +1,115 @@
+[
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 0.19,
+    "log": "logs/final-fmt.log"
+  },
+  {
+    "name": "check",
+    "command": [
+      "cargo",
+      "check",
+      "--workspace",
+      "--all-targets",
+      "--features",
+      "eframe/x11,ui-preview",
+      "--locked"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 0.59,
+    "log": "logs/final-check.log"
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--features",
+      "eframe/x11,ui-preview",
+      "--locked",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 0.66,
+    "log": "logs/final-clippy.log"
+  },
+  {
+    "name": "test",
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--features",
+      "eframe/x11,ui-preview",
+      "--locked"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 295.04,
+    "log": "logs/final-test.log"
+  },
+  {
+    "name": "release",
+    "command": [
+      "cargo",
+      "build",
+      "--workspace",
+      "--release",
+      "--features",
+      "eframe/x11",
+      "--locked"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 9.41,
+    "log": "logs/final-release.log"
+  },
+  {
+    "name": "msvc",
+    "command": [
+      "cargo",
+      "check",
+      "--workspace",
+      "--all-targets",
+      "--all-features",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "--locked"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 1.46,
+    "log": "logs/final-msvc.log"
+  },
+  {
+    "name": "preview-build",
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "stick-optimizer-desktop",
+      "--features",
+      "eframe/x11,ui-preview",
+      "--locked"
+    ],
+    "source_head": "46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9",
+    "exit": 0,
+    "seconds": 0.15,
+    "log": "logs/final-preview-build.log"
+  }
+]

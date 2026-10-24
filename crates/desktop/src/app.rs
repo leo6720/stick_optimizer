@@ -274,8 +274,13 @@ impl PrototypeApp {
                 }
                 app.start_search();
             }
-            Ok("filters") => {
+            Ok(mode @ ("filters" | "filters-error")) => {
                 app.filter_editor.edit(app.ranges);
+                if mode == "filters-error" {
+                    app.filter_editor.error = Some(
+                        "Intervallo non valido: il minimo non può superare il massimo. ".repeat(6),
+                    );
+                }
                 app.start_search();
             }
             Ok("reopened") => {
@@ -311,9 +316,9 @@ impl PrototypeApp {
                 app.start_search();
             }
             Ok(
-                mode @ ("parameters" | "parameters-weights" | "parameters-results"
-                | "parameters-ab" | "parameters-mt" | "parameters-compact"
-                | "parameters-scaled"),
+                mode @ ("parameters" | "parameters-error" | "parameters-weights"
+                | "parameters-results" | "parameters-ab" | "parameters-mt"
+                | "parameters-compact" | "parameters-scaled"),
             ) => {
                 if mode == "parameters-scaled" {
                     ctx.set_zoom_factor(1.5);
@@ -325,6 +330,11 @@ impl PrototypeApp {
                     "parameters-mt" => ParameterEditor::Mt,
                     _ => ParameterEditor::Cartoner,
                 });
+                if mode == "parameters-error" {
+                    app.parameters_error = Some(
+                        "Parametro non valido: correggere il valore prima di applicare. ".repeat(8),
+                    );
+                }
             }
             Ok("scaled") => {
                 ctx.set_zoom_factor(1.5);
@@ -934,42 +944,68 @@ impl PrototypeApp {
             }
         };
         let mut confirm = false;
-        let response = egui::Modal::new(Id::new("confirm_action")).show(ctx, |ui| {
-            ui.set_max_width(400.0);
-            ui.strong("Conferma modifica");
-            ui.label(text);
-            ui.horizontal_wrapped(|ui| {
-                if !matches!(action, PendingAction::RemoveStick(_))
-                    && self.dirty
-                    && ui.button("Salva e continua").clicked()
-                    && self.save_current(false)
-                {
-                    confirm = true;
-                }
-                confirm |= ui
-                    .button(
-                        if self.dirty && !matches!(action, PendingAction::RemoveStick(_)) {
-                            "Continua senza salvare"
-                        } else {
-                            "Conferma"
-                        },
-                    )
-                    .clicked();
-                if ui
-                    .add(crate::ui::button(
-                        ui,
-                        "Annulla",
-                        crate::ui::ButtonVariant::Secondary,
-                    ))
-                    .clicked()
-                {
-                    self.pending = None;
-                }
+        let response = egui::Modal::new(Id::new("confirm_action"))
+            .frame(crate::ui::dialog_frame(ctx))
+            .show(ctx, |ui| {
+                ui.set_max_width((ctx.content_rect().width() - 80.0).clamp(240.0, 440.0));
+                ui.label(RichText::new("Conferma modifica").size(20.0).strong());
+                ui.add_space(10.0);
+                egui::ScrollArea::vertical()
+                    .id_salt("confirmation_body")
+                    .max_height(crate::ui::dialog_body_height(ctx, 220.0))
+                    .show(ui, |ui| {
+                        crate::ui::dialog_section(ui, |ui| {
+                            ui.label(text);
+                        });
+                        if let Some(error) = &self.diagnostic {
+                            ui.add_space(8.0);
+                            crate::ui::error_notice(ui, error);
+                        }
+                    });
+                ui.add_space(12.0);
+                ui.horizontal_wrapped(|ui| {
+                    if !matches!(action, PendingAction::RemoveStick(_))
+                        && self.dirty
+                        && ui
+                            .add(
+                                crate::ui::button(
+                                    ui,
+                                    "Salva e continua",
+                                    crate::ui::ButtonVariant::Primary,
+                                )
+                                .min_size(egui::vec2(0.0, 32.0)),
+                            )
+                            .clicked()
+                        && self.save_current(false)
+                    {
+                        confirm = true;
+                    }
+                    confirm |= ui
+                        .add(
+                            crate::ui::button(
+                                ui,
+                                if self.dirty && !matches!(action, PendingAction::RemoveStick(_)) {
+                                    "Continua senza salvare"
+                                } else {
+                                    "Conferma"
+                                },
+                                crate::ui::ButtonVariant::Secondary,
+                            )
+                            .min_size(egui::vec2(0.0, 32.0)),
+                        )
+                        .clicked();
+                    if ui
+                        .add(crate::ui::button(
+                            ui,
+                            "Annulla",
+                            crate::ui::ButtonVariant::Secondary,
+                        ))
+                        .clicked()
+                    {
+                        self.pending = None;
+                    }
+                });
             });
-            if let Some(error) = &self.diagnostic {
-                ui.colored_label(crate::ui::tokens(ui).accent, error);
-            }
-        });
         if confirm {
             self.apply_pending(action);
         } else if response.should_close() {
@@ -1563,6 +1599,110 @@ mod tests {
             click_at(&ctx, &mut app, text_position(&output, editor.title(), 0.0));
             assert!(app.parameters_open);
             assert_eq!(app.parameter_editor, editor);
+        }
+    }
+
+    #[test]
+    fn parameter_editors_open_with_useful_fields_and_visible_actions_in_both_themes() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            for (editor, label) in [
+                (ParameterEditor::Weights, "Rapporto A/B"),
+                (ParameterEditor::ResultCount, "Numero di risultati"),
+                (ParameterEditor::AbTarget, "Rapporto A/B desiderato"),
+                (ParameterEditor::Cartoner, "Interasse aggiuntivo massimo"),
+                (ParameterEditor::Mt, "D - Offset max stick"),
+            ] {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                crate::ui::apply_theme(&ctx, theme);
+                app.open_parameter_editor(editor);
+                let size = egui::vec2(1450.0, 900.0);
+                let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                for _ in 0..5 {
+                    output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                }
+                for label in [label, "Applica", "Annulla"] {
+                    let shape = output
+                        .shapes
+                        .iter()
+                        .find(|shape| {
+                            matches!(&shape.shape,
+                        egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                        })
+                        .unwrap_or_else(|| panic!("{editor:?}: missing {label}"));
+                    if let egui::epaint::Shape::Text(text) = &shape.shape {
+                        let rect = egui::Rect::from_min_size(text.pos, text.galley.size());
+                        assert!(
+                            shape
+                                .clip_rect
+                                .intersect(egui::Rect::from_min_size(egui::Pos2::ZERO, size))
+                                .contains_rect(rect),
+                            "{editor:?}: {label} clipped on opening"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn parameter_editor_remembers_manual_resize_and_keeps_actions_reachable() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let editor = ParameterEditor::Weights;
+        let size = egui::vec2(1450.0, 900.0);
+        let window_id = Id::new(("parameters_window", editor));
+        app.open_parameter_editor(editor);
+        for _ in 0..6 {
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let original = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        let start = original.right_bottom() - egui::vec2(2.0, 2.0);
+        let end = start - egui::vec2(0.0, 180.0);
+        draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(start)]);
+        for (pos, pressed) in [(start, Some(true)), (end, None), (end, Some(false))] {
+            let mut events = vec![egui::Event::PointerMoved(pos)];
+            if let Some(pressed) = pressed {
+                events.push(egui::Event::PointerButton {
+                    pos,
+                    button: egui::PointerButton::Primary,
+                    pressed,
+                    modifiers: egui::Modifiers::NONE,
+                });
+            }
+            draw_frame_at(&ctx, &mut app, size, events);
+        }
+        for _ in 0..4 {
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let resized = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        assert!(
+            resized.height() < original.height() - 100.0,
+            "manual drag must resize the editor"
+        );
+        draw_frame_at(
+            &ctx,
+            &mut app,
+            size,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
+        assert!(!app.parameters_open);
+        app.open_parameter_editor(editor);
+        let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+        for _ in 0..5 {
+            output = draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let reopened = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        assert!(
+            (reopened.height() - resized.height()).abs() < 2.0,
+            "reopening must preserve the user's height"
+        );
+        for label in ["Applica", "Annulla"] {
+            let pos = text_position(&output, label, 0.0);
+            assert!(reopened.contains(pos));
         }
     }
 
@@ -2722,6 +2862,266 @@ mod tests {
         // These headless tests intentionally discard GPU texture updates.
         output.textures_delta.clear();
         output
+    }
+
+    #[test]
+    fn popup_format_choices_mark_the_selected_item_in_both_themes() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            crate::ui::apply_theme(&ctx, theme);
+            calculate(&mut app);
+            let name = app.results[0].solution.candidates[0].format_name.clone();
+            for head in [false, true] {
+                if head {
+                    app.head_popup = heads::HeadPopup::new(
+                        app.results[0].id,
+                        &app.results[0].solution,
+                        app.results[0].solution.head_types[0].id,
+                    );
+                } else {
+                    app.detail_popup = Some((
+                        app.results[0].id,
+                        app.results[0].solution.candidates[0].format_id,
+                    ));
+                }
+                let mut output = draw_frame(&ctx, &mut app, vec![]);
+                for _ in 0..3 {
+                    output = draw_frame(&ctx, &mut app, vec![]);
+                }
+                let pos = output
+                    .shapes
+                    .iter()
+                    .rev()
+                    .find_map(|s| {
+                        if let egui::epaint::Shape::Text(t) = &s.shape
+                            && t.galley.job.text == name
+                        {
+                            Some(t.pos + t.galley.size() / 2.0)
+                        } else {
+                            None
+                        }
+                    })
+                    .expect("selected format label");
+                click_at(&ctx, &mut app, pos);
+                let output = draw_frame(&ctx, &mut app, vec![]);
+                assert!(output.shapes.iter().any(|s| matches!(&s.shape, egui::epaint::Shape::Text(t) if t.galley.job.text == format!("✓ {name}"))), "selected popup item must have a marker");
+                draw_frame(
+                    &ctx,
+                    &mut app,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+                app.detail_popup = None;
+                app.head_popup = None;
+            }
+        }
+    }
+
+    #[test]
+    fn technical_and_filter_popup_exits_survive_long_content_at_compact_zoom() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            crate::ui::apply_theme(&ctx, theme);
+            app.study.formats[0].name = "Formato con nome esteso e quote reali ".repeat(5);
+            calculate(&mut app);
+            let solutions: Vec<_> = app
+                .results
+                .iter()
+                .map(|r| Arc::clone(&r.solution))
+                .collect();
+            let revision = app.revision;
+            let size = egui::vec2(480.0, 373.3);
+            ctx.set_zoom_factor(1.5);
+            for family in 0..4 {
+                let label = if family == 0 || family == 3 {
+                    "Annulla"
+                } else {
+                    "Chiudi"
+                };
+                match family {
+                    0 => {
+                        app.filter_editor.edit(app.ranges);
+                        app.filter_editor.error =
+                            Some("Intervallo non valido: correggere minimo e massimo. ".repeat(12));
+                    }
+                    1 => {
+                        app.detail_popup = Some((
+                            app.results[0].id,
+                            app.results[0].solution.candidates[0].format_id,
+                        ))
+                    }
+                    2 => {
+                        app.head_popup = heads::HeadPopup::new(
+                            app.results[0].id,
+                            &app.results[0].solution,
+                            app.results[0].solution.head_types[0].id,
+                        )
+                    }
+                    _ => {
+                        app.pending = Some(PendingAction::CloseWindow);
+                        app.dirty = true;
+                        app.diagnostic =
+                            Some("Impossibile salvare lo studio: dati conservati. ".repeat(12));
+                    }
+                }
+                let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                for _ in 0..5 {
+                    output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                }
+                let shape = output.shapes.iter().find(|s| matches!(&s.shape, egui::epaint::Shape::Text(t) if t.galley.job.text == label)).expect(label);
+                if let egui::epaint::Shape::Text(t) = &shape.shape {
+                    let rect = egui::Rect::from_min_size(t.pos, t.galley.size());
+                    assert!(
+                        shape
+                            .clip_rect
+                            .intersect(egui::Rect::from_min_size(egui::Pos2::ZERO, size))
+                            .contains_rect(rect),
+                        "family {family} exit clipped"
+                    );
+                    let pos = rect.center();
+                    for pressed in [true, false] {
+                        draw_frame_at(
+                            &ctx,
+                            &mut app,
+                            size,
+                            vec![
+                                egui::Event::PointerMoved(pos),
+                                egui::Event::PointerButton {
+                                    pos,
+                                    button: egui::PointerButton::Primary,
+                                    pressed,
+                                    modifiers: egui::Modifiers::NONE,
+                                },
+                            ],
+                        );
+                    }
+                }
+                assert!(
+                    !app.filter_editor.open
+                        && app.detail_popup.is_none()
+                        && app.head_popup.is_none()
+                        && app.pending.is_none(),
+                    "family {family} did not close"
+                );
+                assert_eq!(revision, app.revision);
+                assert_eq!(
+                    solutions,
+                    app.results
+                        .iter()
+                        .map(|r| Arc::clone(&r.solution))
+                        .collect::<Vec<_>>()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            for editor in ParameterEditor::ALL {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                crate::ui::apply_theme(&ctx, theme);
+                ctx.set_zoom_factor(1.5);
+                let size = egui::vec2(480.0, 373.3); // 720×560 native at 150%.
+                app.open_parameter_editor(editor);
+                app.parameters_error = Some(
+                    "Parametro non valido: correggere il valore prima di applicare. ".repeat(12),
+                );
+                let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                for _ in 0..5 {
+                    output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                }
+                for label in ["Applica", "Annulla"] {
+                    let s = output
+                        .shapes
+                        .iter()
+                        .find(|s| {
+                            matches!(&s.shape,
+                        egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                        })
+                        .expect(label);
+                    if let egui::epaint::Shape::Text(t) = &s.shape {
+                        let rect = egui::Rect::from_min_size(t.pos, t.galley.size());
+                        assert!(
+                            s.clip_rect
+                                .intersect(egui::Rect::from_min_size(egui::Pos2::ZERO, size))
+                                .contains_rect(rect),
+                            "{editor:?} {label} clipped at 150%"
+                        );
+                    }
+                }
+                let first_label = match editor {
+                    ParameterEditor::Weights => "Tipi cassetto",
+                    ParameterEditor::ResultCount => "Numero di risultati",
+                    ParameterEditor::AbTarget => "Rapporto A/B desiderato",
+                    ParameterEditor::Cartoner => "C_1 - Larghezza divisore",
+                    ParameterEditor::Mt => "D - Offset max stick",
+                };
+                // Request focus internally, then edit and move with public events.
+                ctx.memory_mut(|m| m.request_focus(Id::new(("parameter", editor, first_label))));
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![
+                        key_event(
+                            egui::Key::A,
+                            egui::Modifiers {
+                                ctrl: true,
+                                command: true,
+                                ..egui::Modifiers::NONE
+                            },
+                        ),
+                        egui::Event::Text("7".into()),
+                    ],
+                );
+                let draft = app.parameters_draft.as_ref().unwrap();
+                assert_eq!(
+                    match editor {
+                        ParameterEditor::Weights => &draft.weights[0],
+                        ParameterEditor::ResultCount => &draft.result_count,
+                        ParameterEditor::AbTarget => &draft.ab_target,
+                        ParameterEditor::Cartoner => &draft.divider_width,
+                        ParameterEditor::Mt => &draft.offset,
+                    },
+                    "7"
+                );
+                assert_eq!(
+                    ctx.memory(|m| m.focused()),
+                    Some(Id::new(("parameter", editor, first_label)))
+                );
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![key_event(egui::Key::Tab, egui::Modifiers::NONE)],
+                );
+                assert_ne!(
+                    ctx.memory(|m| m.focused()),
+                    Some(Id::new(("parameter", editor, first_label)))
+                );
+                let before = app.study.parameters.clone();
+                draw_frame_at(
+                    &ctx,
+                    &mut app,
+                    size,
+                    vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+                );
+                assert!(!app.parameters_open);
+                assert_eq!(app.study.parameters, before);
+            }
+        }
     }
 
     #[test]

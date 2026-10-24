@@ -1,0 +1,3 @@
+source_head: 46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9
+command: cargo build -p stick-optimizer-desktop --features eframe/x11,ui-preview --locked
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s

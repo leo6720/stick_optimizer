@@ -79,6 +79,7 @@ impl PrototypeApp {
         let height = (available.height() - 64.0).clamp(280.0, 720.0);
         egui::Window::new(format!("Dettaglio formato · Soluzione {rank:02}"))
             .id(Id::new("format_detail_window"))
+            .frame(crate::ui::dialog_frame(ctx))
             .open(&mut open)
             .collapsible(false)
             .default_width(width)
@@ -86,24 +87,30 @@ impl PrototypeApp {
             .min_size(egui::vec2(300.0, 240.0))
             .default_pos(available.center() - egui::vec2(width / 2.0, (available.height() - 48.0).min(720.0) / 2.0))
             .show(ctx, |ui| {
+                crate::ui::dialog_intro(ui, "Quote e configurazione della soluzione selezionata. Tutti i valori provengono dal calcolo.");
                 ui.horizontal_wrapped(|ui| {
                     ui.label("Formato:");
+                    let selected_name = solution.candidates.iter().find(|c| c.format_id == format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato");
                     egui::ComboBox::from_id_salt("popup_format")
-                        .selected_text(solution.candidates.iter().find(|c| c.format_id == format_id).map(|c| c.format_name.as_str()).unwrap_or("Formato"))
+                        .selected_text(selected_name)
+                        .width((ui.available_width() - 80.0).clamp(100.0, 360.0)).truncate()
                         .show_ui(ui, |ui| {
-                            for c in &solution.candidates { ui.selectable_value(&mut format_id, c.format_id, &c.format_name); }
-                        });
+                            for c in &solution.candidates {
+                                let label = if format_id == c.format_id { format!("✓ {}", c.format_name) } else { c.format_name.clone() };
+                                ui.selectable_value(&mut format_id, c.format_id, label);
+                            }
+                        }).response.on_hover_text(selected_name);
                 });
                 egui::ScrollArea::vertical()
                     .id_salt("format_popup_scroll")
-                    .max_height((ui.available_height() - 42.0).max(100.0))
+                    .max_height((ui.available_height() - 60.0).clamp(60.0, crate::ui::dialog_body_height(ctx, 220.0)))
                     .show(ui, |ui| {
                         if let Some(c) = solution.candidates.iter().find(|c| c.format_id == format_id) {
                             ui.strong(format!("{} · {}", c.format_name, c.stick_name));
                             ui.label(c.head_id.map(|id|format!("Testa {} · ID {id}", id+1)).unwrap_or_else(||"Nessuna testa · gruppo 1".into()));
                             if let Ok(study) = self.study.to_study()
                                 && let Some(g) = stick_optimizer_core::schematic(&study, c)
-                            { crate::beta::draw_geometry(ui, &g); }
+                            { crate::ui::dialog_section(ui, |ui| crate::beta::draw_geometry(ui, &g)); }
                             if c.carryover_required {
                                 ui.label(format!("Riporto richiesto · ciclo {}. Ultimo strato parziale; il ciclo non è animato.", c.carryover_cycle));
                             }
@@ -118,11 +125,7 @@ impl PrototypeApp {
                             }
                         }
                     });
-                ui.separator();
-                ui.horizontal(|ui| {
-                    close = ui.add(crate::ui::button(ui, "Chiudi", crate::ui::ButtonVariant::Secondary)).clicked();
-                    ui.label(RichText::new("Esc per chiudere").small().color(crate::ui::tokens(ui).muted));
-                });
+                close = crate::ui::dialog_close(ui);
                 close |= ui.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Escape));
             });
         self.detail_popup = (open && !close).then_some((rank, format_id));
@@ -183,22 +186,23 @@ fn candidate_values(ui: &mut egui::Ui, c: &Candidate) {
             ],
         ),
     ];
-    // One grid keeps the value column aligned across all sections.
-    egui::Grid::new("candidate_values")
-        .num_columns(2)
-        .spacing([24.0, 4.0])
-        .show(ui, |ui| {
-            for (title, values) in sections {
-                ui.strong(RichText::new(title).color(crate::ui::tokens(ui).accent));
-                ui.label("");
-                ui.end_row();
-                for (label, value) in values {
-                    ui.label(label);
-                    ui.label(value);
-                    ui.end_row();
-                }
-            }
+    for (title, values) in sections {
+        ui.add_space(8.0);
+        crate::ui::dialog_section(ui, |ui| {
+            ui.strong(title);
+            ui.add_space(6.0);
+            egui::Grid::new(("candidate_values", title))
+                .num_columns(2)
+                .spacing([24.0, 6.0])
+                .show(ui, |ui| {
+                    for (label, value) in values {
+                        ui.label(label);
+                        ui.label(value);
+                        ui.end_row();
+                    }
+                });
         });
+    }
 }
 
 pub(super) fn configuration_values(
