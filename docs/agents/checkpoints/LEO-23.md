@@ -126,3 +126,22 @@ Prossima azione: due ACK indipendenti sul pacchetto pubblicato, registrati in
 Linear/PR; se delega indisponibile, blocco preciso ready-for-human e rimozione
 ready-for-agent. Windows nativo resta assente. Nessun merge/deploy/Done;
 24 non avviato, 22 e il suo blocco umano non modificati.
+
+## Gate finale completato — ciclo2, residuo Windows
+
+ACK standard `/root/leo23_standards_review` e ACK SPEC nuovo
+`/root/leo23_spec_final` sul pacchetto `ddf8e740b30513b1935c4c077dc6b45889947695`,
+diff completo dalla baseline b985d305: entrambi favorevoli senza difetti aperti.
+Nuovo revisore SPEC creato con `fork_turns:none`, letto prodotto/fonti/QA e28PNG;
+nessuna revisione della coordinatrice presentata come indipendente.
+Il blocco di disponibilità dopo il limite di utilizzo è risolto. Cicli2,
+non resettati; P2 confermato chiuso. Codice sempre3ae1ff, nessuna mutazione
+crates/lock/toolchain durante la consegna documentale.
+
+PRdraft29 e head contenente questi documenti restano pubblicati sul branch
+codex/leo-23-async. Stato operativo conclusivo: In Review + ready-for-human,
+ready-for-agent da rimuovere, nessun Done al push. Windows nativo/input/picker/
+DPI ancora da verificare; tutti gli altri esiti e le provenienze restano quelli
+riportati, senza attribuire suite104 al finale. Prossima azione: collaudo Windows
+e decisione distinta dell'utente sul merge. ACK finali del solo delta documentale
+e SHA conclusivo saranno persistiti nel ticket e nella descrizione PR.

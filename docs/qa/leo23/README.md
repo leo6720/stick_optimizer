@@ -71,3 +71,18 @@ GitHub è espressa per l'utente, nessun merge/deploy/Done eseguito.
 
 Prossima azione: conferma dei revisori sul commit contenente queste evidenze;
 poi mantenere esplicito il residuo Windows e la decisione di merge dell'utente.
+
+### Conferma finale del pacchetto
+
+Il gate interrotto è stato completato: `/root/leo23_standards_review` e il nuovo
+revisore SPEC `/root/leo23_spec_final`, entrambi indipendenti dall'implementatore
+e creati con `fork_turns:none`, hanno dato ACK favorevoli al diff baseline→
+`ddf8e740b30513b1935c4c077dc6b45889947695`. Nessun difetto concreto residuo;
+ciclo2 conservato. Il nuovo revisore SPEC ha letto autonomamente il diff prodotto,
+ticket/fonti, log e28PNG; il revisore standard ha verificato anche28PNG storici.
+Il limite di disponibilità della revisione finale è quindi risolto, mentre
+Windows resta non eseguito. Stato da registrare: InReview/ready-for-human,
+PR29 draft, ready-for-agent rimosso. Nessun prodotto cambiato dopo3ae1ff.
+La prossima azione è collaudo nativo Windows e distinta decisione di merge.
+Questo ultimo aggiornamento documenta i verdetti effettivi; i relativi ACK
+sul solo delta documentale conclusivo sono registrati in Linear e nella PR.
