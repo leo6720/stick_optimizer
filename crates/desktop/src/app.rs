@@ -1603,6 +1603,110 @@ mod tests {
     }
 
     #[test]
+    fn parameter_editors_open_with_useful_fields_and_visible_actions_in_both_themes() {
+        for theme in [
+            stick_optimizer_io::Theme::Light,
+            stick_optimizer_io::Theme::Dark,
+        ] {
+            for (editor, label) in [
+                (ParameterEditor::Weights, "Rapporto A/B"),
+                (ParameterEditor::ResultCount, "Numero di risultati"),
+                (ParameterEditor::AbTarget, "Rapporto A/B desiderato"),
+                (ParameterEditor::Cartoner, "Interasse aggiuntivo massimo"),
+                (ParameterEditor::Mt, "D - Offset max stick"),
+            ] {
+                let ctx = egui::Context::default();
+                let mut app = PrototypeApp::new(&ctx);
+                crate::ui::apply_theme(&ctx, theme);
+                app.open_parameter_editor(editor);
+                let size = egui::vec2(1450.0, 900.0);
+                let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                for _ in 0..5 {
+                    output = draw_frame_at(&ctx, &mut app, size, vec![]);
+                }
+                for label in [label, "Applica", "Annulla"] {
+                    let shape = output
+                        .shapes
+                        .iter()
+                        .find(|shape| {
+                            matches!(&shape.shape,
+                        egui::epaint::Shape::Text(t) if t.galley.job.text == label)
+                        })
+                        .unwrap_or_else(|| panic!("{editor:?}: missing {label}"));
+                    if let egui::epaint::Shape::Text(text) = &shape.shape {
+                        let rect = egui::Rect::from_min_size(text.pos, text.galley.size());
+                        assert!(
+                            shape
+                                .clip_rect
+                                .intersect(egui::Rect::from_min_size(egui::Pos2::ZERO, size))
+                                .contains_rect(rect),
+                            "{editor:?}: {label} clipped on opening"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn parameter_editor_remembers_manual_resize_and_keeps_actions_reachable() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        let editor = ParameterEditor::Weights;
+        let size = egui::vec2(1450.0, 900.0);
+        let window_id = Id::new(("parameters_window", editor));
+        app.open_parameter_editor(editor);
+        for _ in 0..6 {
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let original = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        let start = original.right_bottom() - egui::vec2(2.0, 2.0);
+        let end = start - egui::vec2(0.0, 180.0);
+        draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(start)]);
+        for (pos, pressed) in [(start, Some(true)), (end, None), (end, Some(false))] {
+            let mut events = vec![egui::Event::PointerMoved(pos)];
+            if let Some(pressed) = pressed {
+                events.push(egui::Event::PointerButton {
+                    pos,
+                    button: egui::PointerButton::Primary,
+                    pressed,
+                    modifiers: egui::Modifiers::NONE,
+                });
+            }
+            draw_frame_at(&ctx, &mut app, size, events);
+        }
+        for _ in 0..4 {
+            draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let resized = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        assert!(
+            resized.height() < original.height() - 100.0,
+            "manual drag must resize the editor"
+        );
+        draw_frame_at(
+            &ctx,
+            &mut app,
+            size,
+            vec![key_event(egui::Key::Escape, egui::Modifiers::NONE)],
+        );
+        assert!(!app.parameters_open);
+        app.open_parameter_editor(editor);
+        let mut output = draw_frame_at(&ctx, &mut app, size, vec![]);
+        for _ in 0..5 {
+            output = draw_frame_at(&ctx, &mut app, size, vec![]);
+        }
+        let reopened = ctx.memory(|m| m.area_rect(window_id)).unwrap();
+        assert!(
+            (reopened.height() - resized.height()).abs() < 2.0,
+            "reopening must preserve the user's height"
+        );
+        for label in ["Applica", "Annulla"] {
+            let pos = text_position(&output, label, 0.0);
+            assert!(reopened.contains(pos));
+        }
+    }
+
+    #[test]
     fn extra_spacing_editor_is_visible_validated_applied_and_cancelled() {
         let ctx = egui::Context::default();
         let mut app = PrototypeApp::new(&ctx);
@@ -2964,7 +3068,7 @@ mod tests {
                     ParameterEditor::Cartoner => "C_1 - Larghezza divisore",
                     ParameterEditor::Mt => "D - Offset max stick",
                 };
-                // Tab into the first parameter and edit through public events.
+                // Request focus internally, then edit and move with public events.
                 ctx.memory_mut(|m| m.request_focus(Id::new(("parameter", editor, first_label))));
                 draw_frame_at(
                     &ctx,

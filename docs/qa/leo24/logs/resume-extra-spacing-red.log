@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 1 test
+test app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled ... FAILED
+
+failures:
+
+---- app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled stdout ----
+
+thread 'app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled' (30110) panicked at crates/desktop/src/app.rs:1091:32:
+Missing visible text: Interasse aggiuntivo massimo
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 62 filtered out; finished in 4.43s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

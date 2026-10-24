@@ -115,3 +115,26 @@ editor conservando resize/manual rememberedheight/scroll/footer e disegni,
 mirati, nuovo sourcefreeze, suite/catture sullo stesso SHA. Focus nei test di
 editing viene richiesto internamente: non certifica focus iniziale automatico.
 Windows nativo tuttora non disponibile, nessun waiver24. Tracker/PR a root.
+
+## Nuovo source freeze per ciclo2
+
+Fix prodotto limitato a `default_height` adattiva dei cinque editor: primo
+layout con spazio per diagrammi/campi, senza forzare l'altezza dopo resize.
+Disegni, body/scroll/footer e Window/Modal invariati. Test pubblico nuovo
+sull'apertura utile nei due temi RED (ottavo peso invisibile) → GREEN; test
+aggiunto di drag reale del bordo e riapertura verifica altezza ricordata e
+azioni raggiungibili. Primo tentativo del test drag usava una seconda pressione
+al posto del solo movimento: log conservato; corretto soltanto l'evento del test.
+Commento del test focus chiarito: request_focus interno, poi editing/Tab pubblico.
+
+Mirati prima freeze: parametri6PASS; drag/riapertura1PASS; regressione
+Interasse1PASS (RED riprodotto prima fix); popup4PASS. Nessuna asserzione rimossa.
+Preview nativa intermedia chiara1450×900 ispezionata: diagramma integro, campi
+Interasse e successivi visibili, footer accessibile. Non è evidenza del freeze.
+
+Il commit contenente questa nota fissa il sorgente per suite completa, controlli
+fmt/check/Clippy/release/MSVC e nuova matrice editor36 viewport in due temi
+(normale/compatta/150%, minimo/errore). La matrice storica64 resta attribuita
+esclusivamente a4b; le altre famiglie di popup non hanno delta sorgente dal4b.
+Ciclo1 interrotto senza verdetti, ciclo2 affidato da root a due revisori fresh;
+nessun PASS indipendente anticipato. Windows fisico non eseguito.

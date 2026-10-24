@@ -1,0 +1,14 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo24-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.69s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-8f9aad40c9e2ffda)
+
+running 6 tests
+test app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying ... ok
+test app::tests::edit_menu_opens_each_python_parameter_popup ... ok
+test app::tests::parameter_editors_open_with_useful_fields_and_visible_actions_in_both_themes ... ok
+test app::tests::parameter_footer_and_fields_stay_reachable_in_small_zoomed_windows ... ok
+test draft::tests::persisted_head_parameters_survive_draft_preferences_and_study_roundtrips ... ok
+test app::tests::separate_parameter_editors_validate_apply_and_cancel ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out; finished in 73.95s
+

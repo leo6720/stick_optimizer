@@ -132,6 +132,9 @@ impl PrototypeApp {
             .open(&mut open)
             .frame(crate::ui::dialog_frame(ctx))
             .default_width((ctx.content_rect().width() - 64.0).clamp(280.0, 620.0))
+            // Give diagrams and fields room on first opening. A default preserves
+            // egui's remembered size after the user resizes the editor.
+            .default_height((ctx.content_rect().height() - 150.0).clamp(180.0, 740.0))
             .default_pos(egui::pos2((ctx.content_rect().width() - 652.0).max(32.0) / 2.0, 32.0))
             .collapsible(false)
             .show(ctx, |ui| {
