@@ -138,3 +138,33 @@ fmt/check/Clippy/release/MSVC e nuova matrice editor36 viewport in due temi
 esclusivamente a4b; le altre famiglie di popup non hanno delta sorgente dal4b.
 Ciclo1 interrotto senza verdetti, ciclo2 affidato da root a due revisori fresh;
 nessun PASS indipendente anticipato. Windows fisico non eseguito.
+
+## Verifiche complete sul freeze46bd —24ottobre2026
+
+Sorgente `46bd2ca55f6856b9767f8165a24ac5a0e4ed56b9` contro main7f74aad.
+Tutti7 controlli exit0: fmt, workspacecheck/alltargets, Clippy-Dwarnings,
+suiteworkspace **109PASS=31core+65desktop+13IO**, release normale senza preview,
+cross-checkMSVC/alltargets/allfeatures, buildpreview. Suite295.04s; nessun
+failure residuo della regressioneInterasse. Comandi/SHA/exit/log in
+`docs/qa/leo24/checks.json` e `logs/final-*`. Cargo.lock/toolchain invariati.
+
+Nuove36 catture editor reali Linux/Xvfb/Glow completate exit0 sullo stesso
+sorgente: cinqueeditor×normale/compact/150%×duetemi, più minimo720×560/150%
+per astucciatrice/pesi/errorelungo nei due temi. Dimensioni, SHA256PNG/RGBA e
+ricompressione lossless verificati. Tutte viste in tavolefamiglia/minimo;
+fullsize rappresentativi ispezionati per normale/compact/zoom/min/error/MT.
+Nessun nuovo difetto; corpo scorrevole e footer separato leggibili. Le64
+catture4b restano storiche, nessuna falsa attribuzione al nuovoSHA. Preview
+ricompilata sulfreeze con hashbinario identico a quello delle catture.
+
+RapportoQA/manifest/validation in `docs/qa/leo24`. Windows nativo/inputfisico/
+picker/chiusuraOS/multimonitorDPI non eseguiti: MSVCsolocompilazione e nessun
+waiver24. Ciclo2 concluso con due revisoriindipendenti fresh `fork_turns:none`, distinti
+da implementatore/coordinatrice: `/root/leo24_spec_cycle2` PASS e
+`/root/leo24_standards_cycle2` PASS, entrambi sulsource46bd/main7f, zero
+difetti prodotto aperti. Rapporti definitivi in `docs/qa/leo24/reviews/`.
+Ciclo1interrotto conservato; contatore2 nonazzerato. Suggerimento focus
+nonbloccante documentato, nessuna estensione perimetro. Nessun prodotto
+editato dopo ilfreeze. Prossimaazione root: PRdraft e aggiornamentoLinear
+ready-for-human per Windowsfisico/picker/DPI o decisioneesplicita utente.
+Nessunmerge/deploy/Done.
