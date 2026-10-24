@@ -69,3 +69,12 @@ azioni, aggiunge uno stick e conserva la conferma/annullamento della rimozione.
 Ultimi4test miratiPASS (3nuovi + regressione worker). Fonte corrente pronta al
 freeze, controlli finali e QA persistita ancora da completare. Prove Windows
 native ancora assenti; compilazione separata da esecuzione.
+
+## Freeze e revisione ciclo1
+
+Source freeze iniziale874cb801c78a45f663563f301ad9b71f83cd9b01, push normale.
+Due revisori fresh gestiti dalla coordinatrice, **ciclo corrente1** (non reset).
+Fmt/checkPASS; Clippy ha segnalato `single_match` nel solo ramo QA focus.
+Correzione equivalente `if let` coordinata con root prima della mutazione;
+nessun altro cambiamento prodotto. Nuovo freeze dopo verifica dei tre controlli,
+poi suitefinale e catture su talehead. Nessun esito dei revisori anticipato.

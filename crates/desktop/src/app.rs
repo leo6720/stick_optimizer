@@ -542,13 +542,11 @@ impl PrototypeApp {
             return;
         }
         #[cfg(feature = "ui-preview")]
-        if ui.ctx().cumulative_pass_nr() == 3 {
-            match std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref() {
-                Ok("inputs-focus") => ui
-                    .ctx()
-                    .memory_mut(|m| m.request_focus(Id::new(("width", self.study.sticks[0].id)))),
-                _ => {}
-            }
+        if ui.ctx().cumulative_pass_nr() == 3
+            && let Ok("inputs-focus") = std::env::var("STICK_OPTIMIZER_PREVIEW").as_deref()
+        {
+            ui.ctx()
+                .memory_mut(|m| m.request_focus(Id::new(("width", self.study.sticks[0].id))));
         }
         self.poll_search();
         self.handle_file_action();
