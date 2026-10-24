@@ -14,6 +14,7 @@ mod heads;
 mod inputs;
 mod parameters;
 mod progress;
+mod results;
 use files::FileAction;
 use parameters::ParameterEditor;
 use stick_optimizer_io::{Range, ViewState};
@@ -844,28 +845,10 @@ impl PrototypeApp {
         egui::CentralPanel::default()
             .frame(crate::ui::container(ui, crate::ui::Surface::Main).inner_margin(18))
             .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui
-                            .add_enabled(
-                                self.job.is_none() && self.study.input_errors().is_empty(),
-                                crate::ui::button(ui, "Calcola", crate::ui::ButtonVariant::Primary),
-                            )
-                            .clicked()
-                            && self.job.is_none()
-                        {
-                            self.start_search();
-                        }
-                    });
-                });
+                self.results_header(ui);
                 if self.job.is_some() && ui.is_enabled() {
                     ui.disable();
                 }
-                ui.label(
-                    RichText::new("Ricerca geometrica statica · quote in millimetri")
-                        .small()
-                        .color(crate::ui::tokens(ui).muted),
-                );
                 ui.separator();
                 egui::ScrollArea::vertical()
                     .id_salt("output_scroll")
@@ -904,396 +887,6 @@ impl PrototypeApp {
             }
         }
         rows
-    }
-
-    fn results_ui(&mut self, ui: &mut egui::Ui) {
-        crate::ui::heading(ui, "Migliori Soluzioni");
-        if let Some(message) = &self.diagnostic {
-            egui::Frame::group(ui.style())
-                .fill(crate::ui::tokens(ui).hover)
-                .show(ui, |ui| {
-                    ui.label(message);
-                });
-        }
-        if self.results.is_empty() {
-            ui.add_space(8.0);
-            ui.label("Inserisci i dati nella sidebar e premi «Calcola».");
-        }
-        ui.add_space(8.0);
-        ui.horizontal_wrapped(|ui| {
-            if ui.checkbox(&mut self.one_head_only, "Una sola testa")
-                .on_hover_text("Mostra solo soluzioni con un tipo di testa robot; grouping 1 è escluso dal conteggio").changed() {self.dirty = true;}
-            if ui.button("Filtri…").clicked() {self.filter_editor.edit(self.ranges);}
-            if ui.add(crate::ui::button(ui, "Azzera filtri", crate::ui::ButtonVariant::Quiet)).clicked() {self.ranges = [Range::default();5];self.one_head_only = false;self.dirty = true;}
-        });
-        ui.horizontal(|ui| {
-            ui.label("Ordina per:");
-            egui::ComboBox::from_id_salt("result_order")
-                .width(140.0)
-                .selected_text(if self.order_by_pitch {
-                    "Passo"
-                } else {
-                    "Punteggio"
-                })
-                .show_ui(ui, |ui| {
-                    self.dirty |= ui
-                        .selectable_value(&mut self.order_by_pitch, false, "Ordina per punteggio")
-                        .changed();
-                    self.dirty |= ui
-                        .selectable_value(&mut self.order_by_pitch, true, "Ordina per passo")
-                        .changed();
-                });
-        });
-        let rows = self.visible_results();
-        if !rows.iter().any(|row| Some(row.id) == self.selected) {
-            self.selected = rows.first().map(|row| row.id);
-        }
-        ui.label(
-            RichText::new(format!(
-                "{} soluzioni visibili · seleziona una riga per i dettagli",
-                rows.len()
-            ))
-            .small()
-            .color(crate::ui::tokens(ui).muted),
-        );
-        let table_width = ui.available_width().max(690.0);
-        egui::ScrollArea::horizontal()
-            .id_salt("results_horizontal")
-            .show(ui, |ui| {
-                ui.set_width(table_width);
-                TableBuilder::new(ui)
-                    .id_salt("results")
-                    .striped(true)
-                    .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-                    .column(Column::remainder().clip(true))
-                    .columns(Column::exact(105.0), 5)
-                    .max_scroll_height(175.0)
-                    .sense(egui::Sense::click())
-                    .header(26.0, |mut header| {
-                        for (index, label) in [
-                            "Posizione",
-                            "Passo (mm)",
-                            "Formati cassetto",
-                            "Teste robot",
-                            "Strati max",
-                            "Punteggio",
-                        ]
-                        .into_iter()
-                        .enumerate()
-                        {
-                            header.col(|ui| {
-                                table_text(ui, label, index > 0, false, true);
-                            });
-                        }
-                    })
-                    .body(|body| {
-                        body.rows(24.0, rows.len(), |mut row| {
-                            let result = &rows[row.index()];
-                            row.set_selected(self.selected == Some(result.id));
-                            row.col(|ui| {
-                                ui.add(
-                                    egui::Label::new(
-                                        RichText::new(format!("Soluzione {:02}", result.id)).color(
-                                            if self.selected == Some(result.id) {
-                                                crate::ui::tokens(ui).on_primary
-                                            } else {
-                                                crate::ui::tokens(ui).muted
-                                            },
-                                        ),
-                                    )
-                                    .truncate()
-                                    .selectable(false),
-                                );
-                            });
-                            for value in [
-                                format_number(result.pitch),
-                                result.pockets.to_string(),
-                                result.heads.to_string(),
-                                result.layers.to_string(),
-                                format_number(result.score),
-                            ] {
-                                row.col(|ui| {
-                                    table_text(
-                                        ui,
-                                        &value,
-                                        true,
-                                        self.selected == Some(result.id),
-                                        false,
-                                    );
-                                });
-                            }
-                            if row.response().clicked() {
-                                self.selected = Some(result.id);
-                                self.dirty = true;
-                            }
-                        });
-                    });
-            });
-        if let Some(result) = rows.iter().find(|row| Some(row.id) == self.selected) {
-            ui.add_space(18.0);
-            egui::Frame::group(ui.style())
-                .fill(crate::ui::tokens(ui).surface)
-                .inner_margin(8)
-                .show(ui, |ui| {
-                    ui.strong(
-                        RichText::new(format!("Soluzione {:02} · dettagli", result.id))
-                            .color(crate::ui::tokens(ui).accent),
-                    );
-                    ui.horizontal_wrapped(|ui| {
-                        ui.label(format!("Passo: {} mm", format_number(result.pitch)));
-                        ui.separator();
-                        ui.label(format!("{} tipi di cassetto", result.pockets));
-                        ui.separator();
-                        ui.label(format!(
-                            "{} {}",
-                            result.heads,
-                            if result.heads == 1 {
-                                "tipo di testa"
-                            } else {
-                                "tipi di testa"
-                            }
-                        ));
-                    });
-                    ui.label(format!(
-                        "Punteggio: {} · {} formati",
-                        format_number(result.score),
-                        result.solution.candidates.len()
-                    ));
-                });
-        } else {
-            ui.add_space(18.0);
-            ui.strong(
-                RichText::new("Dettagli della soluzione").color(crate::ui::tokens(ui).accent),
-            );
-            ui.label("Seleziona una soluzione per visualizzare il riepilogo.");
-        }
-        ui.add_space(8.0);
-        ui.horizontal_wrapped(|ui| {
-            for (view, label) in [
-                (DetailView::Formats, "Panoramica formati"),
-                (DetailView::Pockets, "Tipi cassetti usati"),
-                (DetailView::Heads, "Tipi teste robot usate"),
-            ] {
-                ui.selectable_value(&mut self.detail_view, view, label);
-            }
-        });
-        ui.separator();
-        if let Some(result) = rows.iter().find(|r| Some(r.id) == self.selected) {
-            let solution = &result.solution;
-            match self.detail_view {
-                DetailView::Formats => {
-                    let data = solution
-                        .candidates
-                        .iter()
-                        .map(|c| {
-                            vec![
-                                c.format_name.clone(),
-                                c.head_id
-                                    .map(|id| format!("Testa {} · ID {id}", id + 1))
-                                    .unwrap_or_else(|| "Nessuna · gruppo 1".into()),
-                                c.stick_name.clone(),
-                                format_number(c.input_pitch.mm()),
-                                c.grouping.to_string(),
-                                c.dividers.to_string(),
-                                c.pockets_per_pitch.to_string(),
-                                c.pocket_width.to_string(),
-                                format_number(c.pocket_length),
-                                c.layers.to_string(),
-                                format_number(c.stack_height),
-                                format_number(c.carton_a),
-                                format_number(c.carton_b),
-                                format_number(c.ab_ratio),
-                                if c.carryover_required {
-                                    format!("Sì · ciclo {}", c.carryover_cycle)
-                                } else {
-                                    "No".into()
-                                },
-                            ]
-                        })
-                        .collect();
-                    if let Some((index, open)) = detail_table(
-                        ui,
-                        "format_details",
-                        &[
-                            "Formato",
-                            "Testa assegnata",
-                            "Stick",
-                            "Passo MT (mm)",
-                            "Gruppo",
-                            "Divisori",
-                            "Cass./passo",
-                            "Larg. (mm)",
-                            "Lungh. (mm)",
-                            "Strati",
-                            "Pila (mm)",
-                            "A (mm)",
-                            "B (mm)",
-                            "A/B",
-                            "Riporto",
-                        ],
-                        data,
-                        solution
-                            .candidates
-                            .iter()
-                            .position(|c| Some(c.format_id) == self.geometry_format),
-                    ) {
-                        let id = solution.candidates[index].format_id;
-                        self.geometry_format = Some(id);
-                        if open {
-                            self.detail_popup = Some((result.id, id));
-                        }
-                    }
-                    ui.horizontal_wrapped(|ui| {
-                        ui.label(
-                            RichText::new("Doppio clic su un formato per quote e disegno.")
-                                .small()
-                                .color(crate::ui::tokens(ui).muted),
-                        );
-                        if ui.button("Apri dettaglio…").clicked() {
-                            let id = self
-                                .geometry_format
-                                .filter(|id| solution.candidates.iter().any(|c| c.format_id == *id))
-                                .or_else(|| solution.candidates.first().map(|c| c.format_id));
-                            if let Some(id) = id {
-                                self.detail_popup = Some((result.id, id));
-                            }
-                        }
-                    });
-                }
-                DetailView::Pockets => {
-                    let data = solution
-                        .pocket_types
-                        .iter()
-                        .enumerate()
-                        .map(|(i, pocket)| {
-                            let (width, length, dividers, pockets) = (
-                                pocket.width,
-                                pocket.length,
-                                pocket.dividers,
-                                pocket.pockets_per_pitch,
-                            );
-                            let formats = solution
-                                .candidates
-                                .iter()
-                                .filter(|c| c.pocket_type() == *pocket)
-                                .map(|c| c.format_name.as_str())
-                                .collect::<Vec<_>>()
-                                .join(", ");
-                            vec![
-                                format!("Cassetto {}", i + 1),
-                                width.to_string(),
-                                format_number(length),
-                                dividers.to_string(),
-                                pockets.to_string(),
-                                pocket
-                                    .divider_lefts
-                                    .iter()
-                                    .map(|&v| format_number(v))
-                                    .collect::<Vec<_>>()
-                                    .join("; "),
-                                formats,
-                            ]
-                        })
-                        .collect();
-                    detail_table(
-                        ui,
-                        "pocket_details",
-                        &[
-                            "Tipo",
-                            "Larg. (mm)",
-                            "Lungh. (mm)",
-                            "Divisori",
-                            "Cass./passo",
-                            "Divisori x (mm)",
-                            "Formati",
-                        ],
-                        data,
-                        None,
-                    );
-                }
-                DetailView::Heads => {
-                    ui.label("Le configurazioni con grouping 1 sono escluse dal conteggio dei tipi di testa.");
-                    let data = solution
-                        .head_types
-                        .iter()
-                        .map(|head| {
-                            let candidates: Vec<_> = solution
-                                .candidates
-                                .iter()
-                                .filter(|c| c.head_id == Some(head.id))
-                                .collect();
-                            let formats = candidates
-                                .iter()
-                                .map(|c| c.format_name.as_str())
-                                .collect::<Vec<_>>()
-                                .join(", ");
-                            vec![
-                                format!("Testa {}", head.id + 1),
-                                head.id.to_string(),
-                                if candidates.len() > 1 {
-                                    "Condivisa"
-                                } else {
-                                    "Separata"
-                                }
-                                .into(),
-                                format_number(head.geometry.approach_spacing),
-                                head.geometry.grouping.to_string(),
-                                format_number(head.geometry.pickup_pitch.mm()),
-                                format_number(candidates[0].head_width),
-                                formats,
-                            ]
-                        })
-                        .collect();
-                    if let Some((index, open)) = detail_table(
-                        ui,
-                        "head_details",
-                        &[
-                            "Tipo",
-                            "ID",
-                            "Assegnazione",
-                            "Interasse avv. (mm)",
-                            "Gruppo",
-                            "Passo MT (mm)",
-                            "Larg. (mm)",
-                            "Formati",
-                        ],
-                        data,
-                        self.head_popup
-                            .as_ref()
-                            .filter(|p| p.rank == result.id)
-                            .and_then(|p| {
-                                solution.head_types.iter().position(|h| h.id == p.head_id)
-                            }),
-                    ) && open
-                    {
-                        self.head_popup = heads::HeadPopup::new(
-                            result.id,
-                            solution,
-                            solution.head_types[index].id,
-                        );
-                    }
-                    ui.label(
-                        RichText::new("Doppio clic su una testa per la vista prima/dopo.")
-                            .small()
-                            .color(crate::ui::tokens(ui).muted),
-                    );
-                }
-            }
-            ui.collapsing("Penalità aggregate", |ui| {
-                for (label, value) in [
-                    "Strati",
-                    "Riporto",
-                    "Raggruppamento",
-                    "Stabilità",
-                    "Rapporto A/B",
-                ]
-                .into_iter()
-                .zip(solution.penalties)
-                {
-                    ui.label(format!("{label}: {}", format_number(value)));
-                }
-            });
-        }
     }
 
     fn confirm_action(&mut self, ctx: &egui::Context) {
@@ -1399,69 +992,6 @@ impl eframe::App for PrototypeApp {
             crate::preview::capture(ui.ctx());
         }
     }
-}
-
-fn detail_table(
-    ui: &mut egui::Ui,
-    id: &str,
-    headers: &[&str],
-    data: Vec<Vec<String>>,
-    selected: Option<usize>,
-) -> Option<(usize, bool)> {
-    let mut clicked = None;
-    let width = ui
-        .available_width()
-        .max(165.0 + (headers.len() - 1) as f32 * 111.0);
-    egui::ScrollArea::horizontal().id_salt(id).show(ui, |ui| {
-        ui.set_width(width);
-        TableBuilder::new(ui)
-            .id_salt(id)
-            .striped(true)
-            .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-            .sense(egui::Sense::click())
-            .column(Column::remainder().at_least(165.0).clip(true))
-            .columns(Column::exact(105.0).clip(true), headers.len() - 1)
-            .max_scroll_height(260.0)
-            .header(26.0, |mut row| {
-                for label in headers {
-                    row.col(|ui| {
-                        table_text(
-                            ui,
-                            label,
-                            !matches!(*label, "Formato" | "Stick" | "Tipo" | "Formati" | "Riporto"),
-                            false,
-                            true,
-                        );
-                    });
-                }
-            })
-            .body(|body| {
-                body.rows(24.0, data.len(), |mut row| {
-                    let is_selected = selected == Some(row.index());
-                    row.set_selected(is_selected);
-                    for value in &data[row.index()] {
-                        row.col(|ui| {
-                            table_text(
-                                ui,
-                                value,
-                                value.replace(',', ".").parse::<f64>().is_ok(),
-                                is_selected,
-                                false,
-                            );
-                        });
-                    }
-                    let response = row.response();
-                    if response.clicked() {
-                        clicked = Some((row.index(), response.double_clicked()));
-                    }
-                });
-            });
-    });
-    clicked
-}
-
-fn table_text(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, strong: bool) {
-    crate::ui::table_label(ui, value, right, selected, strong);
 }
 
 fn load_diagram(ctx: &egui::Context, name: &str, bytes: &[u8]) -> Option<egui::TextureHandle> {
@@ -2739,6 +2269,200 @@ mod tests {
         assert!(app.results.is_empty());
         assert!(app.selected.is_none());
         assert!(!app.start_search());
+    }
+
+    #[test]
+    fn output_detail_columns_and_compact_commands_are_reachable_by_events() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        ctx.global_style_mut(|style| style.animation_time = 0.0);
+        app.study.formats[0].name = "Formato con nome esteso, quote e identità da conservare".into();
+        calculate(&mut app);
+        let original = app.results[0].solution.clone();
+        let visible = |out: &egui::FullOutput, label: &str| out.shapes.iter().find_map(|s| {
+            if let egui::epaint::Shape::Text(t) = &s.shape {
+                let pos = t.pos + t.galley.size() / 2.0;
+                if t.galley.job.text == label && s.clip_rect.contains(pos) { return Some(pos); }
+            }
+            None
+        });
+        let size = egui::vec2(1450.0, 900.0);
+        for (tab, last_column) in [
+            ("Panoramica formati", "Riporto"),
+            ("Tipi cassetti usati", "Formati"),
+            ("Tipi teste robot usate", "Formati"),
+        ] {
+            for _ in 0..3 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            let pos = visible(&output, tab).expect("detail selector visible");
+            for pressed in [true, false] {
+                draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pos),
+                    egui::Event::PointerButton { pos, button: egui::PointerButton::Primary, pressed, modifiers: egui::Modifiers::NONE }]);
+            }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            let first_column = if app.detail_view == DetailView::Formats { "Formato" } else { "Tipo" };
+            let pos = visible(&output, first_column).expect("first detail column visible");
+            draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pos), egui::Event::MouseWheel {
+                unit: egui::MouseWheelUnit::Point, phase: egui::TouchPhase::Move,
+                delta: egui::vec2(-50000.0, 0.0), modifiers: egui::Modifiers::NONE,
+            }]);
+            for _ in 0..12 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            assert!(visible(&output, last_column).is_some(), "last column {last_column} must be reachable in {tab}");
+        }
+        assert_eq!(original, app.results[0].solution);
+
+        for size in [egui::vec2(760.0, 620.0), egui::vec2(720.0, 560.0)] {
+            let ctx = egui::Context::default();
+            let mut app = PrototypeApp::new(&ctx);
+            ctx.global_style_mut(|style| style.animation_time = 0.0);
+            calculate(&mut app);
+            for _ in 0..3 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            assert!(visible(&output, "Calcola").is_some(), "Calcola clipped at {size:?}");
+            let pointer = egui::pos2(size.x - 45.0, 260.0);
+            draw_frame_at(&ctx, &mut app, size, vec![egui::Event::PointerMoved(pointer), egui::Event::MouseWheel {
+                unit: egui::MouseWheelUnit::Point, phase: egui::TouchPhase::Move,
+                delta: egui::vec2(0.0, -50000.0), modifiers: egui::Modifiers::NONE,
+            }]);
+            for _ in 0..12 { draw_frame_at(&ctx, &mut app, size, vec![]); }
+            let output = draw_frame_at(&ctx, &mut app, size, vec![]);
+            // The outer output scroll must expose the details and aggregated penalties.
+            assert!(visible(&output, "Penalità aggregate").is_some(), "penalties unreachable at {size:?}");
+        }
+    }
+
+    #[test]
+    fn dense_real_results_virtualize_and_scroll_to_the_last_original_rank() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        ctx.global_style_mut(|style| style.animation_time = 0.0);
+        app.study.formats.truncate(1);
+        app.study.parameters.max_pitch = "1200".into();
+        app.study.parameters.pitch_step = "1".into();
+        app.study.parameters.offset = "150".into();
+        app.study.parameters.result_count = "1000".into();
+        calculate(&mut app);
+        assert!(
+            app.results.len() >= 20,
+            "dense fixture only has {} real solutions",
+            app.results.len()
+        );
+        let last = app.results.last().unwrap().clone();
+        for _ in 0..3 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let rank_text = |output: &egui::FullOutput| {
+            output
+                .shapes
+                .iter()
+                .filter(|s| {
+                    matches!(&s.shape,
+            egui::epaint::Shape::Text(t) if t.galley.job.text.starts_with("Soluzione ")
+                && !t.galley.job.text.contains("dettagli"))
+                })
+                .count()
+        };
+        assert!(
+            rank_text(&output) < 12,
+            "virtualized table should render only visible ranks"
+        );
+        let pos = text_position(&output, "Soluzione 01", 400.0);
+        draw_frame(
+            &ctx,
+            &mut app,
+            vec![
+                egui::Event::PointerMoved(pos),
+                egui::Event::MouseWheel {
+                    unit: egui::MouseWheelUnit::Point,
+                    phase: egui::TouchPhase::Move,
+                    delta: egui::vec2(0.0, -50000.0),
+                    modifiers: egui::Modifiers::NONE,
+                },
+            ],
+        );
+        for _ in 0..12 {
+            draw_frame(&ctx, &mut app, vec![]);
+        }
+        let output = draw_frame(&ctx, &mut app, vec![]);
+        let pos = text_position(&output, &format!("Soluzione {:02}", last.id), 400.0);
+        click_at(&ctx, &mut app, pos);
+        assert_eq!(app.selected, Some(last.id));
+        assert_eq!(app.results.last().unwrap().solution, last.solution);
+    }
+
+    #[test]
+    fn results_toolbar_events_preserve_rank_configuration_and_csv() {
+        let ctx = egui::Context::default();
+        let mut app = PrototypeApp::new(&ctx);
+        ctx.global_style_mut(|style| style.animation_time = 0.0);
+        calculate(&mut app);
+        let original = app.results.clone();
+        let study = app.study.to_study().unwrap();
+        let csv = stick_optimizer_io::summary_csv(
+            &study,
+            original.iter().map(|r| (r.id, r.solution.as_ref())),
+        )
+        .unwrap();
+        let revision = app.revision;
+        let frame = |app: &mut PrototypeApp| {
+            draw_frame(&ctx, app, vec![]);
+            draw_frame(&ctx, app, vec![])
+        };
+        let output = frame(&mut app);
+        click_at(
+            &ctx,
+            &mut app,
+            text_position(&output, "Soluzione 04", 400.0),
+        );
+        assert_eq!(app.selected, Some(4));
+        let output = frame(&mut app);
+        // Selection must have a readable indication independent of its fill colour.
+        text_position(&output, "Selezionata", 400.0);
+        click_at(
+            &ctx,
+            &mut app,
+            text_position(&output, "Una sola testa", 400.0),
+        );
+        assert!(app.one_head_only);
+        assert_eq!(app.selected, Some(4));
+        assert!(app.visible_results().iter().all(|r| r.heads == 1));
+        let output = frame(&mut app);
+        click_at(&ctx, &mut app, text_position(&output, "Punteggio", 400.0));
+        let output = frame(&mut app);
+        click_at(
+            &ctx,
+            &mut app,
+            text_position(&output, "Ordina per passo", 400.0),
+        );
+        assert!(app.order_by_pitch);
+        let output = frame(&mut app);
+        assert_eq!(app.selected, Some(4));
+        text_position(&output, "Soluzione 04", 400.0);
+        click_at(
+            &ctx,
+            &mut app,
+            text_position(&output, "Azzera filtri", 400.0),
+        );
+        assert!(!app.one_head_only);
+        assert_eq!(app.visible_results().len(), original.len());
+        assert_eq!(app.selected, Some(4));
+        toggle_theme_from_menu(&ctx, &mut app);
+        assert_eq!(app.revision, revision);
+        assert!(app.job.is_none());
+        for (before, after) in original.iter().zip(&app.results) {
+            assert_eq!(before.id, after.id);
+            assert_eq!(before.solution, after.solution);
+        }
+        assert_eq!(
+            csv,
+            stick_optimizer_io::summary_csv(
+                &app.study.to_study().unwrap(),
+                app.results.iter().map(|r| (r.id, r.solution.as_ref())),
+            )
+            .unwrap()
+        );
     }
 
     #[test]

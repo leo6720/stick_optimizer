@@ -168,10 +168,11 @@ pub fn button<'a>(ui: &egui::Ui, label: &'a str, variant: ButtonVariant) -> egui
 pub fn field(value: &mut String) -> egui::TextEdit<'_> {
     egui::TextEdit::singleline(value).margin(egui::vec2(3.0, 2.0))
 }
+#[cfg(feature = "ui-preview")]
 pub fn heading(ui: &mut egui::Ui, label: &str) -> egui::Response {
     ui.heading(RichText::new(label).color(tokens(ui).text))
 }
-/// Section hierarchy for the input workspace, using the shared theme maps.
+/// Section hierarchy shared by input and output, using the same theme maps.
 pub fn section_heading(ui: &mut egui::Ui, title: &str, description: &str) {
     ui.label(
         RichText::new(title)
@@ -216,7 +217,7 @@ pub fn table_label(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, 
     };
     ui.with_layout(layout, |ui| {
         let mut text = RichText::new(value).color(if selected {
-            tokens(ui).on_primary
+            ui.visuals().selection.stroke.color
         } else {
             tokens(ui).text
         });
@@ -226,6 +227,59 @@ pub fn table_label(ui: &mut egui::Ui, value: &str, right: bool, selected: bool, 
         // Row clicks belong to the table, not to text selection inside a label.
         ui.add(egui::Label::new(text).truncate().selectable(false))
             .on_hover_text(value);
+    });
+}
+
+/// Dense output tables use a quiet selected surface plus explicit row markers.
+/// Scope these overrides so input selection and popup tables retain their styles.
+pub fn data_surface<R>(ui: &mut egui::Ui, add: impl FnOnce(&mut egui::Ui) -> R) -> R {
+    let t = tokens(ui);
+    ui.scope(|ui| {
+        ui.visuals_mut().selection.bg_fill = t.hover;
+        ui.visuals_mut().selection.stroke.color = t.text;
+        container(ui, Surface::Main)
+            .stroke(egui::Stroke::new(1.0, t.border))
+            .corner_radius(4)
+            .show(ui, add)
+            .inner
+    })
+    .inner
+}
+
+pub fn data_heading(ui: &mut egui::Ui, label: &str, right: bool) {
+    ui.painter().rect_filled(ui.max_rect(), 0, tokens(ui).inset);
+    table_label(ui, label, right, false, true);
+}
+
+/// A persistent underline and weight identify the active detail without colour alone.
+pub fn detail_selector(ui: &mut egui::Ui, label: &str, selected: bool) -> egui::Response {
+    let mut text = RichText::new(label).color(tokens(ui).text);
+    if selected {
+        text = text.strong();
+    }
+    let response = ui.add_sized(
+        [0.0, 32.0],
+        egui::Button::new(text).frame(false).selected(selected),
+    );
+    if selected {
+        let rect = response.rect;
+        ui.painter().line_segment(
+            [rect.left_bottom(), rect.right_bottom()],
+            egui::Stroke::new(3.0, tokens(ui).accent),
+        );
+    }
+    response
+}
+
+pub fn metric(ui: &mut egui::Ui, value: &str, label: &str) {
+    ui.vertical(|ui| {
+        ui.label(
+            RichText::new(value)
+                .size(21.0)
+                .strong()
+                .color(tokens(ui).text),
+        );
+        ui.label(RichText::new(label).size(12.0).color(tokens(ui).muted));
     });
 }
 
@@ -326,6 +380,40 @@ mod tests {
                 contrast(color, Tokens::for_theme(theme).inset) >= 4.5,
                 "{theme:?}: rendered strong label is unreadable"
             );
+        }
+    }
+
+    #[test]
+    fn active_detail_selector_text_is_readable_on_both_themes() {
+        for theme in [Theme::Light, Theme::Dark] {
+            let ctx = egui::Context::default();
+            install(&ctx);
+            apply_theme(&ctx, theme);
+            let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
+                egui::CentralPanel::default().show(ui, |ui| {
+                    detail_selector(ui, "Panoramica formati", true);
+                });
+            });
+            let text = output
+                .shapes
+                .iter()
+                .find_map(|s| match &s.shape {
+                    egui::epaint::Shape::Text(t) if t.galley.job.text == "Panoramica formati" => {
+                        Some(t)
+                    }
+                    _ => None,
+                })
+                .expect("active selector label must render");
+            let color = text.override_text_color.unwrap_or_else(|| {
+                let c = text.galley.job.sections[0].format.color;
+                if c == Color32::PLACEHOLDER {
+                    text.fallback_color
+                } else {
+                    c
+                }
+            });
+            assert!(contrast(color, Tokens::for_theme(theme).surface) >= 4.5);
+            output.textures_delta.clear();
         }
     }
 

@@ -1,0 +1,93 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo23-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.32s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-b085f99d65504d2e)
+
+running 57 tests
+test app::files::tests::legacy_engine_is_signalled_and_recomputed_under_current_contract ... ok
+test app::files::tests::invalid_open_and_save_preserve_current_study_path_and_results ... ok
+test app::files::tests::new_study_applies_preferences_without_carrying_the_previous_file_path ... ok
+test app::files::tests::filters_changed_while_reopening_are_kept_instead_of_the_saved_view ... ok
+test app::files::tests::opening_inputs_without_results_does_not_start_a_search ... ok
+test app::files::tests::edits_during_reopening_discard_the_saved_view_and_old_results ... ok
+test app::files::tests::saved_study_restores_inputs_results_filters_selection_and_editable_ids ... ok
+test app::tests::background_search_returns_real_results_and_input_edits_discard_stale_work ... ok
+test app::heads::tests::front_views_draw_one_real_width_stick_per_channel_at_public_core_coordinates ... ok
+test app::tests::cancelled_worker_never_installs_partial_or_completed_results ... ok
+test app::tests::active_search_blocks_focused_inputs_menus_and_all_file_shortcuts ... ok
+test app::tests::clicking_result_text_selects_the_row_and_renaming_keeps_its_calculation ... ok
+test app::tests::calculate_button_runs_the_worker_and_renders_real_solution_details ... ok
+test app::tests::cancel_and_close_keep_modal_until_worker_ends_and_discard_even_success ... ok
+test app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it ... FAILED
+test app::tests::corrupt_theme_falls_back_and_failed_persistence_keeps_session_usable ... ok
+test app::tests::compact_input_actions_are_reached_by_scrolling_and_keep_remove_confirmation ... ok
+test app::tests::explicit_remove_distinguishes_a_format_from_its_parent_stick ... ok
+test app::tests::file_shortcuts_respect_unsaved_changes_and_open_dialogs ... ok
+test app::tests::filtering_and_sorting_preserve_stable_result_identity ... ok
+test app::tests::edit_menu_opens_each_python_parameter_popup ... ok
+test app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled ... ok
+test app::tests::format_popup_switches_the_single_layer_and_preserves_real_details ... ok
+test app::tests::hierarchy_groups_children_and_collapse_keeps_the_other_stick_visible ... ok
+test app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views ... FAILED
+test app::tests::head_table_preserves_separate_heads_with_the_same_pickup_key ... ok
+test app::tests::keyboard_edits_a_table_cell_and_tab_moves_to_next_field ... ok
+test app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io ... ok
+test app::tests::modal_cancel_remains_accessible_from_keyboard ... ok
+test app::tests::native_close_request_requires_a_decision_only_for_unsaved_changes ... ok
+test app::tests::native_window_close_requests_cancel_without_exiting_or_confirming ... ok
+test app::tests::new_study_removes_previous_results_and_inputs ... ok
+test app::tests::editor_calculation_details_csv_and_reopen_preserve_chosen_configuration has been running for over 60 seconds
+test app::tests::large_tables_virtualize_rows_instead_of_rendering_every_cell ... ok
+test app::tests::numeric_columns_remain_visible_after_zoom_change ... ok
+test app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying ... ok
+test app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom ... ok
+test app::tests::real_results_are_blocked_by_invalid_inputs_and_cleared_after_edits ... ok
+test app::tests::progress_uses_actual_counts_and_distinguishes_preparation_and_finalization ... ok
+test app::tests::editor_calculation_details_csv_and_reopen_preserve_chosen_configuration ... ok
+test app::tests::preferences_change_only_on_explicit_save_and_invalid_read_keeps_current_study ... ok
+test app::tests::results_toolbar_events_preserve_rank_configuration_and_csv ... ok
+test app::tests::running_search_blocks_new_study_shortcut_and_keeps_modal_visible ... ok
+test app::tests::theme_menu_cannot_bypass_worker_or_confirmation_modal ... ok
+test app::tests::sidebar_and_output_render_together_at_compact_size_and_increased_scale ... ok
+test beta::tests::range_editor_parses_italian_decimals_and_rejects_invalid_limits ... ok
+test draft::tests::editing_and_removing_sticks_preserves_format_links ... ok
+test draft::tests::italian_decimals_and_invalid_numbers ... ok
+test draft::tests::malformed_drafts_cannot_generate_demo_results ... ok
+test draft::tests::persisted_head_parameters_survive_draft_preferences_and_study_roundtrips ... ok
+test draft::tests::restored_ids_can_be_extended_without_overflow_or_collision ... ok
+test draft::tests::snapshot_includes_all_geometry_and_weights_and_owns_its_inputs ... ok
+test ui::tests::active_detail_selector_text_is_readable_on_both_themes ... FAILED
+test ui::tests::rendered_strong_labels_are_readable_in_both_themes ... ok
+test ui::tests::semantic_foregrounds_remain_readable_on_both_surface_maps ... ok
+test app::tests::worker_errors_and_limits_unblock_without_partial_results ... ok
+test app::tests::theme_menu_persists_independently_and_preserves_study_results_and_view ... ok
+test app::tests::separate_parameter_editors_validate_apply_and_cancel ... ok
+
+failures:
+
+---- app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it stdout ----
+
+thread 'app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it' (12353) panicked at crates/desktop/src/app.rs:1267:9:
+assertion `left == right` failed
+  left: None
+ right: Some(4)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views stdout ----
+
+thread 'app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views' (12386) panicked at crates/desktop/src/app.rs:1060:32:
+Missing visible text: Testa 2
+
+---- ui::tests::active_detail_selector_text_is_readable_on_both_themes stdout ----
+
+thread 'ui::tests::active_detail_selector_text_is_readable_on_both_themes' (12810) panicked at /workspace/scratch/rust-cargo/registry/src/index.crates.io-1949cf8c6b5b557f/epaint-0.36.2/src/textures.rs:337:9:
+Dropped TexturesDelta with 1 unapplied deltas. Deltas need to be handled. If you want to drop this intentionally call `clear` before dropping.
+
+
+failures:
+    app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it
+    app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views
+    ui::tests::active_detail_selector_text_is_readable_on_both_themes
+
+test result: FAILED. 54 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 160.92s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

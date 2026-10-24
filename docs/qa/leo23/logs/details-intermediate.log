@@ -1,0 +1,25 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo23-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.29s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-b085f99d65504d2e)
+
+running 2 tests
+test app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it ... FAILED
+test app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views ... ok
+
+failures:
+
+---- app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it stdout ----
+
+thread 'app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it' (12748) panicked at crates/desktop/src/app.rs:1286:9:
+assertion `left == right` failed
+  left: None
+ right: Some((1, 4))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 55 filtered out; finished in 25.75s
+
+error: test failed, to rerun pass `-p stick-optimizer-desktop --bin stick-optimizer-desktop`

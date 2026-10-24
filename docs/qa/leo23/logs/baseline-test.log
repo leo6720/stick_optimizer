@@ -1,0 +1,175 @@
+   Compiling stick-optimizer-core v0.1.0 (/workspace/stick-leo23-async/crates/core)
+   Compiling stick-optimizer-io v0.1.0 (/workspace/stick-leo23-async/crates/io)
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo23-async/crates/desktop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.74s
+     Running unittests src/lib.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_core-ccf14c64a971e2fa)
+
+running 2 tests
+test search::tests::integer_widths_fit_and_penalties_follow_reference_thresholds ... ok
+test geometry::tests::drawing_shows_one_complete_layer_without_changing_real_candidates ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dimensions.rs (/workspace/stick-rust-validation/target/debug/deps/dimensions-7bf8de418899758d)
+
+running 1 test
+test effective_dimensions_report_real_shared_divided_gaps_and_fixed_group_four ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/engine.rs (/workspace/stick-rust-validation/target/debug/deps/engine-a0e81cf4ed9c32ea)
+
+running 7 tests
+test no_candidates_and_no_common_pitch_have_distinct_errors ... ok
+test every_solution_obeys_common_pitch_geometry_layers_and_format_coverage ... ok
+test output_limit_is_applied_only_after_full_search_and_pareto ... ok
+test resource_limits_and_cancellation_never_return_partial_rankings ... ok
+test progress_reports_completed_combinations_before_final_preparation ... ok
+test validation_rejects_nonfinite_zero_invalid_references_and_one_channel ... ok
+test unchanged_candidate_fields_keep_the_historical_python_reference ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/head_diagram.rs (/workspace/stick-rust-validation/target/debug/deps/head_diagram-a45fedc0dfcf8db5)
+
+running 1 test
+test diagram_quotations_use_actual_centres_and_preserve_head_width_semantics ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/head_geometry.rs (/workspace/stick-rust-validation/target/debug/deps/head_geometry-01fb182025ceb462)
+
+running 8 tests
+test all_assigned_formats_must_share_one_configuration ... ok
+test approved_common_spacing_and_fixed_channels_for_every_group ... ok
+test central_fixed_gap_is_exempt_but_must_fit_divider_and_clearances ... ok
+test invalid_and_outward_geometries_are_rejected ... ok
+test order_invariance_mixed_dividers_and_exact_non_grid_lengths ... ok
+test joint_three_format_limits_apply_to_every_moving_gap ... ok
+test unrepresentable_final_gaps_at_large_pitch_are_explicit_errors ... ok
+test settings_validate_default_and_nonnegative_extra_spacing ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/head_search.rs (/workspace/stick-rust-validation/target/debug/deps/head_search-d9ef05bef1a88e71)
+
+running 11 tests
+test compatible_head_is_rejected_when_effective_shared_drawer_exceeds_pitch ... ok
+test drawer_identity_is_transitive_and_keeps_distinct_divider_positions ... ok
+test different_pickup_pitches_never_share_even_at_a_common_cartoner_pitch ... ok
+test group_four_drawer_contains_two_pairs_at_the_fixed_pickup_pitch ... ok
+test head_identity_is_canonical_and_group_one_does_not_count ... ok
+test identical_divided_drawers_share_one_type_despite_coordinate_roundoff ... ok
+test integer_drawer_never_rounds_below_final_wall_clearance ... ok
+test partitions_count_completed_work_and_limits_never_return_partial_rankings ... ok
+test exact_small_search_matches_independent_assignments_geometry_metrics_and_pareto ... ok
+test running_assignment_search_can_be_cancelled_without_a_ranking ... ok
+test shared_drawer_coordinates_ignore_stick_width_at_identity_grid_boundaries ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/schematic.rs (/workspace/stick-rust-validation/target/debug/deps/schematic-79bbf8d86d4f8111)
+
+running 1 test
+test single_layer_view_preserves_real_geometry_and_solution_data ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-b085f99d65504d2e)
+
+running 55 tests
+test app::files::tests::edits_during_reopening_discard_the_saved_view_and_old_results ... ok
+test app::files::tests::filters_changed_while_reopening_are_kept_instead_of_the_saved_view ... ok
+test app::files::tests::invalid_open_and_save_preserve_current_study_path_and_results ... ok
+test app::files::tests::new_study_applies_preferences_without_carrying_the_previous_file_path ... ok
+test app::files::tests::legacy_engine_is_signalled_and_recomputed_under_current_contract ... ok
+test app::files::tests::opening_inputs_without_results_does_not_start_a_search ... ok
+test app::files::tests::saved_study_restores_inputs_results_filters_selection_and_editable_ids ... ok
+test app::heads::tests::front_views_draw_one_real_width_stick_per_channel_at_public_core_coordinates ... ok
+test app::tests::background_search_returns_real_results_and_input_edits_discard_stale_work ... ok
+test app::tests::active_search_blocks_focused_inputs_menus_and_all_file_shortcuts ... ok
+test app::tests::calculate_button_runs_the_worker_and_renders_real_solution_details ... ok
+test app::tests::cancelled_worker_never_installs_partial_or_completed_results ... ok
+test app::tests::clicking_result_text_selects_the_row_and_renaming_keeps_its_calculation ... ok
+test app::tests::cancel_and_close_keep_modal_until_worker_ends_and_discard_even_success ... ok
+test app::tests::compact_input_actions_are_reached_by_scrolling_and_keep_remove_confirmation ... ok
+test app::tests::corrupt_theme_falls_back_and_failed_persistence_keeps_session_usable ... ok
+test app::tests::double_click_opens_the_matching_format_with_its_schematic_and_escape_closes_it ... ok
+test app::tests::edit_menu_opens_each_python_parameter_popup ... ok
+test app::tests::explicit_remove_distinguishes_a_format_from_its_parent_stick ... ok
+test app::tests::extra_spacing_editor_is_visible_validated_applied_and_cancelled ... ok
+test app::tests::file_shortcuts_respect_unsaved_changes_and_open_dialogs ... ok
+test app::tests::filtering_and_sorting_preserve_stable_result_identity ... ok
+test app::tests::editor_calculation_details_csv_and_reopen_preserve_chosen_configuration ... ok
+test app::tests::format_popup_switches_the_single_layer_and_preserves_real_details ... ok
+test app::tests::head_table_preserves_separate_heads_with_the_same_pickup_key ... ok
+test app::tests::hierarchy_groups_children_and_collapse_keeps_the_other_stick_visible ... ok
+test app::tests::head_double_click_keeps_solution_and_head_identity_and_closes_stale_views ... ok
+test app::tests::input_groups_expose_units_and_edit_real_values_through_events_and_public_io ... ok
+test app::tests::input_dimension_legends_fit_their_clip_at_native_sizes_and_zoom ... ok
+test app::tests::keyboard_edits_a_table_cell_and_tab_moves_to_next_field ... ok
+test app::tests::large_tables_virtualize_rows_instead_of_rendering_every_cell ... ok
+test app::tests::native_close_request_requires_a_decision_only_for_unsaved_changes ... ok
+test app::tests::native_window_close_requests_cancel_without_exiting_or_confirming ... ok
+test app::tests::new_study_removes_previous_results_and_inputs ... ok
+test app::tests::modal_cancel_remains_accessible_from_keyboard ... ok
+test app::tests::numeric_columns_remain_visible_after_zoom_change ... ok
+test app::tests::parameter_dialog_cancels_without_losing_results_and_validates_before_applying ... ok
+test app::tests::progress_uses_actual_counts_and_distinguishes_preparation_and_finalization ... ok
+test app::tests::real_results_are_blocked_by_invalid_inputs_and_cleared_after_edits ... ok
+test app::tests::preferences_change_only_on_explicit_save_and_invalid_read_keeps_current_study ... ok
+test app::tests::running_search_blocks_new_study_shortcut_and_keeps_modal_visible ... ok
+test app::tests::sidebar_and_output_render_together_at_compact_size_and_increased_scale ... ok
+test app::tests::theme_menu_cannot_bypass_worker_or_confirmation_modal ... ok
+test app::tests::separate_parameter_editors_validate_apply_and_cancel ... ok
+test app::tests::theme_menu_persists_independently_and_preserves_study_results_and_view ... ok
+test beta::tests::range_editor_parses_italian_decimals_and_rejects_invalid_limits ... ok
+test draft::tests::editing_and_removing_sticks_preserves_format_links ... ok
+test draft::tests::italian_decimals_and_invalid_numbers ... ok
+test draft::tests::malformed_drafts_cannot_generate_demo_results ... ok
+test draft::tests::persisted_head_parameters_survive_draft_preferences_and_study_roundtrips ... ok
+test draft::tests::restored_ids_can_be_extended_without_overflow_or_collision ... ok
+test draft::tests::snapshot_includes_all_geometry_and_weights_and_owns_its_inputs ... ok
+test ui::tests::rendered_strong_labels_are_readable_in_both_themes ... ok
+test ui::tests::semantic_foregrounds_remain_readable_on_both_surface_maps ... ok
+test app::tests::worker_errors_and_limits_unblock_without_partial_results ... ok
+
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 126.39s
+
+     Running unittests src/lib.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_io-3d1053c0586b86d3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/persistence.rs (/workspace/stick-rust-validation/target/debug/deps/persistence-6577c633d9dc887b)
+
+running 13 tests
+test atomic_overwrite_and_failed_writes_preserve_existing_data ... ok
+test csv_round_trip_checks_columns_numbers_quoting_and_stable_rank ... ok
+test current_schema_requires_parameter_and_preserves_custom_values ... ok
+test filter_intervals_are_inclusive_and_zero_heads_are_preserved ... ok
+test group_one_csv_has_explicit_empty_head_fields_and_join_errors_are_reported ... ok
+test legacy_study_and_preferences_migrate_in_memory_without_rewriting_files ... ok
+test chosen_configuration_csv_and_public_file_roundtrip_agree_for_mixed_width_heads ... ok
+test preferences_are_versioned_validated_and_independent_of_user_data ... ok
+test shared_and_separate_head_assignments_reconstruct_after_reopening ... ok
+test malformed_versions_references_ranges_units_and_numbers_are_rejected ... ok
+test ui_preferences_reject_invalid_files_and_failed_writes_preserve_existing_data ... ok
+test study_round_trip_reproduces_real_results_and_full_precision ... ok
+test ui_theme_is_versioned_separate_and_round_trips_without_touching_parameters ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests stick_optimizer_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests stick_optimizer_io
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

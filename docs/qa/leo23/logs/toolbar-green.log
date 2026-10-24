@@ -1,0 +1,18 @@
+   Compiling stick-optimizer-desktop v0.1.0 (/workspace/stick-leo23-async/crates/desktop)
+warning: function `heading` is never used
+   --> crates/desktop/src/ui.rs:171:8
+    |
+171 | pub fn heading(ui: &mut egui::Ui, label: &str) -> egui::Response {
+    |        ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `stick-optimizer-desktop` (bin "stick-optimizer-desktop" test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.61s
+     Running unittests src/main.rs (/workspace/stick-rust-validation/target/debug/deps/stick_optimizer_desktop-b085f99d65504d2e)
+
+running 1 test
+test app::tests::results_toolbar_events_preserve_rank_configuration_and_csv ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 55 filtered out; finished in 7.24s
+
